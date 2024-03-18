@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: Apache-2.0
+# TODO Update code owners
+
+# Last matching pattern has precedence
+
+# Default owner
+* @pq-code-package/pqcp-hackers
+  
