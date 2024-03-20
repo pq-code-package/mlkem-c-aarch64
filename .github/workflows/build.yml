@@ -1,0 +1,15 @@
+name: Build
+on:
+  push:
+    branches: [ '*' ]
+  pull_request:
+    branches: [ "main" ]
+jobs:
+  build_test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: install dependencies
+      run: sudo apt install astyle
+    - name: Astyle
+      run: astyle **/*.[ch] --options=.astylerc --dry-run | grep -vq "Formatted"
