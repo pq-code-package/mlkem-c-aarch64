@@ -1,0 +1,20 @@
+name: Check Binary Hash
+
+on:
+ push:
+    branches:
+      - main # Adjust the branch name as needed
+
+jobs:
+ check-binary-hash:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Compare test_vector with known hash
+        run: |
+          make vector; 
+          ./checksum.sh ./test/test_vectors512  27968089c5aba1bf4d28df9f4290883a9f9051d8f4a31db251d77527a93332c4
+          ./checksum.sh ./test/test_vectors768  775d11a7f39b68da292e719ae850e5b38c70b04f360ba8b947ca102df87ded20
+          ./checksum.sh ./test/test_vectors1024 98de16593ca72c694482b1d1e5bb376bad4609a0043c73b80a5131a06f4a7999
