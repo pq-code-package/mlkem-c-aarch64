@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: CC0-1.0
+
 #ifndef FIPS202_H
 #define FIPS202_H
 

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0 or CC0-1.0
+
 /* Deterministic randombytes by Daniel J. Bernstein */
 /* taken from SUPERCOP (https://bench.cr.yp.to)     */
 

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0 or CC0-1.0
+
 CC ?= /usr/bin/cc
 CFLAGS_FIPS202 = -I fips202
 CFLAGS_MLKEM = -I mlkem
