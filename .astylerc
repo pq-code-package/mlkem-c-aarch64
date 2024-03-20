@@ -1,0 +1,13 @@
+--style=google 
+--indent=spaces
+--indent-preproc-define
+--indent-preproc-cond
+--pad-oper 
+--pad-comma 
+--pad-header
+--align-pointer=name 
+--add-braces 
+--convert-tabs
+--mode=c 
+--suffix=none
+--lineend=linux
