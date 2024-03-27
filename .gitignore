@@ -6,6 +6,3 @@
 test/test_kyber512
 test/test_kyber768
 test/test_kyber1024
-test/test_vectors512
-test/test_vectors768
-test/test_vectors1024

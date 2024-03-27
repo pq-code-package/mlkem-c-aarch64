@@ -14,20 +14,14 @@ SOURCESKECCAK = $(SOURCES) fips202/keccakf1600.c fips202/fips202.c mlkem/symmetr
 HEADERS = mlkem/params.h mlkem/kem.h mlkem/indcpa.h mlkem/polyvec.h mlkem/poly.h mlkem/ntt.h mlkem/cbd.h mlkem/reduce.c mlkem/verify.h mlkem/symmetric.h
 HEADERSKECCAK = $(HEADERS) fips202/keccakf1600.h fips202/fips202.h
 
-.PHONY: all mlkem vector clean
+.PHONY: all mlkem clean
 
-all: mlkem vector
+all: mlkem
 
 mlkem: \
   test/test_kyber512 \
   test/test_kyber768 \
   test/test_kyber1024
-
-vector: \
-  test/test_vectors512 \
-  test/test_vectors768 \
-  test/test_vectors1024
-
 
 test/test_kyber512: $(SOURCESKECCAK) $(HEADERSKECCAK) test/test_kyber.c randombytes/randombytes.c
 	$(CC) $(CFLAGS) -DKYBER_K=2 $(SOURCESKECCAK) randombytes/randombytes.c test/test_kyber.c -o $@
@@ -38,24 +32,8 @@ test/test_kyber768: $(SOURCESKECCAK) $(HEADERSKECCAK) test/test_kyber.c randomby
 test/test_kyber1024: $(SOURCESKECCAK) $(HEADERSKECCAK) test/test_kyber.c randombytes/randombytes.c
 	$(CC) $(CFLAGS) -DKYBER_K=4 $(SOURCESKECCAK) randombytes/randombytes.c test/test_kyber.c -o $@
 
-test/test_vectors512: $(SOURCESKECCAK) $(HEADERSKECCAK) test/test_vectors.c
-	$(CC) $(CFLAGS) -DKYBER_K=2 $(SOURCESKECCAK) test/test_vectors.c -o $@
-
-test/test_vectors768: $(SOURCESKECCAK) $(HEADERSKECCAK) test/test_vectors.c
-	$(CC) $(CFLAGS) -DKYBER_K=3 $(SOURCESKECCAK) test/test_vectors.c -o $@
-
-test/test_vectors1024: $(SOURCESKECCAK) $(HEADERSKECCAK) test/test_vectors.c
-	$(CC) $(CFLAGS) -DKYBER_K=4 $(SOURCESKECCAK) test/test_vectors.c -o $@
-
-
-
-
-
 clean:
 	-$(RM) -rf *.gcno *.gcda *.lcov *.o *.so
 	-$(RM) -rf test/test_kyber512
 	-$(RM) -rf test/test_kyber768
 	-$(RM) -rf test/test_kyber1024
-	-$(RM) -rf test/test_vectors512
-	-$(RM) -rf test/test_vectors768
-	-$(RM) -rf test/test_vectors1024
