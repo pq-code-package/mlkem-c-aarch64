@@ -5,8 +5,8 @@
 #include "params.h"
 #include "poly.h"
 
-typedef struct{
-  poly vec[KYBER_K];
+typedef struct {
+    poly vec[KYBER_K];
 } polyvec;
 
 #define polyvec_compress KYBER_NAMESPACE(polyvec_compress)
