@@ -3,3 +3,6 @@
 
 .vscode
 .idea
+test/test_kyber512
+test/test_kyber768
+test/test_kyber1024
