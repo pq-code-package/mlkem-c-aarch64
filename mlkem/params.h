@@ -2,9 +2,8 @@
 #define PARAMS_H
 
 #ifndef KYBER_K
-#define KYBER_K 3	/* Change this for different security strengths */
+#define KYBER_K 3   /* Change this for different security strengths */
 #endif
-
 
 /* Don't change parameters below this line */
 #if   (KYBER_K == 2)
@@ -23,8 +22,8 @@
 #define KYBER_SYMBYTES 32   /* size in bytes of hashes, and seeds */
 #define KYBER_SSBYTES  32   /* size in bytes of shared key */
 
-#define KYBER_POLYBYTES		384
-#define KYBER_POLYVECBYTES	(KYBER_K * KYBER_POLYBYTES)
+#define KYBER_POLYBYTES     384
+#define KYBER_POLYVECBYTES  (KYBER_K * KYBER_POLYBYTES)
 
 #if KYBER_K == 2
 #define KYBER_ETA1 3
