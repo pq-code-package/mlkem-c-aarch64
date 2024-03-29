@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 {
-  description = "mlkem-c-embedded";
+  description = "mlkem-c-aarch64";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
@@ -21,11 +21,6 @@
           core = with pkgs; [
             # formatter & linters
             astyle # 3.4.10
-
-            # build dependencies
-            gcc-arm-embedded-13 # arm-gnu-toolchain-13.2.rel1
-            openocd # 0.12.0
-            python311Packages.pyserial # 3.5
           ];
         in
         {
