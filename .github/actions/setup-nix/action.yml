@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: Apache-2.0
+
+name: Setup nix
+description: Setup nix
+
+runs:
+  using: composite
+  steps:
+    - uses: nixbuild/nix-quick-install-action@v27
+      with: {load_nixConfig: false}
+    - name: Prepare nix dev shell
+      shell: nix develop .#ci -c bash -e {0}
+      run: |

@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: Apache-2.0
+
+name: Build
+on:
+  push:
+    branches: [ '*' ]
+  pull_request:
+    branches: [ "main" ]
+jobs:
+  build_test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup nix
+      uses: ./.github/actions/setup-nix
+    - name: Astyle
+      shell: nix develop .#ci -c bash -e {0}
+      run: |
+          err=$(astyle $(git ls-files "*.c" "*.h") --options=.astylerc --dry-run --formatted | awk '{print $2}')
+          if [[ ${#err} != 0 ]]; then
+            echo "$err" | while IFS= read -r file; do
+              echo "::error file={"$file"},title={checking}::Formatted $file"
+            done
+            exit 1
+          fi
+    - name: Build targets
+      shell: nix develop .#ci -c bash -e {0}
+      run: |
+          make
