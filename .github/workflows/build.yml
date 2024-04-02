@@ -27,7 +27,7 @@ jobs:
     - name: Build targets
       shell: nix develop .#ci -c bash -e {0}
       run: |
-          make
+          make mlkem
     - name: Compare gen_KAT with known hash
       shell: nix develop .#ci -c bash -e {0}
       run: |
@@ -35,3 +35,7 @@ jobs:
         ./checksum.sh ./test/gen_KAT512  ec4ac397e595ac7457cb7d8830921faf3290898a10d7dd3864aab89ea61fe9a3
         ./checksum.sh ./test/gen_KAT768  9a0826ad3c5232dfd3b21bc4801408655c565a491b760f509b2ee2cd7180babe
         ./checksum.sh ./test/gen_KAT1024 6dafb867599b750a6a831b03e494cf41dea748c78a0e275e7b268bbb893cf37d
+    - name: Clean up
+      shell: nix develop .#ci -c bash -e {0}
+      run: |
+        make clean
