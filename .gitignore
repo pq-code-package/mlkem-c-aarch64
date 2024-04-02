@@ -6,3 +6,6 @@
 test/test_kyber512
 test/test_kyber768
 test/test_kyber1024
+test/gen_KAT512
+test/gen_KAT768
+test/gen_KAT1024
