@@ -28,6 +28,9 @@ jobs:
       shell: nix develop .#ci -c bash -e {0}
       run: |
           make mlkem
+          ./checksum.sh ./test/test_kyber512 880e1fe907682fb5a9029fc7da114131a0740f4f3328d6ddfae46728b5ac8db0
+          ./checksum.sh ./test/test_kyber768 2b32e7f5aa91fe47b0ca9a1d5aa70d7dc7c4ff1ffcb7e8967e51bf15cc5d2095
+          ./checksum.sh ./test/test_kyber1024 87da552c0878350fa7643a6b49996893d4dba4d8be2badb32c4298c5c2b512c6
     - name: Compare gen_KAT with known hash
       shell: nix develop .#ci -c bash -e {0}
       run: |
