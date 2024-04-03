@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: CC0-1.0
 /* Based on the CC0 implementation in https://github.com/mupq/mupq and
  * the public domain implementation in
  * crypto_hash/keccakc512/simple/ from http://bench.cr.yp.to/supercop.html

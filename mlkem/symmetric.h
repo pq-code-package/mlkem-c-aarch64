@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 #ifndef SYMMETRIC_H
 #define SYMMETRIC_H
 
