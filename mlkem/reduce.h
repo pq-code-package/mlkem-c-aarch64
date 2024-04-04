@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 #ifndef REDUCE_H
 #define REDUCE_H
 

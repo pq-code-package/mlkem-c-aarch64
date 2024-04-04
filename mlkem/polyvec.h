@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 #ifndef POLYVEC_H
 #define POLYVEC_H
 
