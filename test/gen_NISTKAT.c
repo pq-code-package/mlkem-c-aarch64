@@ -19,11 +19,13 @@ static void fprintBstr(FILE *fp, const char *S, const uint8_t *A, size_t L) {
 }
 
 static void randombytes_nth(uint8_t *seed, size_t nth, size_t len) {
-    uint8_t entropy_input[48];
-    for (uint8_t i = 0; i < 48; i++) {
-        entropy_input[i] = i;
-    }
-
+    uint8_t entropy_input[48] = {0, 1, 2, 3, 4, 5, 6, 7,
+                                 8, 9, 10, 11, 12, 13, 14, 15,
+                                 16, 17, 18, 19, 20, 21, 22, 23,
+                                 24, 25, 26, 27, 28, 29, 30, 31,
+                                 32, 33, 34, 35, 36, 37, 38, 39,
+                                 40, 41, 42, 43, 44, 45, 46, 47
+                                };
     nist_kat_init(entropy_input, NULL, 256);
 
     for (size_t i = 0; i < nth + 1; i++) {
