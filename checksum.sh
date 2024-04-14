@@ -1,4 +1,5 @@
 #!/bin/bash
+# SPDX-License-Identifier: Apache-2.0
 
 # This script executes a binary file, captures its output, then generates and compares its SHA-256 hash with a provided one.
 output=$(./$1)

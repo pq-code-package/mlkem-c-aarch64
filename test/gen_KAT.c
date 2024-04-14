@@ -1,10 +1,10 @@
+// SPDX-License-Identifier: Apache-2.0
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
 #include "fips202.h"
 #include "kem.h"
 #include "params.h"
-#include "randombytes.h"
 
 #define NTESTS 10000
 
