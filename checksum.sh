@@ -1,10 +1,9 @@
 #!/bin/bash
 # SPDX-License-Identifier: Apache-2.0
-set -o xtrace
 
 # This script executes a binary file, captures its output, then generates and compares its SHA-256 hash with a provided one.
 
-output_hash=$(./$1 | sha256sum | awk '{ print $4 }')
+output_hash=$(./$1 | sha256sum | awk '{ print $1 }')
 
 if [[ ${output_hash} == "${2}" ]]; then
 	echo "${1} Hashes match."
