@@ -3,48 +3,48 @@
 name: Build
 on:
   push:
-    branches: [ '*' ]
+    branches: ["*"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 jobs:
   build_test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Setup nix
-      uses: ./.github/actions/setup-nix
-    - name: Astyle
-      shell: nix develop .#ci -c bash -e {0}
-      run: |
+      - uses: actions/checkout@v4
+      - name: Setup nix
+        uses: ./.github/actions/setup-nix
+      - name: Astyle
+        shell: nix develop .#ci -c bash -e {0}
+        run: |
           err=$(astyle $(git ls-files "*.c" "*.h") --options=.astylerc --dry-run --formatted | awk '{print $2}')
           if [[ ${#err} != 0 ]]; then
             echo "$err" | while IFS= read -r file; do
               echo "::error file={"$file"},title={checking}::Formatted $file"
-              done
-              exit 1
+            done
+            exit 1
           fi
-    - name: Build targets
-      shell: nix develop .#ci -c bash -e {0}
-      run: |
+      - name: Build targets
+        shell: nix develop .#ci -c bash -e {0}
+        run: |
           make mlkem
           ./test/test_kyber512
           ./test/test_kyber768
           ./test/test_kyber1024
-    - name: Compare gen_KAT with known hash
-      shell: nix develop .#ci -c bash -e {0}
-      run: |
-        make kat; 
-        ./checksum.sh ./test/gen_KAT512  ec4ac397e595ac7457cb7d8830921faf3290898a10d7dd3864aab89ea61fe9a3
-        ./checksum.sh ./test/gen_KAT768  9a0826ad3c5232dfd3b21bc4801408655c565a491b760f509b2ee2cd7180babe
-        ./checksum.sh ./test/gen_KAT1024 6dafb867599b750a6a831b03e494cf41dea748c78a0e275e7b268bbb893cf37d
-    - name: Compare gen_NISTKAT with known hash
-      shell: nix develop .#ci -c bash -e {0}
-      run: |
-        make nistkat;
-        ./checksum.sh ./test/gen_NISTKAT512  4b88ac7643ff60209af1175e025f354272e88df827a0ce1c056e403629b88e04
-        ./checksum.sh ./test/gen_NISTKAT768  21b4a1e1ea34a13c26a9da5eeb9325afb5ca11596ca6f3704c3f2637e3ea7524
-        ./checksum.sh ./test/gen_NISTKAT1024 6471398b0a728ee1ef39e93bb89b526fbf59587a3662edadbcfc6c88a512cd71
-    - name: Clean up
-      shell: nix develop .#ci -c bash -e {0}
-      run: |
-        make clean
+      - name: Compare gen_KAT with known hash
+        shell: nix develop .#ci -c bash -e {0}
+        run: |
+          make kat;
+          ./checksum.sh ./test/gen_KAT512  ec4ac397e595ac7457cb7d8830921faf3290898a10d7dd3864aab89ea61fe9a3
+          ./checksum.sh ./test/gen_KAT768  9a0826ad3c5232dfd3b21bc4801408655c565a491b760f509b2ee2cd7180babe
+          ./checksum.sh ./test/gen_KAT1024 6dafb867599b750a6a831b03e494cf41dea748c78a0e275e7b268bbb893cf37d
+      - name: Compare gen_NISTKAT with known hash
+        shell: nix develop .#ci -c bash -e {0}
+        run: |
+          make nistkat;
+          ./checksum.sh ./test/gen_NISTKAT512  4b88ac7643ff60209af1175e025f354272e88df827a0ce1c056e403629b88e04
+          ./checksum.sh ./test/gen_NISTKAT768  21b4a1e1ea34a13c26a9da5eeb9325afb5ca11596ca6f3704c3f2637e3ea7524
+          ./checksum.sh ./test/gen_NISTKAT1024 6471398b0a728ee1ef39e93bb89b526fbf59587a3662edadbcfc6c88a512cd71
+      - name: Clean up
+        shell: nix develop .#ci -c bash -e {0}
+        run: |
+          make clean
