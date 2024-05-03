@@ -1,102 +1,87 @@
-//
-//  rng.c
-//
-//  Created by Bassham, Lawrence E (Fed) on 8/29/17.
-//  Copyright © 2017 Bassham, Lawrence E (Fed). All rights reserved.
-//  Modified for liboqs by Douglas Stebila
-//
+// SPDX-License-Identifier: Apache-2.0
 
 #include <assert.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "aes.h"
 #include "randombytes.h"
 
 typedef struct {
-    uint8_t Key[32];
-    uint8_t V[16];
-    int reseed_counter;
-} AES256_CTR_DRBG_struct;
+    unsigned char key[AES256_KEYBYTES];
+    unsigned char ctr[AES_BLOCKBYTES];
+} nistkatctx;
 
-static AES256_CTR_DRBG_struct DRBG_ctx;
-static void AES256_CTR_DRBG_Update(const uint8_t *provided_data, uint8_t *Key, uint8_t *V);
+static nistkatctx ctx;
 
-// Use whatever AES implementation you have. This uses AES from openSSL library
-//    key - 256-bit AES key
-//    ctr - a 128-bit plaintext value
-//    buffer - a 128-bit ciphertext value
-static void AES256_ECB(uint8_t *key, uint8_t *ctr, uint8_t *buffer) {
-    aes256ctx ctx;
-    aes256_ecb_keyexp(&ctx, key);
-    aes256_ecb(buffer, ctr, 1, &ctx);
-    aes256_ctx_release(&ctx);
+static void _aes256_ecb(unsigned char key[AES256_KEYBYTES], unsigned char ctr[AES_BLOCKBYTES], unsigned char buffer[AES_BLOCKBYTES]) {
+    aes256ctx aesctx;
+    aes256_ecb_keyexp(&aesctx, key);
+    aes256_ecb(buffer, ctr, 1, &aesctx);
+    aes256_ctx_release(&aesctx);
 }
 
-void nist_kat_init(uint8_t *entropy_input, const uint8_t *personalization_string, int security_strength) {
-    uint8_t seed_material[48];
+static void aes256_block_update(uint8_t block[AES_BLOCKBYTES]) {
+    for (int j = AES_BLOCKBYTES - 1; j >= 0; j--) {
+        ctx.ctr[j]++;
 
-    assert(security_strength == 256);
-    memcpy(seed_material, entropy_input, 48);
+        if (ctx.ctr[j] != 0x00) {
+            break;
+        }
+    }
+
+    _aes256_ecb(ctx.key, ctx.ctr, block);
+}
+
+static void nistkat_update(const unsigned char *provided_data, unsigned char *key, unsigned char *ctr) {
+    int len = AES256_KEYBYTES + AES_BLOCKBYTES;
+    uint8_t tmp[len];
+
+    for (int i = 0; i < len / AES_BLOCKBYTES; i++) {
+        aes256_block_update(tmp + AES_BLOCKBYTES * i);
+    }
+
+    if (provided_data) {
+        for (int i = 0; i < len; i++) {
+            tmp[i] ^= provided_data[i];
+        }
+    }
+
+    memcpy(key, tmp, AES256_KEYBYTES);
+    memcpy(ctr, tmp + AES256_KEYBYTES, AES_BLOCKBYTES);
+}
+
+void nist_kat_init(unsigned char entropy_input[AES256_KEYBYTES + AES_BLOCKBYTES], const unsigned char personalization_string[AES256_KEYBYTES + AES_BLOCKBYTES], int security_strength) {
+    int len = AES256_KEYBYTES + AES_BLOCKBYTES;
+    uint8_t seed_material[len];
+    (void) security_strength;
+
+    memcpy(seed_material, entropy_input, len);
     if (personalization_string) {
-        for (int i = 0; i < 48; i++) {
+        for (int i = 0; i < len; i++) {
             seed_material[i] ^= personalization_string[i];
         }
     }
-    memset(DRBG_ctx.Key, 0x00, 32);
-    memset(DRBG_ctx.V, 0x00, 16);
-    AES256_CTR_DRBG_Update(seed_material, DRBG_ctx.Key, DRBG_ctx.V);
-    DRBG_ctx.reseed_counter = 1;
+    memset(ctx.key, 0x00, AES256_KEYBYTES);
+    memset(ctx.ctr, 0x00, AES_BLOCKBYTES);
+    nistkat_update(seed_material, ctx.key, ctx.ctr);
 }
 
 void randombytes(uint8_t *buf, size_t n) {
-    uint8_t block[16];
-    int i = 0;
+    uint8_t block[AES_BLOCKBYTES];
 
-    while (n > 0) {
-        //increment V
-        for (int j = 15; j >= 0; j--) {
-            if (DRBG_ctx.V[j] == 0xff) {
-                DRBG_ctx.V[j] = 0x00;
-            } else {
-                DRBG_ctx.V[j]++;
-                break;
-            }
-        }
-        AES256_ECB(DRBG_ctx.Key, DRBG_ctx.V, block);
-        if (n > 15) {
-            memcpy(buf + i, block, 16);
-            i += 16;
-            n -= 16;
-        } else {
-            memcpy(buf + i, block, n);
-            n = 0;
-        }
+    size_t nb = n / AES_BLOCKBYTES;
+    size_t tail = n % AES_BLOCKBYTES;
+
+    for (size_t i = 0; i < nb; i++) {
+        aes256_block_update(block);
+        memcpy(buf + i * AES_BLOCKBYTES, block, AES_BLOCKBYTES);
     }
-    AES256_CTR_DRBG_Update(NULL, DRBG_ctx.Key, DRBG_ctx.V);
-    DRBG_ctx.reseed_counter++;
-}
 
-static void AES256_CTR_DRBG_Update(const uint8_t *provided_data, uint8_t *Key, uint8_t *V) {
-    uint8_t temp[48];
-
-    for (int i = 0; i < 3; i++) {
-        //increment V
-        for (int j = 15; j >= 0; j--) {
-            if (V[j] == 0xff) {
-                V[j] = 0x00;
-            } else {
-                V[j]++;
-                break;
-            }
-        }
-
-        AES256_ECB(Key, V, temp + 16 * i);
+    if (tail > 0) {
+        aes256_block_update(block);
+        memcpy(buf + nb * AES_BLOCKBYTES, block, tail);
     }
-    if (provided_data != NULL) {
-        for (int i = 0; i < 48; i++) {
-            temp[i] ^= provided_data[i];
-        }
-    }
-    memcpy(Key, temp, 32);
-    memcpy(V, temp + 32, 16);
+
+    nistkat_update(NULL, ctx.key, ctx.ctr);
 }

@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
-#ifndef RNG_H
-#define RNG_H
 
-#include <stddef.h>
+#ifndef RANDOMBYTES_H
+#define RANDOMBYTES_H
+
 #include <stdint.h>
+#include "aes.h"
 
-void randombytes(uint8_t *out, size_t outlen);
+void randombytes(uint8_t *buf, size_t n);
 
-void nist_kat_init(uint8_t *entropy_input, const uint8_t *personalization_string, int security_strength);
+void nist_kat_init(unsigned char entropy_input[AES256_KEYBYTES + AES_BLOCKBYTES], const unsigned char personalization_string[AES256_KEYBYTES + AES_BLOCKBYTES], int security_strength);
 
 #endif
