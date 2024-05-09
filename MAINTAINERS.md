@@ -1,5 +1,4 @@
 [//]: # (SPDX-License-Identifier: CC-BY-4.0)
-[//]: # (TODO Update list of maintainers)
 
 # Maintainers
 
@@ -7,5 +6,6 @@
 
 | Name                    | GitHub                                    | Chat           | Affliation
 |-------------------------|-------------------------------------------|----------------|----------------------
-| Nigel Jones             | [planetf1](https://github.com/planetf1)   | planetf1       | IBM
-
+| Hanno Becker            | [hanno-becker](https://github.com/hanno-becker) |              | AWS                  |
+| Matthias J. Kannwischer | [mkannwischer](https://github.com/mkannwischer) | matthiaskannwischer | Chelpis Quantum Tech |
+| Duc Tri Nguyen          | [cothan](https://github.com/cothan)             | cothan              | CERG @ GMU           |
