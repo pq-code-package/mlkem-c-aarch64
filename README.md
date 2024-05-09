@@ -33,7 +33,7 @@ The goals of this project are as follows:
 - Achieve performance matching the state-of-the-art on the target platforms.
 - Maintainability should not be sacrificed and assembly should be as readable as possible. We make use of automated tooling for microarchitecture-specific optimization (e.g., by using [SLOTHY](https://slothy-optimizer.github.io/slothy/)).
 - Provide a unified interface for Keccak implementations allowing 2-way, 4-way, and 8-way parallel implementations depending on the target microarchitecture.
-- Eventually, we aim to unify the implementations with the implementations in [mlkem-c-generic](https://github.com/pq-code-package/mlkem-c-generic). However, we believe that for AArch64, there are too relevant microarchitectures to come up with a single implementation that performs well on all. 
+- Eventually, we aim to unify the implementations with the implementations in [mlkem-c-generic](https://github.com/pq-code-package/mlkem-c-generic). However, we believe that for AArch64, there are too many relevant microarchitectures to come up with a single implementation that performs well on all. 
 
 
 ## Current state
