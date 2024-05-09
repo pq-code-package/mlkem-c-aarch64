@@ -40,7 +40,7 @@ The goals of this project are as follows:
 
 **MLKEM-C-AArch64** is currently a work in progress and we do not recommend relying on it at this point.
 **WE DO NOT CURRENTLY RECOMMEND RELYING ON THIS LIBRARY IN A PRODUCTION ENVIRONMENT OR TO PROTECT ANY SENSITIVE DATA.**
-Once we have the first stable version, this notice will be removed
+Once we have the first stable version, this notice will be removed.
 
 The current code is compatible with the [`standard` branch of the official MLKEM repository](https://github.com/pq-crystals/kyber/tree/standard).
 
