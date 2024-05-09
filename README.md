@@ -2,38 +2,35 @@
 
 **MLKEM-C-AArch64** is a collection of [MLKEM](https://doi.org/10.6028/NIST.FIPS.203.ipd) implementations for CPUs based on the Armv8-A and Armv9-A architectures.
 
-There is a wide spectrum of implementations of the Armv8-A and Armv9-A architectures, ranging from efficiency-focused in-order cores to performance-centric highly out-of-order cores. Depending on a CPU's placement on this spectrum, its optimal MLKEM implementation will vary: Code that performs well on Apple M1 may not perform well on Cortex-A55, or vice versa.
+## Goals of MLKEM-C-AArch64
 
-MLKEM-C-AArch64 aims to provide a portfolio of implementations covering most Armv8-A/Armv9-A microarchitectures, plus code optimized for specific microarchitectures.
+The primary goals of this project are as follows:
+- _Assurance:_ Clean code that's extensively tested and amenable for audit and verification
+- _Ease of use:_ Permissive licensing, modularity, few dependencies
+- _Performance:_ Competitive performance for most Armv8-A/Armv9-A platforms
 
-Initially, our benchmarking platforms are:
-- Arm Cortex-A53 (as used in the Raspberry Pi3)
+There are tensions between these goals:
+- Optimal code is target-specific, but a large variety of CPU-specific implementations makes a library harder to both use and maintain.
+- Optimal code is complex (e.g. relying on handwritten assembly), impeding maintainenance and amenability for audit or verification.
+
+In doubt, MLKEM-C-AArch64 chooses assurance and ease of use over performance: We only include implementations into MLKEM-C-AArch64 which are manually auditable or (ideally _and_) for which we see a path towards formal verification. We prefer assembly over intrinsics (for better control over register allocation and instruction scheduling), but all assembly should be as readable as possible and micro-optimization ideally deferred to automated tooling such as [SLOTHY](https://slothy-optimizer.github.io/slothy/). Ultimately, MLKEM-C-AArch64 strives for constant-time implementations for which the C-code is, at minimum, verified to be free of undefined behaviour, and where all assembly is functionally verified.
+
+MLKEM-C-AArch64 aims to provide a portfolio of implementations jointly providing competitive performance for most Armv8-A/Armv9-A microarchitectures. For some specific microarchitectures of particular interest, MLKEM-C-AArch64 may also provide CPU-specific implementations. Initially, our benchmarking platforms are:
 - Arm Cortex-A55
 - Arm Cortex-A72 (as used in the Raspberry Pi4)
 - Arm Cortex-A76 (as used in the Raspberry Pi5) / Neoverse N1 (as used in AWS Graviton2/c6g instances)
-- Arm Neoverse-V1 (as used in the AWS Graviton3/c7g instances)
+- Arm Neoverse V1 (as used in the AWS Graviton3/c7g instances)
 - Apple M1
 
 Please reach out to the MLKEM-C-AArch64 maintainers or open an issue if you would like to see benchmarking on other microarchitectures.
 
-Initially the primary target platforms are:
- - Arm Cortex-A72 (as used in the Raspberry Pi4)
- - Apple M1
- - AWS [Graviton 4](https://press.aboutamazon.com/2023/11/aws-unveils-next-generation-aws-designed-chips) instances based on [Arm Neoverse V2](https://developer.arm.com/Processors/Neoverse%20V2)
+## Non-goals
 
+At this point, we do not provide implementations optimized for memory usage (code / RAM). If you need a memory-optimized implementation and the implementation provided by MLKEM-C-Generic is not of sufficient performance to your application, please contact us.
 
-## Goals of MLKEM-C-AArch64
+## Relation to MLKEM-C-Generic
 
-The goals of this project are as follows:
-
-- Provide production-grade code that can be dropped into other projects.
-- Being permissibly licensed with all code coming with an Apache-2.0 license.
-- Tested against the official reference known-answer tests (KATs) and extended KATs (taken from another [PQCP](https://github.com/pq-code-package) project).
-- Include Neon assembly implementations of the core building blocks of MLKEM performing well on a wide range of Armv8-A and Armv9-A platforms.
-- Achieve performance matching the state-of-the-art on the target platforms.
-- Maintainability should not be sacrificed and assembly should be as readable as possible. We make use of automated tooling for microarchitecture-specific optimization (e.g., by using [SLOTHY](https://slothy-optimizer.github.io/slothy/)).
-- Provide a unified interface for Keccak implementations allowing 2-way, 4-way, and 8-way parallel implementations depending on the target microarchitecture.
-- Eventually, we aim to unify the implementations with the implementations in [mlkem-c-generic](https://github.com/pq-code-package/mlkem-c-generic). However, we believe that for AArch64, there are too many relevant microarchitectures to come up with a single implementation that performs well on all. 
+Eventually, we aim to unify the (shared) C-part of the implementations provided by MLKEM-C-AArch64 with the implementations in [mlkem-c-generic](https://github.com/pq-code-package/mlkem-c-generic). Initially, however, we will allow some divergence, e.g. to explore interfaces to 2-/4-/8-way parallel Keccak implementations which are essential for high-performance implementations of MLKEM.
 
 
 ## Current state
