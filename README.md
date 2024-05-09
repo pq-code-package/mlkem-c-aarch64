@@ -1,6 +1,20 @@
 [//]: # (SPDX-License-Identifier: CC-BY-4.0)
 
-**MLKEM-C-AArch64** is a collection of [MLKEM](https://doi.org/10.6028/NIST.FIPS.203.ipd) implementations optimized for number of different Armv8-A and Armv9-A microarchitectures.
+**MLKEM-C-AArch64** is a collection of [MLKEM](https://doi.org/10.6028/NIST.FIPS.203.ipd) implementations for CPUs based on the Armv8-A and Armv9-A architectures.
+
+There is a wide spectrum of implementations of the Armv8-A and Armv9-A architectures, ranging from efficiency-focused in-order cores to performance-centric highly out-of-order cores. Depending on a CPU's placement on this spectrum, its optimal MLKEM implementation will vary: Code that performs well on Apple M1 may not perform well on Cortex-A55, or vice versa.
+
+MLKEM-C-AArch64 aims to provide a portfolio of implementations covering most Armv8-A/Armv9-A microarchitectures, plus code optimized for specific microarchitectures.
+
+Initially, our benchmarking platforms are:
+- Arm Cortex-A53 (as used in the Raspberry Pi3)
+- Arm Cortex-A55
+- Arm Cortex-A72 (as used in the Raspberry Pi4)
+- Arm Cortex-A76 (as used in the Raspberry Pi5) / Neoverse N1 (as used in AWS Graviton2/c6g instances)
+- Arm Neoverse-V1 (as used in the AWS Graviton3/c7g instances)
+- Apple M1
+
+Please reach out to the MLKEM-C-AArch64 maintainers or open an issue if you would like to see benchmarking on other microarchitectures.
 
 Initially the primary target platforms are:
  - Arm Cortex-A72 (as used in the Raspberry Pi4)
