@@ -36,12 +36,15 @@
             ];
 
             shellHook = ''
-              export PATH=$PWD/dev-support/bin:$PATH
+              export PATH=$PWD/scripts:$PWD/scripts/ci:$PATH
             '';
           };
 
           devShells.ci = with pkgs; mkShellNoCC {
             packages = core;
+            shellHook = ''
+              export PATH=$PWD/scripts:$PWD/scripts/ci:$PATH
+            '';
           };
 
         };
