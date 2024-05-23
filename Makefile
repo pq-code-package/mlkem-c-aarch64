@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+
 CC ?= /usr/bin/cc
 INCLUDE_FIPS202 = -I fips202
 INCLUDE_MLKEM = -I mlkem
