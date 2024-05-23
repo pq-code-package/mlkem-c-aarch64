@@ -1,6 +1,4 @@
 # SPDX-License-Identifier: Apache-2.0
 # Last matching pattern has precedence
 
-# Default owner
 * @pq-code-package/pqcp-embedded-maintainers-aarch64
- 

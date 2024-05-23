@@ -21,6 +21,8 @@
           core = with pkgs; [
             # formatter & linters
             astyle # 3.4.10
+            nixpkgs-fmt
+            shfmt
           ];
         in
         {
@@ -28,20 +30,18 @@
             packages = core ++ [
               direnv
               nix-direnv
-
-              # formatter & linters
-              nixpkgs-fmt
-              shfmt
-              codespell
             ];
 
             shellHook = ''
-              export PATH=$PWD/dev-support/bin:$PATH
+              export PATH=$PWD/scripts:$PWD/scripts/ci:$PATH
             '';
           };
 
           devShells.ci = with pkgs; mkShellNoCC {
             packages = core;
+            shellHook = ''
+              export PATH=$PWD/scripts:$PWD/scripts/ci:$PATH
+            '';
           };
 
         };
