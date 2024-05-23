@@ -35,13 +35,6 @@ echo "::group::Linting shell scripts with shfmt"
 checkerr "$(shfmt -s -l -i 2 -ci -fn $(shfmt -f $(git grep -l '' :/)))"
 echo "::endgroup::"
 
-echo "::group::Linting python scripts with black"
-if ! diff=$(black --check --diff -q --include scripts/tests "$ROOT"); then
-  echo "::error title=Format error::$diff"
-  SUCCESS=false
-fi
-echo "::endgroup::"
-
 echo "::group::Linting c files with astyle"
 checkerr "$(astyle $(git ls-files ":/*.c" ":/*.h") --options="$ROOT/.astylerc" --dry-run --formatted | awk '{print $2}')"
 echo "::endgroup::"

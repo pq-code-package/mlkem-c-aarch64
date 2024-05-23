@@ -21,6 +21,8 @@
           core = with pkgs; [
             # formatter & linters
             astyle # 3.4.10
+            nixpkgs-fmt
+            shfmt
           ];
         in
         {
@@ -28,11 +30,6 @@
             packages = core ++ [
               direnv
               nix-direnv
-
-              # formatter & linters
-              nixpkgs-fmt
-              shfmt
-              codespell
             ];
 
             shellHook = ''
