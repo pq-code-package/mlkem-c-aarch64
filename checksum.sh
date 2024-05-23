@@ -6,9 +6,9 @@
 output_hash=$(./$1 | sha256sum | awk '{ print $1 }')
 
 if [[ ${output_hash} == "${2}" ]]; then
-	echo "${1} Hashes match."
-	exit 0
+  echo "${1} Hashes match."
+  exit 0
 else
-	echo "${1} Hashes do not match: ${output_hash} vs ${2}"
-	exit 1
+  echo "${1} Hashes do not match: ${output_hash} vs ${2}"
+  exit 1
 fi
