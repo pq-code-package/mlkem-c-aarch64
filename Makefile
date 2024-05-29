@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-CC ?= /usr/bin/cc
+CC ?= gcc
 INCLUDE_FIPS202 = -I fips202
 INCLUDE_MLKEM = -I mlkem
 INCLUDE_RANDOM = -I randombytes

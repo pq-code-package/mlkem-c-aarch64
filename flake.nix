@@ -12,32 +12,36 @@
     };
   };
 
-  outputs = inputs@{ flake-parts, nixpkgs, ... }:
+  outputs = inputs@{ flake-parts, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [ ];
       systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
-      perSystem = { pkgs, system, inputs', ... }:
+      perSystem = { pkgs, ... }:
         let
-          core = with pkgs; [
-            # formatter & linters
-            astyle # 3.4.10
-            nixpkgs-fmt
-            shfmt
-          ];
+          core = builtins.attrValues {
+            inherit (pkgs)
+              gcc13
+
+              # formatter & linters
+              astyle# 3.4.10
+              nixpkgs-fmt
+              shfmt;
+          };
         in
         {
-          devShells.default = with pkgs; mkShellNoCC {
-            packages = core ++ [
-              direnv
-              nix-direnv
-            ];
+          devShells.default = pkgs.mkShellNoCC {
+            packages = core ++ builtins.attrValues {
+              inherit (pkgs)
+                direnv
+                nix-direnv;
+            };
 
             shellHook = ''
               export PATH=$PWD/scripts:$PWD/scripts/ci:$PATH
             '';
           };
 
-          devShells.ci = with pkgs; mkShellNoCC {
+          devShells.ci = pkgs.mkShellNoCC {
             packages = core;
             shellHook = ''
               export PATH=$PWD/scripts:$PWD/scripts/ci:$PATH
@@ -53,4 +57,3 @@
       };
     };
 }
-
