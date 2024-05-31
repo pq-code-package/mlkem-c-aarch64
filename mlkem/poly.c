@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 #include <stdint.h>
+#include "cbmc.h"
 #include "params.h"
 #include "poly.h"
 #include "ntt.h"
@@ -78,8 +79,24 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a) {
 * Arguments:   - poly *r: pointer to output polynomial
 *              - const uint8_t *a: pointer to input byte array
 *                                  (of length KYBER_POLYCOMPRESSEDBYTES bytes)
+*
+* Upon return, the coefficients of the output polynomial are unsigned-canonical
+* (non-negative and smaller than KYBER_Q).
+*
 **************************************************/
-void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES]) {
+void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES])
+/* ------ CBMC contract ------ */
+// *INDENT-OFF*
+__CPROVER_requires(__CPROVER_is_fresh(r, sizeof(*r)))
+__CPROVER_requires(__CPROVER_is_fresh(a, sizeof(KYBER_POLYCOMPRESSEDBYTES)))
+__CPROVER_ensures(
+  /* Output coefficients are unsigned canonical */
+  __CPROVER_forall {
+    unsigned i; (i < KYBER_N) ==> ( 0 <= r->coeffs[i] && r->coeffs[i] < KYBER_Q )
+  })
+// *INDENT-ON*
+/* --- End of CBMC contract --- */
+{
     unsigned int i;
 
     #if (KYBER_POLYCOMPRESSEDBYTES == 128)
@@ -92,18 +109,21 @@ void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES]) {
     unsigned int j;
     uint8_t t[8];
     for (i = 0; i < KYBER_N / 8; i++) {
-        t[0] = (a[0] >> 0);
-        t[1] = (a[0] >> 5) | (a[1] << 3);
-        t[2] = (a[1] >> 2);
-        t[3] = (a[1] >> 7) | (a[2] << 1);
-        t[4] = (a[2] >> 4) | (a[3] << 4);
-        t[5] = (a[3] >> 1);
-        t[6] = (a[3] >> 6) | (a[4] << 2);
-        t[7] = (a[4] >> 3);
+        // REF-CHANGE: Explicitly truncate to avoid warning about
+        // implicit truncation in CBMC.
+        t[0] = 0x1F &  (a[0] >> 0);
+        t[1] = 0x1F & ((a[0] >> 5) | (a[1] << 3));
+        t[2] = 0x1F &  (a[1] >> 2);
+        t[3] = 0x1F & ((a[1] >> 7) | (a[2] << 1));
+        t[4] = 0x1F & ((a[2] >> 4) | (a[3] << 4));
+        t[5] = 0x1F &  (a[3] >> 1);
+        t[6] = 0x1F & ((a[3] >> 6) | (a[4] << 2));
+        t[7] = 0x1F &  (a[4] >> 3);
         a += 5;
 
         for (j = 0; j < 8; j++) {
-            r->coeffs[8 * i + j] = ((uint32_t)(t[j] & 31) * KYBER_Q + 16) >> 5;
+            // REF-CHANGE: Truncation happened before
+            r->coeffs[8 * i + j] = ((uint32_t) t[j] * KYBER_Q + 16) >> 5;
         }
     }
     #else
