@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: Apache-2.0
+
+{ "expected-missing-functions":
+  [
+
+  ],
+  "proof-name": "poly_decompress",
+  "proof-root": "cbmc/proofs"
+}
