@@ -23,6 +23,7 @@
               inherit (pkgs)
                 # formatter & linters
                 astyle# 3.4.10
+                cadical
                 nixpkgs-fmt
                 shfmt;
             }
