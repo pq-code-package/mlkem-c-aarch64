@@ -16,11 +16,8 @@
     flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [ ];
       systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
-      perSystem = { pkgs, system, ... }:
+      perSystem = { pkgs, ... }:
         let
-          # NOTE: For installing pkgs specific for aarch64 (not sure if there is any better way of doing this)
-          aarch64-system = "aarch64-" + pkgs.lib.lists.last (pkgs.lib.strings.splitString "-" system);
-          aarch64-pkgs = inputs.nixpkgs.legacyPackages.${aarch64-system};
           core = builtins.attrValues
             {
               inherit (pkgs)
@@ -29,7 +26,11 @@
                 nixpkgs-fmt
                 shfmt;
             }
-          ++ [ (aarch64-pkgs.gcc13.override { propagateDoc = true; isGNU = true; }) ];
+          # ignore gcc for x86_64 machines, and arch64-darwin should just use the native clang
+          ++ (if !pkgs.stdenv.isDarwin && pkgs.stdenv.isAarch64
+          then [ (pkgs.gcc13.override { propagateDoc = true; isGNU = true; }) ]
+          else [ ]
+          );
 
         in
         {
