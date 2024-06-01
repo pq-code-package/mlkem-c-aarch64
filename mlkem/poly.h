@@ -13,6 +13,16 @@ typedef struct {
     int16_t coeffs[KYBER_N];
 } poly;
 
+#define scalar_compress_q_16   KYBER_NAMESPACE(scalar_compress_q_16)
+#define scalar_decompress_q_16 KYBER_NAMESPACE(scalar_decompress_q_16)
+#define scalar_compress_q_32   KYBER_NAMESPACE(scalar_compress_q_32)
+#define scalar_decompress_q_32 KYBER_NAMESPACE(scalar_decompress_q_32)
+
+uint32_t scalar_compress_q_16   (int32_t);
+uint32_t scalar_decompress_q_16 (uint32_t);
+uint32_t scalar_compress_q_32   (int32_t);
+uint32_t scalar_decompress_q_32 (uint32_t);
+
 #define poly_compress KYBER_NAMESPACE(poly_compress)
 void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a);
 #define poly_decompress KYBER_NAMESPACE(poly_decompress)

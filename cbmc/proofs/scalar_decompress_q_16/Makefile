@@ -1,44 +1,20 @@
 # SPDX-License-Identifier: Apache-2.0
 
-include ../Makefile_params.common
-
 HARNESS_ENTRY = harness
-HARNESS_FILE = poly_decompress_harness
+HARNESS_FILE = scalar_decompress_q_16_harness
 
 # This should be a unique identifier for this proof, and will appear on the
 # Litani dashboard. It can be human-readable and contain spaces if you wish.
-PROOF_UID = poly_decompress
+PROOF_UID = scalar_decompress_q_16
 
 DEFINES +=
+INCLUDES +=
 
 REMOVE_FUNCTION_BODY +=
 UNWINDSET +=
 
 PROOF_SOURCES += $(PROOFDIR)/$(HARNESS_FILE).c
 PROJECT_SOURCES += $(SRCDIR)/mlkem/poly.c
-
-# For KYBER_K=2,3 a loop with 128 iterations is used.
-# For KYBER_K=4, a nested loop with 32 and 8 iterations is used.
-ifneq ($(KYBER_K),4)
-	UNWINDSET += $(KYBER_NAMESPACE)poly_decompress.0:129
-else
-	UNWINDSET += $(KYBER_NAMESPACE)poly_decompress.1:33
-	UNWINDSET += $(KYBER_NAMESPACE)poly_decompress.0:9
-endif
-
-FUNCTION_NAME = $(KYBER_NAMESPACE)poly_decompress
-
-USE_FUNCTION_CONTRACTS = $(KYBER_NAMESPACE)scalar_decompress_q_16
-
-# TODO: I would like to comment this out to have CBMC validate the
-# function contract as annotated in the source, rather than being forced
-# to replicate it in the harness. But somehow this doesn't work...?
-
-# USE_FUNCTION_CONTRACTS = $(FUNCTION_NAME)
-
-# USE_DYNAMIC_FRAMES = 1
-# EXTERNAL_SAT_SOLVER = cadical
-# CBMCFLAGS += --smt2
 
 # If this proof is found to consume huge amounts of RAM, you can set the
 # EXPENSIVE variable. With new enough versions of the proof tools, this will
