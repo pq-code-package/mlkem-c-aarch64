@@ -8,6 +8,88 @@
 #include "cbd.h"
 #include "symmetric.h"
 
+/************************************************************
+ * Name: scalar_compress_q_16
+ *
+ * Description: Computes round(u * 16 / q)
+ *
+ * Arguments: - u: Unsigned canonical modulus modulo q
+ *                 to be compressed.
+ ************************************************************/
+uint32_t scalar_compress_q_16(int32_t u)
+/* INDENT-OFF */
+__CPROVER_requires(0 <= u && u < KYBER_Q)
+__CPROVER_ensures(__CPROVER_return_value < 16)
+//__CPROVER_ensures(__CPROVER_return_value == (((uint32_t) u * 16 + KYBER_Q / 2) / KYBER_Q) % 16)
+/* INDENT-ON */
+{
+    uint32_t d0 = (uint32_t) u;
+    d0 <<= 4;
+    d0 +=  1665;
+    d0 *=  80635;
+    d0 >>= 28;
+    d0 &=  0xF;
+    return d0;
+}
+
+/************************************************************
+ * Name: scalar_decompress_q_16
+ *
+ * Description: Computes round(u * q / 16)
+ *
+ * Arguments: - u: Unsigned canonical modulus modulo 16
+ *                 to be decompressed.
+ ************************************************************/
+uint32_t scalar_decompress_q_16(uint32_t u)
+/* INDENT-OFF */
+__CPROVER_requires(0 <= u && u < 16)
+__CPROVER_ensures(__CPROVER_return_value < KYBER_Q)
+/* INDENT-ON */
+{
+    return ((u * KYBER_Q) + 8) / 16;
+}
+
+/************************************************************
+ * Name: scalar_compress_q_32
+ *
+ * Description: Computes round(u * 32 / q)
+ *
+ * Arguments: - u: Unsigned canonical modulus modulo q
+ *                 to be compressed.
+ ************************************************************/
+uint32_t scalar_compress_q_32(int32_t u)
+/* INDENT-OFF */
+__CPROVER_requires(0 <= u && u < KYBER_Q)
+__CPROVER_ensures(__CPROVER_return_value < 32)
+//__CPROVER_ensures(__CPROVER_return_value == (((uint32_t) u * 32 + KYBER_Q / 2) / KYBER_Q) % 32)
+/* INDENT-ON */
+{
+    uint32_t d0 = (uint32_t) u;
+    d0 <<= 5;
+    d0 +=  1664;
+    d0 *=  40318;
+    d0 >>= 27;
+    d0 &=  0x1f;
+    return d0;
+}
+
+/************************************************************
+ * Name: scalar_decompress_q_32
+ *
+ * Description: Computes round(u * q / 32)
+ *
+ * Arguments: - u: Unsigned canonical modulus modulo 32
+ *                 to be decompressed.
+ ************************************************************/
+uint32_t scalar_decompress_q_32(uint32_t u)
+/* INDENT-OFF */
+__CPROVER_requires(0 <= u && u < 32)
+__CPROVER_ensures(__CPROVER_return_value < KYBER_Q)
+/* INDENT-ON */
+{
+    return ((u * KYBER_Q) + 16) / 32;
+}
+
 /*************************************************
 * Name:        poly_compress
 *
@@ -24,18 +106,13 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a) {
     uint8_t t[8];
 
     #if (KYBER_POLYCOMPRESSEDBYTES == 128)
-
     for (i = 0; i < KYBER_N / 8; i++) {
         for (j = 0; j < 8; j++) {
             // map to positive standard representatives
             u  = a->coeffs[8 * i + j];
             u += (u >> 15) & KYBER_Q;
-            /*    t[j] = ((((uint16_t)u << 4) + KYBER_Q/2)/KYBER_Q) & 15; */
-            d0 = u << 4;
-            d0 += 1665;
-            d0 *= 80635;
-            d0 >>= 28;
-            t[j] = d0 & 0xf;
+            // REF-CHANGE: Hoist scalar compression into separate function
+            t[j] = scalar_compress_q_16(u);
         }
 
         r[0] = t[0] | (t[1] << 4);
@@ -50,19 +127,17 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a) {
             // map to positive standard representatives
             u  = a->coeffs[8 * i + j];
             u += (u >> 15) & KYBER_Q;
-            /*    t[j] = ((((uint32_t)u << 5) + KYBER_Q/2)/KYBER_Q) & 31; */
-            d0 = u << 5;
-            d0 += 1664;
-            d0 *= 40318;
-            d0 >>= 27;
-            t[j] = d0 & 0x1f;
+            // REF-CHANGE: Hoist scalar compression into separate function
+            t[j] = scalar_compress_q_32(u);
         }
 
-        r[0] = (t[0] >> 0) | (t[1] << 5);
-        r[1] = (t[1] >> 3) | (t[2] << 2) | (t[3] << 7);
-        r[2] = (t[3] >> 1) | (t[4] << 4);
-        r[3] = (t[4] >> 4) | (t[5] << 1) | (t[6] << 6);
-        r[4] = (t[6] >> 2) | (t[7] << 3);
+        // REF-CHANGE: Explicitly truncate to avoid warning about
+        // implicit truncation in CBMC.
+        r[0] = 0xFF & ((t[0] >> 0) | (t[1] << 5));
+        r[1] = 0xFF & ((t[1] >> 3) | (t[2] << 2) | (t[3] << 7));
+        r[2] = 0xFF & ((t[3] >> 1) | (t[4] << 4));
+        r[3] = 0xFF & ((t[4] >> 4) | (t[5] << 1) | (t[6] << 6));
+        r[4] = 0xFF & ((t[6] >> 2) | (t[7] << 3));
         r += 5;
     }
     #else
@@ -90,10 +165,10 @@ void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES])
 __CPROVER_requires(__CPROVER_is_fresh(r, sizeof(*r)))
 __CPROVER_requires(__CPROVER_is_fresh(a, sizeof(KYBER_POLYCOMPRESSEDBYTES)))
 __CPROVER_ensures(
-  /* Output coefficients are unsigned canonical */
-  __CPROVER_forall {
-    unsigned i; (i < KYBER_N) ==> ( 0 <= r->coeffs[i] && r->coeffs[i] < KYBER_Q )
-  })
+/* Output coefficients are unsigned canonical */
+__CPROVER_forall {
+  unsigned i; (i < KYBER_N) ==> ( 0 <= r->coeffs[i] && r->coeffs[i] < KYBER_Q )
+})
 // *INDENT-ON*
 /* --- End of CBMC contract --- */
 {
@@ -101,8 +176,9 @@ __CPROVER_ensures(
 
     #if (KYBER_POLYCOMPRESSEDBYTES == 128)
     for (i = 0; i < KYBER_N / 2; i++) {
-        r->coeffs[2 * i + 0] = (((uint16_t)(a[0] & 15) * KYBER_Q) + 8) >> 4;
-        r->coeffs[2 * i + 1] = (((uint16_t)(a[0] >> 4) * KYBER_Q) + 8) >> 4;
+        // REF-CHANGE: Hoist scalar decompression into separate function
+        r->coeffs[2 * i + 0] = scalar_decompress_q_16((a[0] >> 0) & 0xF);
+        r->coeffs[2 * i + 1] = scalar_decompress_q_16((a[0] >> 4) & 0xF);
         a += 1;
     }
     #elif (KYBER_POLYCOMPRESSEDBYTES == 160)
