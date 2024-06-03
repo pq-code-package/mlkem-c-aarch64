@@ -8,19 +8,30 @@ set -o pipefail
 
 # consts
 ROOT="$(realpath "$(dirname "$0")"/../../)"
+GITHUB_STEP_SUMMARY=${GITHUB_STEP_SUMMARY:-/dev/stdout}
 
 checkerr()
 {
-  if [[ $? == 127 ]]; then
-    SUCCESS=false
-    return
+  local code=$?
+  local title="$1"
+  local out="$2"
+  local success=true
+  if [[ $code == 127 ]]; then
+    success=false
   fi
 
-  if [[ ${#1} != 0 ]]; then
-    echo "$1" | while read -r file line; do
+  if [[ ${#out} != 0 ]]; then
+    echo "$out" | while read -r file line; do
       echo "::error file=$file,line=${line:-1},title=Format error::$file require to be formatted"
     done
+    success=false
+  fi
+
+  if $success; then
+    echo ":white_check_mark: $title" >>"$GITHUB_STEP_SUMMARY"
+  else
     SUCCESS=false
+    echo ":x: $title" >>"$GITHUB_STEP_SUMMARY"
   fi
 }
 
@@ -28,15 +39,15 @@ checkerr()
 SUCCESS=true
 
 echo "::group::Linting nix files with nixpkgs-fmt"
-checkerr "$(nixpkgs-fmt --check "$ROOT")"
+checkerr "Lint nix" "$(nixpkgs-fmt --check "$ROOT")"
 echo "::endgroup::"
 
 echo "::group::Linting shell scripts with shfmt"
-checkerr "$(shfmt -s -l -i 2 -ci -fn $(shfmt -f $(git grep -l '' :/)))"
+checkerr "Lint shell" "$(shfmt -s -l -i 2 -ci -fn $(shfmt -f $(git grep -l '' :/)))"
 echo "::endgroup::"
 
 echo "::group::Linting c files with astyle"
-checkerr "$(astyle $(git ls-files ":/*.c" ":/*.h") --options="$ROOT/.astylerc" --dry-run --formatted | awk '{print $2}')"
+checkerr "Lint C" "$(astyle $(git ls-files ":/*.c" ":/*.h") --options="$ROOT/.astylerc" --dry-run --formatted | awk '{print $2}')"
 echo "::endgroup::"
 
 check-eol-dry-run()
@@ -49,17 +60,25 @@ check-eol-dry-run()
   done
 }
 echo "::group::Checking eol"
-checkerr "$(check-eol-dry-run)"
+checkerr "Check eol" "$(check-eol-dry-run)"
 echo "::endgroup::"
 
 check-spdx()
 {
+  local success=true
   for file in $(git ls-files -- ":/" ":/!:*LICENSE*" ":/!:.git*" ":/!:flake.lock"); do
     if [[ $(grep "SPDX-License-Identifier:" $file | wc -l) == 0 ]]; then
-      echo "$file is missing SPDX License header"
-      SUCCESS=false
+      echo "::error file=$file,line=${line:-1},title=Missing license header error::$file is missing SPDX License header"
+      success=false
     fi
   done
+
+  if $success; then
+    echo ":white_check_mark: Check SPDX" >>"$GITHUB_STEP_SUMMARY"
+  else
+    SUCCESS=false
+    echo ":x: Check SPDX" >>"$GITHUB_STEP_SUMMARY"
+  fi
 }
 echo "::group::Checking SPDX headers"
 check-spdx

@@ -3,11 +3,21 @@
 name: Setup nix
 description: Setup nix
 
+inputs:
+  script:
+    description: The script to be run in the nix shell
+    required: false
+
 runs:
   using: composite
   steps:
-    - uses: nixbuild/nix-quick-install-action@v27
-      with: {load_nixConfig: false}
+    - uses: DeterminateSystems/nix-installer-action@v11
     - name: Prepare nix dev shell
       shell: nix develop .#ci -c bash -e {0}
       run: |
+    - name: Dependency check
+      shell: nix develop .#ci -c bash -e {0}
+      if: inputs.script != ''
+      env:
+        INPUT_SCRIPT: ${{ inputs.script }}
+      run: eval "$INPUT_SCRIPT"
