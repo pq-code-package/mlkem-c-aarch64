@@ -11,9 +11,11 @@ jobs:
     strategy:
       matrix:
         system: [macos-latest, pqcp-arm64]
+        skipped: [false]
         include:
         - system: ubuntu-latest
           cross_prefix: aarch64-none-linux-gnu-
+          skipped: true
     runs-on: ${{ matrix.system }}
     steps:
       - uses: actions/checkout@v4
@@ -35,7 +37,7 @@ jobs:
         run: |
           make CROSS_PREFIX=${{ matrix.cross_prefix }} mlkem
 
-          if [ -z ${{ matrix.cross_prefix }} ]; then
+          if [ ${{ matrix.skipped }} != true ]; then
             ./test/test_kyber512
             ./test/test_kyber768
             ./test/test_kyber1024
@@ -49,7 +51,7 @@ jobs:
 
           make CROSS_PREFIX=${{ matrix.cross_prefix }} kat
 
-          if [ -z ${{ matrix.cross_prefix }} ]; then
+          if [ ${{ matrix.skipped }} != true ]; then
             cat >> $GITHUB_STEP_SUMMARY <<-EOF
               $(checksum ./test/gen_KAT512  ec4ac397e595ac7457cb7d8830921faf3290898a10d7dd3864aab89ea61fe9a3)
               $(checksum ./test/gen_KAT768  9a0826ad3c5232dfd3b21bc4801408655c565a491b760f509b2ee2cd7180babe)
