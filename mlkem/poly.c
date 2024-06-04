@@ -102,7 +102,6 @@ __CPROVER_ensures(__CPROVER_return_value < KYBER_Q)
 void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a) {
     unsigned int i, j;
     int32_t u;
-    uint32_t d0;
     uint8_t t[8];
 
     #if (KYBER_POLYCOMPRESSEDBYTES == 128)

@@ -13,3 +13,4 @@ test/gen_KAT1024
 test/gen_NISTKAT512
 test/gen_NISTKAT768
 test/gen_NISTKAT1024
+*.dSYM
