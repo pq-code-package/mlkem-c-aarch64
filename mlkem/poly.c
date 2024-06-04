@@ -18,16 +18,18 @@
  *                 to be compressed.
  ************************************************************/
 uint32_t scalar_compress_q_16(int32_t u)
-/* INDENT-OFF */
-__CPROVER_requires(0 <= u && u < KYBER_Q)
-__CPROVER_ensures(__CPROVER_return_value < 16)
-//__CPROVER_ensures(__CPROVER_return_value == (((uint32_t) u * 16 + KYBER_Q / 2) / KYBER_Q) % 16)
-/* INDENT-ON */
 {
     uint32_t d0 = (uint32_t) u;
     d0 <<= 4;
     d0 +=  1665;
+
+    /* This multiply will exceed UINT32_MAX and wrap around */
+    /* for large values of u. This is expected and required */
+#pragma CPROVER check push
+#pragma CPROVER check disable "unsigned-overflow"
     d0 *=  80635;
+#pragma CPROVER check pop
+
     d0 >>= 28;
     d0 &=  0xF;
     return d0;
@@ -59,16 +61,18 @@ __CPROVER_ensures(__CPROVER_return_value < KYBER_Q)
  *                 to be compressed.
  ************************************************************/
 uint32_t scalar_compress_q_32(int32_t u)
-/* INDENT-OFF */
-__CPROVER_requires(0 <= u && u < KYBER_Q)
-__CPROVER_ensures(__CPROVER_return_value < 32)
-//__CPROVER_ensures(__CPROVER_return_value == (((uint32_t) u * 32 + KYBER_Q / 2) / KYBER_Q) % 32)
-/* INDENT-ON */
 {
     uint32_t d0 = (uint32_t) u;
     d0 <<= 5;
     d0 +=  1664;
+
+    /* This multiply will exceed UINT32_MAX and wrap around */
+    /* for large values of u. This is expected and required */
+#pragma CPROVER check push
+#pragma CPROVER check disable "unsigned-overflow"
     d0 *=  40318;
+#pragma CPROVER check pop
+
     d0 >>= 27;
     d0 &=  0x1f;
     return d0;
@@ -103,12 +107,17 @@ __CPROVER_ensures(__CPROVER_return_value < KYBER_Q)
 void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a) {
     unsigned int i, j;
     int32_t u;
-    uint32_t d0;
     uint8_t t[8];
 
     #if (KYBER_POLYCOMPRESSEDBYTES == 128)
-    for (i = 0; i < KYBER_N / 8; i++) {
-        for (j = 0; j < 8; j++) {
+    for (i = 0; i < KYBER_N / 8; i++)
+    __CPROVER_assigns(i, j, u, t, r)
+    /* Stronger loop invariant here TBD */
+    {
+        for (j = 0; j < 8; j++)
+        __CPROVER_assigns(j, u, t)
+        /* Stronger loop invariant here TBD */
+        {
             // map to positive standard representatives
             u  = a->coeffs[8 * i + j];
             u += (u >> 15) & KYBER_Q;

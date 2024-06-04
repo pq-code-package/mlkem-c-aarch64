@@ -24,9 +24,6 @@
 void harness(void) {
     int32_t u;
 
-    __CPROVER_assume(0 <= u && u < KYBER_Q);
+    /* Contracts for this function are in poly.h */
     uint32_t d = scalar_compress_q_16(u);
-    __CPROVER_assert(d < 16, "compression bound failed");
-    __CPROVER_assert(d == (((uint32_t) u * 16 + KYBER_Q / 2) / KYBER_Q) % 16,
-                     "compression expression failed");
 }
