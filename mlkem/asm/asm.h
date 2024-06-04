@@ -11,7 +11,12 @@ void ntt_asm_clean(int16_t *);
 void ntt_asm_opt(int16_t *);
 void intt_asm_clean(int16_t *);
 void intt_asm_opt(int16_t *);
-#endif /* MLKEM_USE_AARCH64_ASM */
+
+unsigned int rej_uniform_asm_clean(int16_t *r, const uint8_t *buf,
+                                   unsigned int *buf_consumed,
+                                   unsigned int buflen, unsigned int len,
+                                   const uint8_t idx[256][16],
+                                   const uint16_t bits[8]);
 
 void poly_reduce_asm_clean(int16_t *);
 void poly_reduce_asm_opt(int16_t *);
@@ -83,7 +88,8 @@ void polyvec_basemul_acc_montgomery_cached_asm_k4_opt(int16_t *r,
 #endif /* !MLKEM_USE_AARCH64_ASM_CLEAN */
 
 #define poly_tobytes_asm poly_tobytes_asm_clean
+#define rej_uniform_asm rej_uniform_asm_clean
 
 #endif /* !MLKEM_USE_NTT_ASM_FORCE */
-
+#endif /* MLKEM_USE_AARCH64_ASM */
 #endif /* MLKEM_ASM_H */
