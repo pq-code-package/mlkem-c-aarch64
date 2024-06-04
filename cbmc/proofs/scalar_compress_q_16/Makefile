@@ -7,7 +7,7 @@ HARNESS_FILE = scalar_compress_q_16_harness
 
 # This should be a unique identifier for this proof, and will appear on the
 # Litani dashboard. It can be human-readable and contain spaces if you wish.
-PROOF_UID = scalar_compress_q_16
+PROOF_UID = $(KYBER_NAMESPACE)scalar_compress_q_16
 
 DEFINES +=
 INCLUDES +=
