@@ -3,7 +3,12 @@
 
 # This script executes a binary file, captures its output, then generates and compares its SHA-256 hash with a provided one.
 
-output_hash=$(./$1 | sha256sum | awk '{ print $1 }')
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    output_hash=$(./$1 | sha2 -256 | awk '{ print $4 }')
+else
+    output_hash=$(./$1 | sha256sum | awk '{ print $1 }')
+fi
+
 
 if [[ ${output_hash} == "${2}" ]]; then
   echo "${1#*_} Hashes match."
