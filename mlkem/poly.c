@@ -27,11 +27,14 @@ uint32_t scalar_compress_q_16(int32_t u)
 
     /* This multiply will exceed UINT32_MAX and wrap around */
     /* for large values of u. This is expected and required */
+    #ifdef CBMC
 #pragma CPROVER check push
 #pragma CPROVER check disable "unsigned-overflow"
+    #endif
     d0 *=  80635;
+    #ifdef CBMC
 #pragma CPROVER check pop
-
+    #endif
     d0 >>= 28;
     d0 &=  0xF;
     return d0;
@@ -66,11 +69,14 @@ uint32_t scalar_compress_q_32(int32_t u)
 
     /* This multiply will exceed UINT32_MAX and wrap around */
     /* for large values of u. This is expected and required */
+    #ifdef CBMC
 #pragma CPROVER check push
 #pragma CPROVER check disable "unsigned-overflow"
+    #endif
     d0 *=  40318;
+    #ifdef CBMC
 #pragma CPROVER check pop
-
+    #endif
     d0 >>= 27;
     d0 &=  0x1f;
     return d0;
@@ -130,24 +136,33 @@ uint16_t scalar_signed_to_unsigned_q_16 (int16_t c)
 **************************************************/
 void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
 {
-    unsigned int i, j;
-    uint8_t t[8];
+    uint8_t t[8] = { 0 };
 
     #if (KYBER_POLYCOMPRESSEDBYTES == 128)
-    for (i = 0; i < KYBER_N / 8; i++)
-        __CPROVER_assigns(i, j, t, r)
-        /* Stronger loop invariant here TBD */
-    {
-        for (j = 0; j < 8; j++)
-            __CPROVER_assigns(j, t)
-            /* Stronger loop invariant here TBD */
+    for (size_t i = 0; i < KYBER_N / 8; i++)
+        __CPROVER_assigns(i, __CPROVER_object_whole(t), __CPROVER_object_whole(r))
+        __CPROVER_loop_invariant(i <= KYBER_N)
+        __CPROVER_decreases(32 - i) {
+        for (size_t j = 0; j < 8; j++)
+// *INDENT-OFF*
+            __CPROVER_assigns(j, __CPROVER_object_whole(t))
+            __CPROVER_loop_invariant(i <= KYBER_N)
+            __CPROVER_loop_invariant(j <= 8)
+            __CPROVER_loop_invariant(__CPROVER_forall { size_t k2; (0 <= k2 && k2 < j) ==> (t[k2] >= 0 && t[k2] < 16) })
+            __CPROVER_decreases(8 - j)
+// *INDENT-ON*
         {
             // map to positive standard representatives
             // REF-CHANGE: Hoist signed-to-unsigned conversion into separate function
-            int32_t u = (int32_t) scalar_signed_to_unsigned_q_16(a->coeffs[8 * i + j]);
+            int32_t u;
+            u = (int32_t) scalar_signed_to_unsigned_q_16(a->coeffs[8 * i + j]);
             // REF-CHANGE: Hoist scalar compression into separate function
             t[j] = scalar_compress_q_16(u);
         }
+
+        __CPROVER_assert(t[0] < 16, "UB on t[0]");
+        __CPROVER_assert(t[1] < 16, "UB on t[1]");
+        __CPROVER_assert((t[0] | (t[1] << 4)) <= 255, "Range of t");
 
         r[0] = t[0] | (t[1] << 4);
         r[1] = t[2] | (t[3] << 4);
@@ -156,9 +171,9 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
         r += 4;
     }
     #elif (KYBER_POLYCOMPRESSEDBYTES == 160)
-    for (i = 0; i < KYBER_N / 8; i++)
+    for (size_t i = 0; i < KYBER_N / 8; i++)
     {
-        for (j = 0; j < 8; j++)
+        for (size_t j = 0; j < 8; j++)
         {
             // map to positive standard representatives
             // REF-CHANGE: Hoist signed-to-unsigned conversion into separate function

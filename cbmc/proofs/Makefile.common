@@ -517,6 +517,7 @@ COMMA :=,
 CBMCFLAGS += --object-bits $(CBMC_OBJECT_BITS)
 
 # --object_bits is removed in goto-cc 6.0.0
+# COMPILE_FLAGS += --object-bits $(CBMC_OBJECT_BITS)
 
 DEFINES += -DCBMC=1
 DEFINES += -DCBMC_OBJECT_BITS=$(CBMC_OBJECT_BITS)
