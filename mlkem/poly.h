@@ -2,6 +2,7 @@
 #ifndef POLY_H
 #define POLY_H
 
+#include <stddef.h>
 #include <stdint.h>
 #include "params.h"
 #include "cbmc.h"
@@ -57,7 +58,16 @@ __CPROVER_ensures(__CPROVER_return_value == (int32_t) c + (((int32_t) c < 0) * K
 /* *INDENT-ON* */
 
 #define poly_compress KYBER_NAMESPACE(poly_compress)
-void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a);
+void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
+/* *INDENT-OFF* */
+__CPROVER_requires(r != NULL)
+__CPROVER_requires(__CPROVER_is_fresh(r, KYBER_POLYCOMPRESSEDBYTES))
+__CPROVER_requires(a != NULL)
+__CPROVER_requires(__CPROVER_is_fresh(a, sizeof(poly)))
+__CPROVER_requires(__CPROVER_forall { unsigned k; (k < KYBER_N) ==> ( -KYBER_Q <= a->coeffs[k] && a->coeffs[k] < KYBER_Q ) })
+__CPROVER_assigns(__CPROVER_object_whole(r));
+/* *INDENT-ON* */
+
 
 #define poly_decompress KYBER_NAMESPACE(poly_decompress)
 void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES]);
