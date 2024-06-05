@@ -7,7 +7,7 @@ HARNESS_FILE = scalar_compress_q_32_harness
 
 # This should be a unique identifier for this proof, and will appear on the
 # Litani dashboard. It can be human-readable and contain spaces if you wish.
-PROOF_UID = $(KYBER_NAMESPACE)scalar_compress_q_32
+PROOF_UID = scalar_compress_q_32
 
 DEFINES +=
 INCLUDES +=
@@ -18,7 +18,7 @@ UNWINDSET +=
 PROOF_SOURCES += $(PROOFDIR)/$(HARNESS_FILE).c
 PROJECT_SOURCES += $(SRCDIR)/mlkem/poly.c
 
-CHECK_FUNCTION_CONTRACTS=$(PROOF_UID)
+CHECK_FUNCTION_CONTRACTS=$(KYBER_NAMESPACE)scalar_compress_q_32
 USE_FUNCTION_CONTRACTS=
 APPLY_LOOP_CONTRACTS=on
 USE_DYNAMIC_FRAMES=1
