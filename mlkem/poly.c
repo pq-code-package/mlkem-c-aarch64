@@ -44,10 +44,6 @@ uint32_t scalar_compress_q_16(int32_t u)
  *                 to be decompressed.
  ************************************************************/
 uint32_t scalar_decompress_q_16(uint32_t u)
-/* INDENT-OFF */
-__CPROVER_requires(0 <= u && u < 16)
-__CPROVER_ensures(__CPROVER_return_value < KYBER_Q)
-/* INDENT-ON */
 {
     return ((u * KYBER_Q) + 8) / 16;
 }
@@ -87,10 +83,6 @@ uint32_t scalar_compress_q_32(int32_t u)
  *                 to be decompressed.
  ************************************************************/
 uint32_t scalar_decompress_q_32(uint32_t u)
-/* INDENT-OFF */
-__CPROVER_requires(0 <= u && u < 32)
-__CPROVER_ensures(__CPROVER_return_value < KYBER_Q)
-/* INDENT-ON */
 {
     return ((u * KYBER_Q) + 16) / 32;
 }

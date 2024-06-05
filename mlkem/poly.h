@@ -25,7 +25,11 @@ __CPROVER_ensures(__CPROVER_return_value < 16)
 __CPROVER_ensures(__CPROVER_return_value == (((uint32_t) u * 16 + KYBER_Q / 2) / KYBER_Q) % 16);
 /* INDENT-ON */
 
-uint32_t scalar_decompress_q_16 (uint32_t);
+uint32_t scalar_decompress_q_16 (uint32_t u)
+/* INDENT-OFF */
+__CPROVER_requires(0 <= u && u < 16)
+__CPROVER_ensures(__CPROVER_return_value < KYBER_Q);
+/* INDENT-ON */
 
 uint32_t scalar_compress_q_32   (int32_t u)
 /* INDENT-OFF */
@@ -34,7 +38,11 @@ __CPROVER_ensures(__CPROVER_return_value < 32)
 __CPROVER_ensures(__CPROVER_return_value == (((uint32_t) u * 32 + KYBER_Q / 2) / KYBER_Q) % 32);
 /* INDENT-ON */
 
-uint32_t scalar_decompress_q_32 (uint32_t);
+uint32_t scalar_decompress_q_32 (uint32_t u)
+/* INDENT-OFF */
+__CPROVER_requires(0 <= u && u < 32)
+__CPROVER_ensures(__CPROVER_return_value < KYBER_Q);
+/* INDENT-ON */
 
 #define poly_compress KYBER_NAMESPACE(poly_compress)
 void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)

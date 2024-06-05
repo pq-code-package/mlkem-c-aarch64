@@ -25,9 +25,7 @@ void harness(void) {
     // Check that decompression followed by compression is the identity
     uint32_t c0, c1, d;
 
-    __CPROVER_assume(c0 < 16);
     d = scalar_decompress_q_16(c0);
-    __CPROVER_assert(d < KYBER_Q, "scalar_decompress_q_16 bound");
     c1 = scalar_compress_q_16(d);
     __CPROVER_assert(c0 == c1, "scalar_compress_q_16 o scalar_decompress_q_16 != id");
 }
