@@ -1,0 +1,36 @@
+# SPDX-License-Identifier: Apache-2.0
+
+name: CBMC
+on:
+  push:
+    branches: ["*"]
+  pull_request:
+    branches: ["main"]
+jobs:
+  cbmc:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: install native dependencies
+        run: brew install litani cbmc cbmc-viewer
+      - name: Setup nix
+        uses: ./.github/actions/setup-nix
+        with:
+          script: |
+            cat >> $GITHUB_STEP_SUMMARY << EOF
+              ## Setup
+              Architecture: $(uname -m)
+              - $(nix --version)
+              - $(cbmc --version)
+              - $(litani --version)
+              - $(cadical --version)
+              - $(${{ matrix.cross_prefix }}gcc --version | grep -m1 "")
+              - $(bash --version | grep -m1 "")
+            EOF
+      - name: Run CBMC proofs
+        shell: nix develop .#ci -c bash -e {0}
+        run: |
+          cd cbmc/proofs;
+          KYBER_K=2 ./run-cbmc-proofs.py --summarize;
+          KYBER_K=3 ./run-cbmc-proofs.py --summarize;
+          KYBER_K=4 ./run-cbmc-proofs.py --summarize;
