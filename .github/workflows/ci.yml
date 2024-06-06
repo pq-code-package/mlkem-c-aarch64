@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
-name: Basic
+name: CI
 on:
   push:
     branches: ["*"]
   pull_request:
     branches: ["main"]
 jobs:
-  build_lint_kat:
+  build_kat:
     strategy:
       matrix:
         system: [macos-latest, pqcp-arm64]
@@ -27,11 +27,6 @@ jobs:
               - $(${{ matrix.cross_prefix }}gcc --version | grep -m1 "")
               - $(bash --version | grep -m1 "")
             EOF
-      - name: Lint
-        shell: nix develop .#ci -c bash -e {0}
-        run: |
-          echo "## Lint & Checks" >> $GITHUB_STEP_SUMMARY
-          lint
       - name: Build targets
         shell: nix develop .#ci -c bash -e {0}
         run: |
@@ -59,3 +54,58 @@ jobs:
             $(checksum ./test/gen_NISTKAT768  21b4a1e1ea34a13c26a9da5eeb9325afb5ca11596ca6f3704c3f2637e3ea7524)
             $(checksum ./test/gen_NISTKAT1024 6471398b0a728ee1ef39e93bb89b526fbf59587a3662edadbcfc6c88a512cd71)
           EOF
+  lint:
+    strategy:
+      matrix:
+        system: [pqcp-arm64]
+    runs-on: ${{ matrix.system }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup nix
+        uses: ./.github/actions/setup-nix
+        with:
+          script: |
+            cat >> $GITHUB_STEP_SUMMARY << EOF
+              ## Setup
+              Architecture: $(uname -m)
+              - $(uname -a)
+              - $(nix --version)
+              - $(astyle --version)
+              - $(${{ matrix.cross_prefix }}gcc --version | grep -m1 "")
+              - $(bash --version | grep -m1 "")
+            EOF
+      - name: Lint
+        shell: nix develop .#ci -c bash -e {0}
+        run: |
+          echo "## Lint & Checks" >> $GITHUB_STEP_SUMMARY
+          lint
+  cbmc:
+    strategy:
+      matrix:
+        system: [macos-latest]
+    runs-on: ${{ matrix.system }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: install native dependencies
+        run: brew install litani cbmc cbmc-viewer
+      - name: Setup nix
+        uses: ./.github/actions/setup-nix
+        with:
+          script: |
+            cat >> $GITHUB_STEP_SUMMARY << EOF
+              ## Setup
+              Architecture: $(uname -m)
+              - $(nix --version)
+              - $(cbmc --version)
+              - $(litani --version)
+              - $(cadical --version)
+              - $(${{ matrix.cross_prefix }}gcc --version | grep -m1 "")
+              - $(bash --version | grep -m1 "")
+            EOF
+      - name: Run CBMC proofs
+        shell: nix develop .#ci -c bash -e {0}
+        run: |
+          cd cbmc/proofs;
+          KYBER_K=2 ./run-cbmc-proofs.py --summarize;
+          KYBER_K=3 ./run-cbmc-proofs.py --summarize;
+          KYBER_K=4 ./run-cbmc-proofs.py --summarize;
