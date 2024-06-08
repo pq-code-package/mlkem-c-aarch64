@@ -181,10 +181,19 @@ _rej_uniform_asm:
     bits_q                      .req q31
 
 
-    /* 
-     * Preserve registers and restore at the end of function.
-     * Stack alignment must be 16 bytes. 
-     */
+    /*
+    * Preserve registers and restore them at the end of the function.
+    * Stack alignment must be 16 bytes.
+    * Stack size: 0x270 = 16 * 3 (preserve register) + sizeof(int16_t) * (KYBER_N + 32)
+    * Memory layout from the bottom of the stack to the top:
+    * 0x00:   x8   |  padding
+    * 0x10:   x16  |  x17
+    * 0x20:   x29  |  x30
+    * Start at 0x030 to the end at 0x220:   KYBER_N * sizeof(int16_t)
+    * 0x230 -> 0x270: 64 bytes padding to avoid overflow in the `str` sequence.
+    * The 4 `str` sequences at the end of `loop48` can write from 0 bytes (4*0) to 64 bytes (4*16).
+    * However, we only copy the maximum amount of `len` stored in x4 from stack to `x0`.
+    */
     sub     sp, sp, #0x270
     str     x8, [sp]
     stp     x16, x17, [sp, #16]
@@ -354,7 +363,7 @@ _rej_uniform_asm:
         cbz     minw, return
 
         ubfiz   x2, min, #1, #32
-        mov     x1, sp_copy        
+        mov     x1, sp_copy
         bl      simd_memcpy
 
     return:
