@@ -88,13 +88,11 @@ end:
 *              - unsigned int *consumed: the length of consumed buffer
 * Returns number of sampled 16-bit integers (at most len)
 **************************************************/
-.macro div48    dst, src
-    mov     w8, #43691
-    movk    w8, #43690, lsl #16
-    umull   x8, \src, w8
-    lsr     x8, x8, #37
-    add     w8, w8, w8, lsl #1
-    lsl     \dst, w8, #4
+/* Return multiple of 48: (n/48) * 48 */
+.macro round_48x    dst, src
+    mov     w8, #48
+    udiv    \dst, \src, w8
+    mul     \dst, \dst, w8
 .endm
 
 .align 4
@@ -190,7 +188,7 @@ _rej_uniform_asm:
     * 0x10:   x16  |  x17
     * 0x20:   x29  |  x30
     * Start at 0x030 to the end at 0x220:   KYBER_N * sizeof(int16_t)
-    * 0x230 -> 0x270: 64 bytes padding to avoid overflow in the `str` sequence.
+    * 0x230 -> 0x270: 64 = sizeof(int16_t) * 32 bytes padding to avoid overflow in the `str` sequence.
     * The 4 `str` sequences at the end of `loop48` can write from 0 bytes (4*0) to 64 bytes (4*16).
     * However, we only copy the maximum amount of `len` stored in x4 from stack to `x0`.
     */
@@ -201,10 +199,10 @@ _rej_uniform_asm:
 
     /* Vectorize code start */
 
-    ldr     bits_q, [bit_table]
-    movz    tmp, #3329
-    dup     kyber_q.8h, tmp
-    div48   bound, buflen
+    ldr         bits_q, [bit_table]
+    movz        tmp, #3329
+    dup         kyber_q.8h, tmp
+    round_48x   bound, buflen
 
     mov     iterw, #0
     add     output, sp, #48
