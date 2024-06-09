@@ -8,6 +8,6 @@ unsigned int rej_uniform(int16_t *r,
                          const uint8_t *buf,
                          unsigned int buflen);
 
-const uint16_t bit_table[8];
+extern const uint16_t bit_table[8];
 
 #endif

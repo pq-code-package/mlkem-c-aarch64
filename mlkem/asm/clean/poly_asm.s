@@ -51,7 +51,7 @@ _poly_frommsg_asm:
     .unreq          coeffs
     .unreq          msg
     .unreq          bit_table
-    
+
     /* Temporary registers */
     .unreq          iter
     .unreq          tmp
@@ -94,12 +94,12 @@ _poly_tomsg_asm:
     /* Vector registers */
     vhq             .req v16
     vhqinv          .req v17
-    
+
     a0              .req v18
     a1              .req v19
     a2              .req v20
-    a3              .req v21 
-    
+    a3              .req v21
+
     idx             .req v22
     idxq            .req q22
 
@@ -107,6 +107,11 @@ _poly_tomsg_asm:
     t1              .req h24
     t2              .req h25
     t3              .req h26
+
+    t0s              .req s23
+    t1s              .req s24
+    t2s              .req s25
+    t3s              .req s26
 
     /* Vectorize code start */
 
@@ -120,22 +125,22 @@ _poly_tomsg_asm:
 
     loop32:
         ld1     {a0.8h, a1.8h, a2.8h, a3.8h}, [x1], #64
-        
-        /*  t << = 1; */ 
+
+        /*  t << = 1; */
         add     a0.8h, a0.8h, a0.8h
         add     a1.8h, a1.8h, a1.8h
         add     a2.8h, a2.8h, a2.8h
         add     a3.8h, a3.8h, a3.8h
 
-        /* t += KYBER_Q/2 */ 
+        /* t += KYBER_Q/2 */
         add     a0.8h, a0.8h, vhq.8h
         add     a1.8h, a1.8h, vhq.8h
         add     a2.8h, a2.8h, vhq.8h
         add     a3.8h, a3.8h, vhq.8h
 
-        /* 
-         * t = t / KYBER_Q 
-         * Instead of direct division, we multiply with inverse of KYBER_Q and utilize the sqdmulh instruction. 
+        /*
+         * t = t / KYBER_Q
+         * Instead of direct division, we multiply with inverse of KYBER_Q and utilize the sqdmulh instruction.
          * To do so, we have a few options:
          * 80635 = round(2^28/KYBER_Q) as in the reference C implementation
          * However, we need number that fit in the range [-2^15..2^15]
@@ -175,10 +180,10 @@ _poly_tomsg_asm:
         addv        t2, a2.8h
         addv        t3, a3.8h
 
-        fmov        r0, t0
-        fmov        r1, t1
-        fmov        r2, t2
-        fmov        r3, t3
+        fmov        r0, t0s
+        fmov        r1, t1s
+        fmov        r2, t2s
+        fmov        r3, t3s
 
         strb        r0, [x0], #1
         strb        r1, [x0], #1
@@ -209,12 +214,12 @@ _poly_tomsg_asm:
     /* Vector registers */
     .unreq vhq
     .unreq vhqinv
-    
+
     .unreq a0
     .unreq a1
     .unreq a2
     .unreq a3
-    
+
     .unreq idx
     .unreq idxq
 
@@ -222,3 +227,8 @@ _poly_tomsg_asm:
     .unreq t1
     .unreq t2
     .unreq t3
+
+    .unreq t0s
+    .unreq t1s
+    .unreq t2s
+    .unreq t3s
