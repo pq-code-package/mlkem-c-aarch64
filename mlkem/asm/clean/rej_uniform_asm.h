@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-#ifndef REJ_UNIFORM_ASM
-#define REJ_UNIFORM_ASM
+#ifndef REJ_UNIFORM_ASM_H
+#define REJ_UNIFORM_ASM_H
 
 unsigned int rej_uniform_asm(int16_t *r,
                              const uint8_t *buf,

@@ -15,7 +15,7 @@ CFLAGS_NISTRANDOMBYTES = ${CFLAGS} ${INCLUDE_NISTRANDOM}
 NISTFLAGS += -Wno-unused-result -O3 -fomit-frame-pointer
 RM = /bin/rm
 
-ASM_CLEAN = mlkem/asm/clean/rej_uniform_asm.s
+ASM_CLEAN = mlkem/asm/clean/rej_uniform_asm.s mlkem/asm/clean/poly_asm.s
 
 SOURCES = $(ASM_CLEAN) mlkem/kem.c mlkem/indcpa.c mlkem/polyvec.c mlkem/poly.c mlkem/ntt.c mlkem/cbd.c mlkem/reduce.c mlkem/verify.c mlkem/rej_uniform.c
 SOURCESKECCAK = $(SOURCES) fips202/keccakf1600.c fips202/fips202.c mlkem/symmetric-shake.c

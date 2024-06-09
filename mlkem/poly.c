@@ -7,6 +7,8 @@
 #include "reduce.h"
 #include "cbd.h"
 #include "symmetric.h"
+#include "poly_asm.h"
+#include "rej_uniform.h"
 
 /************************************************************
  * Name: scalar_compress_q_16
@@ -258,19 +260,10 @@ void poly_frombytes(poly *r, const uint8_t a[KYBER_POLYBYTES]) {
 *              - const uint8_t *msg: pointer to input message
 **************************************************/
 void poly_frommsg(poly *r, const uint8_t msg[KYBER_INDCPA_MSGBYTES]) {
-    unsigned int i, j;
-    int16_t mask;
-
     #if (KYBER_INDCPA_MSGBYTES != KYBER_N/8)
 #error "KYBER_INDCPA_MSGBYTES must be equal to KYBER_N/8 bytes!"
     #endif
-
-    for (i = 0; i < KYBER_N / 8; i++) {
-        for (j = 0; j < 8; j++) {
-            mask = -(int16_t)((msg[i] >> j) & 1);
-            r->coeffs[8 * i + j] = mask & ((KYBER_Q + 1) / 2);
-        }
-    }
+    poly_frommsg_asm(r->coeffs, msg, bit_table);
 }
 
 /*************************************************
@@ -281,24 +274,9 @@ void poly_frommsg(poly *r, const uint8_t msg[KYBER_INDCPA_MSGBYTES]) {
 * Arguments:   - uint8_t *msg: pointer to output message
 *              - const poly *a: pointer to input polynomial
 **************************************************/
-void poly_tomsg(uint8_t msg[KYBER_INDCPA_MSGBYTES], const poly *a) {
-    unsigned int i, j;
-    uint32_t t;
-
-    for (i = 0; i < KYBER_N / 8; i++) {
-        msg[i] = 0;
-        for (j = 0; j < 8; j++) {
-            t  = a->coeffs[8 * i + j];
-            // t += ((int16_t)t >> 15) & KYBER_Q;
-            // t  = (((t << 1) + KYBER_Q/2)/KYBER_Q) & 1;
-            t <<= 1;
-            t += 1665;
-            t *= 80635;
-            t >>= 28;
-            t &= 1;
-            msg[i] |= t << j;
-        }
-    }
+void poly_tomsg(uint8_t msg[KYBER_INDCPA_MSGBYTES], const poly *r) {
+    const uint16_t position[8] = {0, 1, 2, 3, 4, 5, 6, 7};
+    poly_tomsg_asm(msg, r->coeffs, position);
 }
 
 /*************************************************
