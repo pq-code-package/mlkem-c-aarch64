@@ -8,6 +8,30 @@
 *              - const uint8_t *msg: pointer to input message
 *              - const uint16_t *bits: pointer to bit_table
 **************************************************/
+/* Compute frommsg from 32 bits input, output 32 int16_t coeffs */
+.macro frommsg_32bits dst0, dst1, dst2, dst3, src, i0, i1, i2, i3
+    dup     \dst0\().8h, \src\().h[\i0]
+    dup     \dst1\().8h, \src\().h[\i1]
+    dup     \dst2\().8h, \src\().h[\i2]
+    dup     \dst3\().8h, \src\().h[\i3]
+
+    and     \dst0\().16b, \dst0\().16b, bits\().16b
+    and     \dst1\().16b, \dst1\().16b, bits\().16b
+    and     \dst2\().16b, \dst2\().16b, bits\().16b
+    and     \dst3\().16b, \dst3\().16b, bits\().16b
+
+    cmeq    \dst0\().8h, \dst0\().8h, #0
+    cmeq    \dst1\().8h, \dst1\().8h, #0
+    cmeq    \dst2\().8h, \dst2\().8h, #0
+    cmeq    \dst3\().8h, \dst3\().8h, #0
+
+    bic     \dst0\().16b, const\().16b, \dst0\().16b
+    bic     \dst1\().16b, const\().16b, \dst1\().16b
+    bic     \dst2\().16b, const\().16b, \dst2\().16b
+    bic     \dst3\().16b, const\().16b, \dst3\().16b
+
+.endm
+
 .align 4
 .global poly_frommsg_asm
 .global _poly_frommsg_asm
@@ -27,8 +51,21 @@ _poly_frommsg_asm:
     const           .req v16
     bits            .req v17
     bitsq           .req q17
-    a0              .req v18
-    a0q             .req q18
+
+    m               .req v18
+    mq              .req q18
+    m1              .req v19
+    m2              .req v20
+
+    a0              .req v21
+    a1              .req v22
+    a2              .req v23
+    a3              .req v24
+
+    c0              .req v25
+    c1              .req v26
+    c2              .req v27
+    c3              .req v28
 
     /* Vectorize code start */
     mov     tmp, #1665                // (KYBER_Q + 1) / 2
@@ -36,14 +73,31 @@ _poly_frommsg_asm:
     ldr     bitsq, [bit_table]
     mov     iter, xzr
     loop:
-        ldrb    tmp, [msg, iter]
-        dup     a0.8h, tmp
-        and     a0.16b, a0.16b, bits.16b
-        cmeq    a0.8h, a0.8h, #0
-        bic     a0.16b, const.16b, a0.16b
-        str     a0q, [coeffs, iter, lsl #4]
-        add     iter, iter, #1
-        cmp     iter, #32            // KYBER_N / 8
+        // Load 16 bytes from m
+        ldr     mq, [msg, iter]
+
+        /* Extend from int8x16_t vector to 2 int16x8_t vectors */
+        ushll   m1.8h, m.8b, #0
+        ushll2  m2.8h, m.16b, #0
+
+        frommsg_32bits a0, a1, a2, a3, m1, 0, 1, 2, 3
+        frommsg_32bits c0, c1, c2, c3, m1, 4, 5, 6, 7
+
+        st1     {a0.8h, a1.8h, a2.8h, a3.8h}, [coeffs]
+        add     coeffs, coeffs, #64
+        st1     {c0.8h, c1.8h, c2.8h, c3.8h}, [coeffs]
+        add     coeffs, coeffs, #64
+
+        frommsg_32bits a0, a1, a2, a3, m2, 0, 1, 2, 3
+        frommsg_32bits c0, c1, c2, c3, m2, 4, 5, 6, 7
+
+        st1     {a0.8h, a1.8h, a2.8h, a3.8h}, [coeffs]
+        add     coeffs, coeffs, #64
+        st1     {c0.8h, c1.8h, c2.8h, c3.8h}, [coeffs]
+        add     coeffs, coeffs, #64
+
+        add     iter, iter, #16
+        cmp     iter, #32
         b.ne    loop
     ret
 
@@ -60,8 +114,18 @@ _poly_frommsg_asm:
     .unreq          const
     .unreq          bits
     .unreq          bitsq
+    .unreq          m
+    .unreq          mq
+    .unreq          m1
+    .unreq          m2
     .unreq          a0
-    .unreq          a0q
+    .unreq          a1
+    .unreq          a2
+    .unreq          a3
+    .unreq          c0
+    .unreq          c1
+    .unreq          c2
+    .unreq          c3
 /*************************************************
 * Name:        poly_tomsg_asm
 *
@@ -108,10 +172,10 @@ _poly_tomsg_asm:
     t2              .req h25
     t3              .req h26
 
-    t0s              .req s23
-    t1s              .req s24
-    t2s              .req s25
-    t3s              .req s26
+    t0s             .req s23
+    t1s             .req s24
+    t2s             .req s25
+    t3s             .req s26
 
     /* Vectorize code start */
 
