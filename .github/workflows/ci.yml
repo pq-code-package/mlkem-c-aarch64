@@ -107,8 +107,8 @@ jobs:
               Architecture: $(uname -m)
               - $(nix --version)
               - $(cbmc --version)
-              - $(litani --version)
-              - $(cadical --version)
+              - litani Version $(litani --version)
+              - Cadical Version $(cadical --version)
               - $(${{ matrix.cross_prefix }}gcc --version | grep -m1 "")
               - $(bash --version | grep -m1 "")
             EOF
