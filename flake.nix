@@ -34,7 +34,7 @@
               astyle = astyle;
 
               inherit (pkgs)
-                cbmc# 5.91.1
+                cbmc# 5.95.1
                 ninja# 1.11.1
 
                 # formatter & linters
