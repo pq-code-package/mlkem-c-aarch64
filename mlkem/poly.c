@@ -104,8 +104,7 @@ uint32_t scalar_decompress_q_32(uint32_t u)
  *
  * Arguments: c: signed coefficient to be converted
  ************************************************************/
-uint16_t coeff_signed_to_unsigned (int16_t c)
-{
+uint16_t coeff_signed_to_unsigned (int16_t c) {
     int32_t r = (int32_t) c;
 
     // Add Q if r is negative
@@ -134,7 +133,7 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
     int32_t u;
     uint8_t t[8];
 
-#if (KYBER_POLYCOMPRESSEDBYTES == 128)
+    #if (KYBER_POLYCOMPRESSEDBYTES == 128)
     for (i = 0; i < KYBER_N / 8; i++)
         __CPROVER_assigns(i, j, u, t, r)
         /* Stronger loop invariant here TBD */
@@ -177,9 +176,9 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
         r[4] = 0xFF & ((t[6] >> 2) | (t[7] << 3));
         r += 5;
     }
-#else
+    #else
 #error "KYBER_POLYCOMPRESSEDBYTES needs to be in {128, 160}"
-#endif
+    #endif
 }
 
 /*************************************************
@@ -219,7 +218,7 @@ __CPROVER_forall {
         r->coeffs[2 * i + 1] = scalar_decompress_q_16((a[0] >> 4) & 0xF);
         a += 1;
     }
-#elif (KYBER_POLYCOMPRESSEDBYTES == 160)
+    #elif (KYBER_POLYCOMPRESSEDBYTES == 160)
     unsigned int j;
     uint8_t t[8];
     for (i = 0; i < KYBER_N / 8; i++)
@@ -242,9 +241,9 @@ __CPROVER_forall {
             r->coeffs[8 * i + j] = ((uint32_t) t[j] * KYBER_Q + 16) >> 5;
         }
     }
-#else
+    #else
 #error "KYBER_POLYCOMPRESSEDBYTES needs to be in {128, 160}"
-#endif
+    #endif
 }
 
 /*************************************************
@@ -305,9 +304,9 @@ void poly_frommsg(poly *r, const uint8_t msg[KYBER_INDCPA_MSGBYTES])
 {
     unsigned int i, j;
 
-#if (KYBER_INDCPA_MSGBYTES != KYBER_N/8)
+    #if (KYBER_INDCPA_MSGBYTES != KYBER_N/8)
 #error "KYBER_INDCPA_MSGBYTES must be equal to KYBER_N/8 bytes!"
-#endif
+    #endif
 
     for (i = 0; i < KYBER_N / 8; i++)
     {
