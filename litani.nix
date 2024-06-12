@@ -17,8 +17,8 @@ stdenvNoCC.mkDerivation rec {
   installPhase = ''
     mkdir -p $out/bin
     cp litani $out/bin
-    cp -r lib $out/
-    cp -r templates $out/
+    cp -r lib $out/bin
+    cp -r templates $out/bin
   '';
   dontStrip = true;
   noAuditTmpdir = true;
