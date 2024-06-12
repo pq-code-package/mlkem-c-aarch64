@@ -10,10 +10,13 @@ jobs:
   build_kat:
     strategy:
       matrix:
-        system: [macos-latest, pqcp-arm64]
-        skipped: [false]
-        expect_arch: [ arm64 ]
         include:
+        - system: macos-latest
+          skipped: false
+          expect_arch: arm64
+        - system: pqcp-arm64
+          skipped: false
+          expect_arch: aarch64
         - system: ubuntu-latest
           cross_prefix: aarch64-none-linux-gnu-
           skipped: true
