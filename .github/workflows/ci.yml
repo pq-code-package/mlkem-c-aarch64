@@ -12,10 +12,12 @@ jobs:
       matrix:
         system: [macos-latest, pqcp-arm64]
         skipped: [false]
+        expect_arch: [ arm64 ]
         include:
         - system: ubuntu-latest
           cross_prefix: aarch64-none-linux-gnu-
           skipped: true
+          expect_arch: x86_64
     name: build_kat (${{ matrix.system }})
     runs-on: ${{ matrix.system }}
     steps:
@@ -24,15 +26,21 @@ jobs:
         uses: ./.github/actions/setup-nix
         with:
           script: |
+            ARCH=$(uname -m)
             cat >> $GITHUB_STEP_SUMMARY <<-EOF
               ## Setup
-              Architecture: $(uname -m)
+              Architecture: $ARCH
               - $(uname -a)
               - $(nix --version)
               - $(astyle --version)
               - $(${{ matrix.cross_prefix }}gcc --version | grep -m1 "")
               - $(bash --version | grep -m1 "")
             EOF
+
+            if [[ "$ARCH" != ${{ matrix.expect_arch }} ]]; then
+              echo ":x: Expecting to run on ${{ matrix.expect_arch }}, but instead running on $ARCH" >> $GITHUB_STEP_SUMMARY
+              exit 1
+            fi
       - name: Build targets
         shell: nix develop .#ci -c bash -e {0}
         run: |
