@@ -16,7 +16,7 @@
     flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [ ];
       systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
-      perSystem = { pkgs, ... }:
+      perSystem = { pkgs, system, ... }:
         let
           core = builtins.attrValues
             {
@@ -27,11 +27,12 @@
                 nixpkgs-fmt
                 shfmt;
             }
-          # ignore gcc for x86_64 machines, and arch64-darwin should just use the native clang
-          ++ (if !pkgs.stdenv.isDarwin && pkgs.stdenv.isAarch64
-          then [ (pkgs.gcc13.override { propagateDoc = true; isGNU = true; }) ]
-          else [ ]
-          );
+          ++ {
+            "x86_64-linux" = [ (pkgs.callPackage ./arm-gnu-gcc.nix { }) ];
+            "aarch64-linux" = [ (pkgs.gcc13.override { propagateDoc = true; isGNU = true; }) ];
+            "aarch64-darwin" = [ ];
+            "x86_64-darwin" = [ ];
+          }.${system};
 
         in
         {
