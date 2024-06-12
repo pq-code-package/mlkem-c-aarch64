@@ -18,9 +18,21 @@
       systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
       perSystem = { pkgs, system, ... }:
         let
+          litani = pkgs.callPackage ./litani.nix {
+
+          };
+          cbmc-viewer = pkgs.callPackage ./cbmc-viewer.nix {
+
+          };
           core = builtins.attrValues
             {
+              litani = litani;# 1.29.0
+              cbmc-viewer = cbmc-viewer; # 3.8
+
               inherit (pkgs)
+                cbmc# 5.91.0
+                ninja# 1.11.1
+
                 # formatter & linters
                 astyle# 3.4.10
                 cadical
