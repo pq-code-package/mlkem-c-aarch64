@@ -9,6 +9,7 @@ on:
 jobs:
   build_kat:
     strategy:
+      fail-fast: false
       matrix:
         include:
         - system: macos-latest
