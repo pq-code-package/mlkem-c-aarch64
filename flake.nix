@@ -19,22 +19,27 @@
       perSystem = { pkgs, system, ... }:
         let
           litani = pkgs.callPackage ./litani.nix {
-
           };
           cbmc-viewer = pkgs.callPackage ./cbmc-viewer.nix {
-
           };
+          astyle = pkgs.astyle.overrideAttrs (old: rec {
+            version = "3.4.13";
+            src = pkgs.fetchurl {
+              url = "mirror://sourceforge/${old.pname}/${old.pname}-${version}.tar.bz2";
+              hash = "sha256-eKYQq9OelOD5E+nuXNoehbtizWM1U97LngDT2SAQGc4=";
+            };
+          });
           core = builtins.attrValues
             {
               litani = litani;# 1.29.0
               cbmc-viewer = cbmc-viewer; # 3.8
+              astyle = astyle;
 
               inherit (pkgs)
                 cbmc# 5.91.1
                 ninja# 1.11.1
 
                 # formatter & linters
-                astyle# 3.4.15
                 cadical
                 nixpkgs-fmt
                 shfmt;
