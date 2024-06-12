@@ -1,9 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
-{ lib
-, stdenvNoCC
+{ stdenvNoCC
 , fetchFromGitHub
-, targets ? [ ]
 }:
 
 stdenvNoCC.mkDerivation rec {
@@ -17,13 +15,10 @@ stdenvNoCC.mkDerivation rec {
   };
   dontConfigure = true;
   installPhase = ''
-    mkdir -p $out/litani/
-    cp  litani $out/litani/
-    cp -r lib $out/litani/
-    cp -r templates $out/litani/
-
     mkdir -p $out/bin
-    ln -sf $out/litani/litani $out/bin/litani
+    cp litani $out/bin
+    cp -r lib $out/
+    cp -r templates $out/
   '';
   dontStrip = true;
   noAuditTmpdir = true;
