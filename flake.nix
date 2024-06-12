@@ -18,10 +18,8 @@
       systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
       perSystem = { pkgs, system, ... }:
         let
-          litani = pkgs.callPackage ./litani.nix {
-          };
-          cbmc-viewer = pkgs.callPackage ./cbmc-viewer.nix {
-          };
+          litani = pkgs.callPackage ./litani.nix { };
+          cbmc-viewer = pkgs.callPackage ./cbmc-viewer.nix { };
           astyle = pkgs.astyle.overrideAttrs (old: rec {
             version = "3.4.13";
             src = pkgs.fetchurl {
@@ -31,7 +29,7 @@
           });
           core = builtins.attrValues
             {
-              litani = litani;# 1.29.0
+              litani = litani; # 1.29.0
               cbmc-viewer = cbmc-viewer; # 3.8
               astyle = astyle;
 
