@@ -16,6 +16,7 @@ jobs:
         - system: ubuntu-latest
           cross_prefix: aarch64-none-linux-gnu-
           skipped: true
+    name: build_kat (${{ matrix.system }})
     runs-on: ${{ matrix.system }}
     steps:
       - uses: actions/checkout@v4
