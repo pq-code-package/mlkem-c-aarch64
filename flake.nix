@@ -4,7 +4,7 @@
   description = "mlkem-c-aarch64";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
 
     flake-parts = {
       url = "github:hercules-ci/flake-parts";
@@ -30,11 +30,11 @@
               cbmc-viewer = cbmc-viewer; # 3.8
 
               inherit (pkgs)
-                cbmc# 5.91.0
+                cbmc# 5.91.1
                 ninja# 1.11.1
 
                 # formatter & linters
-                astyle# 3.4.10
+                astyle# 3.4.15
                 cadical
                 nixpkgs-fmt
                 shfmt;
