@@ -31,8 +31,8 @@
             version = "731338d5d82ac86fc447015e0bd24cdf7a74c442";
             src = pkgs.fetchFromGitHub {
               owner = "diffblue";
-              repo = "cbmc";
-              rev = "731338d5d82ac86fc447015e0bd24cdf7a74c442";
+              repo = old.pname;
+              rev = "${version}";
               hash = "sha256-fDLSo5EeHyPTliAqFp+5mfaB0iZXIMXeMyF21fjl5k4=";
             };
           });
