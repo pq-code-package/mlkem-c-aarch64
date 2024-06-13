@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 Q ?= @
+QEMU = qemu-aarch64
 CROSS_PREFIX ?=
 CC := $(CROSS_PREFIX)gcc
 
@@ -11,6 +12,12 @@ INCLUDE_NISTRANDOM = -I test/nistrng
 CFLAGS += -Wall -Wextra -Wpedantic -Wmissing-prototypes -Wredundant-decls \
   -Wshadow -Wpointer-arith -O3 -fomit-frame-pointer -pedantic \
    ${INCLUDE_MLKEM} ${INCLUDE_FIPS202}
+
+OS := $(shell uname -s)
+ifneq ($(OS),Darwin)
+	CFLAGS += -static
+endif
+
 CFLAGS_RANDOMBYTES = ${CFLAGS} ${INCLUDE_RANDOM}
 CFLAGS_NISTRANDOMBYTES = ${CFLAGS} ${INCLUDE_NISTRANDOM}
 NISTFLAGS += -Wno-unused-result -O3 -fomit-frame-pointer
@@ -72,6 +79,10 @@ test/gen_NISTKAT768: $(SOURCESNISTKATS) $(HEADERNISTKATS) test/gen_NISTKAT.c
 test/gen_NISTKAT1024: $(SOURCESNISTKATS) $(HEADERNISTKATS) test/gen_NISTKAT.c
 	$(CC) $(CFLAGS_NISTRANDOMBYTES) -DKYBER_K=4 $(SOURCESNISTKATS) test/gen_NISTKAT.c -o $@
 
+# emulate ARM64 binary on x86_64 machine
+emulate:
+	$(Q)$(MAKE) --quiet CROSS_PREFIX=aarch64-none-linux-gnu- $(TARGET)
+	$(Q)$(QEMU) $(TARGET)
 
 clean:
 	-$(RM) -rf *.gcno *.gcda *.lcov *.o *.so
