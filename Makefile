@@ -13,8 +13,8 @@ CFLAGS += -Wall -Wextra -Wpedantic -Wmissing-prototypes -Wredundant-decls \
   -Wshadow -Wpointer-arith -O3 -fomit-frame-pointer -pedantic \
    ${INCLUDE_MLKEM} ${INCLUDE_FIPS202}
 
-OS := $(shell uname -s)
-ifneq ($(OS),Darwin)
+HOST_PLATFORM := $(shell uname -s)-$(shell uname -m)
+ifeq ($(HOST_PLATFORM),Linux-x86_64)
 	CFLAGS += -static
 endif
 
