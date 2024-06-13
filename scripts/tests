@@ -15,6 +15,7 @@ def config_logger(verbose):
     else:
         logging.basicConfig(format="%(levelname)-5s > %(message)s", level=logging.INFO)
 
+
 def base_run(bin, verbose):
     if platform.system() == "Linux" and platform.machine() == "x86_64":
         logging.info(f"Emulating {bin} with QEMU")
@@ -52,6 +53,7 @@ def base_run(bin, verbose):
 
     return result.stdout
 
+
 _shared_options = [
     click.option(
         "-v",
@@ -87,8 +89,56 @@ def run(bin, verbose):
     logging.info(str(result, encoding="utf-8"))
 
 
+@click.command(
+    short_help="Run the functional tests for all parameter sets",
+    context_settings={"show_default": True},
+)
+@add_options(_shared_options)
+def func(verbose):
+    config_logger(verbose)
+
+    bins = ["bin/test_kyber512", "bin/test_kyber768", "bin/test_kyber1024"]
+
+    for bin in bins:
+        result = base_run(bin, verbose)
+
+        logging.info("\n\n" + str(result, encoding="utf-8"))
 
 
+@click.command(
+    short_help="Run the nistkat tests for all parameter sets",
+    context_settings={"show_default": True},
+)
+@add_options(_shared_options)
+def nistkat(verbose):
+    config_logger(verbose)
+
+    bins = ["bin/gen_NISTKAT512", "bin/gen_NISTKAT768", "bin/gen_NISTKAT1024"]
+
+    for bin in bins:
+        result = base_run(bin, verbose)
+
+        m = hashlib.sha256()
+        m.update(result)
+        logging.info(m.hexdigest())
+
+
+@click.command(
+    short_help="Run the kat tests for all parameter sets",
+    context_settings={"show_default": True},
+)
+@add_options(_shared_options)
+def kat(verbose):
+    config_logger(verbose)
+
+    bins = ["bin/gen_KAT512", "bin/gen_KAT768", "bin/gen_KAT1024"]
+
+    for bin in bins:
+        result = base_run(bin, verbose)
+
+        m = hashlib.sha256()
+        m.update(result)
+        logging.info(m.hexdigest())
 
 
 @click.group(invoke_without_command=True)
@@ -97,6 +147,9 @@ def cli():
 
 
 cli.add_command(run)
+cli.add_command(func)
+cli.add_command(nistkat)
+cli.add_command(kat)
 
 if __name__ == "__main__":
     cli()
