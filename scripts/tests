@@ -3,6 +3,7 @@
 
 import platform
 import sys
+import os
 import subprocess
 import logging
 import click
@@ -26,7 +27,7 @@ def sha256sum(result):
 
 def base_run(bin, verbose):
     if platform.system() == "Linux" and platform.machine() == "x86_64":
-        logging.info(f"Emulating {bin} with QEMU")
+        logging.debug(f"Emulating {bin} with QEMU")
 
         p = subprocess.run(
             ["make", "CROSS_PREFIX=aarch64-none-linux-gnu-", f"{bin}"],
@@ -43,7 +44,7 @@ def base_run(bin, verbose):
         )
 
     else:
-        logging.info(f"Running {bin} natively")
+        logging.debug(f"Running {bin} natively")
 
         p = subprocess.run(
             ["make", f"{bin}"],
@@ -89,16 +90,26 @@ def parse_meta(scheme, field):
     return result.stdout.strip()
 
 
-def test_schemes(scheme2file, actual_proc, expect_proc, verbose):
-    def check(bin, expect, actual):
-        if actual != expect:
-            logging.error(
-                f"Checking {bin} failed, expecting {expect}, but getting {actual}"
-            )
-            sys.exit(1)
-        else:
-            logging.info(f"Checking {bin} passed")
+def test_schemes(title, scheme2file, actual_proc, expect_proc, verbose):
+    logging.info(f"{title}")
 
+    summary_file = os.environ.get("GITHUB_STEP_SUMMARY")
+    summary = f"## {title}\n"
+
+    def check(scheme, expect, actual):
+        if actual != expect:
+            logging.error(f"{scheme} failed, expecting {expect}, but getting {actual}")
+            summary = f":x: {scheme}, expecting {expect}, but getting {actual}\n"
+
+            fail = True
+        else:
+            logging.info(f"{scheme} passed")
+            summary = f":white_check_mark: {scheme}\n"
+            fail = False
+
+        return (fail, summary)
+
+    fail = False
     for scheme in SCHEME:
         bin = scheme2file(scheme)
         result = base_run(bin, verbose)
@@ -106,7 +117,16 @@ def test_schemes(scheme2file, actual_proc, expect_proc, verbose):
         actual = actual_proc(result)
         expect = expect_proc(scheme)
 
-        check(bin, expect, actual)
+        (f, s) = check(scheme, expect, actual)
+        fail = fail or f
+        summary += s
+
+    if summary_file is not None:
+        with open(summary_file, "a") as f:
+            print(summary, file=f)
+
+    if fail:
+        sys.exit(1)
 
 
 _shared_options = [
@@ -166,6 +186,7 @@ def func(verbose):
         )
 
     test_schemes(
+        "Functional test",
         lambda scheme: scheme.name.replace("MLKEM", "bin/test_kyber"),
         lambda result: str(result, encoding="utf-8"),
         expect,
@@ -182,6 +203,7 @@ def nistkat(verbose):
     config_logger(verbose)
 
     test_schemes(
+        "Nistkat test",
         lambda scheme: scheme.name.replace("MLKEM", "bin/gen_NISTKAT"),
         sha256sum,
         lambda scheme: parse_meta(scheme, "nistkat-sha256"),
@@ -198,6 +220,7 @@ def kat(verbose):
     config_logger(verbose)
 
     test_schemes(
+        "Kat test",
         lambda scheme: scheme.name.replace("MLKEM", "bin/gen_KAT"),
         sha256sum,
         lambda scheme: parse_meta(scheme, "kat-sha256"),
