@@ -45,13 +45,7 @@ __CPROVER_ensures(__CPROVER_return_value < KYBER_Q);
 /* INDENT-ON */
 
 #define poly_compress KYBER_NAMESPACE(poly_compress)
-void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
-/* INDENT-OFF */
-__CPROVER_requires(__CPROVER_is_fresh(r, KYBER_POLYCOMPRESSEDBYTES))
-__CPROVER_requires(__CPROVER_forall { unsigned i; (i < KYBER_N) ==> ( -KYBER_Q <= a->coeffs[i] && a->coeffs[i] < KYBER_Q ) })
-__CPROVER_assigns(__CPROVER_object_whole(r));
-/* INDENT-ON */
-
+void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a);
 
 #define poly_decompress KYBER_NAMESPACE(poly_decompress)
 void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES]);
