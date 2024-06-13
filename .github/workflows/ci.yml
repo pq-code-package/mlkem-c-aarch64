@@ -42,15 +42,25 @@ jobs:
               echo ":x: Expecting to run on ${{ matrix.expect_arch }}, but instead running on $ARCH" >> $GITHUB_STEP_SUMMARY
               exit 1
             fi
-      - name: Build targets
+      - name: Run functional tests
+        id: func_test
         shell: nix develop .#ci -c bash -e {0}
         run: |
           tests func
-      - name: Compare gen_KAT with known hash
+      - name: Run KAT tests
+        id: kat_test
+        if: |
+          success()
+          || steps.func_test.conclusion == 'failure'
         shell: nix develop .#ci -c bash -e {0}
         run: |
           tests kat
-      - name: Compare gen_NISTKAT with known hash
+      - name: Run Nistkat tests
+        id: nistkat_test
+        if: |
+          success()
+          || steps.func_test.conclusion == 'failure'
+          || steps.kat_test.conclusion == 'failure'
         shell: nix develop .#ci -c bash -e {0}
         run: |
           tests nistkat
