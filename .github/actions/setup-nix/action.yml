@@ -12,9 +12,7 @@ runs:
   using: composite
   steps:
     - uses: DeterminateSystems/nix-installer-action@v12
-    - uses: nix-community/cache-nix-action@v5
-      with: 
-        primary-key: nix-${{ runner.os }}-${{ hashFiles('**/*.nix') }}
+    - uses: DeterminateSystems/magic-nix-cache-action@main
     - name: Prepare nix dev shell
       shell: nix develop .#ci -c bash -e {0}
       run: |
