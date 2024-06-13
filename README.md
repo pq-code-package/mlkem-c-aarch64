@@ -41,6 +41,25 @@ Once we have the first stable version, this notice will be removed.
 
 The current code is compatible with the [`standard` branch of the official MLKEM repository](https://github.com/pq-crystals/kyber/tree/standard).
 
+
+## Development
+
+### Environment Setup
+
+All the develop and build dependencies are specified in [flake.nix](flake.nix). 
+
+- Setup with nix,
+    - Running `nix develop` will execute a bash shell with the development environment specified in [flake.nix](flake.nix).
+    - Alternatively, you can enable `direnv` by using `direnv allow`, allowing it to handle the environment setup for you.
+
+    - As flake is still an experimental feature of nix, --experimental-features 'nix-command flakes' is needed for nix command. Alternatively, add the following to your `~/.config/nix/nix.conf` or `/etc/nix/nix.conf`:
+```
+experimental-features = nix-command flakes
+```
+
+- If you are not using nix, please ensure you have installed the same version as specified in [flake.nix](flake.nix).
+
+
 ## Call for contributors
 
 We are actively seeking contributors who can help us build **mlkem-c-aarch64**.
