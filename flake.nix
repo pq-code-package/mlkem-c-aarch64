@@ -51,6 +51,10 @@
                 cadical
                 nixpkgs-fmt
                 shfmt;
+
+              inherit (pkgs.python3Packages)
+                python
+                black;
             }
           ++ {
             "x86_64-linux" = [ (pkgs.callPackage ./arm-gnu-gcc.nix { }) ];

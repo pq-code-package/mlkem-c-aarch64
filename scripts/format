@@ -24,6 +24,9 @@ nixpkgs-fmt "$ROOT"
 info "Formatting shell scripts"
 shfmt -s -w -l -i 2 -ci -fn $(shfmt -f $(git grep -l '' :/))
 
+info "Formatting python scripts"
+black --include scripts/tests "$ROOT"
+
 info "Formatting c files"
 astyle $(git ls-files ":/*.c" ":/*.h") --options="$ROOT/.astylerc" --formatted | awk '{print $2}'
 
