@@ -172,8 +172,6 @@ def run(bin, verbose):
 def func(verbose):
     config_logger(verbose)
 
-    bins = ["bin/test_kyber512", "bin/test_kyber768", "bin/test_kyber1024"]
-
     def expect(scheme):
         sk_bytes = parse_meta(scheme, "length-secret-key")
         pk_bytes = parse_meta(scheme, "length-public-key")
