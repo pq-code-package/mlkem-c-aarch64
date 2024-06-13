@@ -13,6 +13,8 @@ runs:
   steps:
     - uses: DeterminateSystems/nix-installer-action@v12
     - uses: nix-community/cache-nix-action@v5
+      with: 
+        primary-key: nix-${{ runner.os }}-${{ hashFiles('**/*.nix') }}
     - name: Prepare nix dev shell
       shell: nix develop .#ci -c bash -e {0}
       run: |
