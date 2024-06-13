@@ -17,8 +17,7 @@
  * Arguments: - u: Unsigned canonical modulus modulo q
  *                 to be compressed.
  ************************************************************/
-uint32_t scalar_compress_q_16(int32_t u)
-{
+uint32_t scalar_compress_q_16(int32_t u) {
     uint32_t d0 = (uint32_t) u;
     d0 <<= 4;
     d0 +=  1665;
@@ -43,8 +42,7 @@ uint32_t scalar_compress_q_16(int32_t u)
  * Arguments: - u: Unsigned canonical modulus modulo 16
  *                 to be decompressed.
  ************************************************************/
-uint32_t scalar_decompress_q_16(uint32_t u)
-{
+uint32_t scalar_decompress_q_16(uint32_t u) {
     return ((u * KYBER_Q) + 8) / 16;
 }
 
@@ -56,8 +54,7 @@ uint32_t scalar_decompress_q_16(uint32_t u)
  * Arguments: - u: Unsigned canonical modulus modulo q
  *                 to be compressed.
  ************************************************************/
-uint32_t scalar_compress_q_32(int32_t u)
-{
+uint32_t scalar_compress_q_32(int32_t u) {
     uint32_t d0 = (uint32_t) u;
     d0 <<= 5;
     d0 +=  1664;
@@ -82,8 +79,7 @@ uint32_t scalar_compress_q_32(int32_t u)
  * Arguments: - u: Unsigned canonical modulus modulo 32
  *                 to be decompressed.
  ************************************************************/
-uint32_t scalar_decompress_q_32(uint32_t u)
-{
+uint32_t scalar_decompress_q_32(uint32_t u) {
     return ((u * KYBER_Q) + 16) / 32;
 }
 
@@ -103,12 +99,12 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a) {
 
     #if (KYBER_POLYCOMPRESSEDBYTES == 128)
     for (i = 0; i < KYBER_N / 8; i++)
-    __CPROVER_assigns(i, j, u, t, r)
-    /* Stronger loop invariant here TBD */
+        __CPROVER_assigns(i, j, u, t, r)
+        /* Stronger loop invariant here TBD */
     {
         for (j = 0; j < 8; j++)
-        __CPROVER_assigns(j, u, t)
-        /* Stronger loop invariant here TBD */
+            __CPROVER_assigns(j, u, t)
+            /* Stronger loop invariant here TBD */
         {
             // map to positive standard representatives
             u  = a->coeffs[8 * i + j];
