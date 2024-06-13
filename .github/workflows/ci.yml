@@ -77,6 +77,16 @@ jobs:
           cat >> $GITHUB_STEP_SUMMARY <<-EOF
             ## NISTKAT tests
           EOF
+
+          make CROSS_PREFIX=${{ matrix.cross_prefix }} nistkat
+
+          if [ ${{ matrix.skipped }} != true ]; then
+            cat >> $GITHUB_STEP_SUMMARY <<-EOF
+              $(checksum ./test/gen_NISTKAT512 4b88ac7643ff60209af1175e025f354272e88df827a0ce1c056e403629b88e04)
+              $(checksum ./test/gen_NISTKAT768 21b4a1e1ea34a13c26a9da5eeb9325afb5ca11596ca6f3704c3f2637e3ea7524)
+              $(checksum ./test/gen_NISTKAT1024 6471398b0a728ee1ef39e93bb89b526fbf59587a3662edadbcfc6c88a512cd71)
+          EOF
+          fi
   lint:
     strategy:
       matrix:
