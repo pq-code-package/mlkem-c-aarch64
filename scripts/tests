@@ -15,6 +15,42 @@ def config_logger(verbose):
     else:
         logging.basicConfig(format="%(levelname)-5s > %(message)s", level=logging.INFO)
 
+def base_run(bin, verbose):
+    if platform.system() == "Linux" and platform.machine() == "x86_64":
+        logging.info(f"Emulating {bin} with QEMU")
+
+        p = subprocess.run(
+            ["make", "CROSS_PREFIX=aarch64-none-linux-gnu-", f"{bin}"],
+            stdout=subprocess.DEVNULL if not verbose else None,
+        )
+        if p.returncode != 0:
+            logging.error("make failed")
+            sys.exit(1)
+
+        result = subprocess.run(
+            ["qemu-aarch64", f"{bin}"],
+            capture_output=True,
+            universal_newlines=False,
+        )
+
+    else:
+        logging.info(f"Running {bin} natively")
+
+        p = subprocess.run(
+            ["make", f"{bin}"],
+            stdout=subprocess.DEVNULL if not verbose else None,
+        )
+        if p.returncode != 0:
+            logging.error("make failed")
+            sys.exit(1)
+
+        result = subprocess.run(
+            [f"./{bin}"],
+            capture_output=True,
+            universal_newlines=False,
+        )
+
+    return result.stdout
 
 _shared_options = [
     click.option(
@@ -47,39 +83,12 @@ def add_options(options):
 def run(bin, verbose):
     config_logger(verbose)
 
-    if platform.system() == "Linux" and platform.machine() == "x86_64":
-        logging.info("Emulating with QEMU")
+    result = base_run(bin, verbose)
+    logging.info(str(result, encoding="utf-8"))
 
-        subprocess.run(
-            ["make", "CROSS_PREFIX=aarch64-none-linux-gnu-", f"{bin}"],
-            stdout=subprocess.DEVNULL if not verbose else None,
-        )
 
-        result = subprocess.run(
-            ["qemu-aarch64", f"{bin}"],
-            capture_output=True,
-            encoding="utf-8",
-            universal_newlines=False,
-        )
 
-        logging.info(result.stdout)
-    else:
-        logging.info("Running natively")
 
-        subprocess.run(
-            ["make", f"{bin}"],
-            stdout=subprocess.DEVNULL if not verbose else None,
-        )
-
-        result = subprocess.run(
-            [f"./{bin}"],
-            capture_output=True,
-            encoding="utf-8",
-            universal_newlines=False,
-        )
-
-        logging.info(result.stdout)
-    pass
 
 
 @click.group(invoke_without_command=True)
