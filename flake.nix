@@ -45,6 +45,7 @@
               cbmc = cbmc;
 
               inherit (pkgs)
+                yq
                 ninja# 1.11.1
                 qemu# 8.2.4
                 # formatter & linters
