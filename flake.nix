@@ -4,7 +4,7 @@
   description = "mlkem-c-aarch64";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
 
     flake-parts = {
       url = "github:hercules-ci/flake-parts";
@@ -18,11 +18,26 @@
       systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
       perSystem = { pkgs, system, ... }:
         let
+          litani = pkgs.callPackage ./litani.nix { };
+          cbmc-viewer = pkgs.callPackage ./cbmc-viewer.nix { };
+          astyle = pkgs.astyle.overrideAttrs (old: rec {
+            version = "3.4.13";
+            src = pkgs.fetchurl {
+              url = "mirror://sourceforge/${old.pname}/${old.pname}-${version}.tar.bz2";
+              hash = "sha256-eKYQq9OelOD5E+nuXNoehbtizWM1U97LngDT2SAQGc4=";
+            };
+          });
           core = builtins.attrValues
             {
+              litani = litani; # 1.29.0
+              cbmc-viewer = cbmc-viewer; # 3.8
+              astyle = astyle;
+
               inherit (pkgs)
+                cbmc# 5.95.1
+                ninja# 1.11.1
+
                 # formatter & linters
-                astyle# 3.4.10
                 cadical
                 nixpkgs-fmt
                 shfmt;

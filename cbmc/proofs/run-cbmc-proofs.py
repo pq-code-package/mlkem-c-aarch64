@@ -313,6 +313,11 @@ async def configure_proof_dirs( # pylint: disable=too-many-arguments
         profiling = [
             "ENABLE_MEMORY_PROFILING=true"] if enable_memory_profiling else []
 
+        # delete old reports
+        proc = await asyncio.create_subprocess_exec(
+            "make", "veryclean", cwd=path,
+            stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+
         # Allow interactive tasks to preempt proof configuration
         proc = await asyncio.create_subprocess_exec(
             "nice", "-n", "15", "make", *pools,

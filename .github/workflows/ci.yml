@@ -109,8 +109,6 @@ jobs:
     runs-on: ${{ matrix.system }}
     steps:
       - uses: actions/checkout@v4
-      - name: install native dependencies
-        run: brew install litani cbmc cbmc-viewer
       - name: Setup nix
         uses: ./.github/actions/setup-nix
         with:
