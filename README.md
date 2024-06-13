@@ -46,19 +46,23 @@ The current code is compatible with the [`standard` branch of the official MLKEM
 
 ### Environment Setup
 
-All the develop and build dependencies are specified in [flake.nix](flake.nix). 
+All the development and build dependencies are specified in [flake.nix](flake.nix). We recommend installing them using [nix](https://nixos.org/download/).
 
-- Setup with nix,
+- **Setup with nix**
     - Running `nix develop` will execute a bash shell with the development environment specified in [flake.nix](flake.nix).
     - Alternatively, you can enable `direnv` by using `direnv allow`, allowing it to handle the environment setup for you.
 
-    - As flake is still an experimental feature of nix, --experimental-features 'nix-command flakes' is needed for nix command. Alternatively, add the following to your `~/.config/nix/nix.conf` or `/etc/nix/nix.conf`:
+    - As flake is still an experimental feature of nix, --experimental-features 'nix-command flakes' is needed when running the nix command. Alternatively, add the following to your `~/.config/nix/nix.conf` or `/etc/nix/nix.conf`:
 ```
 experimental-features = nix-command flakes
 ```
 
 - If you are not using nix, please ensure you have installed the same version as specified in [flake.nix](flake.nix).
 
+### Development scripts
+After running `nix development` you should automatically have a number of support scripts in your PATH:
+
+- [`format`](scripts/format) formats all files. The format is enforced by our CI, so you should run this script prior to committing.
 
 ## Call for contributors
 
