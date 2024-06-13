@@ -60,7 +60,7 @@ experimental-features = nix-command flakes
 - If you are not using nix, please ensure you have installed the same version as specified in [flake.nix](flake.nix).
 
 ### Development scripts
-After running `nix development` you should automatically have a number of support scripts in your PATH:
+After running `nix develop` you should automatically have a number of support scripts in your PATH:
 
 - [`format`](scripts/format) formats all files. The format is enforced by our CI, so you should run this script prior to committing.
 
