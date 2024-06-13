@@ -27,14 +27,24 @@
               hash = "sha256-eKYQq9OelOD5E+nuXNoehbtizWM1U97LngDT2SAQGc4=";
             };
           });
+          cbmc = pkgs.cbmc.overrideAttrs (old: rec {
+            version = "731338d5d82ac86fc447015e0bd24cdf7a74c442";
+            src = pkgs.fetchFromGitHub {
+              owner = "diffblue";
+              repo = old.pname;
+              rev = "${version}";
+              hash = "sha256-fDLSo5EeHyPTliAqFp+5mfaB0iZXIMXeMyF21fjl5k4=";
+            };
+          });
+
           core = builtins.attrValues
             {
               litani = litani; # 1.29.0
               cbmc-viewer = cbmc-viewer; # 3.8
               astyle = astyle;
+              cbmc = cbmc;
 
               inherit (pkgs)
-                cbmc# 5.95.1
                 ninja# 1.11.1
 
                 # formatter & linters
