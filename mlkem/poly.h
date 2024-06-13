@@ -4,6 +4,7 @@
 
 #include <stdint.h>
 #include "params.h"
+#include "cbmc.h"
 
 /*
  * Elements of R_q = Z_q[X]/(X^n + 1). Represents polynomial
