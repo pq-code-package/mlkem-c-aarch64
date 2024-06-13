@@ -129,18 +129,19 @@ uint16_t coeff_signed_to_unsigned (int16_t c) {
 **************************************************/
 void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
 {
-    unsigned int i, j;
     int32_t u;
-    uint8_t t[8];
+    uint8_t t[8] = { 0 };
 
     #if (KYBER_POLYCOMPRESSEDBYTES == 128)
-    for (i = 0; i < KYBER_N / 8; i++)
-        __CPROVER_assigns(i, j, u, t, r)
-        /* Stronger loop invariant here TBD */
+    for (size_t i = 0; i < KYBER_N / 8; i++)
+        __CPROVER_assigns(i, u, __CPROVER_object_whole(t), __CPROVER_object_whole(r))
+        __CPROVER_loop_invariant(i <= KYBER_N)
     {
-        for (j = 0; j < 8; j++)
-            __CPROVER_assigns(j, u, t)
-            /* Stronger loop invariant here TBD */
+        for (size_t j = 0; j < 8; j++)
+            __CPROVER_assigns(j, u, __CPROVER_object_whole(t))
+            __CPROVER_loop_invariant(i <= KYBER_N)
+            __CPROVER_loop_invariant(j <= 8)
+            __CPROVER_loop_invariant(__CPROVER_forall { size_t k; (0 <= k && k < j) ==> (t[k] >= 0 && t[k] < 16) })
         {
             // map to positive standard representatives
             // REF-CHANGE: Hoist signed-to-unsigned conversion into separate function
@@ -149,6 +150,10 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
             t[j] = scalar_compress_q_16(u);
         }
 
+        __CPROVER_assert(t[0] < 16, "UB on t[0]");
+        __CPROVER_assert(t[1] < 16, "UB on t[1]");
+        __CPROVER_assert((t[0] | (t[1] << 4)) <= 255, "Range of t");
+
         r[0] = t[0] | (t[1] << 4);
         r[1] = t[2] | (t[3] << 4);
         r[2] = t[4] | (t[5] << 4);
@@ -156,9 +161,9 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
         r += 4;
     }
     #elif (KYBER_POLYCOMPRESSEDBYTES == 160)
-    for (i = 0; i < KYBER_N / 8; i++)
+    for (size_t i = 0; i < KYBER_N / 8; i++)
     {
-        for (j = 0; j < 8; j++)
+        for (size_t j = 0; j < 8; j++)
         {
             // map to positive standard representatives
             // REF-CHANGE: Hoist signed-to-unsigned conversion into separate function
@@ -203,7 +208,7 @@ __CPROVER_requires(__CPROVER_is_fresh(a, sizeof(KYBER_POLYCOMPRESSEDBYTES)))
 __CPROVER_ensures(
 /* Output coefficients are unsigned canonical */
 __CPROVER_forall {
-  unsigned i; (i < KYBER_N) ==> ( 0 <= r->coeffs[i] && r->coeffs[i] < KYBER_Q )
+  unsigned k; (k < KYBER_N) ==> ( 0 <= r->coeffs[k] && r->coeffs[k] < KYBER_Q )
 })
 // *INDENT-ON*
 /* --- End of CBMC contract --- */

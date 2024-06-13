@@ -19,13 +19,13 @@ PROOF_SOURCES += $(PROOFDIR)/$(HARNESS_FILE).c
 PROJECT_SOURCES += $(SRCDIR)/mlkem/poly.c
 
 CHECK_FUNCTION_CONTRACTS=$(KYBER_NAMESPACE)poly_compress
-USE_FUNCTION_CONTRACTS = $(KYBER_NAMESPACE)scalar_compress_q_16 $(KYBER_NAMESPACE)scalar_compress_q_32
+USE_FUNCTION_CONTRACTS = $(KYBER_NAMESPACE)scalar_compress_q_16 $(KYBER_NAMESPACE)scalar_compress_q_32 coeff_signed_to_unsigned
 APPLY_LOOP_CONTRACTS=on
 USE_DYNAMIC_FRAMES=1
 
 # SMT backend for proving with contracts and quantifiers
 # To be re-enabled when CBMC Issue #8303 is fixed.
-# CBMCFLAGS=--smt2
+CBMCFLAGS=--smt2
 
 # Uncomment this to see what commands litani is running...
 VERBOSE=on
