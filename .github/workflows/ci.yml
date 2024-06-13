@@ -80,7 +80,7 @@ jobs:
   lint:
     strategy:
       matrix:
-        system: [pqcp-arm64]
+        system: [ubuntu-latest]
     runs-on: ${{ matrix.system }}
     steps:
       - uses: actions/checkout@v4
