@@ -1,0 +1,93 @@
+#!/usr/bin/env python
+# SPDX-License-Identifier: Apache-2.0
+
+import platform
+import subprocess
+import logging
+import click
+import hashlib
+from functools import reduce
+
+
+def config_logger(verbose):
+    if verbose:
+        logging.basicConfig(format="%(levelname)-5s > %(message)s", level=logging.DEBUG)
+    else:
+        logging.basicConfig(format="%(levelname)-5s > %(message)s", level=logging.INFO)
+
+
+_shared_options = [
+    click.option(
+        "-v",
+        "--verbose",
+        is_flag=True,
+        show_default=True,
+        default=False,
+        type=bool,
+        help="Show verbose output or not",
+    ),
+]
+
+
+def add_options(options):
+    return lambda func: reduce(lambda f, o: o(f), reversed(options), func)
+
+
+@click.command(
+    short_help="Run the specified binary file",
+    context_settings={"show_default": True},
+)
+@add_options(_shared_options)
+@click.option(
+    "-b",
+    "--bin",
+    type=click.Path(),
+    help="The binary file that you wanted to test.",
+)
+def run(bin, verbose):
+    config_logger(verbose)
+
+    if platform.system() == "Linux" and platform.machine() == "x86_64":
+        logging.info("Emulating with QEMU")
+
+        subprocess.run(
+            ["make", "CROSS_PREFIX=aarch64-none-linux-gnu-", f"{bin}"],
+            stdout=subprocess.DEVNULL if not verbose else None,
+        )
+
+        result = subprocess.run(
+            ["qemu-aarch64", f"{bin}"],
+            capture_output=True,
+            encoding="utf-8",
+            universal_newlines=False,
+        )
+
+        logging.info(result.stdout)
+    else:
+        logging.info("Running natively")
+
+        subprocess.run(
+            ["make", f"{bin}"],
+            stdout=subprocess.DEVNULL if not verbose else None,
+        )
+
+        result = subprocess.run(
+            [f"./{bin}"],
+            capture_output=True,
+            encoding="utf-8",
+            universal_newlines=False,
+        )
+
+        logging.info(result.stdout)
+    pass
+
+
+@click.group(invoke_without_command=True)
+def cli():
+    pass
+
+
+cli.add_command(run)
+
+if __name__ == "__main__":
+    cli()

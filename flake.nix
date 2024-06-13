@@ -54,7 +54,8 @@
 
               inherit (pkgs.python3Packages)
                 python
-                black;
+                black
+                click;
             }
           ++ {
             "x86_64-linux" = [ (pkgs.callPackage ./arm-gnu-gcc.nix { }) ];
