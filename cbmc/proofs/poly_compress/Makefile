@@ -18,20 +18,12 @@ UNWINDSET +=
 PROOF_SOURCES += $(PROOFDIR)/$(HARNESS_FILE).c
 PROJECT_SOURCES += $(SRCDIR)/mlkem/poly.c
 
-CHECK_FUNCTION_CONTRACTS=$(KYBER_NAMESPACE)poly_compress
-USE_FUNCTION_CONTRACTS = $(KYBER_NAMESPACE)scalar_compress_q_16 $(KYBER_NAMESPACE)scalar_compress_q_32
-APPLY_LOOP_CONTRACTS=on
-USE_DYNAMIC_FRAMES=1
-
-# SMT backend for proving with contracts and quantifiers
-# To be re-enabled when CBMC Issue #8303 is fixed.
-# CBMCFLAGS=--smt2
-
-# Uncomment this to see what commands litani is running...
-VERBOSE=on
+# UNWINDSET += $(KYBER_NAMESPACE)poly_compress.0:9
+# UNWINDSET += $(KYBER_NAMESPACE)poly_compress.1:33
 
 FUNCTION_NAME = $(KYBER_NAMESPACE)poly_compress
 
+USE_FUNCTION_CONTRACTS = $(KYBER_NAMESPACE)scalar_compress_q_16 $(KYBER_NAMESPACE)scalar_compress_q_32
 
 # If this proof is found to consume huge amounts of RAM, you can set the
 # EXPENSIVE variable. With new enough versions of the proof tools, this will
