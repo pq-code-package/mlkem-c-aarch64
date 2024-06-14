@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+
 FILE = ../../../mlkem/poly
 HARNESS_FILE = poly_compress_harness
 TARGET ?= pqcrystals_kyber768_ref_poly_compress
