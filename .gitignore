@@ -4,4 +4,4 @@
 .direnv
 .vscode
 .idea
-bin/
+test/bin/

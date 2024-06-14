@@ -185,7 +185,7 @@ def func(verbose):
 
     test_schemes(
         "Functional test",
-        lambda scheme: scheme.name.replace("MLKEM", "bin/test_kyber"),
+        lambda scheme: scheme.name.replace("MLKEM", "test/bin/test_kyber"),
         lambda result: str(result, encoding="utf-8"),
         expect,
         verbose,
@@ -202,7 +202,7 @@ def nistkat(verbose):
 
     test_schemes(
         "Nistkat test",
-        lambda scheme: scheme.name.replace("MLKEM", "bin/gen_NISTKAT"),
+        lambda scheme: scheme.name.replace("MLKEM", "test/bin/gen_NISTKAT"),
         sha256sum,
         lambda scheme: parse_meta(scheme, "nistkat-sha256"),
         verbose,
@@ -219,7 +219,7 @@ def kat(verbose):
 
     test_schemes(
         "Kat test",
-        lambda scheme: scheme.name.replace("MLKEM", "bin/gen_KAT"),
+        lambda scheme: scheme.name.replace("MLKEM", "test/bin/gen_KAT"),
         sha256sum,
         lambda scheme: parse_meta(scheme, "kat-sha256"),
         verbose,
