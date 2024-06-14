@@ -135,13 +135,15 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
     #if (KYBER_POLYCOMPRESSEDBYTES == 128)
     for (size_t i = 0; i < KYBER_N / 8; i++)
         __CPROVER_assigns(i, u, __CPROVER_object_whole(t), __CPROVER_object_whole(r))
-        __CPROVER_loop_invariant(i <= KYBER_N) {
+        __CPROVER_loop_invariant(i <= KYBER_N)
+        __CPROVER_decreases(32 - i) {
         for (size_t j = 0; j < 8; j++)
 // *INDENT-OFF*
             __CPROVER_assigns(j, u, __CPROVER_object_whole(t))
             __CPROVER_loop_invariant(i <= KYBER_N)
             __CPROVER_loop_invariant(j <= 8)
-            __CPROVER_loop_invariant(__CPROVER_forall { size_t k; (0 <= k && k < j) ==> (t[k] >= 0 && t[k] < 16) }) {
+            __CPROVER_loop_invariant(__CPROVER_forall { size_t k; (0 <= k && k < j) ==> (t[k] >= 0 && t[k] < 16) })
+            __CPROVER_decreases(8 - j) {
 // *INDENT-ON*
             // map to positive standard representatives
             // REF-CHANGE: Hoist signed-to-unsigned conversion into separate function
