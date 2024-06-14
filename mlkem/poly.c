@@ -24,14 +24,14 @@ uint32_t scalar_compress_q_16(int32_t u)
 
     /* This multiply will exceed UINT32_MAX and wrap around */
     /* for large values of u. This is expected and required */
-#ifdef CBMC
+    #ifdef CBMC
 #pragma CPROVER check push
 #pragma CPROVER check disable "unsigned-overflow"
-#endif
+    #endif
     d0 *=  80635;
-#ifdef CBMC
+    #ifdef CBMC
 #pragma CPROVER check pop
-#endif
+    #endif
     d0 >>= 28;
     d0 &=  0xF;
     return d0;
@@ -66,14 +66,14 @@ uint32_t scalar_compress_q_32(int32_t u)
 
     /* This multiply will exceed UINT32_MAX and wrap around */
     /* for large values of u. This is expected and required */
-#ifdef CBMC
+    #ifdef CBMC
 #pragma CPROVER check push
 #pragma CPROVER check disable "unsigned-overflow"
-#endif
+    #endif
     d0 *=  40318;
-#ifdef CBMC
+    #ifdef CBMC
 #pragma CPROVER check pop
-#endif
+    #endif
     d0 >>= 27;
     d0 &=  0x1f;
     return d0;
