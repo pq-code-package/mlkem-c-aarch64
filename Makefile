@@ -52,26 +52,50 @@ kat: \
   bin/gen_KAT768 \
   bin/gen_KAT1024
 
-define build-tests
-bin/test_kyber$(1): test/test_kyber.c $(SOURCESKECCAKRANDOM) $(HEADERSKECCAKRANDOM)
+bin/test_kyber512: test/test_kyber.c $(SOURCESKECCAKRANDOM) $(HEADERSKECCAKRANDOM)
 	$(Q)echo "  CC      $$@"
-	$(Q)[ -d $$(@D) ] || mkdir -p $$(@D)
-	$(Q)$(CC) $(CFLAGS_RANDOMBYTES) -DKYBER_K=$(2) $(SOURCESKECCAKRANDOM) $$< -o $$@
+	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
+	$(Q)$(CC) $(CFLAGS_RANDOMBYTES) -DKYBER_K=2 $(SOURCESKECCAKRANDOM) $< -o $@
 
-bin/gen_KAT$(1): test/gen_KAT.c $(SOURCESKECCAKRANDOM) $(HEADERSKECCAKRANDOM)                   
+bin/test_kyber768: test/test_kyber.c $(SOURCESKECCAKRANDOM) $(HEADERSKECCAKRANDOM)
 	$(Q)echo "  CC      $$@"
-	$(Q)[ -d $$(@D) ] || mkdir -p $$(@D)
-	$(Q)$(CC) $(CFLAGS_RANDOMBYTES) -DKYBER_K=$(2) $(SOURCESKECCAKRANDOM) $$< -o $$@
+	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
+	$(Q)$(CC) $(CFLAGS_RANDOMBYTES) -DKYBER_K=3 $(SOURCESKECCAKRANDOM) $< -o $@
 
-bin/gen_NISTKAT$(1): test/gen_NISTKAT.c $(SOURCESNISTKATS) $(HEADERNISTKATS)                   
+bin/test_kyber1024: test/test_kyber.c $(SOURCESKECCAKRANDOM) $(HEADERSKECCAKRANDOM)
 	$(Q)echo "  CC      $$@"
-	$(Q)[ -d $$(@D) ] || mkdir -p $$(@D)
-	$(Q)$(CC) $(CFLAGS_NISTRANDOMBYTES) -DKYBER_K=$(2) $(SOURCESNISTKATS) $$< -o $$@
-endef
+	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
+	$(Q)$(CC) $(CFLAGS_RANDOMBYTES) -DKYBER_K=4 $(SOURCESKECCAKRANDOM) $< -o $@
 
-$(eval $(call build-tests,512,2))
-$(eval $(call build-tests,768,3))
-$(eval $(call build-tests,1024,4))
+bin/gen_KAT512: test/gen_KAT.c $(SOURCESKECCAKRANDOM) $(HEADERSKECCAKRANDOM)
+	$(Q)echo "  CC      $$@"
+	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
+	$(Q)$(CC) $(CFLAGS_RANDOMBYTES) -DKYBER_K=2 $(SOURCESKECCAKRANDOM) $< -o $@
+
+bin/gen_KAT768: test/gen_KAT.c $(SOURCESKECCAKRANDOM) $(HEADERSKECCAKRANDOM)
+	$(Q)echo "  CC      $$@"
+	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
+	$(Q)$(CC) $(CFLAGS_RANDOMBYTES) -DKYBER_K=3 $(SOURCESKECCAKRANDOM) $< -o $@
+
+bin/gen_KAT1024: test/gen_KAT.c $(SOURCESKECCAKRANDOM) $(HEADERSKECCAKRANDOM)
+	$(Q)echo "  CC      $$@"
+	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
+	$(Q)$(CC) $(CFLAGS_RANDOMBYTES) -DKYBER_K=4 $(SOURCESKECCAKRANDOM) $< -o $@
+
+bin/gen_NISTKAT512: test/gen_NISTKAT.c $(SOURCESNISTKATS) $(HEADERNISTKATS)
+	$(Q)echo "  CC      $$@"
+	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
+	$(Q)$(CC) $(CFLAGS_NISTRANDOMBYTES) -DKYBER_K=2 $(SOURCESNISTKATS) $< -o $@
+
+bin/gen_NISTKAT768: test/gen_NISTKAT.c $(SOURCESNISTKATS) $(HEADERNISTKATS)
+	$(Q)echo "  CC      $$@"
+	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
+	$(Q)$(CC) $(CFLAGS_NISTRANDOMBYTES) -DKYBER_K=3 $(SOURCESNISTKATS) $< -o $@
+
+bin/gen_NISTKAT1024: test/gen_NISTKAT.c $(SOURCESNISTKATS) $(HEADERNISTKATS)
+	$(Q)echo "  CC      $$@"
+	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
+	$(Q)$(CC) $(CFLAGS_NISTRANDOMBYTES) -DKYBER_K=4 $(SOURCESNISTKATS) $< -o $@
 
 # emulate ARM64 binary on x86_64 machine
 emulate:
