@@ -63,6 +63,7 @@ experimental-features = nix-command flakes
 After running `nix develop` you should automatically have a number of support scripts in your PATH:
 
 - [`format`](scripts/format) formats all files. The format is enforced by our CI, so you should run this script prior to committing.
+- [`tests`](scripts/tests) run functional, kat tests natively or emulate them using `QEMU`. For information on how to use the script, please refer to the `--help` option.
 
 ## Call for contributors
 
