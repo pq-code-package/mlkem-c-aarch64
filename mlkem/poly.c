@@ -8,6 +8,7 @@
 #include "cbd.h"
 #include "symmetric.h"
 #include "verify.h"
+#include "fips202x4.h"
 
 /************************************************************
  * Name: scalar_compress_q_16
@@ -340,6 +341,39 @@ void poly_getnoise_eta1(poly *r, const uint8_t seed[KYBER_SYMBYTES], uint8_t non
 }
 
 /*************************************************
+* Name:        poly_getnoise_eta1_4x
+*
+* Description: Batch sample four polynomials deterministically from a seed and nonces,
+*              with output polynomials close to centered binomial distribution
+*              with parameter KYBER_ETA1
+*
+* Arguments:   - poly *r{0,1,2,3}: pointer to output polynomial
+*              - const uint8_t *seed: pointer to input seed
+*                                     (of length KYBER_SYMBYTES bytes)
+*              - uint8_t nonce{0,1,2,3}: one-byte input nonce
+**************************************************/
+void poly_getnoise_eta1_4x(poly *r0,
+                           poly *r1,
+                           poly *r2,
+                           poly *r3,
+                           const uint8_t seed[KYBER_SYMBYTES],
+                           uint8_t nonce0,
+                           uint8_t nonce1,
+                           uint8_t nonce2,
+                           uint8_t nonce3)
+{
+    uint8_t buf[KECCAK_WAY][KYBER_ETA1 *KYBER_N / 4];
+    prf(buf[0], sizeof(buf[0]), seed, nonce0);
+    prf(buf[1], sizeof(buf[1]), seed, nonce1);
+    prf(buf[2], sizeof(buf[2]), seed, nonce2);
+    prf(buf[3], sizeof(buf[3]), seed, nonce3);
+    poly_cbd_eta1(r0, buf[0]);
+    poly_cbd_eta1(r1, buf[1]);
+    poly_cbd_eta1(r2, buf[2]);
+    poly_cbd_eta1(r3, buf[3]);
+}
+
+/*************************************************
 * Name:        poly_getnoise_eta2
 *
 * Description: Sample a polynomial deterministically from a seed and a nonce,
@@ -356,6 +390,73 @@ void poly_getnoise_eta2(poly *r, const uint8_t seed[KYBER_SYMBYTES], uint8_t non
     uint8_t buf[KYBER_ETA2 * KYBER_N / 4];
     prf(buf, sizeof(buf), seed, nonce);
     poly_cbd_eta2(r, buf);
+}
+
+/*************************************************
+* Name:        poly_getnoise_eta2_4x
+*
+* Description: Batch sample four polynomials deterministically from a seed and nonces,
+*              with output polynomials close to centered binomial distribution
+*              with parameter KYBER_ETA2
+*
+* Arguments:   - poly *r{0,1,2,3}: pointer to output polynomial
+*              - const uint8_t *seed: pointer to input seed
+*                                     (of length KYBER_SYMBYTES bytes)
+*              - uint8_t nonce{0,1,2,3}: one-byte input nonce
+**************************************************/
+void poly_getnoise_eta2_4x(poly *r0,
+                           poly *r1,
+                           poly *r2,
+                           poly *r3,
+                           const uint8_t seed[KYBER_SYMBYTES],
+                           uint8_t nonce0,
+                           uint8_t nonce1,
+                           uint8_t nonce2,
+                           uint8_t nonce3)
+{
+    uint8_t buf[KECCAK_WAY][KYBER_ETA2 * KYBER_N / 4];
+    prf(buf[0], sizeof(buf[0]), seed, nonce0);
+    prf(buf[1], sizeof(buf[1]), seed, nonce1);
+    prf(buf[2], sizeof(buf[2]), seed, nonce2);
+    prf(buf[3], sizeof(buf[3]), seed, nonce3);
+    poly_cbd_eta2(r0, buf[0]);
+    poly_cbd_eta2(r1, buf[1]);
+    poly_cbd_eta2(r2, buf[2]);
+    poly_cbd_eta2(r3, buf[3]);
+}
+
+/*************************************************
+* Name:        poly_getnoise_eta1122_4x
+*
+* Description: Batch sample four polynomials deterministically from a seed and a nonces,
+*              with output polynomials close to centered binomial distribution
+*              with parameter KYBER_ETA1 and KYBER_ETA2
+*
+* Arguments:   - poly *r{0,1,2,3}: pointer to output polynomial
+*              - const uint8_t *seed: pointer to input seed
+*                                     (of length KYBER_SYMBYTES bytes)
+*              - uint8_t nonce{0,1,2,3}: one-byte input nonce
+**************************************************/
+void poly_getnoise_eta1122_4x(poly *r0,
+                              poly *r1,
+                              poly *r2,
+                              poly *r3,
+                              const uint8_t seed[KYBER_SYMBYTES],
+                              uint8_t nonce0,
+                              uint8_t nonce1,
+                              uint8_t nonce2,
+                              uint8_t nonce3)
+{
+    uint8_t buf1[KECCAK_WAY/2][KYBER_ETA1 * KYBER_N / 4];
+    uint8_t buf2[KECCAK_WAY/2][KYBER_ETA2 * KYBER_N / 4];
+    prf(buf1[0], sizeof(buf1[0]), seed, nonce0);
+    prf(buf1[1], sizeof(buf1[1]), seed, nonce1);
+    prf(buf2[0], sizeof(buf2[0]), seed, nonce2);
+    prf(buf2[1], sizeof(buf2[1]), seed, nonce3);
+    poly_cbd_eta1(r0, buf1[0]);
+    poly_cbd_eta1(r1, buf1[1]);
+    poly_cbd_eta2(r2, buf2[0]);
+    poly_cbd_eta2(r3, buf2[1]);
 }
 
 /*************************************************
