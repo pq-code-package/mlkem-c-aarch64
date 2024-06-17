@@ -8,21 +8,25 @@
 
 #define NTESTS 10000
 
-static void print_hex(const char *label, const uint8_t *data, size_t size) {
+static void print_hex(const char *label, const uint8_t *data, size_t size)
+{
     printf("%s = ", label);
-    for (size_t i = 0; i < size; i++) {
+    for (size_t i = 0; i < size; i++)
+    {
         printf("%02x", data[i]);
     }
     printf("\n");
 }
 
-static void shake256_absorb(shake256incctx *state, const uint8_t *input, size_t inlen) {
+static void shake256_absorb(shake256incctx *state, const uint8_t *input, size_t inlen)
+{
     shake256_inc_init(state);
     shake256_inc_absorb(state, input, inlen);
     shake256_inc_finalize(state);
 }
 
-int main(void) {
+int main(void)
+{
     uint8_t coins[3 * KYBER_SYMBYTES];
     uint8_t pk[CRYPTO_PUBLICKEYBYTES];
     uint8_t sk[CRYPTO_SECRETKEYBYTES];
@@ -39,7 +43,8 @@ int main(void) {
     shake256incctx state;
     shake256_absorb(&state, seed, sizeof(seed));
 
-    for (unsigned int i = 0; i < NTESTS; i++) {
+    for (unsigned int i = 0; i < NTESTS; i++)
+    {
 
         shake256_inc_squeeze(coins, sizeof(coins), &state);
 
@@ -52,7 +57,8 @@ int main(void) {
 
         crypto_kem_dec(ss2, ct, sk);
 
-        if (memcmp(ss1, ss2, sizeof(ss1))) {
+        if (memcmp(ss1, ss2, sizeof(ss1)))
+        {
             fprintf(stderr, "ERROR\n");
             return -1;
         }

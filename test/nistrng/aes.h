@@ -14,17 +14,20 @@
 
 // We've put these states on the heap to make sure ctx_release is used.
 #define PQC_AES128_STATESIZE 88
-typedef struct {
+typedef struct
+{
     uint64_t *sk_exp;
 } aes128ctx;
 
 #define PQC_AES192_STATESIZE 104
-typedef struct {
+typedef struct
+{
     uint64_t  *sk_exp;
 } aes192ctx;
 
 #define PQC_AES256_STATESIZE 120
-typedef struct {
+typedef struct
+{
     uint64_t *sk_exp;
 } aes256ctx;
 

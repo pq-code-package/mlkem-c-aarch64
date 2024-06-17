@@ -12,22 +12,26 @@
 #define SHA3_512_RATE 72
 
 // Context for incremental API
-typedef struct {
+typedef struct
+{
     uint64_t ctx[26];
 } shake128incctx;
 
 // Context for non-incremental API
-typedef struct {
+typedef struct
+{
     uint64_t ctx[25];
 } shake128ctx;
 
 // Context for incremental API
-typedef struct {
+typedef struct
+{
     uint64_t ctx[26];
 } shake256incctx;
 
 // Context for non-incremental API
-typedef struct {
+typedef struct
+{
     uint64_t ctx[25];
 } shake256ctx;
 

@@ -21,7 +21,8 @@
  * @brief Starting point for formal analysis
  *
  */
-void harness(void) {
+void harness(void)
+{
     // Check that decompression followed by compression is the identity
     uint32_t c0, c1, d;
 

@@ -17,7 +17,8 @@
  * Arguments: - u: Unsigned canonical modulus modulo q
  *                 to be compressed.
  ************************************************************/
-uint32_t scalar_compress_q_16(int32_t u) {
+uint32_t scalar_compress_q_16(int32_t u)
+{
     uint32_t d0 = (uint32_t) u;
     d0 <<= 4;
     d0 +=  1665;
@@ -42,7 +43,8 @@ uint32_t scalar_compress_q_16(int32_t u) {
  * Arguments: - u: Unsigned canonical modulus modulo 16
  *                 to be decompressed.
  ************************************************************/
-uint32_t scalar_decompress_q_16(uint32_t u) {
+uint32_t scalar_decompress_q_16(uint32_t u)
+{
     return ((u * KYBER_Q) + 8) / 16;
 }
 
@@ -54,7 +56,8 @@ uint32_t scalar_decompress_q_16(uint32_t u) {
  * Arguments: - u: Unsigned canonical modulus modulo q
  *                 to be compressed.
  ************************************************************/
-uint32_t scalar_compress_q_32(int32_t u) {
+uint32_t scalar_compress_q_32(int32_t u)
+{
     uint32_t d0 = (uint32_t) u;
     d0 <<= 5;
     d0 +=  1664;
@@ -79,7 +82,8 @@ uint32_t scalar_compress_q_32(int32_t u) {
  * Arguments: - u: Unsigned canonical modulus modulo 32
  *                 to be decompressed.
  ************************************************************/
-uint32_t scalar_decompress_q_32(uint32_t u) {
+uint32_t scalar_decompress_q_32(uint32_t u)
+{
     return ((u * KYBER_Q) + 16) / 32;
 }
 
@@ -92,7 +96,8 @@ uint32_t scalar_decompress_q_32(uint32_t u) {
 *                            (of length KYBER_POLYCOMPRESSEDBYTES)
 *              - const poly *a: pointer to input polynomial
 **************************************************/
-void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a) {
+void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
+{
     unsigned int i, j;
     int32_t u;
     uint8_t t[8];
@@ -120,8 +125,10 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a) {
         r += 4;
     }
     #elif (KYBER_POLYCOMPRESSEDBYTES == 160)
-    for (i = 0; i < KYBER_N / 8; i++) {
-        for (j = 0; j < 8; j++) {
+    for (i = 0; i < KYBER_N / 8; i++)
+    {
+        for (j = 0; j < 8; j++)
+        {
             // map to positive standard representatives
             u  = a->coeffs[8 * i + j];
             u += (u >> 15) & KYBER_Q;
@@ -173,7 +180,8 @@ __CPROVER_forall {
     unsigned int i;
 
     #if (KYBER_POLYCOMPRESSEDBYTES == 128)
-    for (i = 0; i < KYBER_N / 2; i++) {
+    for (i = 0; i < KYBER_N / 2; i++)
+    {
         // REF-CHANGE: Hoist scalar decompression into separate function
         r->coeffs[2 * i + 0] = scalar_decompress_q_16((a[0] >> 0) & 0xF);
         r->coeffs[2 * i + 1] = scalar_decompress_q_16((a[0] >> 4) & 0xF);
@@ -182,7 +190,8 @@ __CPROVER_forall {
     #elif (KYBER_POLYCOMPRESSEDBYTES == 160)
     unsigned int j;
     uint8_t t[8];
-    for (i = 0; i < KYBER_N / 8; i++) {
+    for (i = 0; i < KYBER_N / 8; i++)
+    {
         // REF-CHANGE: Explicitly truncate to avoid warning about
         // implicit truncation in CBMC.
         t[0] = 0x1F &  (a[0] >> 0);
@@ -195,7 +204,8 @@ __CPROVER_forall {
         t[7] = 0x1F &  (a[4] >> 3);
         a += 5;
 
-        for (j = 0; j < 8; j++) {
+        for (j = 0; j < 8; j++)
+        {
             // REF-CHANGE: Truncation happened before
             r->coeffs[8 * i + j] = ((uint32_t) t[j] * KYBER_Q + 16) >> 5;
         }
@@ -214,11 +224,13 @@ __CPROVER_forall {
 *                            (needs space for KYBER_POLYBYTES bytes)
 *              - const poly *a: pointer to input polynomial
 **************************************************/
-void poly_tobytes(uint8_t r[KYBER_POLYBYTES], const poly *a) {
+void poly_tobytes(uint8_t r[KYBER_POLYBYTES], const poly *a)
+{
     unsigned int i;
     uint16_t t0, t1;
 
-    for (i = 0; i < KYBER_N / 2; i++) {
+    for (i = 0; i < KYBER_N / 2; i++)
+    {
         // map to positive standard representatives
         t0  = a->coeffs[2 * i];
         t0 += ((int16_t)t0 >> 15) & KYBER_Q;
@@ -240,9 +252,11 @@ void poly_tobytes(uint8_t r[KYBER_POLYBYTES], const poly *a) {
 *              - const uint8_t *a: pointer to input byte array
 *                                  (of KYBER_POLYBYTES bytes)
 **************************************************/
-void poly_frombytes(poly *r, const uint8_t a[KYBER_POLYBYTES]) {
+void poly_frombytes(poly *r, const uint8_t a[KYBER_POLYBYTES])
+{
     unsigned int i;
-    for (i = 0; i < KYBER_N / 2; i++) {
+    for (i = 0; i < KYBER_N / 2; i++)
+    {
         r->coeffs[2 * i]   = ((a[3 * i + 0] >> 0) | ((uint16_t)a[3 * i + 1] << 8)) & 0xFFF;
         r->coeffs[2 * i + 1] = ((a[3 * i + 1] >> 4) | ((uint16_t)a[3 * i + 2] << 4)) & 0xFFF;
     }
@@ -256,15 +270,18 @@ void poly_frombytes(poly *r, const uint8_t a[KYBER_POLYBYTES]) {
 * Arguments:   - poly *r: pointer to output polynomial
 *              - const uint8_t *msg: pointer to input message
 **************************************************/
-void poly_frommsg(poly *r, const uint8_t msg[KYBER_INDCPA_MSGBYTES]) {
+void poly_frommsg(poly *r, const uint8_t msg[KYBER_INDCPA_MSGBYTES])
+{
     unsigned int i, j;
 
     #if (KYBER_INDCPA_MSGBYTES != KYBER_N/8)
 #error "KYBER_INDCPA_MSGBYTES must be equal to KYBER_N/8 bytes!"
     #endif
 
-    for (i = 0; i < KYBER_N / 8; i++) {
-        for (j = 0; j < 8; j++) {
+    for (i = 0; i < KYBER_N / 8; i++)
+    {
+        for (j = 0; j < 8; j++)
+        {
             r->coeffs[8 * i + j] = 0;
             cmov_int16(r->coeffs + 8 * i + j, ((KYBER_Q + 1) / 2), (msg[i] >> j) & 1);
         }
@@ -279,13 +296,16 @@ void poly_frommsg(poly *r, const uint8_t msg[KYBER_INDCPA_MSGBYTES]) {
 * Arguments:   - uint8_t *msg: pointer to output message
 *              - const poly *a: pointer to input polynomial
 **************************************************/
-void poly_tomsg(uint8_t msg[KYBER_INDCPA_MSGBYTES], const poly *a) {
+void poly_tomsg(uint8_t msg[KYBER_INDCPA_MSGBYTES], const poly *a)
+{
     unsigned int i, j;
     uint32_t t;
 
-    for (i = 0; i < KYBER_N / 8; i++) {
+    for (i = 0; i < KYBER_N / 8; i++)
+    {
         msg[i] = 0;
-        for (j = 0; j < 8; j++) {
+        for (j = 0; j < 8; j++)
+        {
             t  = a->coeffs[8 * i + j];
             // t += ((int16_t)t >> 15) & KYBER_Q;
             // t  = (((t << 1) + KYBER_Q/2)/KYBER_Q) & 1;
@@ -311,7 +331,8 @@ void poly_tomsg(uint8_t msg[KYBER_INDCPA_MSGBYTES], const poly *a) {
 *                                     (of length KYBER_SYMBYTES bytes)
 *              - uint8_t nonce: one-byte input nonce
 **************************************************/
-void poly_getnoise_eta1(poly *r, const uint8_t seed[KYBER_SYMBYTES], uint8_t nonce) {
+void poly_getnoise_eta1(poly *r, const uint8_t seed[KYBER_SYMBYTES], uint8_t nonce)
+{
     uint8_t buf[KYBER_ETA1 * KYBER_N / 4];
     prf(buf, sizeof(buf), seed, nonce);
     poly_cbd_eta1(r, buf);
@@ -329,7 +350,8 @@ void poly_getnoise_eta1(poly *r, const uint8_t seed[KYBER_SYMBYTES], uint8_t non
 *                                     (of length KYBER_SYMBYTES bytes)
 *              - uint8_t nonce: one-byte input nonce
 **************************************************/
-void poly_getnoise_eta2(poly *r, const uint8_t seed[KYBER_SYMBYTES], uint8_t nonce) {
+void poly_getnoise_eta2(poly *r, const uint8_t seed[KYBER_SYMBYTES], uint8_t nonce)
+{
     uint8_t buf[KYBER_ETA2 * KYBER_N / 4];
     prf(buf, sizeof(buf), seed, nonce);
     poly_cbd_eta2(r, buf);
@@ -344,7 +366,8 @@ void poly_getnoise_eta2(poly *r, const uint8_t seed[KYBER_SYMBYTES], uint8_t non
 *
 * Arguments:   - uint16_t *r: pointer to in/output polynomial
 **************************************************/
-void poly_ntt(poly *r) {
+void poly_ntt(poly *r)
+{
     ntt(r->coeffs);
     poly_reduce(r);
 }
@@ -358,7 +381,8 @@ void poly_ntt(poly *r) {
 *
 * Arguments:   - uint16_t *a: pointer to in/output polynomial
 **************************************************/
-void poly_invntt_tomont(poly *r) {
+void poly_invntt_tomont(poly *r)
+{
     invntt(r->coeffs);
 }
 
@@ -371,9 +395,11 @@ void poly_invntt_tomont(poly *r) {
 *              - const poly *a: pointer to first input polynomial
 *              - const poly *b: pointer to second input polynomial
 **************************************************/
-void poly_basemul_montgomery(poly *r, const poly *a, const poly *b) {
+void poly_basemul_montgomery(poly *r, const poly *a, const poly *b)
+{
     unsigned int i;
-    for (i = 0; i < KYBER_N / 4; i++) {
+    for (i = 0; i < KYBER_N / 4; i++)
+    {
         basemul(&r->coeffs[4 * i], &a->coeffs[4 * i], &b->coeffs[4 * i], zetas[64 + i]);
         basemul(&r->coeffs[4 * i + 2], &a->coeffs[4 * i + 2], &b->coeffs[4 * i + 2], -zetas[64 + i]);
     }
@@ -387,10 +413,12 @@ void poly_basemul_montgomery(poly *r, const poly *a, const poly *b) {
 *
 * Arguments:   - poly *r: pointer to input/output polynomial
 **************************************************/
-void poly_tomont(poly *r) {
+void poly_tomont(poly *r)
+{
     unsigned int i;
     const int16_t f = (1ULL << 32) % KYBER_Q;
-    for (i = 0; i < KYBER_N; i++) {
+    for (i = 0; i < KYBER_N; i++)
+    {
         r->coeffs[i] = montgomery_reduce((int32_t)r->coeffs[i] * f);
     }
 }
@@ -403,9 +431,11 @@ void poly_tomont(poly *r) {
 *
 * Arguments:   - poly *r: pointer to input/output polynomial
 **************************************************/
-void poly_reduce(poly *r) {
+void poly_reduce(poly *r)
+{
     unsigned int i;
-    for (i = 0; i < KYBER_N; i++) {
+    for (i = 0; i < KYBER_N; i++)
+    {
         r->coeffs[i] = barrett_reduce(r->coeffs[i]);
     }
 }
@@ -419,9 +449,11 @@ void poly_reduce(poly *r) {
 *            - const poly *a: pointer to first input polynomial
 *            - const poly *b: pointer to second input polynomial
 **************************************************/
-void poly_add(poly *r, const poly *a, const poly *b) {
+void poly_add(poly *r, const poly *a, const poly *b)
+{
     unsigned int i;
-    for (i = 0; i < KYBER_N; i++) {
+    for (i = 0; i < KYBER_N; i++)
+    {
         r->coeffs[i] = a->coeffs[i] + b->coeffs[i];
     }
 }
@@ -435,9 +467,11 @@ void poly_add(poly *r, const poly *a, const poly *b) {
 *            - const poly *a: pointer to first input polynomial
 *            - const poly *b: pointer to second input polynomial
 **************************************************/
-void poly_sub(poly *r, const poly *a, const poly *b) {
+void poly_sub(poly *r, const poly *a, const poly *b)
+{
     unsigned int i;
-    for (i = 0; i < KYBER_N; i++) {
+    for (i = 0; i < KYBER_N; i++)
+    {
         r->coeffs[i] = a->coeffs[i] - b->coeffs[i];
     }
 }

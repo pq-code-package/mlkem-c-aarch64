@@ -37,7 +37,8 @@ void init_ntt() {
 }
 */
 
-const int16_t zetas[128] = {
+const int16_t zetas[128] =
+{
     -1044,  -758,  -359, -1517,  1493,  1422,   287,   202,
     -171,   622,  1577,   182,   962, -1202, -1474,  1468,
     573, -1325,   264,   383,  -829,  1458, -1602,  -130,
@@ -66,7 +67,8 @@ const int16_t zetas[128] = {
 *
 * Returns 16-bit integer congruent to a*b*R^{-1} mod q
 **************************************************/
-static int16_t fqmul(int16_t a, int16_t b) {
+static int16_t fqmul(int16_t a, int16_t b)
+{
     return montgomery_reduce((int32_t)a * b);
 }
 
@@ -78,15 +80,19 @@ static int16_t fqmul(int16_t a, int16_t b) {
 *
 * Arguments:   - int16_t r[256]: pointer to input/output vector of elements of Zq
 **************************************************/
-void ntt(int16_t r[256]) {
+void ntt(int16_t r[256])
+{
     unsigned int len, start, j, k;
     int16_t t, zeta;
 
     k = 1;
-    for (len = 128; len >= 2; len >>= 1) {
-        for (start = 0; start < 256; start = j + len) {
+    for (len = 128; len >= 2; len >>= 1)
+    {
+        for (start = 0; start < 256; start = j + len)
+        {
             zeta = zetas[k++];
-            for (j = start; j < start + len; j++) {
+            for (j = start; j < start + len; j++)
+            {
                 t = fqmul(zeta, r[j + len]);
                 r[j + len] = r[j] - t;
                 r[j] = r[j] + t;
@@ -104,16 +110,20 @@ void ntt(int16_t r[256]) {
 *
 * Arguments:   - int16_t r[256]: pointer to input/output vector of elements of Zq
 **************************************************/
-void invntt(int16_t r[256]) {
+void invntt(int16_t r[256])
+{
     unsigned int start, len, j, k;
     int16_t t, zeta;
     const int16_t f = 1441; // mont^2/128
 
     k = 127;
-    for (len = 2; len <= 128; len <<= 1) {
-        for (start = 0; start < 256; start = j + len) {
+    for (len = 2; len <= 128; len <<= 1)
+    {
+        for (start = 0; start < 256; start = j + len)
+        {
             zeta = zetas[k--];
-            for (j = start; j < start + len; j++) {
+            for (j = start; j < start + len; j++)
+            {
                 t = r[j];
                 r[j] = barrett_reduce(t + r[j + len]);
                 r[j + len] = r[j + len] - t;
@@ -122,7 +132,8 @@ void invntt(int16_t r[256]) {
         }
     }
 
-    for (j = 0; j < 256; j++) {
+    for (j = 0; j < 256; j++)
+    {
         r[j] = fqmul(r[j], f);
     }
 }
@@ -138,7 +149,8 @@ void invntt(int16_t r[256]) {
 *              - const int16_t b[2]: pointer to the second factor
 *              - int16_t zeta: integer defining the reduction polynomial
 **************************************************/
-void basemul(int16_t r[2], const int16_t a[2], const int16_t b[2], int16_t zeta) {
+void basemul(int16_t r[2], const int16_t a[2], const int16_t b[2], int16_t zeta)
+{
     r[0]  = fqmul(a[1], b[1]);
     r[0]  = fqmul(r[0], zeta);
     r[0] += fqmul(a[0], b[0]);
