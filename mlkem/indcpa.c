@@ -9,6 +9,8 @@
 #include "ntt.h"
 #include "symmetric.h"
 #include "randombytes.h"
+#include "fips202x4.h"
+#include "fips202.h"
 
 /*************************************************
 * Name:        pack_pk
@@ -166,39 +168,86 @@ static unsigned int rej_uniform(int16_t *r,
 // Not static for benchmarking
 void gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMBYTES], int transposed)
 {
-    unsigned int ctr, i, j, k;
-    unsigned int buflen, off;
-    uint8_t buf[GEN_MATRIX_NBLOCKS * XOF_BLOCKBYTES + 2];
+    unsigned int ctr, i, j;
+    unsigned int buflen;
+    uint8_t bufx[KECCAK_WAY][GEN_MATRIX_NBLOCKS * XOF_BLOCKBYTES];
+    uint8_t *buf = NULL;
+    int16_t *vec = NULL;
+    uint8_t x, y;
     xof_state state;
 
-    for (i = 0; i < KYBER_K; i++)
+    keccakx4_state statex;
+    // The input data to each Keccak lane.
+    // Original size; KYBER_SYMBYTES + 2, we add padding to make align load/store.
+    uint8_t seedxy[KECCAK_WAY][KYBER_SYMBYTES + 16];
+    for (j = 0; j < KECCAK_WAY; j++)
     {
-        for (j = 0; j < KYBER_K; j++)
+        memcpy(seedxy[j], seed, KYBER_SYMBYTES);
+    }
+    for (i = 0; i < (KYBER_K * KYBER_K / KECCAK_WAY) * KECCAK_WAY; i += KECCAK_WAY)
+    {
+        for (j = 0; j < KECCAK_WAY; j++)
         {
+            x = (i + j) / KYBER_K;
+            y = (i + j) % KYBER_K;
             if (transposed)
             {
-                xof_absorb(&state, seed, i, j);
+                seedxy[j][KYBER_SYMBYTES + 0] = x;
+                seedxy[j][KYBER_SYMBYTES + 1] = y;
             }
             else
             {
-                xof_absorb(&state, seed, j, i);
+                seedxy[j][KYBER_SYMBYTES + 0] = y;
+                seedxy[j][KYBER_SYMBYTES + 1] = x;
             }
+        }
 
-            xof_squeezeblocks(buf, GEN_MATRIX_NBLOCKS, &state);
+        shake128x4_absorb(&statex, seedxy[0], seedxy[1], seedxy[2], seedxy[3], KYBER_SYMBYTES + 2);
+        shake128x4_squeezeblocks(bufx[0], bufx[1], bufx[2], bufx[3], GEN_MATRIX_NBLOCKS, &statex);
+
+        for (j = 0; j < KECCAK_WAY; j++)
+        {
+            x = (i + j) / KYBER_K;
+            y = (i + j) % KYBER_K;
+            vec = a[x].vec[y].coeffs;
+            buf = bufx[j];
             buflen = GEN_MATRIX_NBLOCKS * XOF_BLOCKBYTES;
-            ctr = rej_uniform(a[i].vec[j].coeffs, KYBER_N, buf, buflen);
+            ctr = rej_uniform(vec, KYBER_N, buf, buflen);
 
-            while (ctr < KYBER_N)
+            while (ctr < KYBER_N )
             {
-                off = buflen % 3;
-                for (k = 0; k < off; k++)
-                {
-                    buf[k] = buf[buflen - off + k];
-                }
-                xof_squeezeblocks(buf + off, 1, &state);
-                buflen = off + XOF_BLOCKBYTES;
-                ctr += rej_uniform(a[i].vec[j].coeffs + ctr, KYBER_N - ctr, buf, buflen);
+                shake256x4_squeezeblocks_single(buf, 1, j, &statex);
+                buflen = XOF_BLOCKBYTES;
+                ctr += rej_uniform(vec + ctr, KYBER_N - ctr, buf, buflen);
             }
+        }
+    }
+
+    // For left over vector, we use single keccak.
+    for (; i < KYBER_K * KYBER_K; i++)
+    {
+        x = i / KYBER_K;
+        y = i % KYBER_K;
+        buf = bufx[0];
+        vec = a[x].vec[y].coeffs;
+
+        if (transposed)
+        {
+            xof_absorb(&state, seed, x, y);
+        }
+        else
+        {
+            xof_absorb(&state, seed, y, x);
+        }
+        xof_squeezeblocks(buf, GEN_MATRIX_NBLOCKS, &state);
+        buflen = GEN_MATRIX_NBLOCKS * XOF_BLOCKBYTES;
+        ctr = rej_uniform(vec, KYBER_N, buf, buflen);
+
+        while (ctr < KYBER_N)
+        {
+            xof_squeezeblocks(buf, 1, &state);
+            buflen = XOF_BLOCKBYTES;
+            ctr += rej_uniform(vec + ctr, KYBER_N - ctr, buf, buflen);
         }
     }
 }
@@ -224,21 +273,21 @@ void indcpa_keypair_derand(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
     uint8_t buf[2 * KYBER_SYMBYTES];
     const uint8_t *publicseed = buf;
     const uint8_t *noiseseed = buf + KYBER_SYMBYTES;
-    uint8_t nonce = 0;
     polyvec a[KYBER_K], e, pkpv, skpv;
 
     hash_g(buf, coins, KYBER_SYMBYTES);
 
     gen_a(a, publicseed);
 
-    for (i = 0; i < KYBER_K; i++)
-    {
-        poly_getnoise_eta1(&skpv.vec[i], noiseseed, nonce++);
-    }
-    for (i = 0; i < KYBER_K; i++)
-    {
-        poly_getnoise_eta1(&e.vec[i], noiseseed, nonce++);
-    }
+    #if KYBER_K == 2
+    poly_getnoise_eta1_4x(skpv.vec+0, skpv.vec+1, e.vec+0, e.vec+1, noiseseed, 0, 1, 2, 3);
+    #elif KYBER_K == 3
+    poly_getnoise_eta1_4x(skpv.vec+0, skpv.vec+1, skpv.vec+2, e.vec+0, noiseseed, 0, 1, 2, 3);
+    poly_getnoise_eta1_4x(e.vec+1, e.vec+2, pkpv.vec+0, pkpv.vec+1, noiseseed, 4, 5, 6, 7);
+    #elif KYBER_K == 4
+    poly_getnoise_eta1_4x(skpv.vec+0, skpv.vec+1, skpv.vec+2, skpv.vec+3, noiseseed,  0, 1, 2, 3);
+    poly_getnoise_eta1_4x(e.vec+0, e.vec+1, e.vec+2, e.vec+3, noiseseed, 4, 5, 6, 7);
+    #endif
 
     polyvec_ntt(&skpv);
     polyvec_ntt(&e);
@@ -280,7 +329,6 @@ void indcpa_enc(uint8_t c[KYBER_INDCPA_BYTES],
 {
     unsigned int i;
     uint8_t seed[KYBER_SYMBYTES];
-    uint8_t nonce = 0;
     polyvec sp, pkpv, ep, at[KYBER_K], b;
     poly v, k, epp;
 
@@ -288,15 +336,17 @@ void indcpa_enc(uint8_t c[KYBER_INDCPA_BYTES],
     poly_frommsg(&k, m);
     gen_at(at, seed);
 
-    for (i = 0; i < KYBER_K; i++)
-    {
-        poly_getnoise_eta1(sp.vec + i, coins, nonce++);
-    }
-    for (i = 0; i < KYBER_K; i++)
-    {
-        poly_getnoise_eta2(ep.vec + i, coins, nonce++);
-    }
-    poly_getnoise_eta2(&epp, coins, nonce++);
+    #if KYBER_K == 2
+    poly_getnoise_eta1122_4x(sp.vec+0, sp.vec+1, ep.vec+0, ep.vec+1, coins, 0, 1, 2, 3);
+    poly_getnoise_eta2(&epp, coins, 4);
+    #elif KYBER_K == 3
+    poly_getnoise_eta1_4x(sp.vec+0, sp.vec+1, sp.vec+2, ep.vec+0, coins, 0, 1, 2, 3);
+    poly_getnoise_eta1_4x(ep.vec+1, ep.vec+2, &epp, b.vec+0, coins,  4, 5, 6, 7);
+    #elif KYBER_K == 4
+    poly_getnoise_eta1_4x(sp.vec+0, sp.vec+1, sp.vec+2, sp.vec+3, coins, 0, 1, 2, 3);
+    poly_getnoise_eta1_4x(ep.vec+0, ep.vec+1, ep.vec+2, ep.vec+3, coins, 4, 5, 6, 7);
+    poly_getnoise_eta2(&epp, coins, 8);
+    #endif
 
     polyvec_ntt(&sp);
 
