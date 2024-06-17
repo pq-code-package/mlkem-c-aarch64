@@ -151,8 +151,9 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
             __CPROVER_loop_invariant(i <= KYBER_N)
             __CPROVER_loop_invariant(j <= 8)
             __CPROVER_loop_invariant(__CPROVER_forall { size_t k; (0 <= k && k < j) ==> (t[k] >= 0 && t[k] < 16) })
-            __CPROVER_decreases(8 - j) {
+            __CPROVER_decreases(8 - j)
 // *INDENT-ON*
+        {
             // map to positive standard representatives
             // REF-CHANGE: Hoist signed-to-unsigned conversion into separate function
             { u = (int32_t) coeff_signed_to_unsigned(a->coeffs[8 * i + j]); }
