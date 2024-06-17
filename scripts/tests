@@ -25,8 +25,8 @@ def sha256sum(result):
     return m.hexdigest()
 
 
-def base_run(bin, verbose):
-    if platform.system() == "Linux" and platform.machine() == "x86_64":
+def base_run(bin, force_qemu, verbose):
+    if force_qemu or (platform.system() == "Linux" and platform.machine() == "x86_64"):
         logging.debug(f"Emulating {bin} with QEMU")
 
         p = subprocess.run(
@@ -90,7 +90,7 @@ def parse_meta(scheme, field):
     return result.stdout.strip()
 
 
-def test_schemes(title, scheme2file, actual_proc, expect_proc, verbose):
+def test_schemes(title, scheme2file, actual_proc, expect_proc, force_qemu, verbose):
     logging.info(f"{title}")
 
     summary_file = os.environ.get("GITHUB_STEP_SUMMARY")
@@ -112,7 +112,7 @@ def test_schemes(title, scheme2file, actual_proc, expect_proc, verbose):
     fail = False
     for scheme in SCHEME:
         bin = scheme2file(scheme)
-        result = base_run(bin, verbose)
+        result = base_run(bin, force_qemu, verbose)
 
         actual = actual_proc(result)
         expect = expect_proc(scheme)
@@ -129,7 +129,25 @@ def test_schemes(title, scheme2file, actual_proc, expect_proc, verbose):
         sys.exit(1)
 
 
+def validate_force_qemu(ctx, _, v):
+    if platform.system() == "Darwin" and v:
+        config_logger(False)
+        logging.error("qemu-aarch64 is not supported on Darwin")
+        ctx.exit(1)
+
+
 _shared_options = [
+    click.option(
+        "--force-qemu",
+        is_flag=True,
+        show_default=True,
+        default=False,
+        type=bool,
+        hidden=platform.system() == "Darwin",
+        callback=validate_force_qemu,
+        is_eager=True,
+        help="Force to emulate with QEMU (not supported on macOS)",
+    ),
     click.option(
         "-v",
         "--verbose",
@@ -157,10 +175,10 @@ def add_options(options):
     type=click.Path(),
     help="The binary file that you wanted to test.",
 )
-def run(bin, verbose):
+def run(bin, force_qemu, verbose):
     config_logger(verbose)
 
-    result = base_run(bin, verbose)
+    result = base_run(bin, force_qemu, verbose)
     logging.info(str(result, encoding="utf-8"))
 
 
@@ -169,7 +187,7 @@ def run(bin, verbose):
     context_settings={"show_default": True},
 )
 @add_options(_shared_options)
-def func(verbose):
+def func(force_qemu, verbose):
     config_logger(verbose)
 
     def expect(scheme):
@@ -188,6 +206,7 @@ def func(verbose):
         lambda scheme: scheme.name.replace("MLKEM", "test/bin/test_kyber"),
         lambda result: str(result, encoding="utf-8"),
         expect,
+        force_qemu,
         verbose,
     )
 
@@ -197,7 +216,7 @@ def func(verbose):
     context_settings={"show_default": True},
 )
 @add_options(_shared_options)
-def nistkat(verbose):
+def nistkat(force_qemu, verbose):
     config_logger(verbose)
 
     test_schemes(
@@ -205,6 +224,7 @@ def nistkat(verbose):
         lambda scheme: scheme.name.replace("MLKEM", "test/bin/gen_NISTKAT"),
         sha256sum,
         lambda scheme: parse_meta(scheme, "nistkat-sha256"),
+        force_qemu,
         verbose,
     )
 
@@ -214,7 +234,7 @@ def nistkat(verbose):
     context_settings={"show_default": True},
 )
 @add_options(_shared_options)
-def kat(verbose):
+def kat(force_qemu, verbose):
     config_logger(verbose)
 
     test_schemes(
@@ -222,6 +242,7 @@ def kat(verbose):
         lambda scheme: scheme.name.replace("MLKEM", "test/bin/gen_KAT"),
         sha256sum,
         lambda scheme: parse_meta(scheme, "kat-sha256"),
+        force_qemu,
         verbose,
     )
 
