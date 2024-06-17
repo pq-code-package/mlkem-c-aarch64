@@ -29,8 +29,11 @@ def base_run(bin, force_qemu, verbose):
     if force_qemu or (platform.system() == "Linux" and platform.machine() == "x86_64"):
         logging.debug(f"Emulating {bin} with QEMU")
 
+        args = ["make", "CROSS_PREFIX=aarch64-none-linux-gnu-", f"{bin}"]
+        logging.info(" ".join(args))
+
         p = subprocess.run(
-            ["make", "CROSS_PREFIX=aarch64-none-linux-gnu-", f"{bin}"],
+            args,
             stdout=subprocess.DEVNULL if not verbose else None,
         )
         if p.returncode != 0:
@@ -46,10 +49,14 @@ def base_run(bin, force_qemu, verbose):
     else:
         logging.debug(f"Running {bin} natively")
 
+        args = ["make", f"{bin}"]
+        logging.info(" ".join(args))
+
         p = subprocess.run(
-            ["make", f"{bin}"],
+            args,
             stdout=subprocess.DEVNULL if not verbose else None,
         )
+
         if p.returncode != 0:
             logging.error("make failed")
             sys.exit(1)
