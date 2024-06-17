@@ -6,7 +6,8 @@
 #include "params.h"
 #include "poly.h"
 
-typedef struct {
+typedef struct
+{
     poly vec[KYBER_K];
 } polyvec;
 
