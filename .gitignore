@@ -4,12 +4,4 @@
 .direnv
 .vscode
 .idea
-test/test_kyber512
-test/test_kyber768
-test/test_kyber1024
-test/gen_KAT512
-test/gen_KAT768
-test/gen_KAT1024
-test/gen_NISTKAT512
-test/gen_NISTKAT768
-test/gen_NISTKAT1024
+test/bin/

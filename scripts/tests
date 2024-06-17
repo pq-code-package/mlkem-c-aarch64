@@ -1,0 +1,268 @@
+#!/usr/bin/env python
+# SPDX-License-Identifier: Apache-2.0
+
+import platform
+import sys
+import os
+import subprocess
+import logging
+import click
+import hashlib
+from functools import reduce
+from enum import Enum
+
+
+def config_logger(verbose):
+    if verbose:
+        logging.basicConfig(format="%(levelname)-5s > %(message)s", level=logging.DEBUG)
+    else:
+        logging.basicConfig(format="%(levelname)-5s > %(message)s", level=logging.INFO)
+
+
+def sha256sum(result):
+    m = hashlib.sha256()
+    m.update(result)
+    return m.hexdigest()
+
+
+def base_run(bin, force_qemu, verbose):
+    if force_qemu or (platform.system() == "Linux" and platform.machine() == "x86_64"):
+        logging.debug(f"Emulating {bin} with QEMU")
+
+        args = ["make", "CROSS_PREFIX=aarch64-none-linux-gnu-", f"{bin}"]
+        logging.info(" ".join(args))
+
+        p = subprocess.run(
+            args,
+            stdout=subprocess.DEVNULL if not verbose else None,
+        )
+        if p.returncode != 0:
+            logging.error("make failed")
+            sys.exit(1)
+
+        result = subprocess.run(
+            ["qemu-aarch64", f"{bin}"],
+            capture_output=True,
+            universal_newlines=False,
+        )
+
+    else:
+        logging.debug(f"Running {bin} natively")
+
+        args = ["make", f"{bin}"]
+        logging.info(" ".join(args))
+
+        p = subprocess.run(
+            args,
+            stdout=subprocess.DEVNULL if not verbose else None,
+        )
+
+        if p.returncode != 0:
+            logging.error("make failed")
+            sys.exit(1)
+
+        result = subprocess.run(
+            [f"./{bin}"],
+            capture_output=True,
+            universal_newlines=False,
+        )
+
+    return result.stdout
+
+
+class SCHEME(Enum):
+    MLKEM512 = 1
+    MLKEM768 = 2
+    MLKEM1024 = 3
+
+    def __str__(self):
+        return self.name
+
+
+def parse_meta(scheme, field):
+    result = subprocess.run(
+        [
+            "yq",
+            "-r",
+            "--arg",
+            "scheme",
+            scheme.name.lower(),
+            f'.implementations.[] | select(.name == $scheme) | ."{field}"',
+            "./META.yml",
+        ],
+        capture_output=True,
+        encoding="utf-8",
+        universal_newlines=False,
+    )
+    return result.stdout.strip()
+
+
+def test_schemes(title, scheme2file, actual_proc, expect_proc, force_qemu, verbose):
+    logging.info(f"{title}")
+
+    summary_file = os.environ.get("GITHUB_STEP_SUMMARY")
+    summary = f"## {title}\n"
+
+    def check(scheme, expect, actual):
+        if actual != expect:
+            logging.error(f"{scheme} failed, expecting {expect}, but getting {actual}")
+            summary = f":x: {scheme}, expecting {expect}, but getting {actual}\n"
+
+            fail = True
+        else:
+            logging.info(f"{scheme} passed")
+            summary = f":white_check_mark: {scheme}\n"
+            fail = False
+
+        return (fail, summary)
+
+    fail = False
+    for scheme in SCHEME:
+        bin = scheme2file(scheme)
+        result = base_run(bin, force_qemu, verbose)
+
+        actual = actual_proc(result)
+        expect = expect_proc(scheme)
+
+        (f, s) = check(scheme, expect, actual)
+        fail = fail or f
+        summary += s
+
+    if summary_file is not None:
+        with open(summary_file, "a") as f:
+            print(summary, file=f)
+
+    if fail:
+        sys.exit(1)
+
+
+def validate_force_qemu(ctx, _, v):
+    if platform.system() == "Darwin" and v:
+        config_logger(False)
+        logging.error("qemu-aarch64 is not supported on Darwin")
+        ctx.exit(1)
+
+
+_shared_options = [
+    click.option(
+        "--force-qemu",
+        is_flag=True,
+        show_default=True,
+        default=False,
+        type=bool,
+        hidden=platform.system() == "Darwin",
+        callback=validate_force_qemu,
+        is_eager=True,
+        help="Force to emulate with QEMU (not supported on macOS)",
+    ),
+    click.option(
+        "-v",
+        "--verbose",
+        is_flag=True,
+        show_default=True,
+        default=False,
+        type=bool,
+        help="Show verbose output or not",
+    ),
+]
+
+
+def add_options(options):
+    return lambda func: reduce(lambda f, o: o(f), reversed(options), func)
+
+
+@click.command(
+    short_help="Run the specified binary file",
+    context_settings={"show_default": True},
+)
+@add_options(_shared_options)
+@click.option(
+    "-b",
+    "--bin",
+    type=click.Path(),
+    help="The binary file that you wanted to test.",
+)
+def run(bin, force_qemu, verbose):
+    config_logger(verbose)
+
+    result = base_run(bin, force_qemu, verbose)
+    logging.info(str(result, encoding="utf-8"))
+
+
+@click.command(
+    short_help="Run the functional tests for all parameter sets",
+    context_settings={"show_default": True},
+)
+@add_options(_shared_options)
+def func(force_qemu, verbose):
+    config_logger(verbose)
+
+    def expect(scheme):
+        sk_bytes = parse_meta(scheme, "length-secret-key")
+        pk_bytes = parse_meta(scheme, "length-public-key")
+        ct_bytes = parse_meta(scheme, "length-ciphertext")
+
+        return (
+            f"CRYPTO_SECRETKEYBYTES:  {sk_bytes}\n"
+            + f"CRYPTO_PUBLICKEYBYTES:  {pk_bytes}\n"
+            + f"CRYPTO_CIPHERTEXTBYTES: {ct_bytes}\n"
+        )
+
+    test_schemes(
+        "Functional test",
+        lambda scheme: scheme.name.replace("MLKEM", "test/bin/test_kyber"),
+        lambda result: str(result, encoding="utf-8"),
+        expect,
+        force_qemu,
+        verbose,
+    )
+
+
+@click.command(
+    short_help="Run the nistkat tests for all parameter sets",
+    context_settings={"show_default": True},
+)
+@add_options(_shared_options)
+def nistkat(force_qemu, verbose):
+    config_logger(verbose)
+
+    test_schemes(
+        "Nistkat test",
+        lambda scheme: scheme.name.replace("MLKEM", "test/bin/gen_NISTKAT"),
+        sha256sum,
+        lambda scheme: parse_meta(scheme, "nistkat-sha256"),
+        force_qemu,
+        verbose,
+    )
+
+
+@click.command(
+    short_help="Run the kat tests for all parameter sets",
+    context_settings={"show_default": True},
+)
+@add_options(_shared_options)
+def kat(force_qemu, verbose):
+    config_logger(verbose)
+
+    test_schemes(
+        "Kat test",
+        lambda scheme: scheme.name.replace("MLKEM", "test/bin/gen_KAT"),
+        sha256sum,
+        lambda scheme: parse_meta(scheme, "kat-sha256"),
+        force_qemu,
+        verbose,
+    )
+
+
+@click.group(invoke_without_command=True)
+def cli():
+    pass
+
+
+cli.add_command(run)
+cli.add_command(func)
+cli.add_command(nistkat)
+cli.add_command(kat)
+
+if __name__ == "__main__":
+    cli()

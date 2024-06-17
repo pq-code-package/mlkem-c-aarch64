@@ -13,14 +13,11 @@ jobs:
       matrix:
         include:
         - system: macos-latest
-          skipped: false
           expect_arch: arm64
         - system: pqcp-arm64
-          skipped: false
           expect_arch: aarch64
         - system: ubuntu-latest
           cross_prefix: aarch64-none-linux-gnu-
-          skipped: true
           expect_arch: x86_64
     name: build_kat (${{ matrix.system }})
     runs-on: ${{ matrix.system }}
@@ -45,38 +42,28 @@ jobs:
               echo ":x: Expecting to run on ${{ matrix.expect_arch }}, but instead running on $ARCH" >> $GITHUB_STEP_SUMMARY
               exit 1
             fi
-      - name: Build targets
+      - name: Run functional tests
+        id: func_test
         shell: nix develop .#ci -c bash -e {0}
         run: |
-          make CROSS_PREFIX=${{ matrix.cross_prefix }} mlkem
-
-          if [ ${{ matrix.skipped }} != true ]; then
-            ./test/test_kyber512
-            ./test/test_kyber768
-            ./test/test_kyber1024
-          fi
-      - name: Compare gen_KAT with known hash
+          tests func -v
+      - name: Run KAT tests
+        id: kat_test
+        if: |
+          success()
+          || steps.func_test.conclusion == 'failure'
         shell: nix develop .#ci -c bash -e {0}
         run: |
-          cat >> $GITHUB_STEP_SUMMARY <<-EOF
-            ## KAT tests
-          EOF
-
-          make CROSS_PREFIX=${{ matrix.cross_prefix }} kat
-
-          if [ ${{ matrix.skipped }} != true ]; then
-            cat >> $GITHUB_STEP_SUMMARY <<-EOF
-              $(checksum ./test/gen_KAT512  ec4ac397e595ac7457cb7d8830921faf3290898a10d7dd3864aab89ea61fe9a3)
-              $(checksum ./test/gen_KAT768  9a0826ad3c5232dfd3b21bc4801408655c565a491b760f509b2ee2cd7180babe)
-              $(checksum ./test/gen_KAT1024 6dafb867599b750a6a831b03e494cf41dea748c78a0e275e7b268bbb893cf37d)
-          EOF
-          fi
-      - name: Compare gen_NISTKAT with known hash
+          tests kat -v
+      - name: Run Nistkat tests
+        id: nistkat_test
+        if: |
+          success()
+          || steps.func_test.conclusion == 'failure'
+          || steps.kat_test.conclusion == 'failure'
         shell: nix develop .#ci -c bash -e {0}
         run: |
-          cat >> $GITHUB_STEP_SUMMARY <<-EOF
-            ## NISTKAT tests
-          EOF
+          tests nistkat -v
   lint:
     strategy:
       matrix:

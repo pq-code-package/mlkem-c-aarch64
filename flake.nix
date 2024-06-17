@@ -45,12 +45,18 @@
               cbmc = cbmc;
 
               inherit (pkgs)
+                yq
                 ninja# 1.11.1
-
+                qemu# 8.2.4
                 # formatter & linters
                 cadical
                 nixpkgs-fmt
                 shfmt;
+
+              inherit (pkgs.python3Packages)
+                python
+                black
+                click;
             }
           ++ {
             "x86_64-linux" = [ (pkgs.callPackage ./arm-gnu-gcc.nix { }) ];
