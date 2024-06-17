@@ -110,7 +110,8 @@ uint32_t scalar_decompress_q_32(uint32_t u)
  *
  * Arguments: c: signed coefficient to be converted
  ************************************************************/
-uint16_t coeff_signed_to_unsigned (int16_t c) {
+uint16_t coeff_signed_to_unsigned (int16_t c)
+{
     int32_t r = (int32_t) c;
 
     // Add Q if r is negative
@@ -142,7 +143,8 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
     for (size_t i = 0; i < KYBER_N / 8; i++)
         __CPROVER_assigns(i, u, __CPROVER_object_whole(t), __CPROVER_object_whole(r))
         __CPROVER_loop_invariant(i <= KYBER_N)
-        __CPROVER_decreases(32 - i) {
+        __CPROVER_decreases(32 - i)
+    {
         for (size_t j = 0; j < 8; j++)
 // *INDENT-OFF*
             __CPROVER_assigns(j, u, __CPROVER_object_whole(t))
