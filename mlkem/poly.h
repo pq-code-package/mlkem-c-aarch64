@@ -46,6 +46,15 @@ __CPROVER_requires(0 <= u && u < 32)
 __CPROVER_ensures(__CPROVER_return_value < KYBER_Q);
 /* INDENT-ON */
 
+uint16_t coeff_signed_to_unsigned (int16_t c)
+/* *INDENT-OFF* */
+__CPROVER_requires(c > -KYBER_Q) // c >= -3328
+__CPROVER_requires(c < KYBER_Q)  // c <= 3328
+__CPROVER_ensures(__CPROVER_return_value >= 0)
+__CPROVER_ensures(__CPROVER_return_value < KYBER_Q)
+__CPROVER_ensures(__CPROVER_return_value == (int32_t) c + (((int32_t) c < 0) * KYBER_Q));
+/* *INDENT-ON* */
+
 #define poly_compress KYBER_NAMESPACE(poly_compress)
 void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a);
 

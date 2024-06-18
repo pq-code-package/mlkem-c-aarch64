@@ -87,6 +87,39 @@ uint32_t scalar_decompress_q_32(uint32_t u)
     return ((u * KYBER_Q) + 16) / 32;
 }
 
+/************************************************************
+ * Name: coeff_signed_to_unsigned
+ *
+ * Description: converts signed polynomial coefficient
+ *              from signed (-3328 .. 3328) form to
+ *              unsigned form (0 .. 3328).
+ *
+ * Note: Cryptographic constant time implementation
+ *
+ * Examples:       0 -> 0
+ *                 1 -> 1
+ *              3328 -> 3328
+ *                -1 -> 3328
+ *                -2 -> 3327
+ *             -3328 -> 1
+ *
+ * Arguments: c: signed coefficient to be converted
+ ************************************************************/
+uint16_t coeff_signed_to_unsigned (int16_t c)
+{
+    int32_t r = (int32_t) c;
+
+    // Add Q if r is negative
+    int32_t factor = (r < 0); // 1 if r < 0; 0 if r >= 0
+    r = r + (factor * KYBER_Q);
+
+    __CPROVER_assert(r >= 0, "coeff_signed_to_unsigned result lower bound");
+    __CPROVER_assert(r < KYBER_Q, "coeff_signed_to_unsigned result upper bound");
+
+    // and therefore cast to uint16_t is safe.
+    return (uint16_t) r;
+}
+
 /*************************************************
 * Name:        poly_compress
 *
@@ -99,21 +132,20 @@ uint32_t scalar_decompress_q_32(uint32_t u)
 void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
 {
     unsigned int i, j;
-    int32_t u;
     uint8_t t[8];
 
     #if (KYBER_POLYCOMPRESSEDBYTES == 128)
     for (i = 0; i < KYBER_N / 8; i++)
-        __CPROVER_assigns(i, j, u, t, r)
+        __CPROVER_assigns(i, j, t, r)
         /* Stronger loop invariant here TBD */
     {
         for (j = 0; j < 8; j++)
-            __CPROVER_assigns(j, u, t)
+            __CPROVER_assigns(j, t)
             /* Stronger loop invariant here TBD */
         {
             // map to positive standard representatives
-            u  = a->coeffs[8 * i + j];
-            u += (u >> 15) & KYBER_Q;
+            // REF-CHANGE: Hoist signed-to-unsigned conversion into separate function
+            int32_t u = (int32_t) coeff_signed_to_unsigned(a->coeffs[8 * i + j]);
             // REF-CHANGE: Hoist scalar compression into separate function
             t[j] = scalar_compress_q_16(u);
         }
@@ -130,8 +162,8 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
         for (j = 0; j < 8; j++)
         {
             // map to positive standard representatives
-            u  = a->coeffs[8 * i + j];
-            u += (u >> 15) & KYBER_Q;
+            // REF-CHANGE: Hoist signed-to-unsigned conversion into separate function
+            int32_t u = (int32_t) coeff_signed_to_unsigned(a->coeffs[8 * i + j]);
             // REF-CHANGE: Hoist scalar compression into separate function
             t[j] = scalar_compress_q_32(u);
         }
@@ -233,10 +265,9 @@ void poly_tobytes(uint8_t r[KYBER_POLYBYTES], const poly *a)
     for (i = 0; i < KYBER_N / 2; i++)
     {
         // map to positive standard representatives
-        t0  = a->coeffs[2 * i];
-        t0 += ((int16_t)t0 >> 15) & KYBER_Q;
-        t1 = a->coeffs[2 * i + 1];
-        t1 += ((int16_t)t1 >> 15) & KYBER_Q;
+        // REF-CHANGE: Hoist signed-to-unsigned conversion into separate function
+        t0 = coeff_signed_to_unsigned(a->coeffs[2 * i]);
+        t1 = coeff_signed_to_unsigned(a->coeffs[2 * i + 1]);
         r[3 * i + 0] = (t0 >> 0);
         r[3 * i + 1] = (t0 >> 8) | (t1 << 4);
         r[3 * i + 2] = (t1 >> 4);
