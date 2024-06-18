@@ -9,7 +9,7 @@ INCLUDE_FIPS202 = -I fips202
 INCLUDE_MLKEM = -I mlkem
 INCLUDE_RANDOM = -I randombytes
 INCLUDE_NISTRANDOM = -I test/nistrng
-CFLAGS += -Wall -Wextra -Wpedantic -Wmissing-prototypes -Wredundant-decls \
+CFLAGS += -Wall -Wextra -Wpedantic -Werror -Wmissing-prototypes -Wredundant-decls \
   -Wshadow -Wpointer-arith -Wno-unknown-pragmas -O3 -fomit-frame-pointer -pedantic \
    ${INCLUDE_MLKEM} ${INCLUDE_FIPS202}
 
