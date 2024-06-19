@@ -71,8 +71,6 @@ def base_run(bin, force_qemu, verbose, cycles="NO"):
             capture_output=True,
             universal_newlines=False,
         )
-    if verbose:
-        print(result.stdout.decode())
 
     return result.stdout
 
@@ -126,9 +124,11 @@ def test_schemes(
         return (fail, summary)
 
     fail = False
+    results = {}
     for scheme in SCHEME:
         bin = scheme2file(scheme)
         result = base_run(bin, force_qemu, verbose, cycles)
+        results[scheme] = result
 
         actual = actual_proc(result)
         expect = expect_proc(scheme)
@@ -143,6 +143,8 @@ def test_schemes(
 
     if fail:
         sys.exit(1)
+
+    return results
 
 
 def validate_force_qemu(ctx, _, v):
@@ -280,7 +282,7 @@ def kat(force_qemu, verbose):
 def bench(force_qemu, verbose, cycles):
     config_logger(verbose)
 
-    test_schemes(
+    results = test_schemes(
         "benchmark",
         lambda scheme: scheme.name.replace("MLKEM", "test/bin/bench_kyber"),
         lambda _: True,
@@ -289,6 +291,9 @@ def bench(force_qemu, verbose, cycles):
         verbose,
         cycles=cycles,
     )
+    for scheme, result in results.items():
+        print(scheme)
+        print(result.decode())
 
 
 @click.group(invoke_without_command=True)
