@@ -102,7 +102,7 @@ jobs:
       - name: Setup nix
         uses: ./.github/actions/setup-nix
         with:
-          devShell: ci
+          devShell: ci-cbmc
           script: |
             cat >> $GITHUB_STEP_SUMMARY << EOF
               ## Setup
@@ -115,7 +115,7 @@ jobs:
               - $(bash --version | grep -m1 "")
             EOF
       - name: Run CBMC proofs
-        shell: nix develop .#ci -c bash -e {0}
+        shell: nix develop .#ci-cbmc -c bash -e {0}
         run: |
           cd cbmc/proofs;
           KYBER_K=2 ./run-cbmc-proofs.py --summarize;

@@ -37,12 +37,16 @@
             };
           });
 
-          core = builtins.attrValues
+          cbmcpkg = builtins.attrValues
             {
+              cbmc = cbmc;
               litani = litani; # 1.29.0
               cbmc-viewer = cbmc-viewer; # 3.8
+            };
+
+          core = builtins.attrValues
+            {
               astyle = astyle;
-              cbmc = cbmc;
 
               inherit (pkgs)
                 yq
@@ -68,7 +72,7 @@
         in
         {
           devShells.default = pkgs.mkShellNoCC {
-            packages = core ++ builtins.attrValues {
+            packages = core ++ cbmcpkg ++ builtins.attrValues {
               inherit (pkgs)
                 direnv
                 nix-direnv;
@@ -81,6 +85,13 @@
 
           devShells.ci = pkgs.mkShellNoCC {
             packages = core;
+            shellHook = ''
+              export PATH=$PWD/scripts:$PWD/scripts/ci:$PATH
+            '';
+          };
+
+          devShells.ci-cbmc = pkgs.mkShellNoCC {
+            packages = core ++ cbmcpkg;
             shellHook = ''
               export PATH=$PWD/scripts:$PWD/scripts/ci:$PATH
             '';
