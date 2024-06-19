@@ -76,7 +76,7 @@ jobs:
       - name: Setup nix
         uses: ./.github/actions/setup-nix
         with:
-          devShell: ci
+          devShell: ci-linter
           script: |
             cat >> $GITHUB_STEP_SUMMARY << EOF
               ## Setup
@@ -88,7 +88,7 @@ jobs:
               - $(bash --version | grep -m1 "")
             EOF
       - name: Lint
-        shell: nix develop .#ci -c bash -e {0}
+        shell: nix develop .#ci-linter -c bash -e {0}
         run: |
           echo "## Lint & Checks" >> $GITHUB_STEP_SUMMARY
           lint

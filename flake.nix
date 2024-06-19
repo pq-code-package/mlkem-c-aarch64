@@ -44,22 +44,27 @@
               cbmc-viewer = cbmc-viewer; # 3.8
             };
 
+          linters = builtins.attrValues {
+            astyle = astyle;
+
+            inherit (pkgs)
+              nixpkgs-fmt
+              shfmt;
+
+            inherit (pkgs.python3Packages)
+              black;
+          };
+
           core = builtins.attrValues
             {
-              astyle = astyle;
-
               inherit (pkgs)
                 yq
                 ninja# 1.11.1
                 qemu# 8.2.4
-                # formatter & linters
-                cadical
-                nixpkgs-fmt
-                shfmt;
+                cadical;
 
               inherit (pkgs.python3Packages)
                 python
-                black
                 click;
             }
           ++ {
@@ -72,7 +77,7 @@
         in
         {
           devShells.default = pkgs.mkShellNoCC {
-            packages = core ++ cbmcpkg ++ builtins.attrValues {
+            packages = core ++ linters ++ cbmcpkg ++ builtins.attrValues {
               inherit (pkgs)
                 direnv
                 nix-direnv;
@@ -85,6 +90,13 @@
 
           devShells.ci = pkgs.mkShellNoCC {
             packages = core;
+            shellHook = ''
+              export PATH=$PWD/scripts:$PWD/scripts/ci:$PATH
+            '';
+          };
+
+          devShells.ci-linter = pkgs.mkShellNoCC {
+            packages = linters;
             shellHook = ''
               export PATH=$PWD/scripts:$PWD/scripts/ci:$PATH
             '';
