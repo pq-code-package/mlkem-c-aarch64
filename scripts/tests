@@ -25,11 +25,11 @@ def sha256sum(result):
     return m.hexdigest()
 
 
-def base_run(bin, force_qemu, verbose):
+def base_run(bin, force_qemu, verbose, cycles='NO'):
     if force_qemu or (platform.system() == "Linux" and platform.machine() == "x86_64"):
         logging.debug(f"Emulating {bin} with QEMU")
 
-        args = ["make", "CROSS_PREFIX=aarch64-none-linux-gnu-", f"{bin}"]
+        args = ["make", "CROSS_PREFIX=aarch64-none-linux-gnu-", f"CYCLES={cycles}", f"{bin}"]
         logging.info(" ".join(args))
 
         p = subprocess.run(
@@ -49,7 +49,7 @@ def base_run(bin, force_qemu, verbose):
     else:
         logging.debug(f"Running {bin} natively")
 
-        args = ["make", f"{bin}"]
+        args = ["make", f"CYCLES={cycles}", f"{bin}"]
         logging.info(" ".join(args))
 
         p = subprocess.run(
@@ -99,7 +99,7 @@ def parse_meta(scheme, field):
     return result.stdout.strip()
 
 
-def test_schemes(title, scheme2file, actual_proc, expect_proc, force_qemu, verbose):
+def test_schemes(title, scheme2file, actual_proc, expect_proc, force_qemu, verbose, cycles='NO'):
     logging.info(f"{title}")
 
     summary_file = os.environ.get("GITHUB_STEP_SUMMARY")
@@ -121,7 +121,7 @@ def test_schemes(title, scheme2file, actual_proc, expect_proc, force_qemu, verbo
     fail = False
     for scheme in SCHEME:
         bin = scheme2file(scheme)
-        result = base_run(bin, force_qemu, verbose)
+        result = base_run(bin, force_qemu, verbose, cycles)
 
         actual = actual_proc(result)
         expect = expect_proc(scheme)
@@ -261,7 +261,16 @@ def kat(force_qemu, verbose):
     context_settings={"show_default": True},
 )
 @add_options(_shared_options)
-def bench(force_qemu, verbose):
+@click.option(
+    "-c",
+    "--cycles",
+    nargs=1,
+    type=click.Choice(['NO', 'PMU', 'PERF']),
+    show_default=True,
+    default='NO',
+    help="Method for counting clock cycles. PMU requires (user-space) access to the Arm Performance Monitor Unit (PMU). PERF requires a kernel with perf support.",
+)
+def bench(force_qemu, verbose, cycles):
     config_logger(verbose)
 
     test_schemes(
@@ -271,6 +280,7 @@ def bench(force_qemu, verbose):
         lambda _: True,
         force_qemu,
         verbose,
+        cycles=cycles
     )
 
 

@@ -18,6 +18,16 @@ ifeq ($(HOST_PLATFORM),Linux-x86_64)
 	CFLAGS += -static
 endif
 
+CYCLES ?= NO
+
+ifeq ($(CYCLES),PMU)
+	CFLAGS += -DPMU_CYCLES
+endif
+
+ifeq ($(CYCLES),PERF)
+	CFLAGS += -DPERF_CYCLES
+endif
+
 CFLAGS_RANDOMBYTES = ${CFLAGS} ${INCLUDE_RANDOM}
 CFLAGS_NISTRANDOMBYTES = ${CFLAGS} ${INCLUDE_NISTRANDOM}
 NISTFLAGS += -Wno-unused-result -O3 -fomit-frame-pointer
