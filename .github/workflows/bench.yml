@@ -26,6 +26,9 @@ jobs:
               - $(astyle --version)
               - $(${{ matrix.cross_prefix }}gcc --version | grep -m1 "")
               - $(bash --version | grep -m1 "")
+
+              ## CPU Info
+              $(cat /proc/cpuinfo)
             EOF
       - name: Run benchmark
         shell: nix develop .#ci -c bash -e {0}
