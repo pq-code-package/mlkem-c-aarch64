@@ -300,7 +300,7 @@ def bench(force_qemu, verbose, cycles, cpu):
         lambda _: True,
         force_qemu,
         verbose,
-        f"CYCLES={cycles}",
+        [f"CYCLES={cycles}", f"CFLAGS=-mcpu={cpu}"],
     )
     for scheme, result in results.items():
         print(scheme)

@@ -33,4 +33,4 @@ jobs:
       - name: Run benchmark
         shell: nix develop .#ci -c bash -e {0}
         run: |
-          tests bench -c PMU -v
+          tests bench -c PMU --cpu cortex-a72 -v
