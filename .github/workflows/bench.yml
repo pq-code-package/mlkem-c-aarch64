@@ -27,25 +27,7 @@ jobs:
               - $(${{ matrix.cross_prefix }}gcc --version | grep -m1 "")
               - $(bash --version | grep -m1 "")
             EOF
-      - name: Run functional tests
-        id: func_test
+      - name: Run benchmark
         shell: nix develop .#ci -c bash -e {0}
         run: |
-          tests func -v
-      - name: Run KAT tests
-        id: kat_test
-        if: |
-          success()
-          || steps.func_test.conclusion == 'failure'
-        shell: nix develop .#ci -c bash -e {0}
-        run: |
-          tests kat -v
-      - name: Run Nistkat tests
-        id: nistkat_test
-        if: |
-          success()
-          || steps.func_test.conclusion == 'failure'
-          || steps.kat_test.conclusion == 'failure'
-        shell: nix develop .#ci -c bash -e {0}
-        run: |
-          tests nistkat -v
+          tests bench -c PMU -v

@@ -13,8 +13,7 @@ jobs:
       matrix:
         system: [ macos-latest, pqcp-arm64, ubuntu-latest ]
         exclude:
-          - system: ${{ github.event_name != 'pull_request' && 'pqcp-arm64' }}
-          - system: ${{ (github.ref != 'refs/heads/main' || github.repository_owner != 'pq-code-package') && 'pqcp-arm64' }}
+          - system: ${{ github.repository_owner != 'pq-code-package' && 'pqcp-arm64' }}
     name: build_kat (${{ matrix.system }})
     runs-on: ${{ matrix.system }}
     env:
