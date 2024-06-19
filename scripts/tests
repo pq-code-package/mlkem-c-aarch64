@@ -25,16 +25,16 @@ def sha256sum(result):
     return m.hexdigest()
 
 
-def base_run(bin, force_qemu, verbose, cycles="NO"):
+def base_run(bin, force_qemu, verbose, extra_make_args=[]):
     if force_qemu or (platform.system() == "Linux" and platform.machine() == "x86_64"):
         logging.debug(f"Emulating {bin} with QEMU")
 
         args = [
             "make",
             "CROSS_PREFIX=aarch64-none-linux-gnu-",
-            f"CYCLES={cycles}",
             f"{bin}",
-        ]
+        ] + extra_make_args
+
         logging.info(" ".join(args))
 
         p = subprocess.run(
@@ -54,7 +54,7 @@ def base_run(bin, force_qemu, verbose, cycles="NO"):
     else:
         logging.debug(f"Running {bin} natively")
 
-        args = ["make", f"CYCLES={cycles}", f"{bin}"]
+        args = ["make", f"{bin}"] + extra_make_args
         logging.info(" ".join(args))
 
         p = subprocess.run(
@@ -103,7 +103,13 @@ def parse_meta(scheme, field):
 
 
 def test_schemes(
-    title, scheme2file, actual_proc, expect_proc, force_qemu, verbose, cycles="NO"
+    title,
+    scheme2file,
+    actual_proc,
+    expect_proc,
+    force_qemu,
+    verbose,
+    extra_make_args=[],
 ):
     logging.info(f"{title}")
 
@@ -127,7 +133,7 @@ def test_schemes(
     results = {}
     for scheme in SCHEME:
         bin = scheme2file(scheme)
-        result = base_run(bin, force_qemu, verbose, cycles)
+        result = base_run(bin, force_qemu, verbose, extra_make_args)
         results[scheme] = result
 
         actual = actual_proc(result)
@@ -279,7 +285,12 @@ def kat(force_qemu, verbose):
     default="NO",
     help="Method for counting clock cycles. PMU requires (user-space) access to the Arm Performance Monitor Unit (PMU). PERF requires a kernel with perf support.",
 )
-def bench(force_qemu, verbose, cycles):
+@click.option(
+    "--cpu",
+    nargs=1,
+    help="Benchmark on specified CPU",
+)
+def bench(force_qemu, verbose, cycles, cpu):
     config_logger(verbose)
 
     results = test_schemes(
@@ -289,7 +300,7 @@ def bench(force_qemu, verbose, cycles):
         lambda _: True,
         force_qemu,
         verbose,
-        cycles=cycles,
+        f"CYCLES={cycles}",
     )
     for scheme, result in results.items():
         print(scheme)
