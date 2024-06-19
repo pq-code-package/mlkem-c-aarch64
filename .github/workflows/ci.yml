@@ -12,10 +12,13 @@ jobs:
       fail-fast: false
       matrix:
         system: [ macos-latest, pqcp-arm64, ubuntu-latest ]
+        exclude:
+          - system: ${{ github.event_name != 'pull_request' && 'pqcp-arm64' }}
+          - system: ${{ (github.ref != 'refs/heads/main' || github.repository_owner != 'pq-code-package') && 'pqcp-arm64' }}
     name: build_kat (${{ matrix.system }})
     runs-on: ${{ matrix.system }}
     env:
-      CROSS_PREFIX: "${{ (matrix.system == 'ubuntu-latest' && 'aarch64-none-linux-gnu-') || '' }}"
+      CROSS_PREFIX: "${{ (matrix.system == 'ubuntu-latest' && 'aarch64-none-linux-gnu-') || ' ' }}"
       EXPECT_ARCH: "${{ (matrix.system == 'macos-latest' && 'arm64') || (matrix.system == 'pqcp-arm64' && 'aarch64') || (matrix.system == 'ubuntu-latest' && 'x86_64') }}"
     steps:
       - uses: actions/checkout@v4
