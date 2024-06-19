@@ -70,7 +70,8 @@ uint64_t get_cyclecounter(void)
 #include <unistd.h>
 
 static int perf_fd = 0;
-void enable_cyclecounter(void) {
+void enable_cyclecounter(void)
+{
     struct perf_event_attr pe;
     memset(&pe, 0, sizeof(struct perf_event_attr));
     pe.type = PERF_TYPE_HARDWARE;
@@ -86,19 +87,24 @@ void enable_cyclecounter(void) {
     ioctl(perf_fd, PERF_EVENT_IOC_ENABLE, 0);
 }
 
-void disable_cyclecounter(void) {
+void disable_cyclecounter(void)
+{
     ioctl(perf_fd, PERF_EVENT_IOC_DISABLE, 0);
     close(perf_fd);
 }
 
-uint64_t get_cyclecounter(void) {
+uint64_t get_cyclecounter(void)
+{
     long long cpu_cycles;
     ioctl(perf_fd, PERF_EVENT_IOC_DISABLE, 0);
     ssize_t read_count = read(perf_fd, &cpu_cycles, sizeof(cpu_cycles));
-    if (read_count < 0) {
+    if (read_count < 0)
+    {
         perror("read");
         exit(EXIT_FAILURE);
-    } else if (read_count == 0) {
+    }
+    else if (read_count == 0)
+    {
         /* Should not happen */
         printf("perf counter empty\n");
         exit(EXIT_FAILURE);
@@ -109,14 +115,17 @@ uint64_t get_cyclecounter(void) {
 
 #else
 
-void enable_cyclecounter(void) {
+void enable_cyclecounter(void)
+{
     return;
 }
-void disable_cyclecounter(void) {
+void disable_cyclecounter(void)
+{
     return;
 }
-uint64_t get_cyclecounter(void) {
-    return(0);
+uint64_t get_cyclecounter(void)
+{
+    return (0);
 }
 
 #endif
