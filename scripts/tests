@@ -66,6 +66,8 @@ def base_run(bin, force_qemu, verbose):
             capture_output=True,
             universal_newlines=False,
         )
+    if verbose:
+        print(result.stdout.decode())
 
     return result.stdout
 
@@ -254,6 +256,24 @@ def kat(force_qemu, verbose):
     )
 
 
+@click.command(
+    short_help="Run the benchmarks for all parameter sets",
+    context_settings={"show_default": True},
+)
+@add_options(_shared_options)
+def bench(force_qemu, verbose):
+    config_logger(verbose)
+
+    test_schemes(
+        "benchmark",
+        lambda scheme: scheme.name.replace("MLKEM", "test/bin/bench_kyber"),
+        lambda _: True,
+        lambda _: True,
+        force_qemu,
+        verbose,
+    )
+
+
 @click.group(invoke_without_command=True)
 def cli():
     pass
@@ -263,6 +283,7 @@ cli.add_command(run)
 cli.add_command(func)
 cli.add_command(nistkat)
 cli.add_command(kat)
+cli.add_command(bench)
 
 if __name__ == "__main__":
     cli()

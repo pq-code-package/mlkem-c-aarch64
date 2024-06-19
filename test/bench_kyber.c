@@ -7,9 +7,9 @@
 #include "hal.h"
 #include "randombytes.h"
 
-#define NWARMUP 10
-#define NITERERATIONS 100
-#define NTESTS 100
+#define NWARMUP 50
+#define NITERERATIONS 300
+#define NTESTS 200
 
 static int cmp_uint64_t(const void *a, const void *b)
 {
