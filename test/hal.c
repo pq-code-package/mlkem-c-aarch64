@@ -23,7 +23,7 @@
  */
 #include "hal.h"
 
-void enable_cyclecounter()
+void enable_cyclecounter(void)
 {
     uint64_t tmp;
     __asm __volatile (
@@ -37,7 +37,7 @@ void enable_cyclecounter()
     );
 }
 
-void disable_cyclecounter()
+void disable_cyclecounter(void)
 {
     uint64_t tmp;
     __asm __volatile (
@@ -48,7 +48,7 @@ void disable_cyclecounter()
     );
 }
 
-uint64_t get_cyclecounter()
+uint64_t get_cyclecounter(void)
 {
     uint64_t retval;
     __asm __volatile (

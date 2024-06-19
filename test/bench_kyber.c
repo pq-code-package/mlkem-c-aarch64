@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <inttypes.h>
 #include "kem.h"
 #include "hal.h"
 #include "randombytes.h"
@@ -89,9 +90,9 @@ static int bench(void)
     qsort(cycles_enc, NTESTS, sizeof(uint64_t), cmp_uint64_t);
     qsort(cycles_dec, NTESTS, sizeof(uint64_t), cmp_uint64_t);
 
-    printf("keypair cycles=%lu\n", cycles_kg[NTESTS >> 1]/NITERERATIONS);
-    printf("encaps cycles=%lu\n", cycles_enc[NTESTS >> 1]/NITERERATIONS);
-    printf("decaps cycles=%lu\n", cycles_dec[NTESTS >> 1]/NITERERATIONS);
+    printf("keypair cycles=%"PRIu64"\n", cycles_kg[NTESTS >> 1]/NITERERATIONS);
+    printf("encaps cycles=%"PRIu64"\n", cycles_enc[NTESTS >> 1]/NITERERATIONS);
+    printf("decaps cycles=%"PRIu64"\n", cycles_dec[NTESTS >> 1]/NITERERATIONS);
 
     return 0;
 }
