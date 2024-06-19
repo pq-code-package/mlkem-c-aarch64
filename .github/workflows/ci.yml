@@ -26,6 +26,7 @@ jobs:
       - name: Setup nix
         uses: ./.github/actions/setup-nix
         with:
+          devShell: ci
           script: |
             ARCH=$(uname -m)
             cat >> $GITHUB_STEP_SUMMARY <<-EOF
@@ -74,6 +75,7 @@ jobs:
       - name: Setup nix
         uses: ./.github/actions/setup-nix
         with:
+          devShell: ci
           script: |
             cat >> $GITHUB_STEP_SUMMARY << EOF
               ## Setup
@@ -99,6 +101,7 @@ jobs:
       - name: Setup nix
         uses: ./.github/actions/setup-nix
         with:
+          devShell: ci
           script: |
             cat >> $GITHUB_STEP_SUMMARY << EOF
               ## Setup
