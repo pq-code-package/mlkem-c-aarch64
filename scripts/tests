@@ -107,27 +107,18 @@ def test_schemes(
     scheme2file,
     actual_proc,
     expect_proc,
+    process_result,
     force_qemu,
     verbose,
     extra_make_args=[],
 ):
+    """
+    :param process_result: process result and return summary
+    """
     logging.info(f"{title}")
 
     summary_file = os.environ.get("GITHUB_STEP_SUMMARY")
     summary = f"## {title}\n"
-
-    def check(scheme, expect, actual):
-        if actual != expect:
-            logging.error(f"{scheme} failed, expecting {expect}, but getting {actual}")
-            summary = f":x: {scheme}, expecting {expect}, but getting {actual}\n"
-
-            fail = True
-        else:
-            logging.info(f"{scheme} passed")
-            summary = f":white_check_mark: {scheme}\n"
-            fail = False
-
-        return (fail, summary)
 
     fail = False
     results = {}
@@ -139,9 +130,10 @@ def test_schemes(
         actual = actual_proc(result)
         expect = expect_proc(scheme)
 
-        (f, s) = check(scheme, expect, actual)
-        fail = fail or f
+        f = actual != expect
+        s = process_result(f, scheme, result, expect, actual)
         summary += s
+        fail = fail or f
 
     if summary_file is not None:
         with open(summary_file, "a") as f:
@@ -151,6 +143,26 @@ def test_schemes(
         sys.exit(1)
 
     return results
+
+
+def process_test(fail, scheme, result, expect, actual):
+    if fail:
+        logging.error(f"{scheme} failed, expecting {expect}, but getting {actual}")
+        summary = f":x: {scheme}, expecting {expect}, but getting {actual}\n"
+    else:
+        logging.info(f"{scheme} passed")
+        summary = f":white_check_mark: {scheme}\n"
+
+    return summary
+
+
+def process_bench(fail, scheme, result, expect, actual):
+    logging.info(f"{scheme}")
+    logging.info(f"\n{result.decode()}")
+
+    summary = f"{scheme}\n{result.decode()}\n"
+
+    return summary
 
 
 def validate_force_qemu(ctx, _, v):
@@ -230,6 +242,7 @@ def func(force_qemu, verbose):
         lambda scheme: scheme.name.replace("MLKEM", "test/bin/test_kyber"),
         lambda result: str(result, encoding="utf-8"),
         expect,
+        process_test,
         force_qemu,
         verbose,
     )
@@ -248,6 +261,7 @@ def nistkat(force_qemu, verbose):
         lambda scheme: scheme.name.replace("MLKEM", "test/bin/gen_NISTKAT"),
         sha256sum,
         lambda scheme: parse_meta(scheme, "nistkat-sha256"),
+        process_test,
         force_qemu,
         verbose,
     )
@@ -266,6 +280,7 @@ def kat(force_qemu, verbose):
         lambda scheme: scheme.name.replace("MLKEM", "test/bin/gen_KAT"),
         sha256sum,
         lambda scheme: parse_meta(scheme, "kat-sha256"),
+        process_test,
         force_qemu,
         verbose,
     )
@@ -298,13 +313,11 @@ def bench(force_qemu, verbose, cycles, cpu):
         lambda scheme: scheme.name.replace("MLKEM", "test/bin/bench_kyber"),
         lambda _: True,
         lambda _: True,
+        process_bench,
         force_qemu,
         verbose,
         [f"CYCLES={cycles}", f"CFLAGS=-mcpu={cpu}"],
     )
-    for scheme, result in results.items():
-        print(scheme)
-        print(result.decode())
 
 
 @click.group(invoke_without_command=True)
