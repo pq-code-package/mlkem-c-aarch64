@@ -176,10 +176,10 @@ int shake256x4_squeezeblocks(uint8_t *out0,
     return 0;
 }
 
-int shake256x1_squeezeblocks(uint8_t *out,
-                             size_t nblocks,
-                             size_t index,
-                             keccakx4_state *state)
+int shake256x4_squeezeblocks_single(uint8_t *out,
+                                    size_t nblocks,
+                                    size_t index,
+                                    keccakx4_state *state)
 {
     if (out == NULL)
     {

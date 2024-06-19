@@ -214,7 +214,7 @@ void gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMBYTES], int transposed)
 
             while (ctr < KYBER_N )
             {
-                shake256x1_squeezeblocks(buf, 1, j, &statex);
+                shake256x4_squeezeblocks_single(buf, 1, j, &statex);
                 buflen = XOF_BLOCKBYTES;
                 ctr += rej_uniform(vec + ctr, KYBER_N - ctr, buf, buflen);
             }

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-#ifndef FIPS_202X_H
-#define FIPS_202X_H
+#ifndef FIPS_202X4_H
+#define FIPS_202X4_H
 
 #ifndef KECCAK_WAY
 #define KECCAK_WAY 4
@@ -47,10 +47,10 @@ int shake256x4_squeezeblocks(uint8_t *out0,
 /*
  * Squeezes a single lane in Keccak 4-way
  */
-int shake256x1_squeezeblocks(uint8_t *out,
-                             size_t nblocks,
-                             size_t index,
-                             keccakx4_state *state);
+int shake256x4_squeezeblocks_single(uint8_t *out,
+                                    size_t nblocks,
+                                    size_t index,
+                                    keccakx4_state *state);
 
 int shake256x4(uint8_t *out0,
                uint8_t *out1,
