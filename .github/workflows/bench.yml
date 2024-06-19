@@ -1,0 +1,51 @@
+# SPDX-License-Identifier: Apache-2.0
+
+name: Bench
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+jobs:
+  bench:
+    runs-on: self-hosted-rpi4
+    if: github.repository_owner == 'pq-code-package'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup nix
+        uses: ./.github/actions/setup-nix
+        with:
+          devShell: ci
+          script: |
+            ARCH=$(uname -m)
+            cat >> $GITHUB_STEP_SUMMARY <<-EOF
+              ## Setup
+              Architecture: $ARCH
+              - $(uname -a)
+              - $(nix --version)
+              - $(astyle --version)
+              - $(${{ matrix.cross_prefix }}gcc --version | grep -m1 "")
+              - $(bash --version | grep -m1 "")
+            EOF
+      - name: Run functional tests
+        id: func_test
+        shell: nix develop .#ci -c bash -e {0}
+        run: |
+          tests func -v
+      - name: Run KAT tests
+        id: kat_test
+        if: |
+          success()
+          || steps.func_test.conclusion == 'failure'
+        shell: nix develop .#ci -c bash -e {0}
+        run: |
+          tests kat -v
+      - name: Run Nistkat tests
+        id: nistkat_test
+        if: |
+          success()
+          || steps.func_test.conclusion == 'failure'
+          || steps.kat_test.conclusion == 'failure'
+        shell: nix develop .#ci -c bash -e {0}
+        run: |
+          tests nistkat -v
