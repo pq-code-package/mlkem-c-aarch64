@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
 #include <stdint.h>
-#include "cbmc.h"
 #include "params.h"
 #include "poly.h"
 #include "ntt.h"
@@ -25,11 +24,14 @@ uint32_t scalar_compress_q_16(int32_t u)
 
     /* This multiply will exceed UINT32_MAX and wrap around */
     /* for large values of u. This is expected and required */
+    #ifdef CBMC
 #pragma CPROVER check push
 #pragma CPROVER check disable "unsigned-overflow"
+    #endif
     d0 *=  80635;
+    #ifdef CBMC
 #pragma CPROVER check pop
-
+    #endif
     d0 >>= 28;
     d0 &=  0xF;
     return d0;
@@ -64,11 +66,14 @@ uint32_t scalar_compress_q_32(int32_t u)
 
     /* This multiply will exceed UINT32_MAX and wrap around */
     /* for large values of u. This is expected and required */
+    #ifdef CBMC
 #pragma CPROVER check push
 #pragma CPROVER check disable "unsigned-overflow"
+    #endif
     d0 *=  40318;
+    #ifdef CBMC
 #pragma CPROVER check pop
-
+    #endif
     d0 >>= 27;
     d0 &=  0x1f;
     return d0;
@@ -87,6 +92,39 @@ uint32_t scalar_decompress_q_32(uint32_t u)
     return ((u * KYBER_Q) + 16) / 32;
 }
 
+/************************************************************
+ * Name: coeff_signed_to_unsigned
+ *
+ * Description: converts signed polynomial coefficient
+ *              from signed (-3328 .. 3328) form to
+ *              unsigned form (0 .. 3328).
+ *
+ * Note: Cryptographic constant time implementation
+ *
+ * Examples:       0 -> 0
+ *                 1 -> 1
+ *              3328 -> 3328
+ *                -1 -> 3328
+ *                -2 -> 3327
+ *             -3328 -> 1
+ *
+ * Arguments: c: signed coefficient to be converted
+ ************************************************************/
+uint16_t coeff_signed_to_unsigned (int16_t c)
+{
+    int32_t r = (int32_t) c;
+
+    // Add Q if r is negative
+    int32_t factor = (r < 0); // 1 if r < 0; 0 if r >= 0
+    r = r + (factor * KYBER_Q);
+
+    __CPROVER_assert(r >= 0, "coeff_signed_to_unsigned result lower bound");
+    __CPROVER_assert(r < KYBER_Q, "coeff_signed_to_unsigned result upper bound");
+
+    // and therefore cast to uint16_t is safe.
+    return (uint16_t) r;
+}
+
 /*************************************************
 * Name:        poly_compress
 *
@@ -98,25 +136,34 @@ uint32_t scalar_decompress_q_32(uint32_t u)
 **************************************************/
 void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
 {
-    unsigned int i, j;
     int32_t u;
-    uint8_t t[8];
+    uint8_t t[8] = { 0 };
 
     #if (KYBER_POLYCOMPRESSEDBYTES == 128)
-    for (i = 0; i < KYBER_N / 8; i++)
-        __CPROVER_assigns(i, j, u, t, r)
-        /* Stronger loop invariant here TBD */
+    for (size_t i = 0; i < KYBER_N / 8; i++)
+        __CPROVER_assigns(i, u, __CPROVER_object_whole(t), __CPROVER_object_whole(r))
+        __CPROVER_loop_invariant(i <= KYBER_N)
+        __CPROVER_decreases(32 - i)
     {
-        for (j = 0; j < 8; j++)
-            __CPROVER_assigns(j, u, t)
-            /* Stronger loop invariant here TBD */
+        for (size_t j = 0; j < 8; j++)
+// *INDENT-OFF*
+            __CPROVER_assigns(j, u, __CPROVER_object_whole(t))
+            __CPROVER_loop_invariant(i <= KYBER_N)
+            __CPROVER_loop_invariant(j <= 8)
+            __CPROVER_loop_invariant(__CPROVER_forall { size_t k; (0 <= k && k < j) ==> (t[k] >= 0 && t[k] < 16) })
+            __CPROVER_decreases(8 - j)
+// *INDENT-ON*
         {
             // map to positive standard representatives
-            u  = a->coeffs[8 * i + j];
-            u += (u >> 15) & KYBER_Q;
+            // REF-CHANGE: Hoist signed-to-unsigned conversion into separate function
+            { u = (int32_t) coeff_signed_to_unsigned(a->coeffs[8 * i + j]); }
             // REF-CHANGE: Hoist scalar compression into separate function
             t[j] = scalar_compress_q_16(u);
         }
+
+        __CPROVER_assert(t[0] < 16, "UB on t[0]");
+        __CPROVER_assert(t[1] < 16, "UB on t[1]");
+        __CPROVER_assert((t[0] | (t[1] << 4)) <= 255, "Range of t");
 
         r[0] = t[0] | (t[1] << 4);
         r[1] = t[2] | (t[3] << 4);
@@ -125,13 +172,13 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
         r += 4;
     }
     #elif (KYBER_POLYCOMPRESSEDBYTES == 160)
-    for (i = 0; i < KYBER_N / 8; i++)
+    for (size_t i = 0; i < KYBER_N / 8; i++)
     {
-        for (j = 0; j < 8; j++)
+        for (size_t j = 0; j < 8; j++)
         {
             // map to positive standard representatives
-            u  = a->coeffs[8 * i + j];
-            u += (u >> 15) & KYBER_Q;
+            // REF-CHANGE: Hoist signed-to-unsigned conversion into separate function
+            u = (int32_t) coeff_signed_to_unsigned(a->coeffs[8 * i + j]);
             // REF-CHANGE: Hoist scalar compression into separate function
             t[j] = scalar_compress_q_32(u);
         }
@@ -172,7 +219,7 @@ __CPROVER_requires(__CPROVER_is_fresh(a, sizeof(KYBER_POLYCOMPRESSEDBYTES)))
 __CPROVER_ensures(
 /* Output coefficients are unsigned canonical */
 __CPROVER_forall {
-  unsigned i; (i < KYBER_N) ==> ( 0 <= r->coeffs[i] && r->coeffs[i] < KYBER_Q )
+  unsigned k; (k < KYBER_N) ==> ( 0 <= r->coeffs[k] && r->coeffs[k] < KYBER_Q )
 })
 // *INDENT-ON*
 /* --- End of CBMC contract --- */
@@ -232,10 +279,9 @@ void poly_tobytes(uint8_t r[KYBER_POLYBYTES], const poly *a)
     for (i = 0; i < KYBER_N / 2; i++)
     {
         // map to positive standard representatives
-        t0  = a->coeffs[2 * i];
-        t0 += ((int16_t)t0 >> 15) & KYBER_Q;
-        t1 = a->coeffs[2 * i + 1];
-        t1 += ((int16_t)t1 >> 15) & KYBER_Q;
+        // REF-CHANGE: Hoist signed-to-unsigned conversion into separate function
+        t0 = coeff_signed_to_unsigned(a->coeffs[2 * i]);
+        t1 = coeff_signed_to_unsigned(a->coeffs[2 * i + 1]);
         r[3 * i + 0] = (t0 >> 0);
         r[3 * i + 1] = (t0 >> 8) | (t1 << 4);
         r[3 * i + 2] = (t1 >> 4);

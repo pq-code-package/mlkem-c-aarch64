@@ -3,11 +3,11 @@
 include ../Makefile_params.common
 
 HARNESS_ENTRY = harness
-HARNESS_FILE = poly_compress_harness
+HARNESS_FILE = coeff_signed_to_unsigned_harness
 
 # This should be a unique identifier for this proof, and will appear on the
 # Litani dashboard. It can be human-readable and contain spaces if you wish.
-PROOF_UID = poly_compress
+PROOF_UID = coeff_signed_to_unsigned
 
 DEFINES +=
 INCLUDES +=
@@ -18,20 +18,15 @@ UNWINDSET +=
 PROOF_SOURCES += $(PROOFDIR)/$(HARNESS_FILE).c
 PROJECT_SOURCES += $(SRCDIR)/mlkem/poly.c
 
-CHECK_FUNCTION_CONTRACTS=$(KYBER_NAMESPACE)poly_compress
-USE_FUNCTION_CONTRACTS = $(KYBER_NAMESPACE)scalar_compress_q_16 $(KYBER_NAMESPACE)scalar_compress_q_32 coeff_signed_to_unsigned
+CHECK_FUNCTION_CONTRACTS=coeff_signed_to_unsigned
+USE_FUNCTION_CONTRACTS=
 APPLY_LOOP_CONTRACTS=on
 USE_DYNAMIC_FRAMES=1
 
-# SMT backend for proving with contracts and quantifiers
-# To be re-enabled when CBMC Issue #8303 is fixed.
 CBMCFLAGS=--smt2
 
 # Uncomment this to see what commands litani is running...
-VERBOSE=on
-
-FUNCTION_NAME = $(KYBER_NAMESPACE)poly_compress
-
+#VERBOSE=on
 
 # If this proof is found to consume huge amounts of RAM, you can set the
 # EXPENSIVE variable. With new enough versions of the proof tools, this will
