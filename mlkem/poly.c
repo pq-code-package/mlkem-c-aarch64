@@ -170,8 +170,10 @@ __CPROVER_requires(__CPROVER_is_fresh(r, sizeof(*r)))
 __CPROVER_requires(__CPROVER_is_fresh(a, sizeof(KYBER_POLYCOMPRESSEDBYTES)))
 __CPROVER_ensures(
 /* Output coefficients are unsigned canonical */
+/* NOTE: Because of https://github.com/diffblue/cbmc/issues/8337 we have to
+         avoid a variable name clash with variables used by poly_decompress. */
 __CPROVER_forall {
-  unsigned i; (i < KYBER_N) ==> ( 0 <= r->coeffs[i] && r->coeffs[i] < KYBER_Q )
+  unsigned _i; (_i < KYBER_N) ==> ( 0 <= r->coeffs[_i] && r->coeffs[_i] < KYBER_Q )
 })
 /* --- End of CBMC contract --- */
 {
