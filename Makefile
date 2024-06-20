@@ -18,6 +18,16 @@ ifeq ($(HOST_PLATFORM),Linux-x86_64)
 	CFLAGS += -static
 endif
 
+CYCLES ?= NO
+
+ifeq ($(CYCLES),PMU)
+	CFLAGS += -DPMU_CYCLES
+endif
+
+ifeq ($(CYCLES),PERF)
+	CFLAGS += -DPERF_CYCLES
+endif
+
 CFLAGS_RANDOMBYTES = ${CFLAGS} ${INCLUDE_RANDOM}
 CFLAGS_NISTRANDOMBYTES = ${CFLAGS} ${INCLUDE_NISTRANDOM}
 NISTFLAGS += -Wno-unused-result -O3 -fomit-frame-pointer
@@ -27,20 +37,28 @@ SOURCES = mlkem/kem.c mlkem/indcpa.c mlkem/polyvec.c mlkem/poly.c mlkem/ntt.c ml
 SOURCESKECCAK = $(SOURCES) fips202/keccakf1600.c fips202/fips202.c mlkem/symmetric-shake.c
 SOURCESKECCAKRANDOM = $(SOURCESKECCAK) randombytes/randombytes.c
 SOURCESNISTKATS = $(SOURCESKECCAK) test/nistrng/aes.c test/nistrng/rng.c
+SOURCESBENCH = $(SOURCESKECCAKRANDOM) test/hal.c
 
 HEADERS = mlkem/params.h mlkem/kem.h mlkem/indcpa.h mlkem/polyvec.h mlkem/poly.h mlkem/ntt.h mlkem/cbd.h mlkem/reduce.h mlkem/verify.h mlkem/symmetric.h
 HEADERSKECCAK = $(HEADERS) fips202/keccakf1600.h fips202/fips202.h
 HEADERSKECCAKRANDOM = $(HEADERSKECCAK) randombytes/randombytes.h
 HEADERNISTKATS = $(HEADERSKECCAK) test/nistrng/aes.h test/nistrng/randombytes.h
+HEADERSBENCH = $(HEADERSKECCAKRANDOM) test/hal.h
+
 
 .PHONY: all mlkem kat nistkat clean
 
-all: mlkem kat nistkat
+all: mlkem bench kat nistkat
 
 mlkem: \
   test/bin/test_kyber512 \
   test/bin/test_kyber768 \
   test/bin/test_kyber1024
+
+bench: \
+  test/bin/bench_kyber512 \
+  test/bin/bench_kyber768 \
+  test/bin/bench_kyber1024
 
 nistkat: \
   test/bin/gen_NISTKAT512 \
@@ -66,6 +84,21 @@ test/bin/test_kyber1024: test/test_kyber.c $(SOURCESKECCAKRANDOM) $(HEADERSKECCA
 	$(Q)echo "  CC      $@"
 	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
 	$(CC) $(CFLAGS_RANDOMBYTES) -DKYBER_K=4 $(SOURCESKECCAKRANDOM) $< -o $@
+
+test/bin/bench_kyber512: test/bench_kyber.c $(SOURCESBENCH) $(HEADERSBENCH)
+	$(Q)echo "  CC      $@"
+	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
+	$(CC) $(CFLAGS_RANDOMBYTES) -DKYBER_K=2 $(SOURCESBENCH) $< -o $@
+
+test/bin/bench_kyber768: test/bench_kyber.c $(SOURCESBENCH) $(HEADERSBENCH)
+	$(Q)echo "  CC      $@"
+	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
+	$(CC) $(CFLAGS_RANDOMBYTES) -DKYBER_K=3 $(SOURCESBENCH) $< -o $@
+
+test/bin/bench_kyber1024: test/bench_kyber.c $(SOURCESBENCH) $(HEADERSBENCH)
+	$(Q)echo "  CC      $@"
+	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
+	$(CC) $(CFLAGS_RANDOMBYTES) -DKYBER_K=4 $(SOURCESBENCH) $< -o $@
 
 test/bin/gen_KAT512: test/gen_KAT.c $(SOURCESKECCAKRANDOM) $(HEADERSKECCAKRANDOM)
 	$(Q)echo "  CC      $@"

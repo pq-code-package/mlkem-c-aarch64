@@ -25,11 +25,16 @@ def sha256sum(result):
     return m.hexdigest()
 
 
-def base_run(bin, force_qemu, verbose):
+def base_run(bin, force_qemu, verbose, cycles="NO"):
     if force_qemu or (platform.system() == "Linux" and platform.machine() == "x86_64"):
         logging.debug(f"Emulating {bin} with QEMU")
 
-        args = ["make", "CROSS_PREFIX=aarch64-none-linux-gnu-", f"{bin}"]
+        args = [
+            "make",
+            "CROSS_PREFIX=aarch64-none-linux-gnu-",
+            f"CYCLES={cycles}",
+            f"{bin}",
+        ]
         logging.info(" ".join(args))
 
         p = subprocess.run(
@@ -49,7 +54,7 @@ def base_run(bin, force_qemu, verbose):
     else:
         logging.debug(f"Running {bin} natively")
 
-        args = ["make", f"{bin}"]
+        args = ["make", f"CYCLES={cycles}", f"{bin}"]
         logging.info(" ".join(args))
 
         p = subprocess.run(
@@ -97,7 +102,9 @@ def parse_meta(scheme, field):
     return result.stdout.strip()
 
 
-def test_schemes(title, scheme2file, actual_proc, expect_proc, force_qemu, verbose):
+def test_schemes(
+    title, scheme2file, actual_proc, expect_proc, force_qemu, verbose, cycles="NO"
+):
     logging.info(f"{title}")
 
     summary_file = os.environ.get("GITHUB_STEP_SUMMARY")
@@ -117,9 +124,11 @@ def test_schemes(title, scheme2file, actual_proc, expect_proc, force_qemu, verbo
         return (fail, summary)
 
     fail = False
+    results = {}
     for scheme in SCHEME:
         bin = scheme2file(scheme)
-        result = base_run(bin, force_qemu, verbose)
+        result = base_run(bin, force_qemu, verbose, cycles)
+        results[scheme] = result
 
         actual = actual_proc(result)
         expect = expect_proc(scheme)
@@ -134,6 +143,8 @@ def test_schemes(title, scheme2file, actual_proc, expect_proc, force_qemu, verbo
 
     if fail:
         sys.exit(1)
+
+    return results
 
 
 def validate_force_qemu(ctx, _, v):
@@ -254,6 +265,37 @@ def kat(force_qemu, verbose):
     )
 
 
+@click.command(
+    short_help="Run the benchmarks for all parameter sets",
+    context_settings={"show_default": True},
+)
+@add_options(_shared_options)
+@click.option(
+    "-c",
+    "--cycles",
+    nargs=1,
+    type=click.Choice(["NO", "PMU", "PERF"]),
+    show_default=True,
+    default="NO",
+    help="Method for counting clock cycles. PMU requires (user-space) access to the Arm Performance Monitor Unit (PMU). PERF requires a kernel with perf support.",
+)
+def bench(force_qemu, verbose, cycles):
+    config_logger(verbose)
+
+    results = test_schemes(
+        "benchmark",
+        lambda scheme: scheme.name.replace("MLKEM", "test/bin/bench_kyber"),
+        lambda _: True,
+        lambda _: True,
+        force_qemu,
+        verbose,
+        cycles=cycles,
+    )
+    for scheme, result in results.items():
+        print(scheme)
+        print(result.decode())
+
+
 @click.group(invoke_without_command=True)
 def cli():
     pass
@@ -263,6 +305,7 @@ cli.add_command(run)
 cli.add_command(func)
 cli.add_command(nistkat)
 cli.add_command(kat)
+cli.add_command(bench)
 
 if __name__ == "__main__":
     cli()
