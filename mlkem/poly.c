@@ -166,7 +166,6 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
 **************************************************/
 void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES])
 /* ------ CBMC contract ------ */
-// *INDENT-OFF*
 __CPROVER_requires(__CPROVER_is_fresh(r, sizeof(*r)))
 __CPROVER_requires(__CPROVER_is_fresh(a, sizeof(KYBER_POLYCOMPRESSEDBYTES)))
 __CPROVER_ensures(
@@ -174,7 +173,6 @@ __CPROVER_ensures(
 __CPROVER_forall {
   unsigned i; (i < KYBER_N) ==> ( 0 <= r->coeffs[i] && r->coeffs[i] < KYBER_Q )
 })
-// *INDENT-ON*
 /* --- End of CBMC contract --- */
 {
     unsigned int i;
