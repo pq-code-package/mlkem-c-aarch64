@@ -26,7 +26,8 @@ void harness(void)
     poly r;
     uint8_t a[KYBER_POLYCOMPRESSEDBYTES];
 
-    __CPROVER_assume(__CPROVER_forall {
+    __CPROVER_assume(__CPROVER_forall
+    {
         unsigned i; (i < KYBER_N) ==> ( -KYBER_Q <= r.coeffs[i] && r.coeffs[i] < KYBER_Q )
     });
     poly_compress(a, &r);
