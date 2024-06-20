@@ -42,7 +42,7 @@ def base_run(bin, force_qemu, verbose, extra_make_args=[]):
             stdout=subprocess.DEVNULL if not verbose else None,
         )
         if p.returncode != 0:
-            logging.error("make failed")
+            logging.error(f"make failed: {p.returncode}")
             sys.exit(1)
 
         result = subprocess.run(
@@ -50,6 +50,12 @@ def base_run(bin, force_qemu, verbose, extra_make_args=[]):
             capture_output=True,
             universal_newlines=False,
         )
+
+        if result.returncode != 0:
+            logging.error(
+                f"Emulating {bin} failed: {result.returncode} {result.stderr.decode()}"
+            )
+            sys.exit(1)
 
     else:
         logging.debug(f"Running {bin} natively")
@@ -63,7 +69,7 @@ def base_run(bin, force_qemu, verbose, extra_make_args=[]):
         )
 
         if p.returncode != 0:
-            logging.error("make failed")
+            logging.error(f"make failed: {p.returncode}")
             sys.exit(1)
 
         result = subprocess.run(
@@ -71,6 +77,12 @@ def base_run(bin, force_qemu, verbose, extra_make_args=[]):
             capture_output=True,
             universal_newlines=False,
         )
+
+        if result.returncode != 0:
+            logging.error(
+                f"Running {bin} natively failed: {result.returncode} {result.stderr.decode()}"
+            )
+            sys.exit(1)
 
     return result.stdout
 
