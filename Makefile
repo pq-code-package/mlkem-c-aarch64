@@ -9,23 +9,23 @@ INCLUDE_FIPS202 = -I fips202
 INCLUDE_MLKEM = -I mlkem
 INCLUDE_RANDOM = -I randombytes
 INCLUDE_NISTRANDOM = -I test/nistrng
-override CFLAGS += -Wall -Wextra -Wpedantic -Werror -Wmissing-prototypes -Wredundant-decls \
+CFLAGS += -Wall -Wextra -Wpedantic -Werror -Wmissing-prototypes -Wredundant-decls \
   -Wshadow -Wpointer-arith -Wno-unknown-pragmas -O3 -fomit-frame-pointer -pedantic \
    ${INCLUDE_MLKEM} ${INCLUDE_FIPS202}
 
 HOST_PLATFORM := $(shell uname -s)-$(shell uname -m)
 ifeq ($(HOST_PLATFORM),Linux-x86_64)
-	override CFLAGS += -static
+	CFLAGS += -static
 endif
 
 CYCLES ?= NO
 
 ifeq ($(CYCLES),PMU)
-	override CFLAGS += -DPMU_CYCLES
+	CFLAGS += -DPMU_CYCLES
 endif
 
 ifeq ($(CYCLES),PERF)
-	override CFLAGS += -DPERF_CYCLES
+	CFLAGS += -DPERF_CYCLES
 endif
 
 CFLAGS_RANDOMBYTES = ${CFLAGS} ${INCLUDE_RANDOM}

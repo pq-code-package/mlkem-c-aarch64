@@ -25,7 +25,13 @@ def sha256sum(result):
     return m.hexdigest()
 
 
-def base_run(bin, force_qemu, verbose, extra_make_args=[]):
+def base_run(bin, force_qemu, verbose, extra_make_envs={}, extra_make_args=[]):
+    def dict2str(dict):
+        s = ""
+        for k, v in dict.items():
+            s += f"{k}={v} "
+        return s
+
     if force_qemu or (platform.system() == "Linux" and platform.machine() == "x86_64"):
         logging.debug(f"Emulating {bin} with QEMU")
 
@@ -35,11 +41,12 @@ def base_run(bin, force_qemu, verbose, extra_make_args=[]):
             f"{bin}",
         ] + extra_make_args
 
-        logging.info(" ".join(args))
+        logging.info(dict2str(extra_make_envs) + " ".join(args))
 
         p = subprocess.run(
             args,
             stdout=subprocess.DEVNULL if not verbose else None,
+            env=os.environ.copy() | extra_make_envs,
         )
         if p.returncode != 0:
             logging.error(f"make failed: {p.returncode}")
@@ -61,11 +68,12 @@ def base_run(bin, force_qemu, verbose, extra_make_args=[]):
         logging.debug(f"Running {bin} natively")
 
         args = ["make", f"{bin}"] + extra_make_args
-        logging.info(" ".join(args))
+        logging.info(dict2str(extra_make_envs) + " ".join(args))
 
         p = subprocess.run(
             args,
             stdout=subprocess.DEVNULL if not verbose else None,
+            env=os.environ.copy() | extra_make_envs,
         )
 
         if p.returncode != 0:
@@ -122,6 +130,7 @@ def test_schemes(
     process_result,
     force_qemu,
     verbose,
+    extra_make_envs={},
     extra_make_args=[],
 ):
     """
@@ -136,7 +145,7 @@ def test_schemes(
     results = {}
     for scheme in SCHEME:
         bin = scheme2file(scheme)
-        result = base_run(bin, force_qemu, verbose, extra_make_args)
+        result = base_run(bin, force_qemu, verbose, extra_make_envs, extra_make_args)
         results[scheme] = result
 
         actual = actual_proc(result)
@@ -328,7 +337,8 @@ def bench(force_qemu, verbose, cycles, cpu):
         process_bench,
         force_qemu,
         verbose,
-        [f"CYCLES={cycles}", *([f"CFLAGS=-mcpu={cpu}"] if cpu is not None else [])],
+        ({"CFLAGS": f"-mcpu={cpu}"} if cpu is not None else {}),
+        [f"CYCLES={cycles}"],
     )
 
 
