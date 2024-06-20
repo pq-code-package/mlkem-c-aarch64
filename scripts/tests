@@ -193,6 +193,12 @@ def validate_force_qemu(ctx, _, v):
         ctx.exit(1)
 
 
+def process_make_envs(cflags, arch_flags):
+    return ({"CFLAGS": f"{cflags}"} if cflags is not None else {}) | (
+        {"ARCH_FLAGS": f"{arch_flags}"} if arch_flags is not None else {}
+    )
+
+
 _shared_options = [
     click.option(
         "--force-qemu",
@@ -214,6 +220,16 @@ _shared_options = [
         type=bool,
         help="Show verbose output or not",
     ),
+    click.option(
+        "--cflags",
+        nargs=1,
+        help="Extra cflags to passed in (e.g. '-mcpu=cortex-a72')",
+    ),
+    click.option(
+        "--arch-flags",
+        nargs=1,
+        help="Extra arch flags to passed in (e.g. '-march=armv8')",
+    ),
 ]
 
 
@@ -232,10 +248,15 @@ def add_options(options):
     type=click.Path(),
     help="The binary file that you wanted to test.",
 )
-def run(bin, force_qemu, verbose):
+def run(bin, force_qemu, verbose, cflags, arch_flags):
     config_logger(verbose)
 
-    result = base_run(bin, force_qemu, verbose)
+    result = base_run(
+        bin,
+        force_qemu,
+        verbose,
+        process_make_envs(cflags, arch_flags),
+    )
     logging.info(str(result, encoding="utf-8"))
 
 
@@ -244,7 +265,7 @@ def run(bin, force_qemu, verbose):
     context_settings={"show_default": True},
 )
 @add_options(_shared_options)
-def func(force_qemu, verbose):
+def func(force_qemu, verbose, cflags, arch_flags):
     config_logger(verbose)
 
     def expect(scheme):
@@ -266,6 +287,7 @@ def func(force_qemu, verbose):
         process_test,
         force_qemu,
         verbose,
+        process_make_envs(cflags, arch_flags),
     )
 
 
@@ -274,7 +296,7 @@ def func(force_qemu, verbose):
     context_settings={"show_default": True},
 )
 @add_options(_shared_options)
-def nistkat(force_qemu, verbose):
+def nistkat(force_qemu, verbose, cflags, arch_flags):
     config_logger(verbose)
 
     test_schemes(
@@ -285,6 +307,7 @@ def nistkat(force_qemu, verbose):
         process_test,
         force_qemu,
         verbose,
+        process_make_envs(cflags, arch_flags),
     )
 
 
@@ -293,7 +316,7 @@ def nistkat(force_qemu, verbose):
     context_settings={"show_default": True},
 )
 @add_options(_shared_options)
-def kat(force_qemu, verbose):
+def kat(force_qemu, verbose, cflags, arch_flags):
     config_logger(verbose)
 
     test_schemes(
@@ -304,6 +327,7 @@ def kat(force_qemu, verbose):
         process_test,
         force_qemu,
         verbose,
+        process_make_envs(cflags, arch_flags),
     )
 
 
@@ -321,12 +345,7 @@ def kat(force_qemu, verbose):
     default="NO",
     help="Method for counting clock cycles. PMU requires (user-space) access to the Arm Performance Monitor Unit (PMU). PERF requires a kernel with perf support.",
 )
-@click.option(
-    "--cpu",
-    nargs=1,
-    help="Benchmark on specified CPU",
-)
-def bench(force_qemu, verbose, cycles, cpu):
+def bench(force_qemu, verbose, cycles, cflags, arch_flags):
     config_logger(verbose)
 
     results = test_schemes(
@@ -337,7 +356,7 @@ def bench(force_qemu, verbose, cycles, cpu):
         process_bench,
         force_qemu,
         verbose,
-        ({"CFLAGS": f"-mcpu={cpu}"} if cpu is not None else {}),
+        process_make_envs(cflags, arch_flags),
         [f"CYCLES={cycles}"],
     )
 
