@@ -25,24 +25,31 @@ def sha256sum(result):
     return m.hexdigest()
 
 
-def base_run(bin, force_qemu, verbose, cycles="NO"):
+def base_run(bin, force_qemu, verbose, extra_make_envs={}, extra_make_args=[]):
+    def dict2str(dict):
+        s = ""
+        for k, v in dict.items():
+            s += f"{k}={v} "
+        return s
+
     if force_qemu or (platform.system() == "Linux" and platform.machine() == "x86_64"):
         logging.debug(f"Emulating {bin} with QEMU")
 
         args = [
             "make",
             "CROSS_PREFIX=aarch64-none-linux-gnu-",
-            f"CYCLES={cycles}",
             f"{bin}",
-        ]
-        logging.info(" ".join(args))
+        ] + extra_make_args
+
+        logging.info(dict2str(extra_make_envs) + " ".join(args))
 
         p = subprocess.run(
             args,
             stdout=subprocess.DEVNULL if not verbose else None,
+            env=os.environ.copy() | extra_make_envs,
         )
         if p.returncode != 0:
-            logging.error("make failed")
+            logging.error(f"make failed: {p.returncode}")
             sys.exit(1)
 
         result = subprocess.run(
@@ -51,19 +58,26 @@ def base_run(bin, force_qemu, verbose, cycles="NO"):
             universal_newlines=False,
         )
 
+        if result.returncode != 0:
+            logging.error(
+                f"Emulating {bin} failed: {result.returncode} {result.stderr.decode()}"
+            )
+            sys.exit(1)
+
     else:
         logging.debug(f"Running {bin} natively")
 
-        args = ["make", f"CYCLES={cycles}", f"{bin}"]
-        logging.info(" ".join(args))
+        args = ["make", f"{bin}"] + extra_make_args
+        logging.info(dict2str(extra_make_envs) + " ".join(args))
 
         p = subprocess.run(
             args,
             stdout=subprocess.DEVNULL if not verbose else None,
+            env=os.environ.copy() | extra_make_envs,
         )
 
         if p.returncode != 0:
-            logging.error("make failed")
+            logging.error(f"make failed: {p.returncode}")
             sys.exit(1)
 
         result = subprocess.run(
@@ -71,6 +85,12 @@ def base_run(bin, force_qemu, verbose, cycles="NO"):
             capture_output=True,
             universal_newlines=False,
         )
+
+        if result.returncode != 0:
+            logging.error(
+                f"Running {bin} natively failed: {result.returncode} {result.stderr.decode()}"
+            )
+            sys.exit(1)
 
     return result.stdout
 
@@ -103,39 +123,38 @@ def parse_meta(scheme, field):
 
 
 def test_schemes(
-    title, scheme2file, actual_proc, expect_proc, force_qemu, verbose, cycles="NO"
+    title,
+    scheme2file,
+    actual_proc,
+    expect_proc,
+    process_result,
+    force_qemu,
+    verbose,
+    extra_make_envs={},
+    extra_make_args=[],
 ):
+    """
+    :param process_result: process result and return summary
+    """
     logging.info(f"{title}")
 
     summary_file = os.environ.get("GITHUB_STEP_SUMMARY")
     summary = f"## {title}\n"
 
-    def check(scheme, expect, actual):
-        if actual != expect:
-            logging.error(f"{scheme} failed, expecting {expect}, but getting {actual}")
-            summary = f":x: {scheme}, expecting {expect}, but getting {actual}\n"
-
-            fail = True
-        else:
-            logging.info(f"{scheme} passed")
-            summary = f":white_check_mark: {scheme}\n"
-            fail = False
-
-        return (fail, summary)
-
     fail = False
     results = {}
     for scheme in SCHEME:
         bin = scheme2file(scheme)
-        result = base_run(bin, force_qemu, verbose, cycles)
+        result = base_run(bin, force_qemu, verbose, extra_make_envs, extra_make_args)
         results[scheme] = result
 
         actual = actual_proc(result)
         expect = expect_proc(scheme)
 
-        (f, s) = check(scheme, expect, actual)
-        fail = fail or f
+        f = actual != expect
+        s = process_result(f, scheme, result, expect, actual)
         summary += s
+        fail = fail or f
 
     if summary_file is not None:
         with open(summary_file, "a") as f:
@@ -147,11 +166,37 @@ def test_schemes(
     return results
 
 
+def process_test(fail, scheme, result, expect, actual):
+    if fail:
+        logging.error(f"{scheme} failed, expecting {expect}, but getting {actual}")
+        summary = f":x: {scheme}, expecting {expect}, but getting {actual}\n"
+    else:
+        logging.info(f"{scheme} passed")
+        summary = f":white_check_mark: {scheme}\n"
+
+    return summary
+
+
+def process_bench(fail, scheme, result, expect, actual):
+    logging.info(f"{scheme}")
+    logging.info(f"\n{result.decode()}")
+
+    summary = f"{scheme}\n{result.decode()}\n"
+
+    return summary
+
+
 def validate_force_qemu(ctx, _, v):
     if platform.system() == "Darwin" and v:
         config_logger(False)
         logging.error("qemu-aarch64 is not supported on Darwin")
         ctx.exit(1)
+
+
+def process_make_envs(cflags, arch_flags):
+    return ({"CFLAGS": f"{cflags}"} if cflags is not None else {}) | (
+        {"ARCH_FLAGS": f"{arch_flags}"} if arch_flags is not None else {}
+    )
 
 
 _shared_options = [
@@ -175,6 +220,16 @@ _shared_options = [
         type=bool,
         help="Show verbose output or not",
     ),
+    click.option(
+        "--cflags",
+        nargs=1,
+        help="Extra cflags to passed in (e.g. '-mcpu=cortex-a72')",
+    ),
+    click.option(
+        "--arch-flags",
+        nargs=1,
+        help="Extra arch flags to passed in (e.g. '-march=armv8')",
+    ),
 ]
 
 
@@ -193,10 +248,15 @@ def add_options(options):
     type=click.Path(),
     help="The binary file that you wanted to test.",
 )
-def run(bin, force_qemu, verbose):
+def run(bin, force_qemu, verbose, cflags, arch_flags):
     config_logger(verbose)
 
-    result = base_run(bin, force_qemu, verbose)
+    result = base_run(
+        bin,
+        force_qemu,
+        verbose,
+        process_make_envs(cflags, arch_flags),
+    )
     logging.info(str(result, encoding="utf-8"))
 
 
@@ -205,7 +265,7 @@ def run(bin, force_qemu, verbose):
     context_settings={"show_default": True},
 )
 @add_options(_shared_options)
-def func(force_qemu, verbose):
+def func(force_qemu, verbose, cflags, arch_flags):
     config_logger(verbose)
 
     def expect(scheme):
@@ -224,8 +284,10 @@ def func(force_qemu, verbose):
         lambda scheme: scheme.name.replace("MLKEM", "test/bin/test_kyber"),
         lambda result: str(result, encoding="utf-8"),
         expect,
+        process_test,
         force_qemu,
         verbose,
+        process_make_envs(cflags, arch_flags),
     )
 
 
@@ -234,7 +296,7 @@ def func(force_qemu, verbose):
     context_settings={"show_default": True},
 )
 @add_options(_shared_options)
-def nistkat(force_qemu, verbose):
+def nistkat(force_qemu, verbose, cflags, arch_flags):
     config_logger(verbose)
 
     test_schemes(
@@ -242,8 +304,10 @@ def nistkat(force_qemu, verbose):
         lambda scheme: scheme.name.replace("MLKEM", "test/bin/gen_NISTKAT"),
         sha256sum,
         lambda scheme: parse_meta(scheme, "nistkat-sha256"),
+        process_test,
         force_qemu,
         verbose,
+        process_make_envs(cflags, arch_flags),
     )
 
 
@@ -252,7 +316,7 @@ def nistkat(force_qemu, verbose):
     context_settings={"show_default": True},
 )
 @add_options(_shared_options)
-def kat(force_qemu, verbose):
+def kat(force_qemu, verbose, cflags, arch_flags):
     config_logger(verbose)
 
     test_schemes(
@@ -260,8 +324,10 @@ def kat(force_qemu, verbose):
         lambda scheme: scheme.name.replace("MLKEM", "test/bin/gen_KAT"),
         sha256sum,
         lambda scheme: parse_meta(scheme, "kat-sha256"),
+        process_test,
         force_qemu,
         verbose,
+        process_make_envs(cflags, arch_flags),
     )
 
 
@@ -279,7 +345,7 @@ def kat(force_qemu, verbose):
     default="NO",
     help="Method for counting clock cycles. PMU requires (user-space) access to the Arm Performance Monitor Unit (PMU). PERF requires a kernel with perf support.",
 )
-def bench(force_qemu, verbose, cycles):
+def bench(force_qemu, verbose, cycles, cflags, arch_flags):
     config_logger(verbose)
 
     results = test_schemes(
@@ -287,13 +353,12 @@ def bench(force_qemu, verbose, cycles):
         lambda scheme: scheme.name.replace("MLKEM", "test/bin/bench_kyber"),
         lambda _: True,
         lambda _: True,
+        process_bench,
         force_qemu,
         verbose,
-        cycles=cycles,
+        process_make_envs(cflags, arch_flags),
+        [f"CYCLES={cycles}"],
     )
-    for scheme, result in results.items():
-        print(scheme)
-        print(result.decode())
 
 
 @click.group(invoke_without_command=True)
