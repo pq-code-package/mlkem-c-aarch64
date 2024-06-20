@@ -316,7 +316,7 @@ def bench(force_qemu, verbose, cycles, cpu):
         process_bench,
         force_qemu,
         verbose,
-        [f"CYCLES={cycles}", f"CFLAGS=-mcpu={cpu}"],
+        [f"CYCLES={cycles}", *([f"CFLAGS=-mcpu={cpu}"] if cpu is not None else [])],
     )
 
 
