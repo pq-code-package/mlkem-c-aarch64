@@ -28,12 +28,12 @@
             };
           });
           cbmc = pkgs.cbmc.overrideAttrs (old: rec {
-            version = "731338d5d82ac86fc447015e0bd24cdf7a74c442";
+            version = "a8b8f0fd2ad2166d71ccce97dd6925198a018144";
             src = pkgs.fetchFromGitHub {
               owner = "diffblue";
               repo = old.pname;
               rev = "${version}";
-              hash = "sha256-fDLSo5EeHyPTliAqFp+5mfaB0iZXIMXeMyF21fjl5k4=";
+              hash = "sha256-mPRkkKN7Hz9Qi6a3fEwVFh7a9OaBFcksNw9qwNOarao=";
             };
           });
 
