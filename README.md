@@ -5,13 +5,14 @@
 ## Goals of mlkem-c-aarch64
 
 The primary goals of this project are as follows:
-- _Assurance:_ Clean code that's extensively tested and amenable for audit and verification
-- _Ease of use:_ Permissive licensing, modularity, few dependencies
+- _Assurance:_ Offer code that's extensively tested and amenable for audit and verification
+- _Ease of use:_ Permissive licensing, modularity, adaptability, few dependencies
 - _Performance:_ Competitive performance for most Armv8-A/Armv9-A platforms
 
 There are tensions between these goals:
 - Optimal code is target-specific, but a large variety of CPU-specific implementations makes a library harder to both use and maintain.
-- Optimal code is complex (e.g. relying on handwritten assembly), impeding maintainenance and amenability for audit or verification.
+- Optimal code is complex (e.g. relying on handwritten assembly and extensive interleaving), impeding maintainenance and
+  amenability for audit, and potentially hardening verification efforts.
 
 In doubt, **mlkem-c-aarch64** chooses assurance and ease of use over performance: We only include implementations into **mlkem-c-aarch64** which are manually auditable or (ideally _and_) for which we see a path towards formal verification. All assembly should be as readable as possible and micro-optimization ideally deferred to automated tooling such as [SLOTHY](https://slothy-optimizer.github.io/slothy/). Ultimately, **mlkem-c-aarch64** strives for constant-time implementations for which the C-code is, at minimum, verified to be free of undefined behaviour, and where all assembly is functionally verified.
 
