@@ -25,7 +25,9 @@ def sha256sum(result):
     return m.hexdigest()
 
 
-def base_run(bin, force_qemu, verbose, extra_make_envs={}, extra_make_args=[]):
+def base_run(
+    bin, force_qemu, verbose, run_as_root=False, extra_make_envs={}, extra_make_args=[]
+):
     def dict2str(dict):
         s = ""
         for k, v in dict.items():
@@ -81,7 +83,7 @@ def base_run(bin, force_qemu, verbose, extra_make_envs={}, extra_make_args=[]):
             sys.exit(1)
 
         result = subprocess.run(
-            [f"./{bin}"],
+            (["sudo"] if run_as_root else []) + [f"./{bin}"],
             capture_output=True,
             universal_newlines=False,
         )
@@ -130,6 +132,7 @@ def test_schemes(
     process_result,
     force_qemu,
     verbose,
+    run_as_root=False,
     extra_make_envs={},
     extra_make_args=[],
 ):
@@ -145,7 +148,9 @@ def test_schemes(
     results = {}
     for scheme in SCHEME:
         bin = scheme2file(scheme)
-        result = base_run(bin, force_qemu, verbose, extra_make_envs, extra_make_args)
+        result = base_run(
+            bin, force_qemu, verbose, run_as_root, extra_make_envs, extra_make_args
+        )
         results[scheme] = result
 
         actual = actual_proc(result)
@@ -340,10 +345,10 @@ def kat(force_qemu, verbose, cflags, arch_flags):
     "-c",
     "--cycles",
     nargs=1,
-    type=click.Choice(["NO", "PMU", "PERF"]),
+    type=click.Choice(["NO", "PMU", "PERF", "M1"]),
     show_default=True,
     default="NO",
-    help="Method for counting clock cycles. PMU requires (user-space) access to the Arm Performance Monitor Unit (PMU). PERF requires a kernel with perf support.",
+    help="Method for counting clock cycles. PMU requires (user-space) access to the Arm Performance Monitor Unit (PMU). PERF requires a kernel with perf support. M1 only works on Apple silcon.",
 )
 @click.option(
     "-o",
@@ -351,8 +356,20 @@ def kat(force_qemu, verbose, cflags, arch_flags):
     nargs=1,
     help="Path to output file in json format",
 )
-def bench(force_qemu, verbose, cycles, cflags, arch_flags, output):
+@click.option(
+    "-r",
+    "--run-as-root",
+    is_flag=True,
+    show_default=True,
+    default=False,
+    type=bool,
+    help="Benchmarking binary is run with sudo.",
+)
+def bench(force_qemu, verbose, cycles, cflags, arch_flags, output, run_as_root):
     config_logger(verbose)
+
+    if cycles == "M1":
+        run_as_root = True
 
     results = test_schemes(
         "benchmark",
@@ -362,6 +379,7 @@ def bench(force_qemu, verbose, cycles, cflags, arch_flags, output):
         process_bench,
         force_qemu,
         verbose,
+        run_as_root,
         process_make_envs(cflags, arch_flags),
         [f"CYCLES={cycles}"],
     )
