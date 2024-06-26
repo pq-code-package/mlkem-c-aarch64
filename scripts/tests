@@ -345,7 +345,13 @@ def kat(force_qemu, verbose, cflags, arch_flags):
     default="NO",
     help="Method for counting clock cycles. PMU requires (user-space) access to the Arm Performance Monitor Unit (PMU). PERF requires a kernel with perf support.",
 )
-def bench(force_qemu, verbose, cycles, cflags, arch_flags):
+@click.option(
+    "-o",
+    "--output",
+    nargs=1,
+    help="Path to output file in json format",
+)
+def bench(force_qemu, verbose, cycles, cflags, arch_flags, output):
     config_logger(verbose)
 
     results = test_schemes(
@@ -359,6 +365,34 @@ def bench(force_qemu, verbose, cycles, cflags, arch_flags):
         process_make_envs(cflags, arch_flags),
         [f"CYCLES={cycles}"],
     )
+
+    if output:
+        import json
+
+        with open(output, "w") as f:
+            v = []
+            for scheme in results:
+                schemeStr = str(scheme)
+                r = results[scheme]
+
+                # The first 3 lines of the output are expected to be
+                # keypair cycles=X
+                # encaps cycles=X
+                # decaps cycles=X
+
+                d = {
+                    k: int(v)
+                    for k, v in (l.decode().split("=") for l in r.splitlines()[:3])
+                }
+                for primitive in ["keypair", "encaps", "decaps"]:
+                    v.append(
+                        {
+                            "name": f"{schemeStr} {primitive}",
+                            "unit": "cycles",
+                            "value": d[f"{primitive} cycles"],
+                        }
+                    )
+            f.write(json.dumps(v))
 
 
 @click.group(invoke_without_command=True)
