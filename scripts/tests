@@ -374,6 +374,12 @@ def bench(force_qemu, verbose, cycles, cflags, arch_flags, output):
             for scheme in results:
                 schemeStr = str(scheme)
                 r = results[scheme]
+
+                # The first 3 lines of the output are expected to be 
+                # keypair cycles=X
+                # encaps cycles=X
+                # decaps cycles=X
+
                 d = {
                     k: int(v)
                     for k, v in (l.decode().split("=") for l in r.splitlines()[:3])
