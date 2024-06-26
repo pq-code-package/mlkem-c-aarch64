@@ -346,7 +346,7 @@ def kat(force_qemu, verbose, cflags, arch_flags):
     help="Method for counting clock cycles. PMU requires (user-space) access to the Arm Performance Monitor Unit (PMU). PERF requires a kernel with perf support.",
 )
 @click.option(
-    "-output",
+    "-o",
     "--output",
     nargs=1,
     help="Path to output file in json format",
