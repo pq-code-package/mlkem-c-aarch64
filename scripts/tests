@@ -375,7 +375,7 @@ def bench(force_qemu, verbose, cycles, cflags, arch_flags, output):
                 schemeStr = str(scheme)
                 r = results[scheme]
 
-                # The first 3 lines of the output are expected to be 
+                # The first 3 lines of the output are expected to be
                 # keypair cycles=X
                 # encaps cycles=X
                 # decaps cycles=X
