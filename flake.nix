@@ -55,8 +55,23 @@
               black;
           };
 
-          core = builtins.attrValues
-            {
+          core =
+            let
+              # for x86_64 machine, cross compiled gcc needed to be wrapped with glibc this way for static compilation
+              cross-gcc = with pkgs; wrapCCWith {
+                cc = callPackage ./arm-gnu-gcc.nix { };
+                bintools = with pkgsCross.aarch64-multiplatform; wrapBintoolsWith {
+                  bintools = binutils-unwrapped;
+                  libc = glibc.static;
+                };
+              };
+              aarch64-gcc =
+                if pkgs.stdenv.isx86_64
+                then [ cross-gcc ]
+                else [ pkgs.glibc.static ]; # I assume this is used in `mkShell`, therefore for aarch64 platforms gcc is already available in PATH
+            in
+            pkgs.lib.optionals pkgs.stdenv.isLinux aarch64-gcc ++
+            builtins.attrValues {
               inherit (pkgs)
                 yq
                 ninja# 1.11.1
@@ -66,48 +81,29 @@
               inherit (pkgs.python3Packages)
                 python
                 click;
-            }
-          ++ {
-            "x86_64-linux" = [ (pkgs.callPackage ./arm-gnu-gcc.nix { }) ];
-            "aarch64-linux" = [ (pkgs.gcc13.override { propagateDoc = true; isGNU = true; }) ];
-            "aarch64-darwin" = [ ];
-            "x86_64-darwin" = [ ];
-          }.${system};
-
-        in
-        {
-          devShells.default = pkgs.mkShellNoCC {
-            packages = core ++ linters ++ cbmcpkg ++ builtins.attrValues {
-              inherit (pkgs)
-                direnv
-                nix-direnv;
             };
 
-            shellHook = ''
-              export PATH=$PWD/scripts:$PWD/scripts/ci:$PATH
-            '';
+          wrapShell = mkShell: attrs:
+            mkShell (attrs // {
+              shellHook = ''
+                export PATH=$PWD/scripts:$PWD/scripts/ci:$PATH
+              '';
+            });
+        in
+        {
+          devShells.default = wrapShell pkgs.mkShell {
+            packages = core ++ linters ++ cbmcpkg ++
+              builtins.attrValues {
+                inherit (pkgs)
+                  direnv
+                  nix-direnv;
+              };
           };
 
-          devShells.ci = pkgs.mkShellNoCC {
-            packages = core;
-            shellHook = ''
-              export PATH=$PWD/scripts:$PWD/scripts/ci:$PATH
-            '';
-          };
+          devShells.ci = wrapShell pkgs.mkShell { packages = core; };
+          devShells.ci-cbmc = wrapShell pkgs.mkShell { packages = (core ++ cbmcpkg); };
+          devShells.ci-linter = wrapShell pkgs.mkShellNoCC { packages = linters; };
 
-          devShells.ci-linter = pkgs.mkShellNoCC {
-            packages = linters;
-            shellHook = ''
-              export PATH=$PWD/scripts:$PWD/scripts/ci:$PATH
-            '';
-          };
-
-          devShells.ci-cbmc = pkgs.mkShellNoCC {
-            packages = core ++ cbmcpkg;
-            shellHook = ''
-              export PATH=$PWD/scripts:$PWD/scripts/ci:$PATH
-            '';
-          };
 
         };
       flake = {
