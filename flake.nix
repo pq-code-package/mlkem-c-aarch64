@@ -16,36 +16,32 @@
     flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [ ];
       systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
-      perSystem = { pkgs, system, ... }:
+      perSystem = { pkgs, ... }:
         let
-          litani = pkgs.callPackage ./litani.nix { };
-          cbmc-viewer = pkgs.callPackage ./cbmc-viewer.nix { };
-          astyle = pkgs.astyle.overrideAttrs (old: rec {
-            version = "3.4.13";
-            src = pkgs.fetchurl {
-              url = "mirror://sourceforge/${old.pname}/${old.pname}-${version}.tar.bz2";
-              hash = "sha256-eKYQq9OelOD5E+nuXNoehbtizWM1U97LngDT2SAQGc4=";
-            };
-          });
-          cbmc = pkgs.cbmc.overrideAttrs (old: rec {
-            version = "a8b8f0fd2ad2166d71ccce97dd6925198a018144";
-            src = pkgs.fetchFromGitHub {
-              owner = "diffblue";
-              repo = old.pname;
-              rev = "${version}";
-              hash = "sha256-mPRkkKN7Hz9Qi6a3fEwVFh7a9OaBFcksNw9qwNOarao=";
-            };
-          });
-
           cbmcpkg = builtins.attrValues
             {
-              cbmc = cbmc;
-              litani = litani; # 1.29.0
-              cbmc-viewer = cbmc-viewer; # 3.8
+              cbmc = pkgs.cbmc.overrideAttrs (old: rec {
+                version = "a8b8f0fd2ad2166d71ccce97dd6925198a018144";
+                src = pkgs.fetchFromGitHub {
+                  owner = "diffblue";
+                  repo = old.pname;
+                  rev = "${version}";
+                  hash = "sha256-mPRkkKN7Hz9Qi6a3fEwVFh7a9OaBFcksNw9qwNOarao=";
+                };
+              }); # 6.0.0
+              litani = pkgs.callPackage ./litani.nix { }; # 1.29.0
+              cbmc-viewer = pkgs.callPackage ./cbmc-viewer.nix { }; # 3.8
             };
 
           linters = builtins.attrValues {
-            astyle = astyle;
+            astyle = pkgs.astyle.overrideAttrs (old: rec {
+              version = "3.4.13";
+              src = pkgs.fetchurl {
+                url = "mirror://sourceforge/${old.pname}/${old.pname}-${version}.tar.bz2";
+                hash = "sha256-eKYQq9OelOD5E+nuXNoehbtizWM1U97LngDT2SAQGc4=";
+              };
+            });
+
 
             inherit (pkgs)
               nixpkgs-fmt
