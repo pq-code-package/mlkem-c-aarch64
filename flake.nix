@@ -64,7 +64,7 @@
               aarch64-gcc =
                 if pkgs.stdenv.isx86_64
                 then [ cross-gcc ]
-                else [ pkgs.glibc.static ]; # I assume this is used in `mkShell`, therefore for aarch64 platforms gcc is already available in PATH
+                else [ pkgs.glibc pkgs.glibc.static ]; # I assume this is used in `mkShell`, therefore for aarch64 platforms gcc is already available in PATH
             in
             pkgs.lib.optionals pkgs.stdenv.isLinux aarch64-gcc ++
             builtins.attrValues {
