@@ -25,7 +25,15 @@ def sha256sum(result):
     return m.hexdigest()
 
 
-def base_run(bin, force_qemu, verbose, extra_make_envs={}, extra_make_args=[]):
+def base_run(
+    bin,
+    force_qemu,
+    verbose,
+    run_as_root=False,
+    mac_taskpolicy=None,
+    extra_make_envs={},
+    extra_make_args=[],
+):
     def dict2str(dict):
         s = ""
         for k, v in dict.items():
@@ -80,8 +88,18 @@ def base_run(bin, force_qemu, verbose, extra_make_envs={}, extra_make_args=[]):
             logging.error(f"make failed: {p.returncode}")
             sys.exit(1)
 
+        cmd = [f"./{bin}"]
+        if run_as_root:
+            logging.info(
+                "Running benchmarks as root -- you may need to enter your root password."
+            )
+            cmd = ["sudo"] + cmd
+
+        if mac_taskpolicy is not None:
+            cmd = ["taskpolicy", "-c", mac_taskpolicy] + cmd
+
         result = subprocess.run(
-            [f"./{bin}"],
+            cmd,
             capture_output=True,
             universal_newlines=False,
         )
@@ -130,6 +148,8 @@ def test_schemes(
     process_result,
     force_qemu,
     verbose,
+    run_as_root=False,
+    mac_taskpolicy=None,
     extra_make_envs={},
     extra_make_args=[],
 ):
@@ -145,7 +165,15 @@ def test_schemes(
     results = {}
     for scheme in SCHEME:
         bin = scheme2file(scheme)
-        result = base_run(bin, force_qemu, verbose, extra_make_envs, extra_make_args)
+        result = base_run(
+            bin,
+            force_qemu,
+            verbose,
+            run_as_root,
+            mac_taskpolicy,
+            extra_make_envs,
+            extra_make_args,
+        )
         results[scheme] = result
 
         actual = actual_proc(result)
@@ -340,10 +368,10 @@ def kat(force_qemu, verbose, cflags, arch_flags):
     "-c",
     "--cycles",
     nargs=1,
-    type=click.Choice(["NO", "PMU", "PERF"]),
+    type=click.Choice(["NO", "PMU", "PERF", "M1"]),
     show_default=True,
     default="NO",
-    help="Method for counting clock cycles. PMU requires (user-space) access to the Arm Performance Monitor Unit (PMU). PERF requires a kernel with perf support.",
+    help="Method for counting clock cycles. PMU requires (user-space) access to the Arm Performance Monitor Unit (PMU). PERF requires a kernel with perf support. M1 only works on Apple silicon.",
 )
 @click.option(
     "-o",
@@ -351,7 +379,27 @@ def kat(force_qemu, verbose, cflags, arch_flags):
     nargs=1,
     help="Path to output file in json format",
 )
-def bench(force_qemu, verbose, cycles, cflags, arch_flags, output):
+@click.option(
+    "-r",
+    "--run-as-root",
+    is_flag=True,
+    show_default=True,
+    default=False,
+    type=bool,
+    help="Benchmarking binary is run with sudo.",
+)
+@click.option(
+    "-t",
+    "--mac-taskpolicy",
+    nargs=1,
+    type=click.Choice(["utility", "background", "maintenance"]),
+    show_default=True,
+    default=None,
+    help="Run the program using the specified QoS clamp. Applies to MacOS only. Setting this flag to 'background' guarantees running on E-cores.",
+)
+def bench(
+    force_qemu, verbose, cycles, cflags, arch_flags, output, run_as_root, mac_taskpolicy
+):
     config_logger(verbose)
 
     results = test_schemes(
@@ -362,6 +410,8 @@ def bench(force_qemu, verbose, cycles, cflags, arch_flags, output):
         process_bench,
         force_qemu,
         verbose,
+        run_as_root,
+        mac_taskpolicy,
         process_make_envs(cflags, arch_flags),
         [f"CYCLES={cycles}"],
     )
