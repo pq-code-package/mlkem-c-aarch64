@@ -26,7 +26,13 @@ def sha256sum(result):
 
 
 def base_run(
-    bin, force_qemu, verbose, run_as_root=False, extra_make_envs={}, extra_make_args=[]
+    bin,
+    force_qemu,
+    verbose,
+    run_as_root=False,
+    mac_taskpolicy=None,
+    extra_make_envs={},
+    extra_make_args=[],
 ):
     def dict2str(dict):
         s = ""
@@ -89,6 +95,9 @@ def base_run(
             )
             cmd = ["sudo"] + cmd
 
+        if mac_taskpolicy is not None:
+            cmd = ["taskpolicy", "-c", mac_taskpolicy] + cmd
+
         result = subprocess.run(
             cmd,
             capture_output=True,
@@ -140,6 +149,7 @@ def test_schemes(
     force_qemu,
     verbose,
     run_as_root=False,
+    mac_taskpolicy=None,
     extra_make_envs={},
     extra_make_args=[],
 ):
@@ -156,7 +166,13 @@ def test_schemes(
     for scheme in SCHEME:
         bin = scheme2file(scheme)
         result = base_run(
-            bin, force_qemu, verbose, run_as_root, extra_make_envs, extra_make_args
+            bin,
+            force_qemu,
+            verbose,
+            run_as_root,
+            mac_taskpolicy,
+            extra_make_envs,
+            extra_make_args,
         )
         results[scheme] = result
 
@@ -372,7 +388,18 @@ def kat(force_qemu, verbose, cflags, arch_flags):
     type=bool,
     help="Benchmarking binary is run with sudo.",
 )
-def bench(force_qemu, verbose, cycles, cflags, arch_flags, output, run_as_root):
+@click.option(
+    "-t",
+    "--mac-taskpolicy",
+    nargs=1,
+    type=click.Choice(["utility", "background", "maintenance"]),
+    show_default=True,
+    default=None,
+    help="Run the program using the specified QoS clamp. Applies to MacOS only. Setting it to 'background' guarentees to run on E-cores.",
+)
+def bench(
+    force_qemu, verbose, cycles, cflags, arch_flags, output, run_as_root, mac_taskpolicy
+):
     config_logger(verbose)
 
     results = test_schemes(
@@ -384,6 +411,7 @@ def bench(force_qemu, verbose, cycles, cflags, arch_flags, output, run_as_root):
         force_qemu,
         verbose,
         run_as_root,
+        mac_taskpolicy,
         process_make_envs(cflags, arch_flags),
         [f"CYCLES={cycles}"],
     )
