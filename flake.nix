@@ -71,6 +71,7 @@
                 yq
                 ninja# 1.11.1
                 qemu# 8.2.4
+                z3_4_12
                 cadical;
 
               inherit (pkgs.python3Packages)
