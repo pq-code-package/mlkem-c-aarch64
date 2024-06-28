@@ -82,8 +82,15 @@ def base_run(
             logging.error(f"make failed: {p.returncode}")
             sys.exit(1)
 
+        cmd = [f"./{bin}"]
+        if run_as_root:
+            logging.info(
+                "Running benchmarks as root -- you may need to enter your root password."
+            )
+            cmd = ["sudo"] + cmd
+
         result = subprocess.run(
-            (["sudo"] if run_as_root else []) + [f"./{bin}"],
+            cmd,
             capture_output=True,
             universal_newlines=False,
         )
@@ -367,9 +374,6 @@ def kat(force_qemu, verbose, cflags, arch_flags):
 )
 def bench(force_qemu, verbose, cycles, cflags, arch_flags, output, run_as_root):
     config_logger(verbose)
-
-    if cycles == "M1":
-        run_as_root = True
 
     results = test_schemes(
         "benchmark",
