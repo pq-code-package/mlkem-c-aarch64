@@ -441,10 +441,11 @@ def bench(
                 # encaps cycles=X
                 # decaps cycles=X
 
-                d = {
-                    k: int(v)
-                    for k, v in (l.decode().split("=") for l in r.splitlines()[:3])
-                }
+                lines = [
+                    line.decode() for line in r.splitlines() if "=" in line.decode()
+                ]
+
+                d = {k: int(v) for k, v in (l.split("=") for l in lines)}
                 for primitive in ["keypair", "encaps", "decaps"]:
                     v.append(
                         {
