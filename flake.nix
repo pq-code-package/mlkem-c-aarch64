@@ -63,7 +63,7 @@
               aarch64-gcc =
                 if pkgs.stdenv.isx86_64
                 then [ cross-gcc ]
-                else [ pkgs.glibc pkgs.glibc.static ]; # I assume this is used in `mkShell`, therefore for aarch64 platforms gcc is already available in PATH
+                else [ (pkgs.gcc13.override { propagateDoc = true; isGNU = true; }) pkgs.glibc pkgs.glibc.static ];
             in
             pkgs.lib.optionals pkgs.stdenv.isLinux aarch64-gcc ++
             builtins.attrValues {
@@ -86,7 +86,7 @@
             });
         in
         {
-          devShells.default = wrapShell pkgs.mkShell {
+          devShells.default = wrapShell pkgs.mkShellNoCC {
             packages = core ++ linters ++ cbmcpkg ++
               builtins.attrValues {
                 inherit (pkgs)
@@ -95,8 +95,8 @@
               };
           };
 
-          devShells.ci = wrapShell pkgs.mkShell { packages = core; };
-          devShells.ci-cbmc = wrapShell pkgs.mkShell { packages = (core ++ cbmcpkg); };
+          devShells.ci = wrapShell pkgs.mkShellNoCC { packages = core; };
+          devShells.ci-cbmc = wrapShell pkgs.mkShellNoCC { packages = (core ++ cbmcpkg); };
           devShells.ci-linter = wrapShell pkgs.mkShellNoCC { packages = linters; };
         };
       flake = {
