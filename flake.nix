@@ -31,6 +31,9 @@
               }); # 6.0.0
               litani = pkgs.callPackage ./litani.nix { }; # 1.29.0
               cbmc-viewer = pkgs.callPackage ./cbmc-viewer.nix { }; # 3.8
+
+              inherit (pkgs)
+                z3_4_12; # 4.12.5
             };
 
           linters = builtins.attrValues {
@@ -71,7 +74,6 @@
                 yq
                 ninja# 1.11.1
                 qemu# 8.2.4
-                z3_4_12
                 cadical;
 
               inherit (pkgs.python3Packages)
