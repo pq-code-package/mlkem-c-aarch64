@@ -31,6 +31,9 @@
               }); # 6.0.0
               litani = pkgs.callPackage ./litani.nix { }; # 1.29.0
               cbmc-viewer = pkgs.callPackage ./cbmc-viewer.nix { }; # 3.8
+
+              inherit (pkgs)
+                z3_4_12; # 4.12.5
             };
 
           linters = builtins.attrValues {
