@@ -42,7 +42,6 @@
               };
             });
 
-
             inherit (pkgs)
               nixpkgs-fmt
               shfmt;
@@ -99,8 +98,6 @@
           devShells.ci = wrapShell pkgs.mkShell { packages = core; };
           devShells.ci-cbmc = wrapShell pkgs.mkShell { packages = (core ++ cbmcpkg); };
           devShells.ci-linter = wrapShell pkgs.mkShellNoCC { packages = linters; };
-
-
         };
       flake = {
         # The usual flake attributes can be defined here, including system-
