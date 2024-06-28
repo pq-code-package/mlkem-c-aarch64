@@ -395,7 +395,7 @@ def kat(force_qemu, verbose, cflags, arch_flags):
     type=click.Choice(["utility", "background", "maintenance"]),
     show_default=True,
     default=None,
-    help="Run the program using the specified QoS clamp. Applies to MacOS only. Setting it to 'background' guarentees to run on E-cores.",
+    help="Run the program using the specified QoS clamp. Applies to MacOS only. Setting this flag to 'background' guarantees running on E-cores.",
 )
 def bench(
     force_qemu, verbose, cycles, cflags, arch_flags, output, run_as_root, mac_taskpolicy
