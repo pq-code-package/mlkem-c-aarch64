@@ -1,0 +1,59 @@
+# SPDX-License-Identifier: Apache-2.0
+
+name: Bench
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+    types: [ "labeled" ]
+jobs:
+  bench:
+    runs-on: macos-14
+    permissions:
+      contents: write
+    if: github.repository_owner == 'pq-code-package' && (github.event.label.name == 'benchmark' || github.ref == 'refs/heads/main')
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup nix
+        uses: ./.github/actions/setup-nix
+        with:
+          devShell: ci
+          script: |
+            ARCH=$(uname -m)
+            cat >> $GITHUB_STEP_SUMMARY <<-EOF
+              ## Setup
+              Architecture: $ARCH
+              - $(uname -a)
+              - $(nix --version)
+              - $(astyle --version)
+              - $(${{ matrix.cross_prefix }}gcc --version | grep -m1 "")
+              - $(bash --version | grep -m1 "")
+
+              ## CPU Info
+              $(cat /proc/cpuinfo)
+            EOF
+      - name: Run benchmark
+        shell: nix develop .#ci -c bash -e {0}
+        run: |
+          tests bench -c M1 --run-as-root -v
+      - name: Run benchmark 2 
+        shell: nix develop .#ci -c bash -e {0}
+        run: |
+          tests bench -c M1 --run-as-root -v
+      - name: Run benchmark 3
+        shell: nix develop .#ci -c bash -e {0}
+        run: |
+          tests bench -c M1 --run-as-root -v
+      - name: Run benchmark E cores 1
+        shell: nix develop .#ci -c bash -e {0}
+        run: |
+          tests bench -c M1 --run-as-root --mac-taskpolicy background -v
+      - name: Run benchmark E cores 2
+        shell: nix develop .#ci -c bash -e {0}
+        run: |
+          tests bench -c M1 --run-as-root --mac-taskpolicy background -v
+      - name: Run benchmark E cores 3
+        shell: nix develop .#ci -c bash -e {0}
+        run: |
+          tests bench -c M1 --run-as-root --mac-taskpolicy background -v
