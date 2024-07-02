@@ -17,6 +17,7 @@ UNWINDSET +=
 
 PROOF_SOURCES += $(PROOFDIR)/$(HARNESS_FILE).c
 PROJECT_SOURCES += $(SRCDIR)/mlkem/poly.c
+PROJECT_SOURCES += $(SRCDIR)/mlkem/verify.c
 
 # UNWINDSET += $(KYBER_NAMESPACE)poly_compress.0:9
 # UNWINDSET += $(KYBER_NAMESPACE)poly_compress.1:33
