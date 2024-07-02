@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
-coeff_signed_to_unsigned proof
+scalar_signed_to_unsigned_q_16 proof
 ==============
 
-This directory contains a memory safety proof for coeff_signed_to_unsigned.
+This directory contains a memory safety proof for scalar_signed_to_unsigned_q_16.
 
 To run the proof.
 -------------

@@ -6,8 +6,8 @@
  */
 
 /**
- * @file coeff_signed_to_unsigned.c
- * @brief Implements the proof harness for coeff_signed_to_unsigned function.
+ * @file scalar_signed_to_unsigned_q_16.c
+ * @brief Implements the proof harness for scalar_signed_to_unsigned_q_16 function.
  */
 
 /*
@@ -26,5 +26,5 @@ void harness(void)
     int16_t u;
 
     /* Contracts for this function are in poly.h */
-    uint16_t d = coeff_signed_to_unsigned(u);
+    uint16_t d = scalar_signed_to_unsigned_q_16(u);
 }
