@@ -110,6 +110,7 @@ uint16_t scalar_signed_to_unsigned_q_16 (int16_t c)
     int32_t r = (int32_t) c;
 
     // Add Q if r is negative
+    // TODO, WARNING: This needs to be protected from the compiler introducing a branch.
     int32_t factor = (r < 0); // 1 if r < 0; 0 if r >= 0
     r = r + (factor * KYBER_Q);
 
