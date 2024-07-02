@@ -9,6 +9,7 @@ on:
     types: [ "labeled" ]
 jobs:
   bench:
+    name: ${{ matrix.target.name }}
     strategy:
       fail-fast: true
       matrix:
