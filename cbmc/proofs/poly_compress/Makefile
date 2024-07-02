@@ -25,12 +25,14 @@ PROJECT_SOURCES += $(SRCDIR)/mlkem/verify.c
 FUNCTION_NAME = $(KYBER_NAMESPACE)poly_compress
 
 USE_FUNCTION_CONTRACTS = $(KYBER_NAMESPACE)scalar_compress_q_16 $(KYBER_NAMESPACE)scalar_compress_q_32
-
 # If this proof is found to consume huge amounts of RAM, you can set the
 # EXPENSIVE variable. With new enough versions of the proof tools, this will
 # restrict the number of EXPENSIVE CBMC jobs running at once. See the
 # documentation in Makefile.common under the "Job Pools" heading for details.
 # EXPENSIVE = true
+
+# This function is large enough to need...
+CBMC_OBJECT_BITS = 10
 
 # If you require access to a file-local ("static") function or object to conduct
 # your proof, set the following (and do not include the original source file
