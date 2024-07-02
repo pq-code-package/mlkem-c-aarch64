@@ -12,8 +12,14 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        system: [ rpi4, a55 ]
-    runs-on: self-hosted-${{ matrix.system }}
+       target:
+        - system: rpi4
+          name: Arm Cortex-A72 (Raspberry Pi 4) benchmarks
+          cmd: tests bench -c PMU --cflags -mcpu=cortex-a72 -v --output output.json
+        - system: a55
+          name: Arm Cortex-A55 (Snapdragon 888) benchmarks
+          cmd: tests bench -c PERF --cflags "-static -mcpu=cortex-a55" --arch-flags -march=armv8.2-a -w exec-on-a55 -v --output output.json
+    runs-on: self-hosted-${{ matrix.target.system }}
     permissions:
       contents: write
     if: github.repository_owner == 'pq-code-package' && (github.event.label.name == 'benchmark' || github.ref == 'refs/heads/main')
@@ -31,36 +37,21 @@ jobs:
               - $(uname -a)
               - $(nix --version)
               - $(astyle --version)
-              - $(${{ matrix.cross_prefix }}gcc --version | grep -m1 "")
+              - $(${{ matrix.target.cross_prefix }}gcc --version | grep -m1 "")
               - $(bash --version | grep -m1 "")
 
               ## CPU Info
               $(cat /proc/cpuinfo)
             EOF
-      - name: Run benchmark on rpi4
-        if: matrix.system == 'rpi4'
+      - name: Run benchmark
         shell: nix develop .#ci -c bash -e {0}
         run: |
-          tests bench -c PMU --cflags -mcpu=cortex-a72 -v --output output.json
-      - name: Run benchmark on a55
-        if: matrix.system == 'a55'
-        shell: nix develop .#ci -c bash -e {0}
-        run: |
-          tests bench -c PERF --cflags "-static -mcpu=cortex-a55" --arch-flags -march=armv8.2-a -w exec-on-a55 -v --output output.json
+          ${{ matrix.target.cmd }}
       - name: Store benchmark result
-        if: github.repository_owner == 'pq-code-package' && github.ref == 'refs/heads/main' && matrix.system == 'rpi4'
+        if: github.repository_owner == 'pq-code-package' && github.ref == 'refs/heads/main'
         uses: benchmark-action/github-action-benchmark@v1
         with:
-          name: Arm Cortex-A72 (Raspberry Pi 4) benchmarks
-          tool: 'customSmallerIsBetter'
-          output-file-path: output.json
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          auto-push: true
-      - name: Store benchmark result
-        if: github.repository_owner == 'pq-code-package' && github.ref == 'refs/heads/main' && matrix.system == 'a55'
-        uses: benchmark-action/github-action-benchmark@v1
-        with:
-          name: Arm Cortex-A55 (Snapdragon 888) benchmarks
+          name: ${{ matrix.target.name }}
           tool: 'customSmallerIsBetter'
           output-file-path: output.json
           github-token: ${{ secrets.GITHUB_TOKEN }}
