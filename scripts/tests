@@ -86,6 +86,7 @@ def base_run(
 
     if exec_wrapper:
         logging.info(f"Running {bin} with customized wrapper.")
+        exec_wrapper = exec_wrapper.split(" ")
         cmd = exec_wrapper + cmd
 
     logging.info(" ".join(cmd))
@@ -412,9 +413,6 @@ def bench(
             sys.exit(1)
         else:
             exec_wrapper = f"taskpolicy -c {mac_taskpolicy}"
-
-    if exec_wrapper:
-        exec_wrapper = exec_wrapper.split(" ")
 
     results = test_schemes(
         "benchmark",
