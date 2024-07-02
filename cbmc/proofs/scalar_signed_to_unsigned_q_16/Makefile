@@ -3,11 +3,11 @@
 include ../Makefile_params.common
 
 HARNESS_ENTRY = harness
-HARNESS_FILE = poly_compress_harness
+HARNESS_FILE = scalar_signed_to_unsigned_q_16_harness
 
 # This should be a unique identifier for this proof, and will appear on the
 # Litani dashboard. It can be human-readable and contain spaces if you wish.
-PROOF_UID = poly_compress
+PROOF_UID = scalar_signed_to_unsigned_q_16
 
 DEFINES +=
 INCLUDES +=
@@ -19,20 +19,21 @@ PROOF_SOURCES += $(PROOFDIR)/$(HARNESS_FILE).c
 PROJECT_SOURCES += $(SRCDIR)/mlkem/poly.c
 PROJECT_SOURCES += $(SRCDIR)/mlkem/verify.c
 
-# UNWINDSET += $(KYBER_NAMESPACE)poly_compress.0:9
-# UNWINDSET += $(KYBER_NAMESPACE)poly_compress.1:33
+CHECK_FUNCTION_CONTRACTS=$(KYBER_NAMESPACE)scalar_signed_to_unsigned_q_16
+USE_FUNCTION_CONTRACTS=
+APPLY_LOOP_CONTRACTS=on
+USE_DYNAMIC_FRAMES=1
 
-FUNCTION_NAME = $(KYBER_NAMESPACE)poly_compress
+CBMCFLAGS=--smt2
 
-USE_FUNCTION_CONTRACTS = $(KYBER_NAMESPACE)scalar_compress_q_16 $(KYBER_NAMESPACE)scalar_compress_q_32
+# Uncomment this to see what commands litani is running...
+#VERBOSE=on
+
 # If this proof is found to consume huge amounts of RAM, you can set the
 # EXPENSIVE variable. With new enough versions of the proof tools, this will
 # restrict the number of EXPENSIVE CBMC jobs running at once. See the
 # documentation in Makefile.common under the "Job Pools" heading for details.
 # EXPENSIVE = true
-
-# This function is large enough to need...
-CBMC_OBJECT_BITS = 10
 
 # If you require access to a file-local ("static") function or object to conduct
 # your proof, set the following (and do not include the original source file

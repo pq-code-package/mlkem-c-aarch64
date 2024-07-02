@@ -15,10 +15,11 @@ typedef struct
     int16_t coeffs[KYBER_N];
 } poly;
 
-#define scalar_compress_q_16   KYBER_NAMESPACE(scalar_compress_q_16)
-#define scalar_decompress_q_16 KYBER_NAMESPACE(scalar_decompress_q_16)
-#define scalar_compress_q_32   KYBER_NAMESPACE(scalar_compress_q_32)
-#define scalar_decompress_q_32 KYBER_NAMESPACE(scalar_decompress_q_32)
+#define scalar_compress_q_16           KYBER_NAMESPACE(scalar_compress_q_16)
+#define scalar_decompress_q_16         KYBER_NAMESPACE(scalar_decompress_q_16)
+#define scalar_compress_q_32           KYBER_NAMESPACE(scalar_compress_q_32)
+#define scalar_decompress_q_32         KYBER_NAMESPACE(scalar_decompress_q_32)
+#define scalar_signed_to_unsigned_q_16 KYBER_NAMESPACE(scalar_signed_to_unsigned_q_16)
 
 uint32_t scalar_compress_q_16   (int32_t u)
 /* INDENT-OFF */
@@ -45,6 +46,15 @@ uint32_t scalar_decompress_q_32 (uint32_t u)
 __CPROVER_requires(0 <= u && u < 32)
 __CPROVER_ensures(__CPROVER_return_value < KYBER_Q);
 /* INDENT-ON */
+
+uint16_t scalar_signed_to_unsigned_q_16 (int16_t c)
+/* *INDENT-OFF* */
+__CPROVER_requires(c > -KYBER_Q) // c >= -3328
+__CPROVER_requires(c < KYBER_Q)  // c <= 3328
+__CPROVER_ensures(__CPROVER_return_value >= 0)
+__CPROVER_ensures(__CPROVER_return_value < KYBER_Q)
+__CPROVER_ensures(__CPROVER_return_value == (int32_t) c + (((int32_t) c < 0) * KYBER_Q));
+/* *INDENT-ON* */
 
 #define poly_compress KYBER_NAMESPACE(poly_compress)
 void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a);
