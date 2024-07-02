@@ -25,23 +25,22 @@ def sha256sum(result):
     return m.hexdigest()
 
 
-def base_run(
+def base_compile(
     bin,
-    force_qemu,
     verbose,
-    run_as_root=False,
-    mac_taskpolicy=None,
     extra_make_envs={},
     extra_make_args=[],
 ):
+    """compile or cross compile with some extra environment variables and makefile arguments"""
+
     def dict2str(dict):
         s = ""
         for k, v in dict.items():
             s += f"{k}={v} "
         return s
 
-    if force_qemu or (platform.system() == "Linux" and platform.machine() == "x86_64"):
-        logging.debug(f"Emulating {bin} with QEMU")
+    if platform.system() == "Linux" and platform.machine() == "x86_64":
+        logging.debug(f"Cross compiling {bin}")
 
         args = [
             "make",
@@ -49,66 +48,59 @@ def base_run(
             f"{bin}",
         ] + extra_make_args
 
-        logging.info(dict2str(extra_make_envs) + " ".join(args))
-
-        p = subprocess.run(
-            args,
-            stdout=subprocess.DEVNULL if not verbose else None,
-            env=os.environ.copy() | extra_make_envs,
-        )
-        if p.returncode != 0:
-            logging.error(f"make failed: {p.returncode}")
-            sys.exit(1)
-
-        result = subprocess.run(
-            ["qemu-aarch64", f"{bin}"],
-            capture_output=True,
-            universal_newlines=False,
-        )
-
-        if result.returncode != 0:
-            logging.error(
-                f"Emulating {bin} failed: {result.returncode} {result.stderr.decode()}"
-            )
-            sys.exit(1)
-
     else:
-        logging.debug(f"Running {bin} natively")
+        logging.debug(f"Compiling {bin} natively")
 
         args = ["make", f"{bin}"] + extra_make_args
         logging.info(dict2str(extra_make_envs) + " ".join(args))
 
-        p = subprocess.run(
-            args,
-            stdout=subprocess.DEVNULL if not verbose else None,
-            env=os.environ.copy() | extra_make_envs,
+    p = subprocess.run(
+        args,
+        stdout=subprocess.DEVNULL if not verbose else None,
+        env=os.environ.copy() | extra_make_envs,
+    )
+
+    if p.returncode != 0:
+        logging.error(f"make failed: {p.returncode}")
+        sys.exit(1)
+
+
+def base_run(
+    bin,
+    force_qemu,
+    verbose,
+    run_as_root=False,
+    exec_wrapper=None,
+):
+    """Run the binary in all different ways"""
+    cmd = [f"./{bin}"]
+    if force_qemu or (platform.system() == "Linux" and platform.machine() == "x86_64"):
+        logging.info(f"Emulating {bin} with QEMU")
+        cmd = ["qemu-aarch64"] + cmd
+
+    if run_as_root:
+        logging.info(
+            f"Running {bin} as root -- you may need to enter your root password."
         )
+        cmd = ["sudo"] + cmd
 
-        if p.returncode != 0:
-            logging.error(f"make failed: {p.returncode}")
-            sys.exit(1)
+    if exec_wrapper:
+        logging.info(f"Running {bin} with customized wrapper.")
+        exec_wrapper = exec_wrapper.split(" ")
+        cmd = exec_wrapper + cmd
 
-        cmd = [f"./{bin}"]
-        if run_as_root:
-            logging.info(
-                "Running benchmarks as root -- you may need to enter your root password."
-            )
-            cmd = ["sudo"] + cmd
+    logging.info(" ".join(cmd))
+    result = subprocess.run(
+        cmd,
+        capture_output=True,
+        universal_newlines=False,
+    )
 
-        if mac_taskpolicy is not None:
-            cmd = ["taskpolicy", "-c", mac_taskpolicy] + cmd
-
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            universal_newlines=False,
+    if result.returncode != 0:
+        logging.error(
+            f"Running '{cmd}' failed: {result.returncode} {result.stderr.decode()}"
         )
-
-        if result.returncode != 0:
-            logging.error(
-                f"Running {bin} natively failed: {result.returncode} {result.stderr.decode()}"
-            )
-            sys.exit(1)
+        sys.exit(1)
 
     return result.stdout
 
@@ -149,7 +141,7 @@ def test_schemes(
     force_qemu,
     verbose,
     run_as_root=False,
-    mac_taskpolicy=None,
+    exec_wrapper=None,
     extra_make_envs={},
     extra_make_args=[],
 ):
@@ -165,14 +157,13 @@ def test_schemes(
     results = {}
     for scheme in SCHEME:
         bin = scheme2file(scheme)
+        base_compile(bin, verbose, extra_make_envs, extra_make_args)
         result = base_run(
             bin,
             force_qemu,
             verbose,
             run_as_root,
-            mac_taskpolicy,
-            extra_make_envs,
-            extra_make_args,
+            exec_wrapper,
         )
         results[scheme] = result
 
@@ -279,11 +270,11 @@ def add_options(options):
 def run(bin, force_qemu, verbose, cflags, arch_flags):
     config_logger(verbose)
 
+    base_compile(bin, verbose, process_make_envs(cflags, arch_flags))
     result = base_run(
         bin,
         force_qemu,
         verbose,
-        process_make_envs(cflags, arch_flags),
     )
     logging.info(str(result, encoding="utf-8"))
 
@@ -389,18 +380,39 @@ def kat(force_qemu, verbose, cflags, arch_flags):
     help="Benchmarking binary is run with sudo.",
 )
 @click.option(
+    "-w",
+    "--exec-wrapper",
+    help="Run the benchmark binary with the user-customized wrapper.",
+)
+@click.option(
     "-t",
     "--mac-taskpolicy",
     nargs=1,
     type=click.Choice(["utility", "background", "maintenance"]),
+    hidden=platform.system() != "Darwin",
     show_default=True,
     default=None,
-    help="Run the program using the specified QoS clamp. Applies to MacOS only. Setting this flag to 'background' guarantees running on E-cores.",
+    help="Run the program using the specified QoS clamp. Applies to MacOS only. Setting this flag to 'background' guarantees running on E-cores. This is an abbreviation of --exec-wrapper 'taskpolicy -c {mac_taskpolicy}'.",
 )
 def bench(
-    force_qemu, verbose, cycles, cflags, arch_flags, output, run_as_root, mac_taskpolicy
+    force_qemu,
+    verbose,
+    cycles,
+    cflags,
+    arch_flags,
+    output,
+    run_as_root,
+    exec_wrapper,
+    mac_taskpolicy,
 ):
     config_logger(verbose)
+
+    if mac_taskpolicy:
+        if exec_wrapper:
+            logging.error(f"cannot set both --mac-taskpolicy and --exec-wrapper")
+            sys.exit(1)
+        else:
+            exec_wrapper = f"taskpolicy -c {mac_taskpolicy}"
 
     results = test_schemes(
         "benchmark",
@@ -411,7 +423,7 @@ def bench(
         force_qemu,
         verbose,
         run_as_root,
-        mac_taskpolicy,
+        exec_wrapper,
         process_make_envs(cflags, arch_flags),
         [f"CYCLES={cycles}"],
     )
@@ -430,10 +442,11 @@ def bench(
                 # encaps cycles=X
                 # decaps cycles=X
 
-                d = {
-                    k: int(v)
-                    for k, v in (l.decode().split("=") for l in r.splitlines()[:3])
-                }
+                lines = [
+                    line.decode() for line in r.splitlines() if "=" in line.decode()
+                ]
+
+                d = {k: int(v) for k, v in (l.split("=") for l in lines)}
                 for primitive in ["keypair", "encaps", "decaps"]:
                     v.append(
                         {
