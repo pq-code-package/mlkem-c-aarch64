@@ -107,18 +107,14 @@ uint32_t scalar_decompress_q_32(uint32_t u)
  ************************************************************/
 uint16_t scalar_signed_to_unsigned_q_16 (int16_t c)
 {
-    int32_t r = (int32_t) c;
+    // Add Q if c is negative, but in constant time
+    cmov_int16(&c, c + KYBER_Q, c < 0);
 
-    // Add Q if r is negative
-    // TODO, WARNING: This needs to be protected from the compiler introducing a branch.
-    int32_t factor = (r < 0); // 1 if r < 0; 0 if r >= 0
-    r = r + (factor * KYBER_Q);
-
-    __CPROVER_assert(r >= 0, "scalar_signed_to_unsigned_q_16 result lower bound");
-    __CPROVER_assert(r < KYBER_Q, "scalar_signed_to_unsigned_q_16 result upper bound");
+    __CPROVER_assert(c >= 0, "scalar_signed_to_unsigned_q_16 result lower bound");
+    __CPROVER_assert(c < KYBER_Q, "scalar_signed_to_unsigned_q_16 result upper bound");
 
     // and therefore cast to uint16_t is safe.
-    return (uint16_t) r;
+    return (uint16_t) c;
 }
 
 /*************************************************

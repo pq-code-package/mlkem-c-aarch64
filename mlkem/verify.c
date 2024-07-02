@@ -64,6 +64,13 @@ void cmov(uint8_t *r, const uint8_t *x, size_t len, uint8_t b)
 **************************************************/
 void cmov_int16(int16_t *r, int16_t v, uint16_t b)
 {
+
+// CBMC issues false alarms here for the implicit conversions between
+// uint16_t and int, so disable "conversion-check" here for now.
+// Revisit this when proof of this unit with contracts is attempted.
+#pragma CPROVER check push
+#pragma CPROVER check disable "conversion"
     b = -b;
     *r ^= b & ((*r) ^ v);
+#pragma CPROVER check pop
 }
