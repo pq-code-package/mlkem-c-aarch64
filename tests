@@ -417,7 +417,8 @@ def bench(
             exec_wrapper = f"taskpolicy -c {mac_taskpolicy}"
 
     if " " in exec_wrapper:
-        exec_wrapper = exec_wrapper.split(" ")
+       exec_wrapper = exec_wrapper.split(" ")
+  
 
     results = test_schemes(
         "benchmark",
