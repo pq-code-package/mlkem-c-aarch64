@@ -101,7 +101,7 @@ def base_run(
 
     if result.returncode != 0:
         logging.error(
-            f"Running {bin} failed: {result.returncode} {result.stderr.decode()}"
+            f"Running '{cmd}' failed: {result.returncode} {result.stderr.decode()}"
         )
         sys.exit(1)
 
