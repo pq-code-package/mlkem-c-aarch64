@@ -34,6 +34,7 @@ CFLAGS += \
 	-pedantic \
 	-I mlkem \
 	-I fips202 \
+	-I mlkem/asm/clean \
 	$(CPPFLAGS)
 
 ##################
