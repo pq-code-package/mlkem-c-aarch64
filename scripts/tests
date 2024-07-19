@@ -44,7 +44,7 @@ def base_compile(
 
         args = [
             "make",
-            "CROSS_PREFIX=aarch64-none-linux-gnu-",
+            "CROSS_PREFIX=aarch64-unknown-linux-gnu-",
             f"{bin}",
         ] + extra_make_args
 
