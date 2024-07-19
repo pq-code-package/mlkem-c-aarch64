@@ -52,7 +52,7 @@ void kyber_shake256_prf(uint8_t *out, size_t outlen, const uint8_t key[KYBER_SYM
 }
 
 /*************************************************
-* Name:        kyber_shake256_prf
+* Name:        kyber_shake256_rkprf
 *
 * Description: Usage of SHAKE256 as a PRF, concatenates secret and public input
 *              and then generates outlen bytes of SHAKE256 output

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 #include <stdint.h>
+#include <string.h>
 #include "cbmc.h"
 #include "params.h"
 #include "poly.h"
@@ -8,6 +9,7 @@
 #include "cbd.h"
 #include "symmetric.h"
 #include "verify.h"
+#include "fips202x4.h"
 
 /************************************************************
  * Name: scalar_compress_q_16
@@ -368,6 +370,46 @@ void poly_getnoise_eta1(poly *r, const uint8_t seed[KYBER_SYMBYTES], uint8_t non
 }
 
 /*************************************************
+* Name:        poly_getnoise_eta1_4x
+*
+* Description: Batch sample four polynomials deterministically from a seed and nonces,
+*              with output polynomials close to centered binomial distribution
+*              with parameter KYBER_ETA1
+*
+* Arguments:   - poly *r{0,1,2,3}: pointer to output polynomial
+*              - const uint8_t *seed: pointer to input seed
+*                                     (of length KYBER_SYMBYTES bytes)
+*              - uint8_t nonce{0,1,2,3}: one-byte input nonce
+**************************************************/
+void poly_getnoise_eta1_4x(poly *r0,
+                           poly *r1,
+                           poly *r2,
+                           poly *r3,
+                           const uint8_t seed[KYBER_SYMBYTES],
+                           uint8_t nonce0,
+                           uint8_t nonce1,
+                           uint8_t nonce2,
+                           uint8_t nonce3)
+{
+    uint8_t buf[KECCAK_WAY][KYBER_ETA1 * KYBER_N / 4];
+    uint8_t extkey[KECCAK_WAY][KYBER_SYMBYTES + 1];
+    memcpy(extkey[0], seed, KYBER_SYMBYTES);
+    memcpy(extkey[1], seed, KYBER_SYMBYTES);
+    memcpy(extkey[2], seed, KYBER_SYMBYTES);
+    memcpy(extkey[3], seed, KYBER_SYMBYTES);
+    extkey[0][KYBER_SYMBYTES] = nonce0;
+    extkey[1][KYBER_SYMBYTES] = nonce1;
+    extkey[2][KYBER_SYMBYTES] = nonce2;
+    extkey[3][KYBER_SYMBYTES] = nonce3;
+    shake256x4(buf[0], buf[1], buf[2], buf[3], KYBER_ETA1 * KYBER_N / 4,
+               extkey[0], extkey[1], extkey[2], extkey[3], KYBER_SYMBYTES + 1);
+    poly_cbd_eta1(r0, buf[0]);
+    poly_cbd_eta1(r1, buf[1]);
+    poly_cbd_eta1(r2, buf[2]);
+    poly_cbd_eta1(r3, buf[3]);
+}
+
+/*************************************************
 * Name:        poly_getnoise_eta2
 *
 * Description: Sample a polynomial deterministically from a seed and a nonce,
@@ -384,6 +426,96 @@ void poly_getnoise_eta2(poly *r, const uint8_t seed[KYBER_SYMBYTES], uint8_t non
     uint8_t buf[KYBER_ETA2 * KYBER_N / 4];
     prf(buf, sizeof(buf), seed, nonce);
     poly_cbd_eta2(r, buf);
+}
+
+/*************************************************
+* Name:        poly_getnoise_eta2_4x
+*
+* Description: Batch sample four polynomials deterministically from a seed and nonces,
+*              with output polynomials close to centered binomial distribution
+*              with parameter KYBER_ETA2
+*
+* Arguments:   - poly *r{0,1,2,3}: pointer to output polynomial
+*              - const uint8_t *seed: pointer to input seed
+*                                     (of length KYBER_SYMBYTES bytes)
+*              - uint8_t nonce{0,1,2,3}: one-byte input nonce
+**************************************************/
+void poly_getnoise_eta2_4x(poly *r0,
+                           poly *r1,
+                           poly *r2,
+                           poly *r3,
+                           const uint8_t seed[KYBER_SYMBYTES],
+                           uint8_t nonce0,
+                           uint8_t nonce1,
+                           uint8_t nonce2,
+                           uint8_t nonce3)
+{
+    uint8_t buf[KECCAK_WAY][KYBER_ETA2 * KYBER_N / 4];
+    uint8_t extkey[KECCAK_WAY][KYBER_SYMBYTES + 1];
+    memcpy(extkey[0], seed, KYBER_SYMBYTES);
+    memcpy(extkey[1], seed, KYBER_SYMBYTES);
+    memcpy(extkey[2], seed, KYBER_SYMBYTES);
+    memcpy(extkey[3], seed, KYBER_SYMBYTES);
+    extkey[0][KYBER_SYMBYTES] = nonce0;
+    extkey[1][KYBER_SYMBYTES] = nonce1;
+    extkey[2][KYBER_SYMBYTES] = nonce2;
+    extkey[3][KYBER_SYMBYTES] = nonce3;
+    shake256x4(buf[0], buf[1], buf[2], buf[3], KYBER_ETA2 * KYBER_N / 4,
+               extkey[0], extkey[1], extkey[2], extkey[3], KYBER_SYMBYTES + 1);
+    poly_cbd_eta2(r0, buf[0]);
+    poly_cbd_eta2(r1, buf[1]);
+    poly_cbd_eta2(r2, buf[2]);
+    poly_cbd_eta2(r3, buf[3]);
+}
+
+/*************************************************
+* Name:        poly_getnoise_eta1122_4x
+*
+* Description: Batch sample four polynomials deterministically from a seed and a nonces,
+*              with output polynomials close to centered binomial distribution
+*              with parameter KYBER_ETA1 and KYBER_ETA2
+*
+* Arguments:   - poly *r{0,1,2,3}: pointer to output polynomial
+*              - const uint8_t *seed: pointer to input seed
+*                                     (of length KYBER_SYMBYTES bytes)
+*              - uint8_t nonce{0,1,2,3}: one-byte input nonce
+**************************************************/
+void poly_getnoise_eta1122_4x(poly *r0,
+                              poly *r1,
+                              poly *r2,
+                              poly *r3,
+                              const uint8_t seed[KYBER_SYMBYTES],
+                              uint8_t nonce0,
+                              uint8_t nonce1,
+                              uint8_t nonce2,
+                              uint8_t nonce3)
+{
+    uint8_t buf1[KECCAK_WAY/2][KYBER_ETA1 * KYBER_N / 4];
+    uint8_t buf2[KECCAK_WAY/2][KYBER_ETA2 * KYBER_N / 4];
+    uint8_t extkey[KECCAK_WAY][KYBER_SYMBYTES + 1];
+    memcpy(extkey[0], seed, KYBER_SYMBYTES);
+    memcpy(extkey[1], seed, KYBER_SYMBYTES);
+    memcpy(extkey[2], seed, KYBER_SYMBYTES);
+    memcpy(extkey[3], seed, KYBER_SYMBYTES);
+    extkey[0][KYBER_SYMBYTES] = nonce0;
+    extkey[1][KYBER_SYMBYTES] = nonce1;
+    extkey[2][KYBER_SYMBYTES] = nonce2;
+    extkey[3][KYBER_SYMBYTES] = nonce3;
+
+    #if KYBER_ETA1 == KYBER_ETA2
+    shake256x4(buf1[0], buf1[1], buf2[0], buf2[1], KYBER_ETA1 * KYBER_N / 4,
+               extkey[0], extkey[1], extkey[2], extkey[3], KYBER_SYMBYTES + 1);
+    #else
+    shake256(buf1[0], sizeof(buf1[0]), extkey[0], sizeof(extkey[0]));
+    shake256(buf1[1], sizeof(buf1[1]), extkey[1], sizeof(extkey[1]));
+    shake256(buf2[0], sizeof(buf2[0]), extkey[2], sizeof(extkey[2]));
+    shake256(buf2[1], sizeof(buf2[1]), extkey[3], sizeof(extkey[3]));
+    #endif
+
+    poly_cbd_eta1(r0, buf1[0]);
+    poly_cbd_eta1(r1, buf1[1]);
+    poly_cbd_eta2(r2, buf2[0]);
+    poly_cbd_eta2(r3, buf2[1]);
 }
 
 /*************************************************
