@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1719945826672,
+  "lastUpdate": 1721358512940,
   "repoUrl": "https://github.com/pq-code-package/mlkem-c-aarch64",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -762,6 +762,75 @@ window.BENCHMARK_DATA = {
           {
             "name": "MLKEM1024 decaps",
             "value": 396033,
+            "unit": "cycles"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "dnguye69@gmu.edu",
+            "name": "Duc Tri Nguyen",
+            "username": "cothan"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "88fcf89619af84a941f403cfbb02780f2c6f3b02",
+          "message": "add keccakx interface (#62)\n\nSigned-off-by: Duc Tri Nguyen <dnguye69@gmu.edu>\r\n\r\nrename to x4\r\n\r\nadd shake256x4 interface\r\n\r\nadd shake256x4\r\n\r\nadd batch getnoise sampling\r\n\r\nSigned-off-by: Duc Tri Nguyen <9219016+cothan@users.noreply.github.com>\r\n\r\nunroll prf to shake256x4\r\n\r\nSigned-off-by: Duc Tri Nguyen <dnguye69@gmu.edu>\r\nSigned-off-by: Duc Tri Nguyen <9219016+cothan@users.noreply.github.com>\r\n\r\nfix space\r\n\r\nSigned-off-by: Duc Tri Nguyen <9219016+cothan@users.noreply.github.com>\r\n\r\nassume input pointers are valid, thus, remove conditions.\r\n\r\nmove memcpy outside of the loop",
+          "timestamp": "2024-07-19T04:06:40+01:00",
+          "tree_id": "875dd304a7e951f97e792cab580ba9f2196bf863",
+          "url": "https://github.com/pq-code-package/mlkem-c-aarch64/commit/88fcf89619af84a941f403cfbb02780f2c6f3b02"
+        },
+        "date": 1721358510973,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "MLKEM512 keypair",
+            "value": 123401,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM512 encaps",
+            "value": 140697,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM512 decaps",
+            "value": 183055,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM768 keypair",
+            "value": 200762,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM768 encaps",
+            "value": 224161,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM768 decaps",
+            "value": 276268,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM1024 keypair",
+            "value": 306095,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM1024 encaps",
+            "value": 331024,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM1024 decaps",
+            "value": 396199,
             "unit": "cycles"
           }
         ]
