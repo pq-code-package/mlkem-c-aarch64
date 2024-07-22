@@ -56,16 +56,20 @@
           core =
             let
               aarch64-gcc =
-                if pkgs.stdenv.isx86_64
-                then [
-                  (pkgs.pkgsCross.aarch64-multiplatform.buildPackages.gcc13.override { propagateDoc = true; isGNU = true; })
-                ] ++ (with pkgs.pkgsCross.aarch64-multiplatform; [
-                  glibc
-                  glibc.static
-                ])
-                else [ (pkgs.gcc13.override { propagateDoc = true; isGNU = true; }) pkgs.glibc pkgs.glibc.static ];
+                pkgs.lib.optionals
+                  (! (pkgs.stdenv.isDarwin && pkgs.stdenv.isAarch64))
+                  [
+                    (
+                      pkgs.pkgsCross.aarch64-multiplatform.buildPackages.gcc13.override {
+                        propagateDoc = true;
+                        isGNU = true;
+                      }
+                    )
+                    pkgs.pkgsCross.aarch64-multiplatform.glibc
+                    pkgs.pkgsCross.aarch64-multiplatform.glibc.static
+                  ];
             in
-            pkgs.lib.optionals pkgs.stdenv.isLinux aarch64-gcc ++
+            aarch64-gcc ++
             builtins.attrValues {
               inherit (pkgs)
                 yq
