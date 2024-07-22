@@ -45,7 +45,7 @@ jobs:
         id: func_test
         shell: nix develop .#ci -c bash -e {0}
         run: |
-          tests func -v
+          tests func --cross-prefix $CROSS_PREFIX -v
       - name: Run KAT tests
         id: kat_test
         if: |
@@ -53,7 +53,7 @@ jobs:
           || steps.func_test.conclusion == 'failure'
         shell: nix develop .#ci -c bash -e {0}
         run: |
-          tests kat -v
+          tests kat --cross-prefix $CROSS_PREFIX -v
       - name: Run Nistkat tests
         id: nistkat_test
         if: |
@@ -62,7 +62,7 @@ jobs:
           || steps.kat_test.conclusion == 'failure'
         shell: nix develop .#ci -c bash -e {0}
         run: |
-          tests nistkat -v
+          tests nistkat --cross-prefix $CROSS_PREFIX -v
   lint:
     strategy:
       matrix:

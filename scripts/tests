@@ -28,6 +28,7 @@ def sha256sum(result):
 def base_compile(
     bin,
     verbose,
+    cross_prefix,
     extra_make_envs={},
     extra_make_args=[],
 ):
@@ -44,7 +45,7 @@ def base_compile(
 
         args = [
             "make",
-            "CROSS_PREFIX=aarch64-unknown-linux-gnu-",
+            f"CROSS_PREFIX={cross_prefix}",
             f"{bin}",
         ] + extra_make_args
 
@@ -140,6 +141,7 @@ def test_schemes(
     process_result,
     force_qemu,
     verbose,
+    cross_prefix,
     run_as_root=False,
     exec_wrapper=None,
     extra_make_envs={},
@@ -157,7 +159,7 @@ def test_schemes(
     results = {}
     for scheme in SCHEME:
         bin = scheme2file(scheme)
-        base_compile(bin, verbose, extra_make_envs, extra_make_args)
+        base_compile(bin, verbose, cross_prefix, extra_make_envs, extra_make_args)
         result = base_run(
             bin,
             force_qemu,
@@ -240,6 +242,14 @@ _shared_options = [
         help="Show verbose output or not",
     ),
     click.option(
+        "-cp",
+        "--cross-prefix",
+        show_default=True,
+        default="aarch64-unknown-linux-gnu-",
+        nargs=1,
+        help="Cross prefix for compilation on non-aarch64 machines",
+    ),
+    click.option(
         "--cflags",
         nargs=1,
         help="Extra cflags to passed in (e.g. '-mcpu=cortex-a72')",
@@ -267,7 +277,7 @@ def add_options(options):
     type=click.Path(),
     help="The binary file that you wanted to test.",
 )
-def run(bin, force_qemu, verbose, cflags, arch_flags):
+def run(bin, force_qemu, verbose, cross_prefix, cflags, arch_flags):
     config_logger(verbose)
 
     base_compile(bin, verbose, process_make_envs(cflags, arch_flags))
@@ -284,7 +294,7 @@ def run(bin, force_qemu, verbose, cflags, arch_flags):
     context_settings={"show_default": True},
 )
 @add_options(_shared_options)
-def func(force_qemu, verbose, cflags, arch_flags):
+def func(force_qemu, verbose, cross_prefix, cflags, arch_flags):
     config_logger(verbose)
 
     def expect(scheme):
@@ -306,6 +316,7 @@ def func(force_qemu, verbose, cflags, arch_flags):
         process_test,
         force_qemu,
         verbose,
+        cross_prefix,
         process_make_envs(cflags, arch_flags),
     )
 
@@ -315,7 +326,7 @@ def func(force_qemu, verbose, cflags, arch_flags):
     context_settings={"show_default": True},
 )
 @add_options(_shared_options)
-def nistkat(force_qemu, verbose, cflags, arch_flags):
+def nistkat(force_qemu, verbose, cross_prefix, cflags, arch_flags):
     config_logger(verbose)
 
     test_schemes(
@@ -326,6 +337,7 @@ def nistkat(force_qemu, verbose, cflags, arch_flags):
         process_test,
         force_qemu,
         verbose,
+        cross_prefix,
         process_make_envs(cflags, arch_flags),
     )
 
@@ -335,7 +347,7 @@ def nistkat(force_qemu, verbose, cflags, arch_flags):
     context_settings={"show_default": True},
 )
 @add_options(_shared_options)
-def kat(force_qemu, verbose, cflags, arch_flags):
+def kat(force_qemu, verbose, cross_prefix, cflags, arch_flags):
     config_logger(verbose)
 
     test_schemes(
@@ -346,6 +358,7 @@ def kat(force_qemu, verbose, cflags, arch_flags):
         process_test,
         force_qemu,
         verbose,
+        cross_prefix,
         process_make_envs(cflags, arch_flags),
     )
 
@@ -398,6 +411,7 @@ def bench(
     force_qemu,
     verbose,
     cycles,
+    cross_prefix,
     cflags,
     arch_flags,
     output,
@@ -422,6 +436,7 @@ def bench(
         process_bench,
         force_qemu,
         verbose,
+        cross_prefix,
         run_as_root,
         exec_wrapper,
         process_make_envs(cflags, arch_flags),
