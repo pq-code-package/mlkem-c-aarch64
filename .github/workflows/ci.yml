@@ -16,6 +16,9 @@ jobs:
           - system: ${{ github.repository_owner != 'pq-code-package' && 'pqcp-arm64' }}
     name: build_kat (${{ matrix.system }})
     runs-on: ${{ matrix.system }}
+    defaults:
+      run:
+        shell: nix develop .#ci -c bash -e {0}
     env:
       CROSS_PREFIX: "${{ (matrix.system == 'ubuntu-latest' && 'aarch64-unknown-linux-gnu-') || ' ' }}"
       EXPECT_ARCH: "${{ (matrix.system == 'macos-latest' && 'arm64') || (matrix.system == 'pqcp-arm64' && 'aarch64') || (matrix.system == 'ubuntu-latest' && 'x86_64') }}"
@@ -43,7 +46,6 @@ jobs:
             fi
       - name: Run functional tests
         id: func_test
-        shell: nix develop .#ci -c bash -e {0}
         run: |
           tests func --cross-prefix $CROSS_PREFIX -v
       - name: Run KAT tests
@@ -51,7 +53,6 @@ jobs:
         if: |
           success()
           || steps.func_test.conclusion == 'failure'
-        shell: nix develop .#ci -c bash -e {0}
         run: |
           tests kat --cross-prefix $CROSS_PREFIX -v
       - name: Run Nistkat tests
@@ -60,7 +61,6 @@ jobs:
           success()
           || steps.func_test.conclusion == 'failure'
           || steps.kat_test.conclusion == 'failure'
-        shell: nix develop .#ci -c bash -e {0}
         run: |
           tests nistkat --cross-prefix $CROSS_PREFIX -v
   lint:
@@ -68,6 +68,9 @@ jobs:
       matrix:
         system: [ubuntu-latest]
     runs-on: ${{ matrix.system }}
+    defaults:
+      run:
+        shell: nix develop .#ci-linter -c bash -e {0}
     env:
       CROSS_PREFIX: "${{ (matrix.system == 'ubuntu-latest' && 'aarch64-unknown-linux-gnu-') || '' }}"
     steps:
@@ -87,7 +90,6 @@ jobs:
               - $(bash --version | grep -m1 "")
             EOF
       - name: Lint
-        shell: nix develop .#ci-linter -c bash -e {0}
         run: |
           echo "## Lint & Checks" >> $GITHUB_STEP_SUMMARY
           lint
@@ -96,6 +98,9 @@ jobs:
       matrix:
         system: [macos-latest]
     runs-on: ${{ matrix.system }}
+    defaults:
+      run:
+        shell: nix develop .#ci-cbmc -c bash -e {0}
     steps:
       - uses: actions/checkout@v4
       - name: Setup nix
@@ -114,7 +119,6 @@ jobs:
               - $(bash --version | grep -m1 "")
             EOF
       - name: Run CBMC proofs
-        shell: nix develop .#ci-cbmc -c bash -e {0}
         run: |
           cd cbmc/proofs;
           KYBER_K=2 ./run-cbmc-proofs.py --summarize;
