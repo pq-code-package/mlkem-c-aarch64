@@ -40,7 +40,7 @@ def base_compile(
             s += f"{k}={v} "
         return s
 
-    if platform.system() == "Linux" and platform.machine() == "x86_64":
+    if platform.machine() == "x86_64":
         logging.debug(f"Cross compiling {bin}")
 
         args = [
@@ -246,6 +246,7 @@ _shared_options = [
         "--cross-prefix",
         show_default=True,
         default="aarch64-unknown-linux-gnu-",
+        hidden=platform.machine() != "x86_64",
         nargs=1,
         help="Cross prefix for compilation on non-aarch64 machines",
     ),
