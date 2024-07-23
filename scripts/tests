@@ -40,20 +40,14 @@ def base_compile(
             s += f"{k}={v} "
         return s
 
-    if platform.machine() == "x86_64":
-        logging.debug(f"Cross compiling {bin}")
+    logging.debug(f"Compiling {bin}...")
+    args = [
+        "make",
+        f"CROSS_PREFIX={cross_prefix}",
+        f"{bin}",
+    ] + extra_make_args
 
-        args = [
-            "make",
-            f"CROSS_PREFIX={cross_prefix}",
-            f"{bin}",
-        ] + extra_make_args
-
-    else:
-        logging.debug(f"Compiling {bin} natively")
-
-        args = ["make", f"{bin}"] + extra_make_args
-        logging.info(dict2str(extra_make_envs) + " ".join(args))
+    logging.info(dict2str(extra_make_envs) + " ".join(args))
 
     p = subprocess.run(
         args,
@@ -244,8 +238,8 @@ _shared_options = [
     click.option(
         "-cp",
         "--cross-prefix",
+        default="aarch64-unknown-linux-gnu-" if platform.machine() == "x86_64" else " ",
         show_default=True,
-        default="aarch64-unknown-linux-gnu-",
         hidden=platform.machine() != "x86_64",
         nargs=1,
         help="Cross prefix for compilation on non-aarch64 machines",
