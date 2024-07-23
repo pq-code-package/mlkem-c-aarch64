@@ -47,14 +47,14 @@ jobs:
       - name: Run functional tests
         id: func_test
         run: |
-          tests func --cross-prefix $CROSS_PREFIX -v
+          tests func --cross-prefix=$CROSS_PREFIX -v
       - name: Run KAT tests
         id: kat_test
         if: |
           success()
           || steps.func_test.conclusion == 'failure'
         run: |
-          tests kat --cross-prefix $CROSS_PREFIX -v
+          tests kat --cross-prefix=$CROSS_PREFIX -v
       - name: Run Nistkat tests
         id: nistkat_test
         if: |
@@ -62,7 +62,7 @@ jobs:
           || steps.func_test.conclusion == 'failure'
           || steps.kat_test.conclusion == 'failure'
         run: |
-          tests nistkat --cross-prefix $CROSS_PREFIX -v
+          tests nistkat --cross-prefix=$CROSS_PREFIX -v
   lint:
     strategy:
       matrix:
