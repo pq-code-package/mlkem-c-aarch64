@@ -55,20 +55,21 @@
 
           core =
             let
-              # for x86_64 machine, cross compiled gcc needed to be wrapped with glibc this way for static compilation
-              cross-gcc = with pkgs; wrapCCWith {
-                cc = callPackage ./arm-gnu-gcc.nix { };
-                bintools = with pkgsCross.aarch64-multiplatform; wrapBintoolsWith {
-                  bintools = binutils-unwrapped;
-                  libc = glibc.static;
-                };
-              };
               aarch64-gcc =
-                if pkgs.stdenv.isx86_64
-                then [ cross-gcc ]
-                else [ (pkgs.gcc13.override { propagateDoc = true; isGNU = true; }) pkgs.glibc pkgs.glibc.static ];
+                pkgs.lib.optionals
+                  (! (pkgs.stdenv.isDarwin && pkgs.stdenv.isAarch64))
+                  [
+                    (
+                      pkgs.pkgsCross.aarch64-multiplatform.buildPackages.gcc13.override {
+                        propagateDoc = true;
+                        isGNU = true;
+                      }
+                    )
+                    pkgs.pkgsCross.aarch64-multiplatform.glibc
+                    pkgs.pkgsCross.aarch64-multiplatform.glibc.static
+                  ];
             in
-            pkgs.lib.optionals pkgs.stdenv.isLinux aarch64-gcc ++
+            aarch64-gcc ++
             builtins.attrValues {
               inherit (pkgs)
                 yq
