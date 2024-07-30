@@ -21,14 +21,15 @@
           cbmcpkg = builtins.attrValues
             {
               cbmc = pkgs.cbmc.overrideAttrs (old: rec {
-                version = "a8b8f0fd2ad2166d71ccce97dd6925198a018144";
+                version = "b3359791bcc1a6651646920c3936ce167465db92";
                 src = pkgs.fetchFromGitHub {
                   owner = "diffblue";
                   repo = old.pname;
                   rev = "${version}";
-                  hash = "sha256-mPRkkKN7Hz9Qi6a3fEwVFh7a9OaBFcksNw9qwNOarao=";
+                  hash = "sha256-zxlEel/HlCrz4Shy+4WZX7up4qm5h2FoP77kngi8XAo=";
                 };
-              }); # 6.0.0
+                patches = [ ];
+              }); # 6.1.1
               litani = pkgs.callPackage ./litani.nix { }; # 1.29.0
               cbmc-viewer = pkgs.callPackage ./cbmc-viewer.nix { }; # 3.8
 
