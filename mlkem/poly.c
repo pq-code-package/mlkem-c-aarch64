@@ -141,7 +141,7 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
     #if (KYBER_POLYCOMPRESSEDBYTES == 128)
     for (size_t i = 0; i < KYBER_N / 8; i++)
 // *INDENT-OFF*
-        __CPROVER_assigns(i, r, __CPROVER_object_whole(t), __CPROVER_object_whole(r))
+        __CPROVER_assigns(i, __CPROVER_object_whole(t), __CPROVER_object_whole(r))
         __CPROVER_loop_invariant(i <= KYBER_N / 8)
         __CPROVER_decreases(32 - i)
 // *INDENT-ON*
@@ -167,11 +167,11 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
         __CPROVER_assert(t[1] < 16, "UB on t[1]");
         __CPROVER_assert((t[0] | (t[1] << 4)) <= 255, "Range of t");
 
-        r[0] = t[0] | (t[1] << 4);
-        r[1] = t[2] | (t[3] << 4);
-        r[2] = t[4] | (t[5] << 4);
-        r[3] = t[6] | (t[7] << 4);
-        r += 4;
+        r[i * 4]     = t[0] | (t[1] << 4);
+        r[i * 4 + 1] = t[2] | (t[3] << 4);
+        r[i * 4 + 2] = t[4] | (t[5] << 4);
+        r[i * 4 + 3] = t[6] | (t[7] << 4);
+//        r += 4;
     }
     #elif (KYBER_POLYCOMPRESSEDBYTES == 160)
     for (size_t i = 0; i < KYBER_N / 8; i++)
