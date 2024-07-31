@@ -64,7 +64,7 @@ __CPROVER_requires(r != NULL)
 __CPROVER_requires(__CPROVER_is_fresh(r, KYBER_POLYCOMPRESSEDBYTES))
 __CPROVER_requires(a != NULL)
 __CPROVER_requires(__CPROVER_is_fresh(a, sizeof(poly)))
-__CPROVER_requires(__CPROVER_forall { unsigned k; (k < KYBER_N) ==> ( -KYBER_Q <= a->coeffs[k] && a->coeffs[k] < KYBER_Q ) })
+__CPROVER_requires(__CPROVER_forall { unsigned k; (k < KYBER_N) ==> ( -KYBER_Q < a->coeffs[k] && a->coeffs[k] < KYBER_Q ) })
 __CPROVER_assigns(__CPROVER_object_whole(r));
 /* *INDENT-ON* */
 

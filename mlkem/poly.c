@@ -171,7 +171,6 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
         r[i * 4 + 1] = t[2] | (t[3] << 4);
         r[i * 4 + 2] = t[4] | (t[5] << 4);
         r[i * 4 + 3] = t[6] | (t[7] << 4);
-//        r += 4;
     }
     #elif (KYBER_POLYCOMPRESSEDBYTES == 160)
     for (size_t i = 0; i < KYBER_N / 8; i++)
