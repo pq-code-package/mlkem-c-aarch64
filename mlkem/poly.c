@@ -140,13 +140,16 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
 
     #if (KYBER_POLYCOMPRESSEDBYTES == 128)
     for (size_t i = 0; i < KYBER_N / 8; i++)
-        __CPROVER_assigns(i, __CPROVER_object_whole(t), __CPROVER_object_whole(r))
-        __CPROVER_loop_invariant(i <= KYBER_N)
-        __CPROVER_decreases(32 - i) {
+// *INDENT-OFF*
+        __CPROVER_assigns(i, r, __CPROVER_object_whole(t), __CPROVER_object_whole(r))
+        __CPROVER_loop_invariant(i <= KYBER_N / 8)
+        __CPROVER_decreases(32 - i)
+// *INDENT-ON*
+    {
         for (size_t j = 0; j < 8; j++)
 // *INDENT-OFF*
             __CPROVER_assigns(j, __CPROVER_object_whole(t))
-            __CPROVER_loop_invariant(i <= KYBER_N)
+            __CPROVER_loop_invariant(i <= KYBER_N / 8)
             __CPROVER_loop_invariant(j <= 8)
             __CPROVER_loop_invariant(__CPROVER_forall { size_t k2; (0 <= k2 && k2 < j) ==> (t[k2] >= 0 && t[k2] < 16) })
             __CPROVER_decreases(8 - j)
