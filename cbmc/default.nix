@@ -18,7 +18,7 @@ builtins.attrValues {
     ];
   });
   litani = callPackage ./litani.nix { }; # 1.29.0
-  cbmc-viewer = callPackage ./cbmc-viewer.nix { }; # 3.8
+  cbmc-viewer = callPackage ./cbmc-viewer.nix { }; # 3.9
 
   inherit
     z3_4_12; # 4.12.5
