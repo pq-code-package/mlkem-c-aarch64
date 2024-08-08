@@ -138,18 +138,20 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
 {
     uint8_t t[8] = { 0 };
 
+    const size_t num_blocks = KYBER_N / 8;
+
     #if (KYBER_POLYCOMPRESSEDBYTES == 128)
-    for (size_t i = 0; i < KYBER_N / 8; i++)
+    for (size_t i = 0; i < num_blocks; i++)
 // *INDENT-OFF*
         __CPROVER_assigns(i, __CPROVER_object_whole(t), __CPROVER_object_whole(r))
-        __CPROVER_loop_invariant(i <= KYBER_N / 8)
-        __CPROVER_decreases(32 - i)
+        __CPROVER_loop_invariant(i <= num_blocks)
+        __CPROVER_decreases(num_blocks - i)
 // *INDENT-ON*
     {
         for (size_t j = 0; j < 8; j++)
 // *INDENT-OFF*
             __CPROVER_assigns(j, __CPROVER_object_whole(t))
-            __CPROVER_loop_invariant(i <= KYBER_N / 8)
+            __CPROVER_loop_invariant(i <= num_blocks)
             __CPROVER_loop_invariant(j <= 8)
             __CPROVER_loop_invariant(__CPROVER_forall { size_t k2; (0 <= k2 && k2 < j) ==> (t[k2] >= 0 && t[k2] < 16) })
             __CPROVER_decreases(8 - j)
@@ -163,19 +165,29 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
             t[j] = scalar_compress_q_16(u);
         }
 
-        __CPROVER_assert(t[0] < 16, "UB on t[0]");
-        __CPROVER_assert(t[1] < 16, "UB on t[1]");
-        __CPROVER_assert((t[0] | (t[1] << 4)) <= 255, "Range of t");
-
+        // REF-CHANGE: Use array indexing into
+        // r rather than pointer-arithmetic to simplify verification
         r[i * 4]     = t[0] | (t[1] << 4);
         r[i * 4 + 1] = t[2] | (t[3] << 4);
         r[i * 4 + 2] = t[4] | (t[5] << 4);
         r[i * 4 + 3] = t[6] | (t[7] << 4);
     }
     #elif (KYBER_POLYCOMPRESSEDBYTES == 160)
-    for (size_t i = 0; i < KYBER_N / 8; i++)
+    for (size_t i = 0; i < num_blocks; i++)
+// *INDENT-OFF*
+        __CPROVER_assigns(i, __CPROVER_object_whole(t), __CPROVER_object_whole(r))
+        __CPROVER_loop_invariant(i <= num_blocks)
+        __CPROVER_decreases(num_blocks - i)
+// *INDENT-ON*
     {
         for (size_t j = 0; j < 8; j++)
+// *INDENT-OFF*
+            __CPROVER_assigns(j, __CPROVER_object_whole(t))
+            __CPROVER_loop_invariant(i <= num_blocks)
+            __CPROVER_loop_invariant(j <= 8)
+            __CPROVER_loop_invariant(__CPROVER_forall { size_t k2; (0 <= k2 && k2 < j) ==> (t[k2] >= 0 && t[k2] < 32) })
+            __CPROVER_decreases(8 - j)
+// *INDENT-ON*
         {
             // map to positive standard representatives
             // REF-CHANGE: Hoist signed-to-unsigned conversion into separate function
@@ -185,13 +197,13 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
         }
 
         // REF-CHANGE: Explicitly truncate to avoid warning about
-        // implicit truncation in CBMC.
-        r[0] = 0xFF & ((t[0] >> 0) | (t[1] << 5));
-        r[1] = 0xFF & ((t[1] >> 3) | (t[2] << 2) | (t[3] << 7));
-        r[2] = 0xFF & ((t[3] >> 1) | (t[4] << 4));
-        r[3] = 0xFF & ((t[4] >> 4) | (t[5] << 1) | (t[6] << 6));
-        r[4] = 0xFF & ((t[6] >> 2) | (t[7] << 3));
-        r += 5;
+        // implicit truncation in CBMC, and use array indexing into
+        // r rather than pointer-arithmetic to simplify verification
+        r[i * 5]     = 0xFF & ((t[0] >> 0) | (t[1] << 5));
+        r[i * 5 + 1] = 0xFF & ((t[1] >> 3) | (t[2] << 2) | (t[3] << 7));
+        r[i * 5 + 2] = 0xFF & ((t[3] >> 1) | (t[4] << 4));
+        r[i * 5 + 3] = 0xFF & ((t[4] >> 4) | (t[5] << 1) | (t[6] << 6));
+        r[i * 5 + 4] = 0xFF & ((t[6] >> 2) | (t[7] << 3));
     }
     #else
 #error "KYBER_POLYCOMPRESSEDBYTES needs to be in {128, 160}"
