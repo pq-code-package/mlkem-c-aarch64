@@ -18,7 +18,7 @@
       systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
       perSystem = { pkgs, ... }:
         let
-          cbmcpkg = pkgs.callPackage ./cbmc { };
+          cbmcpkg = pkgs.callPackage ./cbmc { }; # 6.1.1
 
           linters = builtins.attrValues {
             astyle = pkgs.astyle.overrideAttrs (old: rec {
