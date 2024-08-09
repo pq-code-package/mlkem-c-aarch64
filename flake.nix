@@ -18,24 +18,7 @@
       systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
       perSystem = { pkgs, ... }:
         let
-          cbmcpkg = builtins.attrValues
-            {
-              cbmc = pkgs.cbmc.overrideAttrs (old: rec {
-                version = "b3359791bcc1a6651646920c3936ce167465db92";
-                src = pkgs.fetchFromGitHub {
-                  owner = "diffblue";
-                  repo = old.pname;
-                  rev = "${version}";
-                  hash = "sha256-zxlEel/HlCrz4Shy+4WZX7up4qm5h2FoP77kngi8XAo=";
-                };
-                patches = [ ];
-              }); # 6.1.1
-              litani = pkgs.callPackage ./litani.nix { }; # 1.29.0
-              cbmc-viewer = pkgs.callPackage ./cbmc-viewer.nix { }; # 3.8
-
-              inherit (pkgs)
-                z3_4_12; # 4.12.5
-            };
+          cbmcpkg = pkgs.callPackage ./cbmc { }; # 6.1.1
 
           linters = builtins.attrValues {
             astyle = pkgs.astyle.overrideAttrs (old: rec {

@@ -96,7 +96,7 @@ jobs:
   cbmc:
     strategy:
       matrix:
-        system: [macos-latest]
+        system: [macos-latest, ubuntu-latest]
     runs-on: ${{ matrix.system }}
     defaults:
       run:
