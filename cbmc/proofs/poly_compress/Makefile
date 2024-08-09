@@ -19,12 +19,17 @@ PROOF_SOURCES += $(PROOFDIR)/$(HARNESS_FILE).c
 PROJECT_SOURCES += $(SRCDIR)/mlkem/poly.c
 PROJECT_SOURCES += $(SRCDIR)/mlkem/verify.c
 
-# UNWINDSET += $(KYBER_NAMESPACE)poly_compress.0:9
-# UNWINDSET += $(KYBER_NAMESPACE)poly_compress.1:33
+CHECK_FUNCTION_CONTRACTS=$(KYBER_NAMESPACE)poly_compress
+USE_FUNCTION_CONTRACTS = $(KYBER_NAMESPACE)scalar_compress_q_16 $(KYBER_NAMESPACE)scalar_compress_q_32 $(KYBER_NAMESPACE)scalar_signed_to_unsigned_q_16
+APPLY_LOOP_CONTRACTS=on
+USE_DYNAMIC_FRAMES=1
+
+# Disable any setting of EXTERNAL_SAT_SOLVER, and choose SMT backend instead
+EXTERNAL_SAT_SOLVER=
+CBMCFLAGS=--smt2
 
 FUNCTION_NAME = $(KYBER_NAMESPACE)poly_compress
 
-USE_FUNCTION_CONTRACTS = $(KYBER_NAMESPACE)scalar_compress_q_16 $(KYBER_NAMESPACE)scalar_compress_q_32
 # If this proof is found to consume huge amounts of RAM, you can set the
 # EXPENSIVE variable. With new enough versions of the proof tools, this will
 # restrict the number of EXPENSIVE CBMC jobs running at once. See the
