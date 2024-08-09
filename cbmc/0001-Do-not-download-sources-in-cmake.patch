@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 diff --git a/src/solvers/CMakeLists.txt b/src/solvers/CMakeLists.txt
 index 003a0d957b..79751ef8b2 100644
 --- a/src/solvers/CMakeLists.txt
