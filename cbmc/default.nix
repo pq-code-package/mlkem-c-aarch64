@@ -5,12 +5,12 @@
 , z3_4_12
 }:
 builtins.attrValues {
-  cbmc = cbmc.overrideAttrs (old: {
+  cbmc = cbmc.overrideAttrs (old: rec {
     version = "6.1.1";
     src = fetchFromGitHub {
       owner = "diffblue";
       repo = old.pname;
-      rev = "${old.pname}-6.1.1";
+      rev = "${old.pname}-${version}";
       hash = "sha256-zxlEel/HlCrz4Shy+4WZX7up4qm5h2FoP77kngi8XAo=";
     };
     patches = [
