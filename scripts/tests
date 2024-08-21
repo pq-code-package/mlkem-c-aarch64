@@ -25,6 +25,9 @@ def sha256sum(result):
     return m.hexdigest()
 
 
+bin_dir = "test/build/bin"
+
+
 def base_compile(
     bin,
     verbose,
@@ -305,7 +308,7 @@ def func(force_qemu, verbose, cross_prefix, cflags, arch_flags):
 
     test_schemes(
         "Functional test",
-        lambda scheme: scheme.name.replace("MLKEM", "test/bin/test_kyber"),
+        lambda scheme: scheme.name.replace("MLKEM", f"{bin_dir}/test_kyber"),
         lambda result: str(result, encoding="utf-8"),
         expect,
         process_test,
@@ -326,7 +329,7 @@ def nistkat(force_qemu, verbose, cross_prefix, cflags, arch_flags):
 
     test_schemes(
         "Nistkat test",
-        lambda scheme: scheme.name.replace("MLKEM", "test/bin/gen_NISTKAT"),
+        lambda scheme: scheme.name.replace("MLKEM", f"{bin_dir}/gen_NISTKAT"),
         sha256sum,
         lambda scheme: parse_meta(scheme, "nistkat-sha256"),
         process_test,
@@ -347,7 +350,7 @@ def kat(force_qemu, verbose, cross_prefix, cflags, arch_flags):
 
     test_schemes(
         "Kat test",
-        lambda scheme: scheme.name.replace("MLKEM", "test/bin/gen_KAT"),
+        lambda scheme: scheme.name.replace("MLKEM", f"{bin_dir}/gen_KAT"),
         sha256sum,
         lambda scheme: parse_meta(scheme, "kat-sha256"),
         process_test,
@@ -425,7 +428,7 @@ def bench(
 
     results = test_schemes(
         "benchmark",
-        lambda scheme: scheme.name.replace("MLKEM", "test/bin/bench_kyber"),
+        lambda scheme: scheme.name.replace("MLKEM", f"{bin_dir}/bench_kyber"),
         lambda _: True,
         lambda _: True,
         process_bench,
