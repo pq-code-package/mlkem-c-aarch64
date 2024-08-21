@@ -1,35 +1,35 @@
 # SPDX-License-Identifier: Apache-2.0
 
-name: Mlkem
+name: ML-KEM
 type: kem
 implementations:
-  - name: mlkem512
+  - name: ML-KEM-512
     claimed-nist-level: 1
     claimed-security: IND-CCA2
     length-public-key: 800
     length-ciphertext: 768
     length-secret-key: 1632
     length-shared-secret: 32
-    kat-sha256: ec4ac397e595ac7457cb7d8830921faf3290898a10d7dd3864aab89ea61fe9a3
-    nistkat-sha256: 4b88ac7643ff60209af1175e025f354272e88df827a0ce1c056e403629b88e04
-    nistkat-shake256-256: 4b075815c72f4984e2290a2ebb62f6aa2c42bb386b9a210a78bf6ac73ee02cb8
-  - name: mlkem768
+    kat-sha256: 323d0e9aefe34819f10cdce1f0d9e5c8a55193cebe984fb1718e779ebfbc0da8
+    nistkat-sha256: a30184edee53b3b009356e1e31d7f9e93ce82550e3c622d7192e387b0cc84f2e
+    nistkat-shake256-256: 8517b4bed03f8f97f464ccbebbb395e887530d3426f171d77dd3b3a0e5add7ce
+  - name: ML-KEM-768
     claimed-nist-level: 3
     claimed-security: IND-CCA2
     length-public-key: 1184
     length-ciphertext: 1088
     length-secret-key: 2400
     length-shared-secret: 32
-    kat-sha256: 9a0826ad3c5232dfd3b21bc4801408655c565a491b760f509b2ee2cd7180babe
-    nistkat-sha256: 21b4a1e1ea34a13c26a9da5eeb9325afb5ca11596ca6f3704c3f2637e3ea7524
-    nistkat-shake256-256: 3acd660b1b60808c1b8b02f499ffdc4bdacaaf35ec02a267b7a8e40dd4b26457
-  - name: mlkem1024
+    kat-sha256: 99b497dcddfe418f44d30c7376fda09ae7cca2e9141143032d842508b4a1f438
+    nistkat-sha256: 729367b590637f4a93c68d5e4a4d2e2b4454842a52c9eec503e3a0d24cb66471
+    nistkat-shake256-256: 1383531be7867e0eab6c914472abfaed2f3846e518e401195880f8d25239c93e
+  - name: ML-KEM-1024
     claimed-nist-level: 5
     claimed-security: IND-CCA2
     length-public-key: 1568
     length-ciphertext: 1568
     length-secret-key: 3168
     length-shared-secret: 32
-    kat-sha256: 6dafb867599b750a6a831b03e494cf41dea748c78a0e275e7b268bbb893cf37d
-    nistkat-sha256: 6471398b0a728ee1ef39e93bb89b526fbf59587a3662edadbcfc6c88a512cd71
-    nistkat-shake256-256: e619f782857675c7d273139a48f8081652cc9c583c92aa4e627a2f36a7d943d1
+    kat-sha256: 104058bab1fef70aa10606831faabef7053d44b1adac6b34d35e505c3085db78
+    nistkat-sha256: 3fba7327d0320cb6134badf2a1bcb963a5b3c0026c7dece8f00d6a6155e47b33
+    nistkat-shake256-256: 2c567fe56c8a1f60b7757d7c5367ec57d9b41e7cae3f157fd24616f3ce952f17

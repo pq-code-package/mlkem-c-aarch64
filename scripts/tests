@@ -66,7 +66,13 @@ class SCHEME(Enum):
     MLKEM1024 = 3
 
     def __str__(self):
-        return self.name
+        match self:
+            case SCHEME.MLKEM512:
+                return "ML-KEM-512"
+            case SCHEME.MLKEM768:
+                return "ML-KEM-768"
+            case SCHEME.MLKEM1024:
+                return "ML-KEM-1024"
 
     def suffix(self):
         return self.name.removeprefix("MLKEM")
@@ -155,7 +161,7 @@ def parse_meta(scheme, field):
             "-r",
             "--arg",
             "scheme",
-            scheme.name.lower(),
+            str(scheme),
             f'.implementations.[] | select(.name == $scheme) | ."{field}"',
             "./META.yml",
         ],
