@@ -67,7 +67,11 @@ endif
 
 RETAINED_VARS :=
 
-CONFIG := test/obj/.config.mk
+BUILD_DIR := test/build
+OBJ_DIR := $(BUILD_DIR)/obj
+BIN_DIR := $(BUILD_DIR)/bin
+
+CONFIG := $(BUILD_DIR)/config.mk
 
 -include $(CONFIG)
 
