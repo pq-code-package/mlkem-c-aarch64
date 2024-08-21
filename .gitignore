@@ -4,5 +4,4 @@
 .direnv
 .vscode
 .idea
-test/bin/
-test/obj/
+test/build

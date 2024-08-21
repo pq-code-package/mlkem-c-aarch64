@@ -28,81 +28,81 @@ HEADERNISTKATS = $(HEADERSKECCAK) test/nistrng/aes.h test/nistrng/randombytes.h
 HEADERSBENCH = $(HEADERSKECCAKRANDOM) test/hal.h
 
 mlkem: \
-  test/bin/test_kyber512 \
-  test/bin/test_kyber768 \
-  test/bin/test_kyber1024
+  $(BIN_DIR)/test_kyber512 \
+  $(BIN_DIR)/test_kyber768 \
+  $(BIN_DIR)/test_kyber1024
 
 bench: \
-  test/bin/bench_kyber512 \
-  test/bin/bench_kyber768 \
-  test/bin/bench_kyber1024
+  $(BIN_DIR)/bench_kyber512 \
+  $(BIN_DIR)/bench_kyber768 \
+  $(BIN_DIR)/bench_kyber1024
 
 nistkat: \
-  test/bin/gen_NISTKAT512 \
-  test/bin/gen_NISTKAT768 \
-  test/bin/gen_NISTKAT1024
+  $(BIN_DIR)/gen_NISTKAT512 \
+  $(BIN_DIR)/gen_NISTKAT768 \
+  $(BIN_DIR)/gen_NISTKAT1024
 
 kat: \
-  test/bin/gen_KAT512 \
-  test/bin/gen_KAT768 \
-  test/bin/gen_KAT1024
+  $(BIN_DIR)/gen_KAT512 \
+  $(BIN_DIR)/gen_KAT768 \
+  $(BIN_DIR)/gen_KAT1024
 
-test/bin/test_kyber512: test/test_kyber.c $(SOURCESKECCAKRANDOM) $(HEADERSKECCAKRANDOM) $(CONFIG)
+$(BIN_DIR)/test_kyber512: test/test_kyber.c $(SOURCESKECCAKRANDOM) $(HEADERSKECCAKRANDOM) $(CONFIG)
 	$(Q)echo "  CC      $@"
 	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
 	$(CC) $(CFLAGS_RANDOMBYTES) -DKYBER_K=2 $(SOURCESKECCAKRANDOM) $< -o $@
 
-test/bin/test_kyber768: test/test_kyber.c $(SOURCESKECCAKRANDOM) $(HEADERSKECCAKRANDOM) $(CONFIG)
+$(BIN_DIR)/test_kyber768: test/test_kyber.c $(SOURCESKECCAKRANDOM) $(HEADERSKECCAKRANDOM) $(CONFIG)
 	$(Q)echo "  CC      $@"
 	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
 	$(CC) $(CFLAGS_RANDOMBYTES) -DKYBER_K=3 $(SOURCESKECCAKRANDOM) $< -o $@
 
-test/bin/test_kyber1024: test/test_kyber.c $(SOURCESKECCAKRANDOM) $(HEADERSKECCAKRANDOM) $(CONFIG)
+$(BIN_DIR)/test_kyber1024: test/test_kyber.c $(SOURCESKECCAKRANDOM) $(HEADERSKECCAKRANDOM) $(CONFIG)
 	$(Q)echo "  CC      $@"
 	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
 	$(CC) $(CFLAGS_RANDOMBYTES) -DKYBER_K=4 $(SOURCESKECCAKRANDOM) $< -o $@
 
-test/bin/bench_kyber512: test/bench_kyber.c $(SOURCESBENCH) $(HEADERSBENCH) $(CONFIG)
+$(BIN_DIR)/bench_kyber512: test/bench_kyber.c $(SOURCESBENCH) $(HEADERSBENCH) $(CONFIG)
 	$(Q)echo "  CC      $@"
 	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
 	$(CC) $(CFLAGS_RANDOMBYTES) -DKYBER_K=2 $(SOURCESBENCH) $< -o $@
 
-test/bin/bench_kyber768: test/bench_kyber.c $(SOURCESBENCH) $(HEADERSBENCH) $(CONFIG)
+$(BIN_DIR)/bench_kyber768: test/bench_kyber.c $(SOURCESBENCH) $(HEADERSBENCH) $(CONFIG)
 	$(Q)echo "  CC      $@"
 	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
 	$(CC) $(CFLAGS_RANDOMBYTES) -DKYBER_K=3 $(SOURCESBENCH) $< -o $@
 
-test/bin/bench_kyber1024: test/bench_kyber.c $(SOURCESBENCH) $(HEADERSBENCH) $(CONFIG)
+$(BIN_DIR)/bench_kyber1024: test/bench_kyber.c $(SOURCESBENCH) $(HEADERSBENCH) $(CONFIG)
 	$(Q)echo "  CC      $@"
 	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
 	$(CC) $(CFLAGS_RANDOMBYTES) -DKYBER_K=4 $(SOURCESBENCH) $< -o $@
 
-test/bin/gen_KAT512: test/gen_KAT.c $(SOURCESKECCAKRANDOM) $(HEADERSKECCAKRANDOM) $(CONFIG)
+$(BIN_DIR)/gen_KAT512: test/gen_KAT.c $(SOURCESKECCAKRANDOM) $(HEADERSKECCAKRANDOM) $(CONFIG)
 	$(Q)echo "  CC      $@"
 	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
 	$(CC) $(CFLAGS_RANDOMBYTES) -DKYBER_K=2 $(SOURCESKECCAKRANDOM) $< -o $@
 
-test/bin/gen_KAT768: test/gen_KAT.c $(SOURCESKECCAKRANDOM) $(HEADERSKECCAKRANDOM) $(CONFIG)
+$(BIN_DIR)/gen_KAT768: test/gen_KAT.c $(SOURCESKECCAKRANDOM) $(HEADERSKECCAKRANDOM) $(CONFIG)
 	$(Q)echo "  CC      $@"
 	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
 	$(CC) $(CFLAGS_RANDOMBYTES) -DKYBER_K=3 $(SOURCESKECCAKRANDOM) $< -o $@
 
-test/bin/gen_KAT1024: test/gen_KAT.c $(SOURCESKECCAKRANDOM) $(HEADERSKECCAKRANDOM) $(CONFIG)
+$(BIN_DIR)/gen_KAT1024: test/gen_KAT.c $(SOURCESKECCAKRANDOM) $(HEADERSKECCAKRANDOM) $(CONFIG)
 	$(Q)echo "  CC      $@"
 	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
 	$(CC) $(CFLAGS_RANDOMBYTES) -DKYBER_K=4 $(SOURCESKECCAKRANDOM) $< -o $@
 
-test/bin/gen_NISTKAT512: test/gen_NISTKAT.c $(SOURCESNISTKATS) $(HEADERNISTKATS) $(CONFIG)
+$(BIN_DIR)/gen_NISTKAT512: test/gen_NISTKAT.c $(SOURCESNISTKATS) $(HEADERNISTKATS) $(CONFIG)
 	$(Q)echo "  CC      $@"
 	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
 	$(CC) $(CFLAGS_NISTRANDOMBYTES) -DKYBER_K=2 $(SOURCESNISTKATS) $< -o $@
 
-test/bin/gen_NISTKAT768: test/gen_NISTKAT.c $(SOURCESNISTKATS) $(HEADERNISTKATS) $(CONFIG)
+$(BIN_DIR)/gen_NISTKAT768: test/gen_NISTKAT.c $(SOURCESNISTKATS) $(HEADERNISTKATS) $(CONFIG)
 	$(Q)echo "  CC      $@"
 	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
 	$(CC) $(CFLAGS_NISTRANDOMBYTES) -DKYBER_K=3 $(SOURCESNISTKATS) $< -o $@
 
-test/bin/gen_NISTKAT1024: test/gen_NISTKAT.c $(SOURCESNISTKATS) $(HEADERNISTKATS) $(CONFIG)
+$(BIN_DIR)/gen_NISTKAT1024: test/gen_NISTKAT.c $(SOURCESNISTKATS) $(HEADERNISTKATS) $(CONFIG)
 	$(Q)echo "  CC      $@"
 	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
 	$(CC) $(CFLAGS_NISTRANDOMBYTES) -DKYBER_K=4 $(SOURCESNISTKATS) $< -o $@
@@ -114,5 +114,4 @@ emulate:
 
 clean:
 	-$(RM) -rf *.gcno *.gcda *.lcov *.o *.so
-	-$(RM) -rf test/bin
-	-$(RM) -rf test/obj
+	-$(RM) -rf $(BUILD_DIR)
