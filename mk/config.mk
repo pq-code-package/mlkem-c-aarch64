@@ -32,9 +32,14 @@ CFLAGS += \
 	-O3 \
 	-fomit-frame-pointer \
 	-pedantic \
+	-MMD \
 	-I mlkem \
 	-I fips202 \
 	$(CPPFLAGS)
+
+LDFLAGS += $(ARCH_FLAGS) 
+
+LINKDEPS += $(LIBDEPS)
 
 ##################
 # Some Variables #
@@ -65,11 +70,13 @@ endif
 # Include retained variables #
 ##############################
 
-RETAINED_VARS :=
+RNG ?= 
+RETAINED_VARS := RNG BENCH CYCLES
 
 BUILD_DIR := test/build
-OBJ_DIR := $(BUILD_DIR)/obj
-BIN_DIR := $(BUILD_DIR)/bin
+LIB_DIR := $(BUILD_DIR)/lib
+
+objs = $(addprefix $(BUILD_DIR)/,$(addsuffix .o,$(1)))
 
 CONFIG := $(BUILD_DIR)/config.mk
 
@@ -80,8 +87,6 @@ $(CONFIG):
 	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
 	@echo "# These variables are retained and can't be changed without a clean" > $@
 	@$(foreach var,$(RETAINED_VARS),echo "$(var) := $($(var))" >> $@; echo "LAST_$(var) := $($(var))" >> $@;)
-
-RETAINED_VARS += CYCLES
 
 define VAR_CHECK
 ifneq ($$(origin LAST_$(1)),undefined)
