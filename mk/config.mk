@@ -69,7 +69,8 @@ endif
 ##############################
 
 RNG ?=
-RETAINED_VARS := RNG BENCH CYCLES
+OPT ?= REF # (one of REF, NTT123_4567)
+RETAINED_VARS := RNG BENCH CYCLES OPT
 
 BUILD_DIR := test/build
 LIB_DIR := $(BUILD_DIR)/lib
