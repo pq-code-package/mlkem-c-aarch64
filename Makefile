@@ -6,106 +6,30 @@
 all: mlkem bench kat nistkat
 
 include mk/config.mk
-
-INCLUDE_RANDOM = -I randombytes
-INCLUDE_NISTRANDOM = -I test/nistrng
-
-CFLAGS_RANDOMBYTES = ${CFLAGS} ${INCLUDE_RANDOM}
-CFLAGS_NISTRANDOMBYTES = ${CFLAGS} ${INCLUDE_NISTRANDOM}
-NISTFLAGS += -Wno-unused-result -O3 -fomit-frame-pointer
-RM = /bin/rm
-
-SOURCES = mlkem/kem.c mlkem/indcpa.c mlkem/polyvec.c mlkem/poly.c mlkem/ntt.c mlkem/cbd.c mlkem/reduce.c mlkem/verify.c
-SOURCESKECCAK = $(SOURCES) fips202/keccakf1600.c fips202/fips202.c fips202/fips202x4.c mlkem/symmetric-shake.c
-SOURCESKECCAKRANDOM = $(SOURCESKECCAK) randombytes/randombytes.c
-SOURCESNISTKATS = $(SOURCESKECCAK) test/nistrng/aes.c test/nistrng/rng.c
-SOURCESBENCH = $(SOURCESKECCAKRANDOM) test/hal.c
-
-HEADERS = mlkem/params.h mlkem/kem.h mlkem/indcpa.h mlkem/polyvec.h mlkem/poly.h mlkem/ntt.h mlkem/cbd.h mlkem/reduce.c mlkem/verify.h mlkem/symmetric.h
-HEADERSKECCAK = $(HEADERS) fips202/keccakf1600.h fips202/fips202.h fips202/fips202x4.h
-HEADERSKECCAKRANDOM = $(HEADERSKECCAK) randombytes/randombytes.h
-HEADERNISTKATS = $(HEADERSKECCAK) test/nistrng/aes.h test/nistrng/randombytes.h
-HEADERSBENCH = $(HEADERSKECCAKRANDOM) test/hal.h
+include mk/crypto.mk
+include mk/schemes.mk
+include mk/hal.mk
+include mk/rules.mk
 
 mlkem: \
-  $(BIN_DIR)/test_kyber512 \
-  $(BIN_DIR)/test_kyber768 \
-  $(BIN_DIR)/test_kyber1024
+  $(MLKEM512_DIR)/bin/test_kyber \
+  $(MLKEM768_DIR)/bin/test_kyber \
+  $(MLKEM1024_DIR)/bin/test_kyber \
 
-bench: \
-  $(BIN_DIR)/bench_kyber512 \
-  $(BIN_DIR)/bench_kyber768 \
-  $(BIN_DIR)/bench_kyber1024
+bench:
+	$(MAKE) BENCH=1 $(MLKEM512_DIR)/bin/bench_kyber
+	$(MAKE) BENCH=1 $(MLKEM768_DIR)/bin/bench_kyber
+	$(MAKE) BENCH=1 $(MLKEM1024_DIR)/bin/bench_kyber
 
-nistkat: \
-  $(BIN_DIR)/gen_NISTKAT512 \
-  $(BIN_DIR)/gen_NISTKAT768 \
-  $(BIN_DIR)/gen_NISTKAT1024
+nistkat:
+	$(MAKE) RNG=NISTRNG $(MLKEM512_DIR)/bin/gen_NISTKAT
+	$(MAKE) RNG=NISTRNG $(MLKEM768_DIR)/bin/gen_NISTKAT
+	$(MAKE) RNG=NISTRNG $(MLKEM1024_DIR)/bin/gen_NISTKAT
 
 kat: \
-  $(BIN_DIR)/gen_KAT512 \
-  $(BIN_DIR)/gen_KAT768 \
-  $(BIN_DIR)/gen_KAT1024
-
-$(BIN_DIR)/test_kyber512: test/test_kyber.c $(SOURCESKECCAKRANDOM) $(HEADERSKECCAKRANDOM) $(CONFIG)
-	$(Q)echo "  CC      $@"
-	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
-	$(CC) $(CFLAGS_RANDOMBYTES) -DKYBER_K=2 $(SOURCESKECCAKRANDOM) $< -o $@
-
-$(BIN_DIR)/test_kyber768: test/test_kyber.c $(SOURCESKECCAKRANDOM) $(HEADERSKECCAKRANDOM) $(CONFIG)
-	$(Q)echo "  CC      $@"
-	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
-	$(CC) $(CFLAGS_RANDOMBYTES) -DKYBER_K=3 $(SOURCESKECCAKRANDOM) $< -o $@
-
-$(BIN_DIR)/test_kyber1024: test/test_kyber.c $(SOURCESKECCAKRANDOM) $(HEADERSKECCAKRANDOM) $(CONFIG)
-	$(Q)echo "  CC      $@"
-	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
-	$(CC) $(CFLAGS_RANDOMBYTES) -DKYBER_K=4 $(SOURCESKECCAKRANDOM) $< -o $@
-
-$(BIN_DIR)/bench_kyber512: test/bench_kyber.c $(SOURCESBENCH) $(HEADERSBENCH) $(CONFIG)
-	$(Q)echo "  CC      $@"
-	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
-	$(CC) $(CFLAGS_RANDOMBYTES) -DKYBER_K=2 $(SOURCESBENCH) $< -o $@
-
-$(BIN_DIR)/bench_kyber768: test/bench_kyber.c $(SOURCESBENCH) $(HEADERSBENCH) $(CONFIG)
-	$(Q)echo "  CC      $@"
-	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
-	$(CC) $(CFLAGS_RANDOMBYTES) -DKYBER_K=3 $(SOURCESBENCH) $< -o $@
-
-$(BIN_DIR)/bench_kyber1024: test/bench_kyber.c $(SOURCESBENCH) $(HEADERSBENCH) $(CONFIG)
-	$(Q)echo "  CC      $@"
-	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
-	$(CC) $(CFLAGS_RANDOMBYTES) -DKYBER_K=4 $(SOURCESBENCH) $< -o $@
-
-$(BIN_DIR)/gen_KAT512: test/gen_KAT.c $(SOURCESKECCAKRANDOM) $(HEADERSKECCAKRANDOM) $(CONFIG)
-	$(Q)echo "  CC      $@"
-	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
-	$(CC) $(CFLAGS_RANDOMBYTES) -DKYBER_K=2 $(SOURCESKECCAKRANDOM) $< -o $@
-
-$(BIN_DIR)/gen_KAT768: test/gen_KAT.c $(SOURCESKECCAKRANDOM) $(HEADERSKECCAKRANDOM) $(CONFIG)
-	$(Q)echo "  CC      $@"
-	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
-	$(CC) $(CFLAGS_RANDOMBYTES) -DKYBER_K=3 $(SOURCESKECCAKRANDOM) $< -o $@
-
-$(BIN_DIR)/gen_KAT1024: test/gen_KAT.c $(SOURCESKECCAKRANDOM) $(HEADERSKECCAKRANDOM) $(CONFIG)
-	$(Q)echo "  CC      $@"
-	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
-	$(CC) $(CFLAGS_RANDOMBYTES) -DKYBER_K=4 $(SOURCESKECCAKRANDOM) $< -o $@
-
-$(BIN_DIR)/gen_NISTKAT512: test/gen_NISTKAT.c $(SOURCESNISTKATS) $(HEADERNISTKATS) $(CONFIG)
-	$(Q)echo "  CC      $@"
-	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
-	$(CC) $(CFLAGS_NISTRANDOMBYTES) -DKYBER_K=2 $(SOURCESNISTKATS) $< -o $@
-
-$(BIN_DIR)/gen_NISTKAT768: test/gen_NISTKAT.c $(SOURCESNISTKATS) $(HEADERNISTKATS) $(CONFIG)
-	$(Q)echo "  CC      $@"
-	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
-	$(CC) $(CFLAGS_NISTRANDOMBYTES) -DKYBER_K=3 $(SOURCESNISTKATS) $< -o $@
-
-$(BIN_DIR)/gen_NISTKAT1024: test/gen_NISTKAT.c $(SOURCESNISTKATS) $(HEADERNISTKATS) $(CONFIG)
-	$(Q)echo "  CC      $@"
-	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
-	$(CC) $(CFLAGS_NISTRANDOMBYTES) -DKYBER_K=4 $(SOURCESNISTKATS) $< -o $@
+  $(MLKEM512_DIR)/bin/gen_KAT \
+  $(MLKEM768_DIR)/bin/gen_KAT \
+  $(MLKEM1024_DIR)/bin/gen_KAT
 
 # emulate ARM64 binary on x86_64 machine
 emulate:
