@@ -37,7 +37,7 @@ void init_ntt() {
 }
 */
 
-#ifdef __ASSEMBLER__
+#ifdef NTT123_4567
 void ntt_kyber_123_4567(int16_t *);
 void intt_kyber_123_4567(int16_t *);
 #endif
@@ -84,7 +84,7 @@ static int16_t fqmul(int16_t a, int16_t b)
  **************************************************/
 void ntt(int16_t r[256])
 {
-    #ifdef __ASSEMBLER__
+    #ifdef NTT123_4567
     ntt_kyber_123_4567(r);
     #else
     unsigned int len, start, j, k;
@@ -119,7 +119,7 @@ void ntt(int16_t r[256])
  **************************************************/
 void invntt(int16_t r[256])
 {
-    #ifdef __ASSEMBLER__
+    #ifdef NTT123_4567
     intt_kyber_123_4567(r);
     #else
     unsigned int start, len, j, k;
