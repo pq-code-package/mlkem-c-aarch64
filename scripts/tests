@@ -25,11 +25,52 @@ def sha256sum(result):
     return m.hexdigest()
 
 
-bin_dir = "test/build/bin"
+class TEST_TYPES(Enum):
+    MLKEM = 1
+    BENCH = 2
+    NISTKAT = 3
+    KAT = 4
+
+    def __str__(self):
+        return self.name.lower()
+
+    def desc(self):
+        match self:
+            case TEST_TYPES.MLKEM:
+                return "Functional Test"
+            case TEST_TYPES.BENCH:
+                return "Benchmark"
+            case TEST_TYPES.NISTKAT:
+                return "Nistkat Test"
+            case TEST_TYPES.KAT:
+                return "Kat Test"
+
+    def bin(self):
+        match self:
+            case TEST_TYPES.MLKEM:
+                return "test_kyber"
+            case TEST_TYPES.BENCH:
+                return "bench_kyber"
+            case TEST_TYPES.NISTKAT:
+                return "gen_NISTKAT"
+            case TEST_TYPES.KAT:
+                return "gen_KAT"
+
+    def bin_path(self, scheme):
+        return f"test/build/{scheme.name.lower()}/bin/{self.bin()}"
+
+
+class SCHEME(Enum):
+    MLKEM512 = 1
+    MLKEM768 = 2
+    MLKEM1024 = 3
+
+    def __str__(self):
+        return self.name
 
 
 def base_compile(
-    bin,
+    test,
     verbose,
     cross_prefix,
     extra_make_envs={},
@@ -43,11 +84,11 @@ def base_compile(
             s += f"{k}={v} "
         return s
 
-    logging.debug(f"Compiling {bin}...")
+    logging.debug(f"Compiling {test}...")
     args = [
         "make",
         f"CROSS_PREFIX={cross_prefix}",
-        f"{bin}",
+        f"{test}",
     ] + extra_make_args
 
     logging.info(dict2str(extra_make_envs) + " ".join(args))
@@ -103,15 +144,6 @@ def base_run(
     return result.stdout
 
 
-class SCHEME(Enum):
-    MLKEM512 = 1
-    MLKEM768 = 2
-    MLKEM1024 = 3
-
-    def __str__(self):
-        return self.name
-
-
 def parse_meta(scheme, field):
     result = subprocess.run(
         [
@@ -131,8 +163,7 @@ def parse_meta(scheme, field):
 
 
 def test_schemes(
-    title,
-    scheme2file,
+    test,
     actual_proc,
     expect_proc,
     process_result,
@@ -147,18 +178,17 @@ def test_schemes(
     """
     :param process_result: process result and return summary
     """
-    logging.info(f"{title}")
+    logging.info(f"{test.desc()}")
 
     summary_file = os.environ.get("GITHUB_STEP_SUMMARY")
-    summary = f"## {title}\n"
+    summary = f"## {test.desc()}\n"
 
     fail = False
     results = {}
+    base_compile(test, verbose, cross_prefix, extra_make_envs, extra_make_args)
     for scheme in SCHEME:
-        bin = scheme2file(scheme)
-        base_compile(bin, verbose, cross_prefix, extra_make_envs, extra_make_args)
         result = base_run(
-            bin,
+            test.bin_path(scheme),
             force_qemu,
             verbose,
             run_as_root,
@@ -265,29 +295,6 @@ def add_options(options):
 
 
 @click.command(
-    short_help="Run the specified binary file",
-    context_settings={"show_default": True},
-)
-@add_options(_shared_options)
-@click.option(
-    "-b",
-    "--bin",
-    type=click.Path(),
-    help="The binary file that you wanted to test.",
-)
-def run(bin, force_qemu, verbose, cross_prefix, cflags, arch_flags):
-    config_logger(verbose)
-
-    base_compile(bin, verbose, process_make_envs(cflags, arch_flags))
-    result = base_run(
-        bin,
-        force_qemu,
-        verbose,
-    )
-    logging.info(str(result, encoding="utf-8"))
-
-
-@click.command(
     short_help="Run the functional tests for all parameter sets",
     context_settings={"show_default": True},
 )
@@ -307,15 +314,14 @@ def func(force_qemu, verbose, cross_prefix, cflags, arch_flags):
         )
 
     test_schemes(
-        "Functional test",
-        lambda scheme: scheme.name.replace("MLKEM", f"{bin_dir}/test_kyber"),
+        TEST_TYPES.MLKEM,
         lambda result: str(result, encoding="utf-8"),
         expect,
         process_test,
         force_qemu,
         verbose,
         cross_prefix,
-        process_make_envs(cflags, arch_flags),
+        extra_make_envs=process_make_envs(cflags, arch_flags),
     )
 
 
@@ -328,15 +334,14 @@ def nistkat(force_qemu, verbose, cross_prefix, cflags, arch_flags):
     config_logger(verbose)
 
     test_schemes(
-        "Nistkat test",
-        lambda scheme: scheme.name.replace("MLKEM", f"{bin_dir}/gen_NISTKAT"),
+        TEST_TYPES.NISTKAT,
         sha256sum,
         lambda scheme: parse_meta(scheme, "nistkat-sha256"),
         process_test,
         force_qemu,
         verbose,
         cross_prefix,
-        process_make_envs(cflags, arch_flags),
+        extra_make_envs=process_make_envs(cflags, arch_flags),
     )
 
 
@@ -349,15 +354,14 @@ def kat(force_qemu, verbose, cross_prefix, cflags, arch_flags):
     config_logger(verbose)
 
     test_schemes(
-        "Kat test",
-        lambda scheme: scheme.name.replace("MLKEM", f"{bin_dir}/gen_KAT"),
+        TEST_TYPES.KAT,
         sha256sum,
         lambda scheme: parse_meta(scheme, "kat-sha256"),
         process_test,
         force_qemu,
         verbose,
         cross_prefix,
-        process_make_envs(cflags, arch_flags),
+        extra_make_envs=process_make_envs(cflags, arch_flags),
     )
 
 
@@ -427,8 +431,7 @@ def bench(
             exec_wrapper = f"taskpolicy -c {mac_taskpolicy}"
 
     results = test_schemes(
-        "benchmark",
-        lambda scheme: scheme.name.replace("MLKEM", f"{bin_dir}/bench_kyber"),
+        TEST_TYPES.BENCH,
         lambda _: True,
         lambda _: True,
         process_bench,
@@ -437,8 +440,10 @@ def bench(
         cross_prefix,
         run_as_root,
         exec_wrapper,
-        process_make_envs(cflags, arch_flags),
-        [f"CYCLES={cycles}"],
+        extra_make_envs=process_make_envs(cflags, arch_flags),
+        extra_make_args=[
+            f"CYCLES={cycles}",
+        ],
     )
 
     if output:
@@ -476,7 +481,6 @@ def cli():
     pass
 
 
-cli.add_command(run)
 cli.add_command(func)
 cli.add_command(nistkat)
 cli.add_command(kat)
