@@ -76,7 +76,8 @@ RETAINED_VARS := RNG BENCH CYCLES
 BUILD_DIR := test/build
 LIB_DIR := $(BUILD_DIR)/lib
 
-objs = $(addprefix $(BUILD_DIR)/,$(addsuffix .o,$(1)))
+MAKE_OBJS = $(2:%=$(1)/%.o)
+OBJS = $(call MAKE_OBJS,$(BUILD_DIR),$(1))
 
 CONFIG := $(BUILD_DIR)/config.mk
 

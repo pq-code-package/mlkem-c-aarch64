@@ -4,6 +4,6 @@ ifdef BENCH
 LIBDEPS += $(LIB_DIR)/libhal.a
 LDLIBS += -lhal
 CPPFLAGS += -Itest/hal
-$(LIB_DIR)/libhal.a: $(call objs,$(wildcard test/hal/*.c))
+$(LIB_DIR)/libhal.a: $(call OBJS,$(wildcard test/hal/*.c))
 
 endif
