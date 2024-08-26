@@ -15,9 +15,9 @@ else
 	CPPFLAGS += -Irandombytes
 endif
 
-$(LIB_DIR)/librng.a: $(call objs,$(wildcard randombytes/*.c))
+$(LIB_DIR)/librng.a: $(call OBJS,$(wildcard randombytes/*.c))
 
 $(LIB_DIR)/libnistrng.a: CFLAGS += -Wno-unused-result -O3 -fomit-frame-pointer
-$(LIB_DIR)/libnistrng.a: $(call objs,$(wildcard test/nistrng/*.c))
+$(LIB_DIR)/libnistrng.a: $(call OBJS,$(wildcard test/nistrng/*.c))
 
-$(LIB_DIR)/libfips202.a: $(call objs,$(wildcard fips202/*.c))
+$(LIB_DIR)/libfips202.a: $(call OBJS,$(wildcard fips202/*.c))
