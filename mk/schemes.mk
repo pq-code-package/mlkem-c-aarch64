@@ -2,7 +2,7 @@
 SOURCES = $(wildcard mlkem/*.c)
 ifneq ($(OPT),REF)
 	SOURCES += $(wildcard mlkem/asm/*.S)
-	CPPFLAGS += -D__ASSEMBLER__
+	CPPFLAGS += -D$(OPT)
 endif
 
 CPPFLAGS += -Imlkem -Imlkem/sys
