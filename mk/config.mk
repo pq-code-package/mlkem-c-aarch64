@@ -7,7 +7,7 @@ SRCDIR := $(CURDIR)
 ##############
 # GCC config #
 ##############
-CROSS_PREFIX ?= 
+CROSS_PREFIX ?=
 CC := $(CROSS_PREFIX)gcc
 CPP := $(CROSS_PREFIX)cpp
 AR := $(CROSS_PREFIX)ar
@@ -37,7 +37,7 @@ CFLAGS += \
 	-I fips202 \
 	$(CPPFLAGS)
 
-LDFLAGS += $(ARCH_FLAGS) 
+LDFLAGS += $(ARCH_FLAGS)
 
 LINKDEPS += $(LIBDEPS)
 
@@ -70,7 +70,7 @@ endif
 # Include retained variables #
 ##############################
 
-RNG ?= 
+RNG ?=
 RETAINED_VARS := RNG BENCH CYCLES
 
 BUILD_DIR := test/build
