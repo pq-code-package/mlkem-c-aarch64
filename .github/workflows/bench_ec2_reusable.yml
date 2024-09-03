@@ -1,0 +1,103 @@
+name: bench-ec2-reusable
+on:
+  workflow_call:
+    inputs:
+      ec2_instance_type:
+        type: string
+        description: Type if EC2 instance to benchmark on
+        default: c6g.medium
+      ec2_ami_id:
+        type: string
+        description: AMI ID
+        default: ami-096ea6a12ea24a797
+      cflags:
+        type: string
+        description: Custom CFLAGS for compilation
+        default: -mcpu=cortex-a76
+      archflags:
+        type: string
+        description: Custom ARCH flags for compilation
+        default: -march=armv8.2-a
+env:
+  AWS_ROLE: arn:aws:iam::559050233797:role/mlkem-c-aarch64-gh-action
+  AWS_REGION: us-east-1
+jobs:
+  start-ec2-runner:
+    name: Start ${{ github.event.inputs.ec2_instance_type }} instance
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+    runs-on: ubuntu-latest
+    outputs:
+      label: ${{ steps.start-ec2-runner.outputs.label }}
+      ec2-instance-id: ${{ steps.start-ec2-runner.outputs.ec2-instance-id }}
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ env.AWS_ROLE }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Start EC2 runner
+        id: start-ec2-runner
+        uses: machulav/ec2-github-runner@v2
+        with:
+          mode: start
+          github-token: ${{ secrets.AWS_GITHUB_TOKEN }}
+          ec2-image-id: ${{ inputs.ec2_ami_id }}
+          ec2-instance-type: ${{ inputs.ec2_instance_type }}
+          subnet-id: subnet-07b2729e5e065962f
+          security-group-id: sg-0ab2e297196c8c381
+  bench:
+    name: Bench on ${{ inputs.ec2_instance_type }}
+    needs: start-ec2-runner # required to start the main job when the runner is ready
+    runs-on: ${{ needs.start-ec2-runner.outputs.label }} # run the job on the newly created runner
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup nix
+        uses: ./.github/actions/setup-nix
+        with:
+          devShell: ci
+          script: |
+            ARCH=$(uname -m)
+            cat >> $GITHUB_STEP_SUMMARY <<-EOF
+              ## Setup
+              Architecture: $ARCH
+              - $(uname -a)
+              - $(nix --version)
+              - $(astyle --version)
+              - $(${{ matrix.target.cross_prefix }}gcc --version | grep -m1 "")
+              - $(bash --version | grep -m1 "")
+
+              ## CPU Info
+              $(cat /proc/cpuinfo)
+            EOF
+      - name: Run benchmark
+        shell: nix develop .#ci -c bash -e {0}
+        run: |
+          tests bench -c PERF --cflags ${{ inputs.cflags }} --arch-flags ${{ inputs.archflags }} -v --output output.json
+      - name: Dump benchmark
+        run: |
+          cat output.json
+  stop-ec2-runner:
+    name: Stop ${{ inputs.ec2_instance_type }} instance
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+    needs:
+      - start-ec2-runner
+      - bench # required to wait when the main job is done
+    runs-on: ubuntu-latest
+    if: ${{ always() }} # required to stop the runner even if the error happened in the previous jobs
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ env.AWS_ROLE }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Stop EC2 runner
+        uses: machulav/ec2-github-runner@v2
+        with:
+          mode: stop
+          github-token: ${{ secrets.AWS_GITHUB_TOKEN }}
+          label: ${{ needs.start-ec2-runner.outputs.label }}
+          ec2-instance-id: ${{ needs.start-ec2-runner.outputs.ec2-instance-id }}
