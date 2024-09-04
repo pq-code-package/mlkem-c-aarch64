@@ -4,7 +4,7 @@
 , fetchFromGitHub
 }:
 
-stdenvNoCC.mkDerivation rec {
+stdenvNoCC.mkDerivation {
   pname = "litani";
   version = "8002c240ef4f424039ed3cc32e076c0234d01768";
   src = fetchFromGitHub {
