@@ -27,11 +27,14 @@ uint32_t scalar_compress_q_16(int32_t u)
 
     /* This multiply will exceed UINT32_MAX and wrap around */
     /* for large values of u. This is expected and required */
+    #ifdef CBMC
 #pragma CPROVER check push
 #pragma CPROVER check disable "unsigned-overflow"
+    #endif
     d0 *=  80635;
+    #ifdef CBMC
 #pragma CPROVER check pop
-
+    #endif
     d0 >>= 28;
     d0 &=  0xF;
     return d0;
@@ -66,11 +69,14 @@ uint32_t scalar_compress_q_32(int32_t u)
 
     /* This multiply will exceed UINT32_MAX and wrap around */
     /* for large values of u. This is expected and required */
+    #ifdef CBMC
 #pragma CPROVER check push
 #pragma CPROVER check disable "unsigned-overflow"
+    #endif
     d0 *=  40318;
+    #ifdef CBMC
 #pragma CPROVER check pop
-
+    #endif
     d0 >>= 27;
     d0 &=  0x1f;
     return d0;
@@ -130,35 +136,50 @@ uint16_t scalar_signed_to_unsigned_q_16 (int16_t c)
 **************************************************/
 void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
 {
-    unsigned int i, j;
-    uint8_t t[8];
+    uint8_t t[8] = { 0 };
+
+    const size_t num_blocks = KYBER_N / 8;
 
     #if (KYBER_POLYCOMPRESSEDBYTES == 128)
-    for (i = 0; i < KYBER_N / 8; i++)
-        __CPROVER_assigns(i, j, t, r)
-        /* Stronger loop invariant here TBD */
+    for (size_t i = 0; i < num_blocks; i++)
+        __CPROVER_assigns(i, __CPROVER_object_whole(t), __CPROVER_object_whole(r))
+        __CPROVER_loop_invariant(i <= num_blocks)
+        __CPROVER_decreases(num_blocks - i)
     {
-        for (j = 0; j < 8; j++)
-            __CPROVER_assigns(j, t)
-            /* Stronger loop invariant here TBD */
+        for (size_t j = 0; j < 8; j++)
+            __CPROVER_assigns(j, __CPROVER_object_whole(t))
+            __CPROVER_loop_invariant(i <= num_blocks)
+            __CPROVER_loop_invariant(j <= 8)
+            __CPROVER_loop_invariant(__CPROVER_forall { size_t k2; (0 <= k2 && k2 < j) ==> (t[k2] >= 0 && t[k2] < 16) })
+            __CPROVER_decreases(8 - j)
         {
             // map to positive standard representatives
             // REF-CHANGE: Hoist signed-to-unsigned conversion into separate function
-            int32_t u = (int32_t) scalar_signed_to_unsigned_q_16(a->coeffs[8 * i + j]);
+            int32_t u;
+            u = (int32_t) scalar_signed_to_unsigned_q_16(a->coeffs[8 * i + j]);
             // REF-CHANGE: Hoist scalar compression into separate function
             t[j] = scalar_compress_q_16(u);
         }
 
-        r[0] = t[0] | (t[1] << 4);
-        r[1] = t[2] | (t[3] << 4);
-        r[2] = t[4] | (t[5] << 4);
-        r[3] = t[6] | (t[7] << 4);
-        r += 4;
+        // REF-CHANGE: Use array indexing into
+        // r rather than pointer-arithmetic to simplify verification
+        r[i * 4]     = t[0] | (t[1] << 4);
+        r[i * 4 + 1] = t[2] | (t[3] << 4);
+        r[i * 4 + 2] = t[4] | (t[5] << 4);
+        r[i * 4 + 3] = t[6] | (t[7] << 4);
     }
     #elif (KYBER_POLYCOMPRESSEDBYTES == 160)
-    for (i = 0; i < KYBER_N / 8; i++)
+    for (size_t i = 0; i < num_blocks; i++)
+        __CPROVER_assigns(i, __CPROVER_object_whole(t), __CPROVER_object_whole(r))
+        __CPROVER_loop_invariant(i <= num_blocks)
+        __CPROVER_decreases(num_blocks - i)
     {
-        for (j = 0; j < 8; j++)
+        for (size_t j = 0; j < 8; j++)
+            __CPROVER_assigns(j, __CPROVER_object_whole(t))
+            __CPROVER_loop_invariant(i <= num_blocks)
+            __CPROVER_loop_invariant(j <= 8)
+            __CPROVER_loop_invariant(__CPROVER_forall { size_t k2; (0 <= k2 && k2 < j) ==> (t[k2] >= 0 && t[k2] < 32) })
+            __CPROVER_decreases(8 - j)
         {
             // map to positive standard representatives
             // REF-CHANGE: Hoist signed-to-unsigned conversion into separate function
@@ -168,13 +189,13 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
         }
 
         // REF-CHANGE: Explicitly truncate to avoid warning about
-        // implicit truncation in CBMC.
-        r[0] = 0xFF & ((t[0] >> 0) | (t[1] << 5));
-        r[1] = 0xFF & ((t[1] >> 3) | (t[2] << 2) | (t[3] << 7));
-        r[2] = 0xFF & ((t[3] >> 1) | (t[4] << 4));
-        r[3] = 0xFF & ((t[4] >> 4) | (t[5] << 1) | (t[6] << 6));
-        r[4] = 0xFF & ((t[6] >> 2) | (t[7] << 3));
-        r += 5;
+        // implicit truncation in CBMC, and use array indexing into
+        // r rather than pointer-arithmetic to simplify verification
+        r[i * 5]     = 0xFF & ((t[0] >> 0) | (t[1] << 5));
+        r[i * 5 + 1] = 0xFF & ((t[1] >> 3) | (t[2] << 2) | (t[3] << 7));
+        r[i * 5 + 2] = 0xFF & ((t[3] >> 1) | (t[4] << 4));
+        r[i * 5 + 3] = 0xFF & ((t[4] >> 4) | (t[5] << 1) | (t[6] << 6));
+        r[i * 5 + 4] = 0xFF & ((t[6] >> 2) | (t[7] << 3));
     }
     #else
 #error "KYBER_POLYCOMPRESSEDBYTES needs to be in {128, 160}"
@@ -196,18 +217,6 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
 *
 **************************************************/
 void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES])
-/* ------ CBMC contract ------ */
-__CPROVER_requires(__CPROVER_is_fresh(r, sizeof(*r)))
-__CPROVER_requires(__CPROVER_is_fresh(a, sizeof(KYBER_POLYCOMPRESSEDBYTES)))
-__CPROVER_ensures(
-    /* Output coefficients are unsigned canonical */
-    /* NOTE: Because of https://github.com/diffblue/cbmc/issues/8337 we have to
-             avoid a variable name clash with variables used by poly_decompress. */
-    __CPROVER_forall
-{
-    unsigned _i; (_i < KYBER_N) ==> ( 0 <= r->coeffs[_i] && r->coeffs[_i] < KYBER_Q )
-})
-/* --- End of CBMC contract --- */
 {
     unsigned int i;
 
