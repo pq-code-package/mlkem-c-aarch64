@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1725530671183,
+  "lastUpdate": 1725530984640,
   "repoUrl": "https://github.com/pq-code-package/mlkem-c-aarch64",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -3131,6 +3131,73 @@ window.BENCHMARK_DATA = {
           {
             "name": "MLKEM1024 decaps",
             "value": 249693,
+            "unit": "cycles"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Hanno Becker",
+            "username": "hanno-becker",
+            "email": "beckphan@amazon.co.uk"
+          },
+          "committer": {
+            "name": "GitHub",
+            "username": "web-flow",
+            "email": "noreply@github.com"
+          },
+          "id": "16a4c696ba752cb7e669158785b61755d91a862c",
+          "message": "Push EC2 benchmark results to GH pages (#101)\n\n* Push EC2 benchmark results to GH pages\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Switch Gv2 benchmark to t4g.small\r\n\r\nAlso, use archflags instead of cflags for -mcpu setting\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n---------\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>",
+          "timestamp": "2024-09-05T09:53:09Z",
+          "url": "https://github.com/pq-code-package/mlkem-c-aarch64/commit/16a4c696ba752cb7e669158785b61755d91a862c"
+        },
+        "date": 1725530984260,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "MLKEM512 keypair",
+            "value": 75590,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM512 encaps",
+            "value": 87570,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM512 decaps",
+            "value": 111881,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM768 keypair",
+            "value": 127878,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM768 encaps",
+            "value": 142131,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM768 decaps",
+            "value": 174421,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM1024 keypair",
+            "value": 192244,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM1024 encaps",
+            "value": 209146,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM1024 decaps",
+            "value": 249633,
             "unit": "cycles"
           }
         ]
