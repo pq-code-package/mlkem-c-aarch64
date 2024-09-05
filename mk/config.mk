@@ -37,8 +37,6 @@ CFLAGS += \
 	-I fips202 \
 	$(CPPFLAGS)
 
-LDFLAGS += $(ARCH_FLAGS)
-
 LINKDEPS += $(LIBDEPS)
 
 ##################
