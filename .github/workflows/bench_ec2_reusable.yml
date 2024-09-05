@@ -2,10 +2,14 @@ name: bench-ec2-reusable
 on:
   workflow_call:
     inputs:
+      name:
+        type: string
+        description: Alternative name of instance
+        default: Graviton2
       ec2_instance_type:
         type: string
         description: Type if EC2 instance to benchmark on
-        default: c6g.medium
+        default: t4g.small
       ec2_ami_id:
         type: string
         description: AMI ID
@@ -13,17 +17,21 @@ on:
       cflags:
         type: string
         description: Custom CFLAGS for compilation
-        default: -mcpu=cortex-a76
+        default:
       archflags:
         type: string
         description: Custom ARCH flags for compilation
-        default: -march=armv8.2-a
+        default: -mcpu=neoverse-n1 -march=armv8.2-a
+      store_results:
+        type: string
+        description: Indicates if results should be pushed to github pages
+        default: 'false'
 env:
   AWS_ROLE: arn:aws:iam::559050233797:role/mlkem-c-aarch64-gh-action
   AWS_REGION: us-east-1
 jobs:
   start-ec2-runner:
-    name: Start ${{ github.event.inputs.ec2_instance_type }} instance
+    name: Start ${{ github.event.inputs.name }} (${{ github.event.inputs.ec2_instance_type }})
     permissions:
       contents: 'read'
       id-token: 'write'
@@ -33,7 +41,7 @@ jobs:
       ec2-instance-id: ${{ steps.start-ec2-runner.outputs.ec2-instance-id }}
     steps:
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ env.AWS_ROLE }}
           aws-region: ${{ env.AWS_REGION }}
@@ -48,7 +56,7 @@ jobs:
           subnet-id: subnet-07b2729e5e065962f
           security-group-id: sg-0ab2e297196c8c381
   bench:
-    name: Bench on ${{ inputs.ec2_instance_type }}
+    name: Bench ${{ inputs.name }}
     needs: start-ec2-runner # required to start the main job when the runner is ready
     runs-on: ${{ needs.start-ec2-runner.outputs.label }} # run the job on the newly created runner
     steps:
@@ -74,12 +82,23 @@ jobs:
       - name: Run benchmark
         shell: nix develop .#ci -c bash -e {0}
         run: |
-          tests bench -c PERF --cflags ${{ inputs.cflags }} --arch-flags ${{ inputs.archflags }} -v --output output.json
+          tests bench -c PERF --cflags "${{ inputs.cflags }}" --arch-flags "${{ inputs.archflags }}" -v --output output.json
       - name: Dump benchmark
+        if: ${{ inputs.store_results != 'true' }}
         run: |
           cat output.json
+      - name: Store benchmark result
+        if: ${{ inputs.store_results == 'true' }}
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          name: ${{ inputs.name }}
+          tool: 'customSmallerIsBetter'
+          output-file-path: output.json
+          github-token: ${{ secrets.AWS_GITHUB_TOKEN }}
+          auto-push: true
+
   stop-ec2-runner:
-    name: Stop ${{ inputs.ec2_instance_type }} instance
+    name: Stop ${{ github.event.inputs.name }} (${{ github.event.inputs.ec2_instance_type }})
     permissions:
       contents: 'read'
       id-token: 'write'
