@@ -2,6 +2,9 @@ name: bench-ec2-any
 on:
   workflow_dispatch:
     inputs:
+      name:
+        description: Alternative name of instance
+        default: Graviton2
       ec2_instance_type:
         description: Type if EC2 instance to benchmark on
         default: c6g.medium
@@ -14,6 +17,9 @@ on:
       archflags:
         description: Custom ARCH flags for compilation
         default: -march=armv8.2-a
+      store_results:
+        description: Indicates if results should be pushed to github pages
+        default: false
 jobs:
   bench-ec2-any:
     name: Ad-hoc benchmark on $${{ github.event.inputs.ec2_instance_type }}
@@ -23,4 +29,6 @@ jobs:
       ec2_ami_id: ${{ github.event.inputs.ec2_ami_id }}
       cflags: ${{ github.event.inputs.cflags }}
       archflags: ${{ github.event.inputs.archflags }}
+      name: ${{ github.event.inputs.name }}
+      store_results: ${{ github.event.inputs.store_results }}
     secrets: inherit
