@@ -1,0 +1,26 @@
+name: bench-ec2-any
+on:
+  workflow_dispatch:
+    inputs:
+      ec2_instance_type:
+        description: Type if EC2 instance to benchmark on
+        default: c6g.medium
+      ec2_ami_id:
+        description: AMI ID
+        default: ami-096ea6a12ea24a797
+      cflags:
+        description: Custom CFLAGS for compilation
+        default: -mcpu=cortex-a76
+      archflags:
+        description: Custom ARCH flags for compilation
+        default: -march=armv8.2-a
+jobs:
+  bench-ec2-any:
+    name: Ad-hoc benchmark on $${{ github.event.inputs.ec2_instance_type }}
+    uses: ./.github/workflows/bench_ec2_reusable.yml
+    with:
+      ec2_instance_type: ${{ github.event.inputs.ec2_instance_type }}
+      ec2_ami_id: ${{ github.event.inputs.ec2_ami_id }}
+      cflags: ${{ github.event.inputs.cflags }}
+      archflags: ${{ github.event.inputs.archflags }}
+    secrets: inherit
