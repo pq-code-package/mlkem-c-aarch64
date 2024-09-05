@@ -1,4 +1,4 @@
-name: bench-ec2-all
+name: Bench EC2
 on:
   workflow_dispatch:
   push:
@@ -15,10 +15,11 @@ jobs:
     uses: ./.github/workflows/bench_ec2_reusable.yml
     if: github.repository_owner == 'pq-code-package' && (github.event.label.name == 'benchmark' || github.ref == 'refs/heads/main')
     with:
-      ec2_instance_type: c6g.medium
+      ec2_instance_type: t4g.small
       ec2_ami_id: ami-096ea6a12ea24a797
-      cflags: -mcpu=cortex-a76
-      archflags: -march=armv8.2-a
+      archflags: -mcpu=cortex-a76 -march=armv8.2-a
+      store_results: 'true'
+      name: Graviton2
     secrets: inherit
   bench-gv3:
     name: Graviton3
@@ -30,6 +31,7 @@ jobs:
     with:
       ec2_instance_type: c7g.medium
       ec2_ami_id: ami-096ea6a12ea24a797
-      cflags: -mcpu=neoverse-v1
-      archflags: -march=armv8.4-a
+      archflags: -mcpu=neoverse-v1 -march=armv8.4-a
+      store_results: 'true'
+      name: Graviton3
     secrets: inherit
