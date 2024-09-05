@@ -2,7 +2,7 @@
 $(BUILD_DIR)/%: $(LINKDEPS) $(CONFIG)
 	$(Q)echo "  LD      $@"
 	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
-	$(LD) $(LDFLAGS) -o $@ $(filter %.o,$^) $(LDLIBS)
+	$(LD) $(CFLAGS) -o $@ $(filter %.o,$^) $(LDLIBS)
 
 $(LIB_DIR)/%.a: $(CONFIG)
 	$(Q)echo "  AR      $@"
