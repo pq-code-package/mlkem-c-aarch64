@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1725563416669,
+  "lastUpdate": 1725563640147,
   "repoUrl": "https://github.com/pq-code-package/mlkem-c-aarch64",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -1795,6 +1795,75 @@ window.BENCHMARK_DATA = {
           {
             "name": "MLKEM1024 decaps",
             "value": 1078462,
+            "unit": "cycles"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "rodchap@amazon.com",
+            "name": "Roderick Chapman",
+            "username": "rod-chapman"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d72aa188854a724853a6808bfa19ef743cafcca8",
+          "message": "Add proof of poly_compress() (#91)\n\n* Add contract-based proofs for compression functions\r\n\r\n- scalar_compress_q_16\r\n- scalar_compress_q_32\r\n- poly_compress\r\n\r\nSigned-off-by: Rod Chapman <rodchap@amazon.com>\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Correct loop invariants and assigns clauses in poly_compress()\r\n\r\nSigned-off-by: Rod Chapman <rodchap@amazon.com>\r\n\r\n* Update poly_compress() to avoid pointer arithmetic and mutation of formal parameter r. Uses array indexing instead.\r\n\r\nSigned-off-by: Rod Chapman <rodchap@amazon.com>\r\n\r\n* Use Bitwuzla for proof of poly_compress()\r\n\r\nSigned-off-by: Rod Chapman <rodchap@amazon.com>\r\n\r\n* 1. Correct pre-condition on poly_compress()\r\n\r\n2. Remove commented-out line in body of poly_compress()\r\n\r\nSigned-off-by: Rod Chapman <rodchap@amazon.com>\r\n\r\n* Explicitly disable EXTERNAL_SAT_SOLVER, and use SMT2 back-end instead\r\n\r\nSigned-off-by: Rod Chapman <rodchap@amazon.com>\r\n\r\n* Finalize proof of poly_compress()\r\n\r\n1. Introduce common num_blocks constant to avoid repetition of \"KYBER_N / 8\"\r\n2. Add explanatory comment on switch from pointer arithmetic to array indexing\r\n   in assignment to r[]\r\n3. Introduce loop invariants for the KYBER_K=4 branch of the code.\r\n\r\nSigned-off-by: Rod Chapman <rodchap@amazon.com>\r\n\r\n* Remove CBMC contracts on poly_decompress(). These will be re-introduced in a later PR\r\n\r\nSigned-off-by: Rod Chapman <rodchap@amazon.com>\r\n\r\n* Remove INDENT-ON and INDENT-OFF tags for now to keep astyle happy.\r\n\r\nSigned-off-by: Rod Chapman <rodchap@amazon.com>\r\n\r\n---------\r\n\r\nSigned-off-by: Rod Chapman <rodchap@amazon.com>\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>",
+          "timestamp": "2024-09-05T20:08:22+01:00",
+          "tree_id": "36933cf1671eef6052c9c107f420e7e92ee6f277",
+          "url": "https://github.com/pq-code-package/mlkem-c-aarch64/commit/d72aa188854a724853a6808bfa19ef743cafcca8"
+        },
+        "date": 1725563636393,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "MLKEM512 keypair",
+            "value": 297640,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM512 encaps",
+            "value": 368562,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM512 decaps",
+            "value": 495391,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM768 keypair",
+            "value": 510698,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM768 encaps",
+            "value": 595805,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM768 decaps",
+            "value": 762904,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM1024 keypair",
+            "value": 771222,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM1024 encaps",
+            "value": 870837,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM1024 decaps",
+            "value": 1078272,
             "unit": "cycles"
           }
         ]
