@@ -9,7 +9,7 @@ on:
       ec2_instance_type:
         type: string
         description: Type if EC2 instance to benchmark on
-        default: c6g.medium
+        default: t4g.small
       ec2_ami_id:
         type: string
         description: AMI ID
@@ -17,11 +17,11 @@ on:
       cflags:
         type: string
         description: Custom CFLAGS for compilation
-        default: -mcpu=cortex-a76
+        default:
       archflags:
         type: string
         description: Custom ARCH flags for compilation
-        default: -march=armv8.2-a
+        default: -mcpu=neoverse-n1 -march=armv8.2-a
       store_results:
         type: string
         description: Indicates if results should be pushed to github pages
@@ -82,7 +82,7 @@ jobs:
       - name: Run benchmark
         shell: nix develop .#ci -c bash -e {0}
         run: |
-          tests bench -c PERF --cflags ${{ inputs.cflags }} --arch-flags ${{ inputs.archflags }} -v --output output.json
+          tests bench -c PERF --cflags "${{ inputs.cflags }}" --arch-flags "${{ inputs.archflags }}" -v --output output.json
       - name: Dump benchmark
         if: ${{ inputs.store_results != 'true' }}
         run: |

@@ -7,16 +7,16 @@ on:
         default: Graviton2
       ec2_instance_type:
         description: Type if EC2 instance to benchmark on
-        default: c6g.medium
+        default: t4g.small
       ec2_ami_id:
         description: AMI ID
         default: ami-096ea6a12ea24a797
       cflags:
         description: Custom CFLAGS for compilation
-        default: -mcpu=cortex-a76
+        default:
       archflags:
         description: Custom ARCH flags for compilation
-        default: -march=armv8.2-a
+        default: -mcpu=cortex-a76 -march=armv8.2-a
       store_results:
         description: Indicates if results should be pushed to github pages
         default: false
