@@ -10,8 +10,8 @@ jobs:
   bench-gv2:
     name: Graviton2
     permissions:
-      contents: 'read'
-      id-token: 'write'
+      contents: read
+      id-token: write
     uses: ./.github/workflows/bench_ec2_reusable.yml
     if: github.repository_owner == 'pq-code-package' && (github.event.label.name == 'benchmark' || github.ref == 'refs/heads/main')
     with:
@@ -24,8 +24,8 @@ jobs:
   bench-gv3:
     name: Graviton3
     permissions:
-      contents: 'read'
-      id-token: 'write'
+      contents: read
+      id-token: write
     uses: ./.github/workflows/bench_ec2_reusable.yml
     if: github.repository_owner == 'pq-code-package' && (github.event.label.name == 'benchmark' || github.ref == 'refs/heads/main')
     with:
