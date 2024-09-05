@@ -22,7 +22,7 @@ jobs:
           cmd: tests bench -c PERF --arch-flags "-mcpu=cortex-a76 -march=armv8.2-a" -v --output output.json
         - system: a55
           name: Arm Cortex-A55 (Snapdragon 888) benchmarks
-          cmd: tests bench -c PERF --arch-flags "-static -mcpu=cortex-a55 -march=armv8.2-a" -w exec-on-a55 -v --output output.json
+          cmd: tests bench -c PERF --cflags -static --arch-flags "-mcpu=cortex-a55 -march=armv8.2-a" -w exec-on-a55 -v --output output.json
     runs-on: self-hosted-${{ matrix.target.system }}
     defaults:
       run:
