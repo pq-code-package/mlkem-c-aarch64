@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1725641223190,
+  "lastUpdate": 1725641440054,
   "repoUrl": "https://github.com/pq-code-package/mlkem-c-aarch64",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -1103,6 +1103,75 @@ window.BENCHMARK_DATA = {
           {
             "name": "MLKEM1024 decaps",
             "value": 519154,
+            "unit": "cycles"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "ry@linux.com",
+            "name": "Ry Jones",
+            "username": "ryjones"
+          },
+          "committer": {
+            "email": "ry@linux.com",
+            "name": "Ry Jones",
+            "username": "ryjones"
+          },
+          "distinct": true,
+          "id": "3138820190d7af42f69d148ae7b865f717f5ae6e",
+          "message": "Update configure-aws-credentials to latest\n\nSigned-off-by: Ry Jones <ry@linux.com>",
+          "timestamp": "2024-09-06T09:41:29-07:00",
+          "tree_id": "742924c90f34428a237dd9d7ee0d5a2d5af089bd",
+          "url": "https://github.com/pq-code-package/mlkem-c-aarch64/commit/3138820190d7af42f69d148ae7b865f717f5ae6e"
+        },
+        "date": 1725641438012,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "MLKEM512 keypair",
+            "value": 151103,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM512 encaps",
+            "value": 176557,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM512 decaps",
+            "value": 227203,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM768 keypair",
+            "value": 259800,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM768 encaps",
+            "value": 289597,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM768 decaps",
+            "value": 356890,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM1024 keypair",
+            "value": 399613,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM1024 encaps",
+            "value": 432509,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM1024 decaps",
+            "value": 517759,
             "unit": "cycles"
           }
         ]
