@@ -20,6 +20,9 @@ on:
       store_results:
         description: Indicates if results should be pushed to github pages
         default: false
+      always_terminate:
+        description: Indicates if EC2 instance should always be terminated
+        default: true
 jobs:
   bench-ec2-any:
     name: Ad-hoc benchmark on $${{ github.event.inputs.ec2_instance_type }}
@@ -31,4 +34,5 @@ jobs:
       archflags: ${{ github.event.inputs.archflags }}
       name: ${{ github.event.inputs.name }}
       store_results: ${{ github.event.inputs.store_results }}
+      always_terminate: ${{ github.event.inputs.always_terminate }}
     secrets: inherit
