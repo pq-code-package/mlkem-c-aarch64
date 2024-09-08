@@ -7,7 +7,7 @@ SRCDIR := $(CURDIR)
 ##############
 # GCC config #
 ##############
-CROSS_PREFIX ?= 
+CROSS_PREFIX ?=
 CC := $(CROSS_PREFIX)gcc
 CPP := $(CROSS_PREFIX)cpp
 AR := $(CROSS_PREFIX)ar
@@ -32,9 +32,12 @@ CFLAGS += \
 	-O3 \
 	-fomit-frame-pointer \
 	-pedantic \
+	-MMD \
 	-I mlkem \
 	-I fips202 \
 	$(CPPFLAGS)
+
+LINKDEPS += $(LIBDEPS)
 
 ##################
 # Some Variables #
@@ -65,9 +68,16 @@ endif
 # Include retained variables #
 ##############################
 
-RETAINED_VARS :=
+RNG ?=
+RETAINED_VARS := RNG BENCH CYCLES
 
-CONFIG := test/obj/.config.mk
+BUILD_DIR := test/build
+LIB_DIR := $(BUILD_DIR)/lib
+
+MAKE_OBJS = $(2:%=$(1)/%.o)
+OBJS = $(call MAKE_OBJS,$(BUILD_DIR),$(1))
+
+CONFIG := $(BUILD_DIR)/config.mk
 
 -include $(CONFIG)
 
@@ -76,8 +86,6 @@ $(CONFIG):
 	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
 	@echo "# These variables are retained and can't be changed without a clean" > $@
 	@$(foreach var,$(RETAINED_VARS),echo "$(var) := $($(var))" >> $@; echo "LAST_$(var) := $($(var))" >> $@;)
-
-RETAINED_VARS += CYCLES
 
 define VAR_CHECK
 ifneq ($$(origin LAST_$(1)),undefined)

@@ -16,13 +16,13 @@ jobs:
        target:
         - system: rpi4
           name: Arm Cortex-A72 (Raspberry Pi 4) benchmarks
-          cmd: tests bench -c PMU --cflags -mcpu=cortex-a72 -v --output output.json
+          cmd: tests bench -c PMU --arch-flags -mcpu=cortex-a72 -v --output output.json
         - system: rpi5
           name: Arm Cortex-A76 (Raspberry Pi 5) benchmarks
-          cmd: tests bench -c PERF --cflags -mcpu=cortex-a76 --arch-flags -march=armv8.2-a -v --output output.json
+          cmd: tests bench -c PERF --arch-flags "-mcpu=cortex-a76 -march=armv8.2-a" -v --output output.json
         - system: a55
           name: Arm Cortex-A55 (Snapdragon 888) benchmarks
-          cmd: tests bench -c PERF --cflags "-static -mcpu=cortex-a55" --arch-flags -march=armv8.2-a -w exec-on-a55 -v --output output.json
+          cmd: tests bench -c PERF --cflags -static --arch-flags "-mcpu=cortex-a55 -march=armv8.2-a" -w exec-on-a55 -v --output output.json
     runs-on: self-hosted-${{ matrix.target.system }}
     defaults:
       run:
