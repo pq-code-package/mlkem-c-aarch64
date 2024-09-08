@@ -30,6 +30,10 @@ on:
         type: string
         description: Indicates if instance should always be terminated, even on failure
         default: 'true'
+      bench_extra_args:
+        type: string
+        description: Additional command line to be appended to `bench` script
+        default: ''
 env:
   AWS_ROLE: arn:aws:iam::559050233797:role/mlkem-c-aarch64-gh-action
   AWS_REGION: us-east-1
@@ -91,19 +95,15 @@ jobs:
               $(cat /proc/cpuinfo)
             EOF
       - name: Run benchmark
-        shell: nix develop .#ci -c bash -e {0}
-        run: |
-          tests bench -c PERF --cflags "${{ inputs.cflags }}" --arch-flags "${{ inputs.archflags }}" -v --output output.json
-      - name: Store benchmark result
-        if: ${{ inputs.store_results == 'true' }}
-        uses: benchmark-action/github-action-benchmark@v1
+        uses: ./.github/actions/bench
         with:
           name: ${{ inputs.name }}
-          tool: 'customSmallerIsBetter'
-          output-file-path: output.json
-          github-token: ${{ secrets.AWS_GITHUB_TOKEN }}
-          auto-push: true
-
+          cflags: ${{ inputs.cflags }}
+          archflags: ${{ inputs.archflags }}
+          perf: PERF
+          store_results: ${{ inputs.store_results }}
+          bench_extra_args: ${{ inputs.bench_extra_args }}
+          gh_token: ${{ secrets.AWS_GITHUB_TOKEN }}
   stop-ec2-runner:
     name: Stop ${{ github.event.inputs.name }} (${{ github.event.inputs.ec2_instance_type }})
     permissions:
