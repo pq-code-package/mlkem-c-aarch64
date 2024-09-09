@@ -6,7 +6,7 @@
 }:
 builtins.attrValues {
   cbmc = cbmc.overrideAttrs (old: rec {
-    version = "6.2.0";
+    version = "6.2.0"; # remember to adjust this in ../flake.nix too
     src = fetchFromGitHub {
       owner = "diffblue";
       repo = old.pname;
