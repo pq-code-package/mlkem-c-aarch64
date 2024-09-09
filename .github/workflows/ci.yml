@@ -11,17 +11,34 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        system: [ macos-latest, pqcp-arm64, ubuntu-latest ]
+        external:
+         - ${{ github.repository_owner != 'pq-code-package' }}
+        target:
+         - runner: macos-latest
+           name: 'MacOS'
+           arch: 'arm64'
+           cross-prefix: ' '
+           cflags: '-DFORCE_AARCH64'
+         - runner: pqcp-arm64
+           name: 'ubuntu-latest (aarch64)'
+           arch: 'aarch64'
+           cross-prefix: ' '
+           cflags: '-DFORCE_AARCH64'
+         - runner: ubuntu-latest
+           name: 'ubuntu-latest (x86_64)'
+           arch: 'x86_64'
+           cross-prefix: 'aarch64-unknown-linux-gnu-'
+           cflags: '-DFORCE_AARCH64'
         exclude:
-          - system: ${{ github.repository_owner != 'pq-code-package' && 'pqcp-arm64' }}
-    name: build_kat (${{ matrix.system }})
-    runs-on: ${{ matrix.system }}
+         - external: true
+           target:
+             - runner: 'pqcp-arm64'
+               name: 'ubuntu-latest (aarch64)'
+    name: build_kat (${{ matrix.target.name }})
+    runs-on: ${{ matrix.target.runner }}
     defaults:
       run:
         shell: nix develop .#ci -c bash -e {0}
-    env:
-      CROSS_PREFIX: "${{ (matrix.system == 'ubuntu-latest' && 'aarch64-unknown-linux-gnu-') || ' ' }}"
-      EXPECT_ARCH: "${{ (matrix.system == 'macos-latest' && 'arm64') || (matrix.system == 'pqcp-arm64' && 'aarch64') || (matrix.system == 'ubuntu-latest' && 'x86_64') }}"
     steps:
       - uses: actions/checkout@v4
       - name: Setup nix
@@ -36,25 +53,25 @@ jobs:
               - $(uname -a)
               - $(nix --version)
               - $(astyle --version)
-              - $(${CROSS_PREFIX}gcc --version | grep -m1 "")
+              - $(${{ matrix.target.cross-prefix }}gcc --version | grep -m1 "")
               - $(bash --version | grep -m1 "")
             EOF
 
-            if [[ "$ARCH" != $EXPECT_ARCH ]]; then
-              echo ":x: Expecting to run on $EXPECT_ARCH, but instead running on $ARCH" >> $GITHUB_STEP_SUMMARY
+            if [[ "$ARCH" != ${{ matrix.target.arch }} ]]; then
+              echo ":x: Expecting to run on ${{ matrix.target.arch }}, but instead running on $ARCH" >> $GITHUB_STEP_SUMMARY
               exit 1
             fi
       - name: Run functional tests
         id: func_test
         run: |
-          tests func --cross-prefix=$CROSS_PREFIX -v
+          tests func --cross-prefix=${{ matrix.target.cross-prefix }} --cflags ${{ matrix.target.cflags }} -v
       - name: Run KAT tests
         id: kat_test
         if: |
           success()
           || steps.func_test.conclusion == 'failure'
         run: |
-          tests kat --cross-prefix=$CROSS_PREFIX -v
+          tests kat --cross-prefix=${{ matrix.target.cross-prefix }} --cflags ${{ matrix.target.cflags }} -v
       - name: Run Nistkat tests
         id: nistkat_test
         if: |
@@ -62,7 +79,7 @@ jobs:
           || steps.func_test.conclusion == 'failure'
           || steps.kat_test.conclusion == 'failure'
         run: |
-          tests nistkat --cross-prefix=$CROSS_PREFIX -v
+          tests nistkat --cross-prefix=${{ matrix.target.cross-prefix }} --cflags ${{ matrix.target.cflags }} -v
   lint:
     strategy:
       matrix:
@@ -86,7 +103,7 @@ jobs:
               - $(uname -a)
               - $(nix --version)
               - $(astyle --version)
-              - $(${CROSS_PREFIX}gcc --version | grep -m1 "")
+              - $(${{ matrix.target.cross-prefix }}gcc --version | grep -m1 "")
               - $(bash --version | grep -m1 "")
             EOF
       - name: Lint
