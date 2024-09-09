@@ -259,11 +259,16 @@ void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES])
 /*************************************************
 * Name:        poly_tobytes
 *
-* Description: Serialization of a polynomial
+* Description: Serialization of a polynomial.
+*              Signed coefficients are converted to
+*              unsigned form before seralization.
 *
-* Arguments:   - uint8_t *r: pointer to output byte array
-*                            (needs space for KYBER_POLYBYTES bytes)
-*              - const poly *a: pointer to input polynomial
+* Arguments:   INPUT:
+*              - a: const pointer to input polynomial,
+*                with each coefficient in the range -Q+1 .. Q-1
+*              OUTPUT
+*              - r: pointer to output byte array
+*                   (of KYBER_POLYBYTES bytes)
 **************************************************/
 void poly_tobytes(uint8_t r[KYBER_POLYBYTES], const poly *a)
 {
@@ -285,12 +290,16 @@ void poly_tobytes(uint8_t r[KYBER_POLYBYTES], const poly *a)
 /*************************************************
 * Name:        poly_frombytes
 *
-* Description: De-serialization of a polynomial;
-*              inverse of poly_tobytes
+* Description: De-serialization of a polynomial,
+*              but not strict inverse of poly_tobytes()
 *
-* Arguments:   - poly *r: pointer to output polynomial
-*              - const uint8_t *a: pointer to input byte array
-*                                  (of KYBER_POLYBYTES bytes)
+* Arguments:   INPUT
+*              - a: pointer to input byte array
+*                   (of KYBER_POLYBYTES bytes)
+*              OUTPUT
+*              - r: pointer to output polynomial, with
+*                   each coefficient unsigned and in the range
+*                   0 .. 4095
 **************************************************/
 void poly_frombytes(poly *r, const uint8_t a[KYBER_POLYBYTES])
 {
