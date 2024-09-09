@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1725874193748,
+  "lastUpdate": 1725878506306,
   "repoUrl": "https://github.com/pq-code-package/mlkem-c-aarch64",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -3453,6 +3453,75 @@ window.BENCHMARK_DATA = {
           {
             "name": "MLKEM1024 decaps",
             "value": 396155,
+            "unit": "cycles"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "rodchap@amazon.com",
+            "name": "Roderick Chapman",
+            "username": "rod-chapman"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "580c136b692ff8f4b68b823e1a90c89db17448a1",
+          "message": "Update CBMC to version 6.2.0 (#112)\n\n* Update CBMC to version 6.2.0\r\n\r\nSigned-off-by: Rod Chapman <rodchap@amazon.com>\r\n\r\n* Update version number of CBMC to 6.2.0 in flake.nix and add reminder in cbmc/default.nix to do this in future.\r\n\r\nSigned-off-by: Rod Chapman <rodchap@amazon.com>\r\n\r\n---------\r\n\r\nSigned-off-by: Rod Chapman <rodchap@amazon.com>",
+          "timestamp": "2024-09-09T11:39:30+01:00",
+          "tree_id": "8bc367c010be48281edf81e455a1241762b38b87",
+          "url": "https://github.com/pq-code-package/mlkem-c-aarch64/commit/580c136b692ff8f4b68b823e1a90c89db17448a1"
+        },
+        "date": 1725878499164,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "MLKEM512 keypair",
+            "value": 118640,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM512 encaps",
+            "value": 138307,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM512 decaps",
+            "value": 178144,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM768 keypair",
+            "value": 200692,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM768 encaps",
+            "value": 223503,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM768 decaps",
+            "value": 276152,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM1024 keypair",
+            "value": 306052,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM1024 encaps",
+            "value": 330880,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM1024 decaps",
+            "value": 396434,
             "unit": "cycles"
           }
         ]
