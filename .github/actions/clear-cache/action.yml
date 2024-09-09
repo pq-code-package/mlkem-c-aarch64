@@ -1,0 +1,31 @@
+# SPDX-License-Identifier: Apache-2.0
+
+name: Clear GitHub cache entries
+description: Removes entries from GitHub cache by key
+
+inputs:
+  key_prefix:
+    description: Fixed prefix of ID of Github cache entries that should be removed.
+    required: true
+  repository:
+    description: Name of the repository
+    required: true
+  gh_token:
+    description: Github access token to use
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: List and remove cache entries
+      shell: bash
+      run: |
+        cache_keys=$(gh cache list -R ${{ env.REPO }} -k ${{ inputs.key_prefix }} | cut -f 1)
+        echo "Deleting nix-installer caches..."
+        for key in $cache_keys
+        do
+          gh cache -R ${{ env.REPO }} delete $key || echo "Failed to remove key $key from Github action cache. Could be a race condition with another instance of this action."
+        done
+      env:
+        GH_TOKEN: ${{ inputs.gh_token }}
+        REPO: ${{ inputs.repository }}

@@ -44,17 +44,13 @@ jobs:
       label: ${{ steps.start-ec2-runner.outputs.label }}
       ec2-instance-id: ${{ steps.start-ec2-runner.outputs.ec2-instance-id }}
     steps:
+      - uses: actions/checkout@v4
       - name: Clear nix-installer action cache
-        run: |
-          cache_keys=$(gh cache list -R ${{ env.REPO }} -k determinatesystem-nix-installer-aarch64-linux | cut -f 1)
-          echo "Deleting nix-installer caches..."
-          for key in $cache_keys
-          do
-            gh cache -R ${{ env.REPO }} delete $key
-          done
-        env:
-          GH_TOKEN: ${{ secrets.AWS_GITHUB_TOKEN }}
-          REPO: ${{ github.repository }}
+        uses: ./.github/actions/clear-cache
+        with:
+           key_prefix: determinatesystem-nix-installer-
+           repository: ${{ github.repository }}
+           gh_token: ${{ secrets.AWS_GITHUB_TOKEN }}
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -98,10 +94,6 @@ jobs:
         shell: nix develop .#ci -c bash -e {0}
         run: |
           tests bench -c PERF --cflags "${{ inputs.cflags }}" --arch-flags "${{ inputs.archflags }}" -v --output output.json
-      - name: Dump benchmark
-        if: ${{ inputs.store_results != 'true' }}
-        run: |
-          cat output.json
       - name: Store benchmark result
         if: ${{ inputs.store_results == 'true' }}
         uses: benchmark-action/github-action-benchmark@v1
