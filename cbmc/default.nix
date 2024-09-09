@@ -6,12 +6,12 @@
 }:
 builtins.attrValues {
   cbmc = cbmc.overrideAttrs (old: rec {
-    version = "6.1.1";
+    version = "6.2.0"; # remember to adjust this in ../flake.nix too
     src = fetchFromGitHub {
       owner = "diffblue";
       repo = old.pname;
       rev = "${old.pname}-${version}";
-      hash = "sha256-zxlEel/HlCrz4Shy+4WZX7up4qm5h2FoP77kngi8XAo=";
+      hash = "sha256-WktGmkQpd7OXYEPgv0v7/+vwhTm1rERrjXIe6dzelFA=";
     };
     patches = [
       ./0001-Do-not-download-sources-in-cmake.patch
