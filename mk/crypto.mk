@@ -5,6 +5,7 @@ LIBDEPS += $(LIB_DIR)/libfips202.a
 LDLIBS += -lfips202
 CPPFLAGS += -Ifips202
 
+ifdef RNG
 ifeq ($(RNG),NISTRNG)
 	LIBDEPS += $(LIB_DIR)/libnistrng.a
 	LDLIBS += -lnistrng
@@ -21,3 +22,4 @@ $(LIB_DIR)/libnistrng.a: CFLAGS += -Wno-unused-result -O3 -fomit-frame-pointer
 $(LIB_DIR)/libnistrng.a: $(call OBJS,$(wildcard test/nistrng/*.c))
 
 $(LIB_DIR)/libfips202.a: $(call OBJS,$(wildcard fips202/*.c))
+endif
