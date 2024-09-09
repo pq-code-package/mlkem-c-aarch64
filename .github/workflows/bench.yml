@@ -16,13 +16,22 @@ jobs:
        target:
         - system: rpi4
           name: Arm Cortex-A72 (Raspberry Pi 4) benchmarks
-          cmd: tests bench -c PMU --arch-flags -mcpu=cortex-a72 -v --output output.json
+          bench_pmu: PMU
+          archflags: -mcpu=cortex-a72
+          cflags:
+          bench_extra_args:
         - system: rpi5
           name: Arm Cortex-A76 (Raspberry Pi 5) benchmarks
-          cmd: tests bench -c PERF --arch-flags "-mcpu=cortex-a76 -march=armv8.2-a" -v --output output.json
+          bench_pmu: PERF
+          archflags: "-mcpu=cortex-a76 -march=armv8.2-a"
+          cflags:
+          bench_extra_args:
         - system: a55
           name: Arm Cortex-A55 (Snapdragon 888) benchmarks
-          cmd: tests bench -c PERF --cflags -static --arch-flags "-mcpu=cortex-a55 -march=armv8.2-a" -w exec-on-a55 -v --output output.json
+          bench_pmu: PERF
+          archflags: "-mcpu=cortex-a55 -march=armv8.2-a"
+          cflags: -static
+          bench_extra_args: -w exec-on-a55
     runs-on: self-hosted-${{ matrix.target.system }}
     defaults:
       run:
@@ -51,14 +60,12 @@ jobs:
               $(cat /proc/cpuinfo)
             EOF
       - name: Run benchmark
-        run: |
-          ${{ matrix.target.cmd }}
-      - name: Store benchmark result
-        if: github.repository_owner == 'pq-code-package' && github.ref == 'refs/heads/main'
-        uses: benchmark-action/github-action-benchmark@v1
+        uses: ./.github/actions/bench
         with:
           name: ${{ matrix.target.name }}
-          tool: 'customSmallerIsBetter'
-          output-file-path: output.json
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          auto-push: true
+          cflags: ${{ matrix.target.cflags }}
+          archflags: ${{ matrix.target.archflags }}
+          perf: ${{ matrix.target.bench_pmu }}
+          store_results: ${{ github.repository_owner == 'pq-code-package' && github.ref == 'refs/heads/main' }}
+          bench_extra_args: ${{ matrix.target.bench_extra_args }}
+          gh_token: ${{ secrets.GITHUB_TOKEN }}

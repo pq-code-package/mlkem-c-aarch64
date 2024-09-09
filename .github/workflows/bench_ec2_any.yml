@@ -23,6 +23,9 @@ on:
       always_terminate:
         description: Indicates if EC2 instance should always be terminated
         default: true
+      bench_extra_args:
+        description: Additional command line to be appended to `tests bench` script
+        default: ''
 jobs:
   bench-ec2-any:
     name: Ad-hoc benchmark on $${{ github.event.inputs.ec2_instance_type }}
@@ -35,4 +38,5 @@ jobs:
       name: ${{ github.event.inputs.name }}
       store_results: ${{ github.event.inputs.store_results }}
       always_terminate: ${{ github.event.inputs.always_terminate }}
+      bench_extra_args: ${{ github.event.inputs.bench_extra_args }}
     secrets: inherit
