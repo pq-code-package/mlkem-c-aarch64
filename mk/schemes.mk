@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 SOURCES = $(wildcard mlkem/*.c)
-ifneq ($(OPT),REF)
-	SOURCES += $(wildcard mlkem/asm/*.S)
-	CPPFLAGS += -D$(OPT)
+ifeq ($(OPT),AARCH64)
+	SOURCES += $(wildcard mlkem/asm/aarch64/*.S)
+	CPPFLAGS += -DMLKEM_OPT_AARCH64
 endif
 
 CPPFLAGS += -Imlkem -Imlkem/sys

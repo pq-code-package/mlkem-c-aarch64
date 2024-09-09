@@ -292,7 +292,7 @@ _shared_options = [
     ),
     click.option(
         "--opt",
-        type=click.Choice(["REF", "NTT123_4567"], case_sensitive=False),
+        type=click.Choice(["REF", "AARCH64"], case_sensitive=False),
         help="Choose optimized version",
     ),
 ]
@@ -455,7 +455,7 @@ def bench(
         extra_make_envs=process_make_envs(cflags, arch_flags),
         extra_make_args=[
             f"CYCLES={cycles}",
-            *(f"OPT={opt}" if opt is not None else ""),
+            f"OPT={opt}" if opt is not None else "",
         ],
     )
 

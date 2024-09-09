@@ -4,6 +4,8 @@
 #include "reduce.h"
 #include <stdint.h>
 
+#include "asm/asm.h"
+
 /* Code to generate zetas and zetas_inv used in the number-theoretic transform:
 
 #define KYBER_ROOT_OF_UNITY 17
@@ -36,11 +38,6 @@ void init_ntt() {
   }
 }
 */
-
-#ifdef NTT123_4567
-void ntt_kyber_123_4567(int16_t *);
-void intt_kyber_123_4567(int16_t *);
-#endif
 
 const int16_t zetas[128] =
 {
@@ -84,9 +81,9 @@ static int16_t fqmul(int16_t a, int16_t b)
  **************************************************/
 void ntt(int16_t r[256])
 {
-    #ifdef NTT123_4567
+    #ifdef MLKEM_OPT_AARCH64
     ntt_kyber_123_4567(r);
-    #else
+    #else /* OPT_AARCH64 */
     unsigned int len, start, j, k;
     int16_t t, zeta;
 
@@ -104,7 +101,7 @@ void ntt(int16_t r[256])
             }
         }
     }
-    #endif
+    #endif /* OPT_AARCH64 */
 }
 
 /*************************************************
@@ -119,9 +116,9 @@ void ntt(int16_t r[256])
  **************************************************/
 void invntt(int16_t r[256])
 {
-    #ifdef NTT123_4567
+    #ifdef MLKEM_OPT_AARCH64
     intt_kyber_123_4567(r);
-    #else
+    #else /* OPT_AARCH64 */
     unsigned int start, len, j, k;
     int16_t t, zeta;
     const int16_t f = 1441; // mont^2/128
@@ -146,7 +143,7 @@ void invntt(int16_t r[256])
     {
         r[j] = fqmul(r[j], f);
     }
-    #endif
+    #endif /* OPT_AARCH64 */
 }
 
 /*************************************************
