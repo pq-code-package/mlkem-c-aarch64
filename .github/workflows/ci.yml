@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        system: [ macos-latest, pqcp-arm64, ubuntu-latest ]
+        system: [ macos-latest, pqcp-arm64, ubuntu-latest-x86_64-cross ]
         exclude:
           - system: ${{ github.repository_owner != 'pq-code-package' && 'pqcp-arm64' }}
     name: build_kat (${{ matrix.system }})
@@ -20,8 +20,9 @@ jobs:
       run:
         shell: nix develop .#ci -c bash -e {0}
     env:
-      CROSS_PREFIX: "${{ (matrix.system == 'ubuntu-latest' && 'aarch64-unknown-linux-gnu-') || ' ' }}"
-      EXPECT_ARCH: "${{ (matrix.system == 'macos-latest' && 'arm64') || (matrix.system == 'pqcp-arm64' && 'aarch64') || (matrix.system == 'ubuntu-latest' && 'x86_64') }}"
+      COMMON_CFLAGS: "-DFORCE_AARCH64"
+      CROSS_PREFIX: "${{ (matrix.system == 'ubuntu-latest-x86_64-cross' && 'aarch64-unknown-linux-gnu-') || ' ' }}"
+      EXPECT_ARCH: "${{ (matrix.system == 'macos-latest' && 'arm64') || (matrix.system == 'pqcp-arm64' && 'aarch64') || (matrix.system == 'ubuntu-latest-x86_64-cross' && 'x86_64') }}"
     steps:
       - uses: actions/checkout@v4
       - name: Setup nix
@@ -47,14 +48,14 @@ jobs:
       - name: Run functional tests
         id: func_test
         run: |
-          tests func --cross-prefix=$CROSS_PREFIX -v
+          tests func --cross-prefix=$CROSS_PREFIX --cflags ${COMMON_CFLAGS} -v
       - name: Run KAT tests
         id: kat_test
         if: |
           success()
           || steps.func_test.conclusion == 'failure'
         run: |
-          tests kat --cross-prefix=$CROSS_PREFIX -v
+          tests kat --cross-prefix=$CROSS_PREFIX --cflags ${COMMON_CFLAGS} -v
       - name: Run Nistkat tests
         id: nistkat_test
         if: |
@@ -62,7 +63,7 @@ jobs:
           || steps.func_test.conclusion == 'failure'
           || steps.kat_test.conclusion == 'failure'
         run: |
-          tests nistkat --cross-prefix=$CROSS_PREFIX -v
+          tests nistkat --cross-prefix=$CROSS_PREFIX --cflags ${COMMON_CFLAGS} -v
   lint:
     strategy:
       matrix:

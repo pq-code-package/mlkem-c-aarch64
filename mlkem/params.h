@@ -2,6 +2,8 @@
 #ifndef PARAMS_H
 #define PARAMS_H
 
+#include "cpucap.h"
+
 #ifndef KYBER_K
 #define KYBER_K 3   /* Change this for different security strengths */
 #endif
