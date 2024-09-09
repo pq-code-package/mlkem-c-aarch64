@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1725865414644,
+  "lastUpdate": 1725865612383,
   "repoUrl": "https://github.com/pq-code-package/mlkem-c-aarch64",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -2347,6 +2347,75 @@ window.BENCHMARK_DATA = {
           {
             "name": "MLKEM1024 decaps",
             "value": 1078141,
+            "unit": "cycles"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "beckphan@amazon.co.uk",
+            "name": "Hanno Becker",
+            "username": "hanno-becker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a5b57128fcf5079c21af3c52595fe96f1b41876e",
+          "message": "Hoist benchmarking steps into reusable GH action (#110)\n\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\nSigned-off-by: Ry Jones <ry@linux.com>",
+          "timestamp": "2024-09-09T08:01:11+01:00",
+          "tree_id": "3444a5bd5ad8e18c4139cff55a32144195dfe712",
+          "url": "https://github.com/pq-code-package/mlkem-c-aarch64/commit/a5b57128fcf5079c21af3c52595fe96f1b41876e"
+        },
+        "date": 1725865609420,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "MLKEM512 keypair",
+            "value": 297760,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM512 encaps",
+            "value": 368498,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM512 decaps",
+            "value": 495404,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM768 keypair",
+            "value": 510680,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM768 encaps",
+            "value": 595798,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM768 decaps",
+            "value": 763008,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM1024 keypair",
+            "value": 771412,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM1024 encaps",
+            "value": 870958,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM1024 decaps",
+            "value": 1078363,
             "unit": "cycles"
           }
         ]
