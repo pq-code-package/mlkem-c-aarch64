@@ -261,7 +261,7 @@ void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES])
 *
 * Description: Serialization of a polynomial.
 *              Signed coefficients are converted to
-*              unsigned form before seralization.
+*              unsigned form before serialization.
 *
 * Arguments:   INPUT:
 *              - a: const pointer to input polynomial,
