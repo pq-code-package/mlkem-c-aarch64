@@ -73,37 +73,16 @@ jobs:
   bench:
     name: Bench ${{ inputs.name }}
     needs: start-ec2-runner # required to start the main job when the runner is ready
-    runs-on: ${{ needs.start-ec2-runner.outputs.label }} # run the job on the newly created runner
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup nix
-        uses: ./.github/actions/setup-nix
-        with:
-          devShell: ci
-          script: |
-            ARCH=$(uname -m)
-            cat >> $GITHUB_STEP_SUMMARY <<-EOF
-              ## Setup
-              Architecture: $ARCH
-              - $(uname -a)
-              - $(nix --version)
-              - $(astyle --version)
-              - $(${{ matrix.target.cross_prefix }}gcc --version | grep -m1 "")
-              - $(bash --version | grep -m1 "")
-
-              ## CPU Info
-              $(cat /proc/cpuinfo)
-            EOF
-      - name: Run benchmark
-        uses: ./.github/actions/bench
-        with:
-          name: ${{ inputs.name }}
-          cflags: ${{ inputs.cflags }}
-          archflags: ${{ inputs.archflags }}
-          perf: PERF
-          store_results: ${{ inputs.store_results }}
-          bench_extra_args: ${{ inputs.bench_extra_args }}
-          gh_token: ${{ secrets.AWS_GITHUB_TOKEN }}
+    uses: ./.github/workflows/bench_core_reusable.yml
+    with:
+      runner: ${{ needs.start-ec2-runner.outputs.label }}
+      name: ${{ inputs.name }}
+      cflags: ${{ inputs.cflags }}
+      archflags: ${{ inputs.archflags }}
+      perf: PERF
+      store_results: ${{ inputs.store_results }}
+      bench_extra_args: ${{ inputs.bench_extra_args }}
+    secrets: inherit
   stop-ec2-runner:
     name: Stop ${{ github.event.inputs.name }} (${{ github.event.inputs.ec2_instance_type }})
     permissions:

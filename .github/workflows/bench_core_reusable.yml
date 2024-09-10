@@ -1,0 +1,69 @@
+name: bench-core-reusable
+on:
+  workflow_call:
+    inputs:
+      runner:
+        type: string
+        description: Name of the runner to use
+      name:
+        type: string
+        description: Name for the benchmarking run
+        required: true
+      perf:
+        description: Method of obtaining PMU metrics (NO, PERF, PMU, M1)
+        required: true
+        default: 'PERF'
+        type: string
+      cflags:
+        type: string
+        description: CFLAGS to pass to compilation
+        default: ''
+      archflags:
+        type: string
+        description: ARCHFLAGS to pass to compilation
+        default: ''
+      bench_extra_args:
+        type: string
+        description: Further arguments to be appended to command line for `bench` script
+        default: ''
+      store_results:
+        type: string
+        description: Whether to push results to GH pages
+        default: 'false'
+jobs:
+  bench:
+    name: Bench ${{ inputs.name }}
+    runs-on: ${{ inputs.runner }}
+    defaults:
+      run:
+        shell: nix develop .#ci -c bash -e {0}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup nix
+        uses: ./.github/actions/setup-nix
+        with:
+          devShell: ci
+          script: |
+            ARCH=$(uname -m)
+            cat >> $GITHUB_STEP_SUMMARY <<-EOF
+              ## Setup
+              Architecture: $ARCH
+              - $(uname -a)
+              - $(nix --version)
+              - $(astyle --version)
+              - $(${{ matrix.target.cross_prefix }}gcc --version | grep -m1 "")
+              - $(bash --version | grep -m1 "")
+
+              ## CPU Info
+              $(cat /proc/cpuinfo)
+            EOF
+      - name: Run benchmark
+        uses: ./.github/actions/bench
+        with:
+          name: ${{ inputs.name }}
+          cflags: ${{ inputs.cflags }}
+          archflags: ${{ inputs.archflags }}
+          perf: ${{ inputs.perf }}
+          store_results: ${{ inputs.store_results }}
+          bench_extra_args: ${{ inputs.bench_extra_args }}
+          gh_token: ${{ secrets.AWS_GITHUB_TOKEN }}
