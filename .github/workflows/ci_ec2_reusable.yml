@@ -1,0 +1,122 @@
+name: ci-ec2-reusable
+on:
+  workflow_call:
+    inputs:
+      name:
+        type: string
+        description: Alternative name of instance
+        default: Graviton2
+      ec2_instance_type:
+        type: string
+        description: Type if EC2 instance to benchmark on
+        default: t4g.small
+      ec2_ami_id:
+        type: string
+        description: AMI ID
+        default: ami-096ea6a12ea24a797
+      cflags:
+        type: string
+        description: Custom CFLAGS for compilation
+        default:
+      cross-prefix:
+        type: string
+        description: Cross-compilation binary prefix, if any
+        default: ' '
+      always_terminate:
+        type: string
+        description: Indicates if instance should always be terminated, even on failure
+        default: 'true'
+      functest:
+        type: boolean
+        default: 'true'
+      lint:
+        type: boolean
+        default: 'true'
+      cbmc:
+        type: boolean
+        default: 'false'
+
+env:
+  AWS_ROLE: arn:aws:iam::559050233797:role/mlkem-c-aarch64-gh-action
+  AWS_REGION: us-east-1
+jobs:
+  start-ec2-runner:
+    name: Start ${{ github.event.inputs.name }} (${{ github.event.inputs.ec2_instance_type }})
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+    runs-on: ubuntu-latest
+    outputs:
+      label: ${{ steps.start-ec2-runner.outputs.label }}
+      ec2-instance-id: ${{ steps.start-ec2-runner.outputs.ec2-instance-id }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Clear nix-installer action cache
+        uses: ./.github/actions/clear-cache
+        with:
+           key_prefix: determinatesystem-nix-installer-
+           repository: ${{ github.repository }}
+           gh_token: ${{ secrets.AWS_GITHUB_TOKEN }}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_ROLE }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Start EC2 runner
+        id: start-ec2-runner
+        uses: machulav/ec2-github-runner@v2
+        with:
+          mode: start
+          github-token: ${{ secrets.AWS_GITHUB_TOKEN }}
+          ec2-image-id: ${{ inputs.ec2_ami_id }}
+          ec2-instance-type: ${{ inputs.ec2_instance_type }}
+          subnet-id: subnet-07b2729e5e065962f
+          security-group-id: sg-0ab2e297196c8c381
+  functest:
+    name: Functional tests ${{ inputs.name }}
+    if: ${{ inputs.functest == 'true' }}
+    needs: start-ec2-runner # required to start the main job when the runner is ready
+    uses: ./.github/workflows/functest_core_reusable.yml
+    with:
+      runner: ${{ needs.start-ec2-runner.outputs.label }}
+      cflags: ${{ inputs.cflags }}
+      cross-prefix: ${{ inputs.cross-prefix }}
+  lint:
+    name: Lint ${{ inputs.name }}
+    if: ${{ inputs.lint == 'true' }}
+    needs: start-ec2-runner # required to start the main job when the runner is ready
+    uses: ./.github/workflows/lint_core_reusable.yml
+    with:
+      runner: ${{ needs.start-ec2-runner.outputs.label }}
+      cross-prefix: ${{ inputs.cross-prefix }}
+  cbmc:
+    name: CBMC ${{ inputs.name }}
+    if: ${{ inputs.cbmc == 'true' }}
+    needs: start-ec2-runner # required to start the main job when the runner is ready
+    uses: ./.github/workflows/cbmc_core_reusable.yml
+    with:
+      runner: ${{ needs.start-ec2-runner.outputs.label }}
+      cross-prefix: ${{ inputs.cross-prefix }}
+  stop-ec2-runner:
+    name: Stop ${{ github.event.inputs.name }} (${{ github.event.inputs.ec2_instance_type }})
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+    needs:
+      - start-ec2-runner
+      - bench # required to wait when the main job is done
+    runs-on: ubuntu-latestn
+    if: ${{ (inputs.always_terminate == 'true' && always()) || success() }} # required to stop the runner even if the error happened in the previous jobs
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_ROLE }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Stop EC2 runner
+        uses: machulav/ec2-github-runner@v2
+        with:
+          mode: stop
+          github-token: ${{ secrets.AWS_GITHUB_TOKEN }}
+          label: ${{ needs.start-ec2-runner.outputs.label }}
+          ec2-instance-id: ${{ needs.start-ec2-runner.outputs.ec2-instance-id }}
