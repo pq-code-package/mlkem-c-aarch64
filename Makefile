@@ -1,32 +1,28 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-.PHONY: all mlkem kat nistkat clean
-
-all: mlkem bench kat nistkat
+.PHONY: mlkem kat nistkat clean
 
 include mk/config.mk
+-include mk/$(MAKECMDGOALS).mk
 include mk/crypto.mk
 include mk/schemes.mk
-include mk/hal.mk
 include mk/rules.mk
-
-MAKEFLAGS = --no-print-directory
 
 mlkem: \
   $(MLKEM512_DIR)/bin/test_kyber512 \
   $(MLKEM768_DIR)/bin/test_kyber768 \
-  $(MLKEM1024_DIR)/bin/test_kyber1024 \
+  $(MLKEM1024_DIR)/bin/test_kyber1024
 
-bench:
-	$(MAKE) $(MAKEFLAGS) BENCH=1 $(MLKEM512_DIR)/bin/bench_kyber512
-	$(MAKE) $(MAKEFLAGS) BENCH=1 $(MLKEM768_DIR)/bin/bench_kyber768
-	$(MAKE) $(MAKEFLAGS) BENCH=1 $(MLKEM1024_DIR)/bin/bench_kyber1024
+bench: \
+	$(MLKEM512_DIR)/bin/bench_kyber512 \
+	$(MLKEM768_DIR)/bin/bench_kyber768 \
+	$(MLKEM1024_DIR)/bin/bench_kyber1024
 
-nistkat:
-	$(MAKE) $(MAKEFLAGS) RNG=NISTRNG $(MLKEM512_DIR)/bin/gen_NISTKAT512
-	$(MAKE) $(MAKEFLAGS) RNG=NISTRNG $(MLKEM768_DIR)/bin/gen_NISTKAT768
-	$(MAKE) $(MAKEFLAGS) RNG=NISTRNG $(MLKEM1024_DIR)/bin/gen_NISTKAT1024
+nistkat: \
+	$(MLKEM512_DIR)/bin/gen_NISTKAT512 \
+	$(MLKEM768_DIR)/bin/gen_NISTKAT768 \
+	$(MLKEM1024_DIR)/bin/gen_NISTKAT1024
 
 kat: \
   $(MLKEM512_DIR)/bin/gen_KAT512 \

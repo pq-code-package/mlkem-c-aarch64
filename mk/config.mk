@@ -66,7 +66,9 @@ endif
 # Include retained variables #
 ##############################
 
-RNG ?= RNG
+RNG ?=
+BENCH :=
+CYCLES ?=
 RETAINED_VARS := RNG BENCH CYCLES
 
 BUILD_DIR := test/build
