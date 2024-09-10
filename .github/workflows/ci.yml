@@ -62,24 +62,10 @@ jobs:
               exit 1
             fi
       - name: Run functional tests
-        id: func_test
-        run: |
-          tests func --cross-prefix=${{ matrix.target.cross-prefix }} --cflags ${{ matrix.target.cflags }} -v
-      - name: Run KAT tests
-        id: kat_test
-        if: |
-          success()
-          || steps.func_test.conclusion == 'failure'
-        run: |
-          tests kat --cross-prefix=${{ matrix.target.cross-prefix }} --cflags ${{ matrix.target.cflags }} -v
-      - name: Run Nistkat tests
-        id: nistkat_test
-        if: |
-          success()
-          || steps.func_test.conclusion == 'failure'
-          || steps.kat_test.conclusion == 'failure'
-        run: |
-          tests nistkat --cross-prefix=${{ matrix.target.cross-prefix }} --cflags ${{ matrix.target.cflags }} -v
+        uses: ./.github/actions/functest
+        with:
+          cflags: ${{ matrix.target.cflags }}
+          cross-prefix: ${{ matrix.target.cross-prefix }}
   lint:
     strategy:
       matrix:
