@@ -290,8 +290,10 @@ void poly_tobytes(uint8_t r[KYBER_POLYBYTES], const poly *a)
 /*************************************************
 * Name:        poly_frombytes
 *
-* Description: De-serialization of a polynomial,
-*              but not strict inverse of poly_tobytes()
+* Description: De-serialization of a polynomial.
+*
+*              Note that this is not a strict inverse to poly_tobytes() since
+*              the latter includes normalization to unsigned coefficients.
 *
 * Arguments:   INPUT
 *              - a: pointer to input byte array
