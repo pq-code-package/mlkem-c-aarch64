@@ -33,8 +33,6 @@ CFLAGS += \
 	-fomit-frame-pointer \
 	-pedantic \
 	-MMD \
-	-I mlkem \
-	-I fips202 \
 	$(CPPFLAGS)
 
 LINKDEPS += $(LIBDEPS)
@@ -69,6 +67,8 @@ endif
 ##############################
 
 RNG ?=
+BENCH :=
+CYCLES ?=
 RETAINED_VARS := RNG BENCH CYCLES
 
 BUILD_DIR := test/build
