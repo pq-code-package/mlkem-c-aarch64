@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1725956730194,
+  "lastUpdate": 1725958822860,
   "repoUrl": "https://github.com/pq-code-package/mlkem-c-aarch64",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -3867,6 +3867,75 @@ window.BENCHMARK_DATA = {
           {
             "name": "MLKEM1024 decaps",
             "value": 396511,
+            "unit": "cycles"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "rodchap@amazon.com",
+            "name": "Roderick Chapman",
+            "username": "rod-chapman"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "1912ae84ba269f7886c767c19efd8e708ccecc0e",
+          "message": "Fix comments on poly_tobytes() and poly_frombytes() (#116)\n\n* Fix comments on poly_tobytes() and poly_frombytes()\r\n\r\nComments now specify exact ranges of input and outputs.\r\n\r\nTo be promoted to being proper contracts in a future PR.\r\n\r\nSigned-off-by: Rod Chapman <rodchap@amazon.com>\r\n\r\n* Update mlkem/poly.c\r\n\r\nCo-authored-by: Hanno Becker <beckphan@amazon.co.uk>\r\nSigned-off-by: Roderick Chapman <rodchap@amazon.com>\r\n\r\n* Correct typo in comment only. Fixes #52\r\n\r\nSigned-off-by: Rod Chapman <rodchap@amazon.com>\r\n\r\n---------\r\n\r\nSigned-off-by: Rod Chapman <rodchap@amazon.com>\r\nSigned-off-by: Roderick Chapman <rodchap@amazon.com>\r\nCo-authored-by: Hanno Becker <beckphan@amazon.co.uk>",
+          "timestamp": "2024-09-10T09:58:31+01:00",
+          "tree_id": "dc03fd0170a49ceef7abb0406c0cb453cc5f6954",
+          "url": "https://github.com/pq-code-package/mlkem-c-aarch64/commit/1912ae84ba269f7886c767c19efd8e708ccecc0e"
+        },
+        "date": 1725958820549,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "MLKEM512 keypair",
+            "value": 118597,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM512 encaps",
+            "value": 138320,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM512 decaps",
+            "value": 178171,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM768 keypair",
+            "value": 200522,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM768 encaps",
+            "value": 223337,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM768 decaps",
+            "value": 275995,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM1024 keypair",
+            "value": 306103,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM1024 encaps",
+            "value": 330938,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM1024 decaps",
+            "value": 396425,
             "unit": "cycles"
           }
         ]
