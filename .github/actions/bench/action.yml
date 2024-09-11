@@ -53,7 +53,6 @@ runs:
             Architecture: $ARCH
             - $(uname -a)
             - $(nix --version)
-            - $(astyle --version)
             - $(${{ matrix.target.cross_prefix }}gcc --version | grep -m1 "")
             - $(bash --version | grep -m1 "")
 

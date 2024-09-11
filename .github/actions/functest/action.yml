@@ -28,7 +28,6 @@ runs:
               Architecture: $ARCH
               - $(uname -a)
               - $(nix --version)
-              - $(astyle --version)
               - $(${{ inputs.cross-prefix }}gcc --version | grep -m1 "")
               - $(bash --version | grep -m1 "")
             EOF
@@ -39,7 +38,9 @@ runs:
         id: func_test
         shell: ${{ env.SHELL }}
         run: |
+          echo "::group::func_test"
           tests func --cross-prefix=${{ inputs.cross-prefix }} --cflags ${{ inputs.cflags }} -v
+          echo "::endgroup::"
       - name: Run KAT tests
         if: |
           success()
@@ -47,7 +48,9 @@ runs:
         id: kat_test
         shell: ${{ env.SHELL }}
         run: |
+          echo "::group::func_test"
           tests kat --cross-prefix=${{ inputs.cross-prefix }} --cflags ${{ inputs.cflags }} -v
+          echo "::endgroup::"
       - name: Run Nistkat tests
         id: nistkat_test
         if: |
@@ -56,4 +59,6 @@ runs:
           || steps.kat_test.conclusion == 'failure'
         shell: ${{ env.SHELL }}
         run: |
+          echo "::group::func_test"
           tests nistkat --cross-prefix=${{ inputs.cross-prefix }} --cflags ${{ inputs.cflags }} -v
+          echo "::endgroup::"

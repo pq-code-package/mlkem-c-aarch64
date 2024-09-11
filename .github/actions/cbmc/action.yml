@@ -40,6 +40,8 @@ runs:
         shell: ${{ env.SHELL }}
         run: |
           cd cbmc/proofs;
+          echo "::group::cbmc"
           KYBER_K=2 ./run-cbmc-proofs.py --summarize;
           KYBER_K=3 ./run-cbmc-proofs.py --summarize;
           KYBER_K=4 ./run-cbmc-proofs.py --summarize;
+          echo "::endgroup::"
