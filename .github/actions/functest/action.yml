@@ -4,6 +4,9 @@ name: Functional tests
 description: Run functional tests for MLKEM-C_AArch64
 
 inputs:
+  use-nix:
+    description: Whether to run in the default Nix environment
+    default: true
   cflags:
     description: CFLAGS to pass to compilation
     default: ''
@@ -13,9 +16,28 @@ inputs:
 runs:
   using: composite
   steps:
+      - name: Setup nix
+        uses: ./.github/actions/setup-nix
+        if: ${{ inputs.use-nix }}
+        with:
+          devShell: ci
+          script: |
+            ARCH=$(uname -m)
+            cat >> $GITHUB_STEP_SUMMARY <<-EOF
+              ## Setup
+              Architecture: $ARCH
+              - $(uname -a)
+              - $(nix --version)
+              - $(astyle --version)
+              - $(${{ inputs.cross-prefix }}gcc --version | grep -m1 "")
+              - $(bash --version | grep -m1 "")
+            EOF
+      - name: Set shell
+        shell: bash
+        run: echo SHELL="${{ inputs.use-nix && 'nix develop .#ci -c bash -e {0}' || inputs.custom_shell }}" >> $GITHUB_ENV
       - name: Run functional tests
         id: func_test
-        shell: nix develop .#ci -c bash -e {0}
+        shell: ${{ env.SHELL }}
         run: |
           tests func --cross-prefix=${{ inputs.cross-prefix }} --cflags ${{ inputs.cflags }} -v
       - name: Run KAT tests
@@ -23,7 +45,7 @@ runs:
           success()
           || steps.func_test.conclusion == 'failure'
         id: kat_test
-        shell: nix develop .#ci -c bash -e {0}
+        shell: ${{ env.SHELL }}
         run: |
           tests kat --cross-prefix=${{ inputs.cross-prefix }} --cflags ${{ inputs.cflags }} -v
       - name: Run Nistkat tests
@@ -32,6 +54,6 @@ runs:
           success()
           || steps.func_test.conclusion == 'failure'
           || steps.kat_test.conclusion == 'failure'
-        shell: nix develop .#ci -c bash -e {0}
+        shell: ${{ env.SHELL }}
         run: |
           tests nistkat --cross-prefix=${{ inputs.cross-prefix }} --cflags ${{ inputs.cflags }} -v

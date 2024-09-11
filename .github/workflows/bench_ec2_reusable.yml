@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+
 name: bench-ec2-reusable
 on:
   workflow_call:
@@ -72,17 +74,20 @@ jobs:
           security-group-id: sg-0ab2e297196c8c381
   bench:
     name: Bench ${{ inputs.name }}
+    runs-on: ${{ needs.start-ec2-runner.outputs.label }}
     needs: start-ec2-runner # required to start the main job when the runner is ready
-    uses: ./.github/workflows/bench_core_reusable.yml
-    with:
-      runner: ${{ needs.start-ec2-runner.outputs.label }}
-      name: ${{ inputs.name }}
-      cflags: ${{ inputs.cflags }}
-      archflags: ${{ inputs.archflags }}
-      perf: PERF
-      store_results: ${{ inputs.store_results }}
-      bench_extra_args: ${{ inputs.bench_extra_args }}
-    secrets: inherit
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/bench
+        with:
+          use-nix: true
+          name: ${{ inputs.name }}
+          cflags: ${{ inputs.cflags }}
+          archflags: ${{ inputs.archflags }}
+          perf: PERF
+          store_results: ${{ inputs.store_results }}
+          bench_extra_args: ${{ inputs.bench_extra_args }}
+          gh_token: ${{ secrets.AWS_GITHUB_TOKEN }}
   stop-ec2-runner:
     name: Stop ${{ github.event.inputs.name }} (${{ github.event.inputs.ec2_instance_type }})
     permissions:

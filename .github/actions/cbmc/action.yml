@@ -1,24 +1,24 @@
-name: cbmc-core-reusable
-on:
-  workflow_call:
-    inputs:
-      runner:
-        type: string
-        description: Name of the runner to use
-      cross-prefix:
-        type: string
-        description: Cross-compilation binary prefix, if any
-        default: ' '
-jobs:
-  cbmc:
-    name: CBMC ${{ inputs.runner }}
-    runs-on: ${{ inputs.runner }}
-    defaults:
-      run:
-        shell: nix develop .#ci-cbmc -c bash -e {0}
-    steps:
+# SPDX-License-Identifier: Apache-2.0
+
+name: CBMC
+description: Run CBMC proofs for MLKEM-C_AArch64
+
+inputs:
+  use-nix:
+    description: Whether to run in the default Nix environment
+    default: true
+  custom_shell:
+    description: The shell to use. Only relevant if use-nix is 'false'
+    default: 'bash'
+  cross-prefix:
+    description: Binary prefix for cross compilation
+    default: ''
+runs:
+  using: composite
+  steps:
       - uses: actions/checkout@v4
       - name: Setup nix
+        if: ${{ inputs.use-nix }}
         uses: ./.github/actions/setup-nix
         with:
           devShell: ci-cbmc
@@ -33,7 +33,11 @@ jobs:
               - $(${{ inputs.cross_prefix }}gcc --version | grep -m1 "")
               - $(bash --version | grep -m1 "")
             EOF
+      - name: Set shell
+        shell: bash
+        run: echo SHELL="${{ inputs.use-nix && 'nix develop .#ci-cbmc -c bash -e {0}' || inputs.custom_shell }}" >> $GITHUB_ENV
       - name: Run CBMC proofs
+        shell: ${{ env.SHELL }}
         run: |
           cd cbmc/proofs;
           KYBER_K=2 ./run-cbmc-proofs.py --summarize;

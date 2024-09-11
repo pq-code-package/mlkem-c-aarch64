@@ -32,15 +32,16 @@ jobs:
           archflags: "-mcpu=cortex-a55 -march=armv8.2-a"
           cflags: "-static -DFORCE_AARCH64"
           bench_extra_args: -w exec-on-a55
-    uses: ./.github/workflows/bench_core_reusable.yml
     if: github.repository_owner == 'pq-code-package' && (github.event.label.name == 'benchmark' || github.ref == 'refs/heads/main')
-    with:
-      runner: self-hosted-${{ matrix.target.system }}
-      name: ${{ matrix.target.name }}
-      cflags: ${{ matrix.target.cflags }}
-      archflags: ${{ matrix.target.archflags }}
-      perf: ${{ matrix.target.bench_pmu }}
-      store_results: ${{ github.repository_owner == 'pq-code-package' && github.ref == 'refs/heads/main' }}
-      bench_extra_args: ${{ matrix.target.bench_extra_args }}
-    secrets:
-      inherit
+    runs-on: self-hosted-${{ matrix.target.system }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/bench
+        with:
+          name: ${{ matrix.target.name }}
+          cflags: ${{ matrix.target.cflags }}
+          archflags: ${{ matrix.target.archflags }}
+          perf: ${{ matrix.target.bench_pmu }}
+          store_results: ${{ github.repository_owner == 'pq-code-package' && github.ref == 'refs/heads/main' }}
+          bench_extra_args: ${{ matrix.target.bench_extra_args }}
+          gh_token: ${{ secrets.AWS_GITHUB_TOKEN }}

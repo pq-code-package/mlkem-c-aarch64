@@ -1,0 +1,41 @@
+# SPDX-License-Identifier: Apache-2.0
+
+name: Lint
+description: Lint MLKEM-C_AArch64
+
+inputs:
+  use-nix:
+    description: Whether to run in the default Nix environment
+    default: true
+  custom_shell:
+    description: The shell to use. Only relevant if use-nix is 'false'
+    default: 'bash'
+  cross-prefix:
+    description: Binary prefix for cross compilation
+    default: ''
+runs:
+  using: composite
+  steps:
+      - name: Setup nix
+        if: ${{ inputs.use-nix }}
+        uses: ./.github/actions/setup-nix
+        with:
+          devShell: ci-linter
+          script: |
+            cat >> $GITHUB_STEP_SUMMARY << EOF
+              ## Setup
+              Architecture: $(uname -m)
+              - $(uname -a)
+              - $(nix --version)
+              - $(astyle --version)
+              - $(${{ matrix.target.cross-prefix }}gcc --version | grep -m1 "")
+              - $(bash --version | grep -m1 "")
+            EOF
+      - name: Set shell
+        shell: bash
+        run: echo SHELL="${{ inputs.use-nix && 'nix develop .#ci-linter -c bash -e {0}' || inputs.custom_shell }}" >> $GITHUB_ENV
+      - name: Run linter
+        shell: ${{ env.SHELL }}
+        run: |
+          echo "## Lint & Checks" >> $GITHUB_STEP_SUMMARY
+          lint

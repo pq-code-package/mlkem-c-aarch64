@@ -35,24 +35,34 @@ jobs:
              - runner: 'pqcp-arm64'
                name: 'ubuntu-latest (aarch64)'
     name: Functional tests (${{ matrix.target.name }})
-    uses: ./.github/workflows/functest_core_reusable.yml
-    with:
-      runner: ${{ matrix.target.runner }}
-      cflags: ${{ matrix.target.cflags }}
-      cross-prefix: ${{ matrix.target.cross-prefix }}
+    runs-on: ${{ matrix.target.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/functest
+        with:
+          use-nix: true
+          cflags: ${{ matrix.target.cflags }}
+          cross-prefix: ${{ matrix.target.cross-prefix }}
   lint:
     strategy:
       matrix:
         system: [ubuntu-latest]
-    uses: ./.github/workflows/lint_core_reusable.yml
-    with:
-      runner: ${{ matrix.system }}
-      cross-prefix: "aarch64-unknown-linux-gnu-"
+    name: Linting
+    runs-on: ${{ matrix.system }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/lint
+        with:
+          use-nix: true
+          cross-prefix: "aarch64-unknown-linux-gnu-"
   cbmc:
     strategy:
       matrix:
         system: [macos-latest]
-    uses: ./.github/workflows/cbmc_core_reusable.yml
-    with:
-      runner: ${{ matrix.system }}
-      cross-prefix: "aarch64-unknown-linux-gnu-"
+    name: CBMC
+    runs-on: ${{ matrix.system }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/cbmc
+        with:
+          use-nix: true

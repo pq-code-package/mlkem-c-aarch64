@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+
 name: ci-ec2-reusable
 on:
   workflow_call:
@@ -35,7 +37,6 @@ on:
       cbmc:
         type: boolean
         default: 'false'
-
 env:
   AWS_ROLE: arn:aws:iam::559050233797:role/mlkem-c-aarch64-gh-action
   AWS_REGION: us-east-1
@@ -74,29 +75,38 @@ jobs:
           security-group-id: sg-0ab2e297196c8c381
   functest:
     name: Functional tests ${{ inputs.name }}
+    needs: start-ec2-runner
+    runs-on: ${{ needs.start-ec2-runner.outputs.label }}
     if: ${{ inputs.functest == 'true' }}
-    needs: start-ec2-runner # required to start the main job when the runner is ready
-    uses: ./.github/workflows/functest_core_reusable.yml
-    with:
-      runner: ${{ needs.start-ec2-runner.outputs.label }}
-      cflags: ${{ inputs.cflags }}
-      cross-prefix: ${{ inputs.cross-prefix }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/functest
+        with:
+          use-nix: true
+          cflags: ${{ matrix.target.cflags }}
+          cross-prefix: ${{ matrix.target.cross-prefix }}
   lint:
-    name: Lint ${{ inputs.name }}
+    name: Linting ${{ inputs.name }}
+    needs: start-ec2-runner
+    runs-on: ${{ needs.start-ec2-runner.outputs.label }}
     if: ${{ inputs.lint == 'true' }}
-    needs: start-ec2-runner # required to start the main job when the runner is ready
-    uses: ./.github/workflows/lint_core_reusable.yml
-    with:
-      runner: ${{ needs.start-ec2-runner.outputs.label }}
-      cross-prefix: ${{ inputs.cross-prefix }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/lint
+        with:
+          use-nix: true
+          cross-prefix: ${{ inputs.cross-prefix }}
   cbmc:
     name: CBMC ${{ inputs.name }}
+    needs: start-ec2-runner
+    runs-on: ${{ needs.start-ec2-runner.outputs.label }}
     if: ${{ inputs.cbmc == 'true' }}
-    needs: start-ec2-runner # required to start the main job when the runner is ready
-    uses: ./.github/workflows/cbmc_core_reusable.yml
-    with:
-      runner: ${{ needs.start-ec2-runner.outputs.label }}
-      cross-prefix: ${{ inputs.cross-prefix }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/cbmc
+        with:
+          use-nix: true
+          cross-prefix: ${{ inputs.cross-prefix }}
   stop-ec2-runner:
     name: Stop ${{ github.event.inputs.name }} (${{ github.event.inputs.ec2_instance_type }})
     permissions:
