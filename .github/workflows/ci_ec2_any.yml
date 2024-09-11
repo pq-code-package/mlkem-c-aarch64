@@ -21,16 +21,20 @@ on:
         default: ' '
       always_terminate:
         description: Indicates if instance should always be terminated, even on failure
-        default: 'true'
+        type: boolean
+        default: true
       functest:
         description: Whether to run functional tests
-        default: 'true'
+        type: boolean
+        default: true
       lint:
         description: Whether to lint
-        default: 'true'
+        type: boolean
+        default: true
       cbmc:
         description: Whether to run CBMC proofs
-        default: 'false'
+        type: boolean
+        default: false
 jobs:
   ci-ec2-any:
     name: Ad-hoc CI on $${{ inputs.ec2_instance_type }}

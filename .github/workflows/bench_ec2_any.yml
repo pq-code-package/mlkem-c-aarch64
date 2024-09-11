@@ -21,9 +21,11 @@ on:
         default: -mcpu=cortex-a76 -march=armv8.2-a
       store_results:
         description: Indicates if results should be pushed to github pages
+        type: boolean
         default: false
       always_terminate:
         description: Indicates if EC2 instance should always be terminated
+        type: boolean
         default: true
       bench_extra_args:
         description: Additional command line to be appended to `tests bench` script
