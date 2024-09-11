@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1726027048885,
+  "lastUpdate": 1726040139523,
   "repoUrl": "https://github.com/pq-code-package/mlkem-c-aarch64",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -6058,6 +6058,71 @@ window.BENCHMARK_DATA = {
           {
             "name": "MLKEM1024 decaps",
             "value": 394254,
+            "unit": "cycles"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "pq-code-package",
+            "username": "pq-code-package"
+          },
+          "committer": {
+            "name": "pq-code-package",
+            "username": "pq-code-package"
+          },
+          "id": "fd31b31ff8786b76a56775a7562de36d15a3da7e",
+          "message": "Hoist CI components into reusable actions and workflows",
+          "timestamp": "2024-09-11T03:48:16Z",
+          "url": "https://github.com/pq-code-package/mlkem-c-aarch64/pull/122/commits/fd31b31ff8786b76a56775a7562de36d15a3da7e"
+        },
+        "date": 1726040139048,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "MLKEM512 keypair",
+            "value": 118819,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM512 encaps",
+            "value": 138724,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM512 decaps",
+            "value": 178653,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM768 keypair",
+            "value": 200089,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM768 encaps",
+            "value": 223178,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM768 decaps",
+            "value": 275715,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM1024 keypair",
+            "value": 304056,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM1024 encaps",
+            "value": 328641,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM1024 decaps",
+            "value": 393841,
             "unit": "cycles"
           }
         ]
