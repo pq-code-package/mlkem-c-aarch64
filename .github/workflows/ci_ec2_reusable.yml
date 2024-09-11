@@ -29,13 +29,13 @@ on:
         description: Indicates if instance should always be terminated, even on failure
         default: 'true'
       functest:
-        type: boolean
+        type: string
         default: 'true'
       lint:
-        type: boolean
+        type: string
         default: 'true'
       cbmc:
-        type: boolean
+        type: string
         default: 'false'
 env:
   AWS_ROLE: arn:aws:iam::559050233797:role/mlkem-c-aarch64-gh-action
@@ -74,10 +74,10 @@ jobs:
           subnet-id: subnet-07b2729e5e065962f
           security-group-id: sg-0ab2e297196c8c381
   functest:
-    name: Functional tests ${{ inputs.name }}
+    name: Functional tests ${{ github.event.inputs.name }}
     needs: start-ec2-runner
     runs-on: ${{ needs.start-ec2-runner.outputs.label }}
-    if: ${{ inputs.functest == 'true' }}
+    if: ${{ github.event.inputs.functest == 'true' }}
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/functest
@@ -86,37 +86,39 @@ jobs:
           cflags: ${{ matrix.target.cflags }}
           cross-prefix: ${{ matrix.target.cross-prefix }}
   lint:
-    name: Linting ${{ inputs.name }}
+    name: Linting ${{ github.event.inputs.name }}
     needs: start-ec2-runner
     runs-on: ${{ needs.start-ec2-runner.outputs.label }}
-    if: ${{ inputs.lint == 'true' }}
+    if: ${{ github.event.inputs.lint == 'true' }}
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/lint
         with:
           use-nix: true
-          cross-prefix: ${{ inputs.cross-prefix }}
+          cross-prefix: ${{ github.event.inputs.cross-prefix }}
   cbmc:
-    name: CBMC ${{ inputs.name }}
+    name: CBMC ${{ github.event.inputs.name }}
     needs: start-ec2-runner
     runs-on: ${{ needs.start-ec2-runner.outputs.label }}
-    if: ${{ inputs.cbmc == 'true' }}
+    if: ${{ github.event.inputs.cbmc == 'true' }}
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/cbmc
         with:
           use-nix: true
-          cross-prefix: ${{ inputs.cross-prefix }}
+          cross-prefix: ${{ github.event.inputs.cross-prefix }}
   stop-ec2-runner:
-    name: Stop ${{ github.event.inputs.name }} (${{ github.event.inputs.ec2_instance_type }})
+    name: Stop ${{ github.event.github.event.inputs.name }} (${{ github.event.github.event.inputs.ec2_instance_type }})
     permissions:
       contents: 'read'
       id-token: 'write'
     needs:
       - start-ec2-runner
-      - bench # required to wait when the main job is done
-    runs-on: ubuntu-latestn
-    if: ${{ (inputs.always_terminate == 'true' && always()) || success() }} # required to stop the runner even if the error happened in the previous jobs
+      - cbmc
+      - lint
+      - functest
+    runs-on: ubuntu-latest
+    if: ${{ (github.event.inputs.always_terminate == 'true' && always()) || success() }} # required to stop the runner even if the error happened in the previous jobs
     steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4

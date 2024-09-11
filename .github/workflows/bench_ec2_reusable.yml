@@ -68,12 +68,12 @@ jobs:
         with:
           mode: start
           github-token: ${{ secrets.AWS_GITHUB_TOKEN }}
-          ec2-image-id: ${{ inputs.ec2_ami_id }}
-          ec2-instance-type: ${{ inputs.ec2_instance_type }}
+          ec2-image-id: ${{ github.event.github.event.inputs.ec2_ami_id }}
+          ec2-instance-type: ${{ github.event.inputs.ec2_instance_type }}
           subnet-id: subnet-07b2729e5e065962f
           security-group-id: sg-0ab2e297196c8c381
   bench:
-    name: Bench ${{ inputs.name }}
+    name: Bench ${{ github.event.inputs.name }}
     runs-on: ${{ needs.start-ec2-runner.outputs.label }}
     needs: start-ec2-runner # required to start the main job when the runner is ready
     steps:
@@ -81,15 +81,15 @@ jobs:
       - uses: ./.github/actions/bench
         with:
           use-nix: true
-          name: ${{ inputs.name }}
-          cflags: ${{ inputs.cflags }}
-          archflags: ${{ inputs.archflags }}
+          name: ${{ github.event.inputs.name }}
+          cflags: ${{ github.event.inputs.cflags }}
+          archflags: ${{ github.event.inputs.archflags }}
           perf: PERF
-          store_results: ${{ inputs.store_results }}
-          bench_extra_args: ${{ inputs.bench_extra_args }}
+          store_results: ${{ github.event.inputs.store_results }}
+          bench_extra_args: ${{ github.event.inputs.bench_extra_args }}
           gh_token: ${{ secrets.AWS_GITHUB_TOKEN }}
   stop-ec2-runner:
-    name: Stop ${{ github.event.inputs.name }} (${{ github.event.inputs.ec2_instance_type }})
+    name: Stop ${{ github.event.github.event.inputs.name }} (${{ github.event.github.event.inputs.ec2_instance_type }})
     permissions:
       contents: 'read'
       id-token: 'write'
@@ -97,7 +97,7 @@ jobs:
       - start-ec2-runner
       - bench # required to wait when the main job is done
     runs-on: ubuntu-latest
-    if: ${{ (inputs.always_terminate == 'true' && always()) || success() }} # required to stop the runner even if the error happened in the previous jobs
+    if: ${{ (github.event.inputs.always_terminate == 'true' && always()) || success() }} # required to stop the runner even if the error happened in the previous jobs
     steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4

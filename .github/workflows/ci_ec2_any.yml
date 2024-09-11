@@ -39,7 +39,7 @@ jobs:
       ec2_instance_type: ${{ github.event.inputs.ec2_instance_type }}
       ec2_ami_id: ${{ github.event.inputs.ec2_ami_id }}
       cflags: ${{ github.event.inputs.cflags }}
-      crosss-prefix: ${{ github.event.inputs.cross-prefix }}
+      cross-prefix: ${{ github.event.inputs.cross-prefix }}
       functest: ${{ github.event.inputs.functest }}
       lint: ${{ github.event.inputs.lint }}
       cbmc: ${{ github.event.inputs.cbmc }}
