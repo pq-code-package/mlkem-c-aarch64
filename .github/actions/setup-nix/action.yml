@@ -17,10 +17,10 @@ runs:
     - uses: DeterminateSystems/nix-installer-action@v13
     - uses: DeterminateSystems/magic-nix-cache-action@v7
     - name: Prepare nix dev shell
-      shell: nix develop .#${{ inputs.devShell }} -c bash -e {0}
+      shell: nix develop --quiet .#${{ inputs.devShell }} -c bash -e {0}
       run: |
     - name: Dependency check
-      shell: nix develop .#${{ inputs.devShell }} -c bash -e {0}
+      shell: nix develop --quiet .#${{ inputs.devShell }} -c bash -e {0}
       if: inputs.script != ''
       env:
         INPUT_SCRIPT: ${{ inputs.script }}

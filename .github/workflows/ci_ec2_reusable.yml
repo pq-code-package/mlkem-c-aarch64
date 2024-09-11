@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-name: bench-ec2-reusable
+name: ci-ec2-reusable
 on:
   workflow_call:
     inputs:
@@ -20,22 +20,23 @@ on:
         type: string
         description: Custom CFLAGS for compilation
         default:
-      archflags:
+      cross-prefix:
         type: string
-        description: Custom ARCH flags for compilation
-        default: -mcpu=neoverse-n1 -march=armv8.2-a
-      store_results:
-        type: string
-        description: Indicates if results should be pushed to github pages
-        default: 'false'
+        description: Cross-compilation binary prefix, if any
+        default: ' '
       always_terminate:
         type: string
         description: Indicates if instance should always be terminated, even on failure
         default: 'true'
-      bench_extra_args:
-        type: string
-        description: Additional command line to be appended to `bench` script
-        default: ''
+      functest:
+        type: boolean
+        default: 'true'
+      lint:
+        type: boolean
+        default: 'true'
+      cbmc:
+        type: boolean
+        default: 'false'
 env:
   AWS_ROLE: arn:aws:iam::559050233797:role/mlkem-c-aarch64-gh-action
   AWS_REGION: us-east-1
@@ -72,22 +73,40 @@ jobs:
           ec2-instance-type: ${{ inputs.ec2_instance_type }}
           subnet-id: subnet-07b2729e5e065962f
           security-group-id: sg-0ab2e297196c8c381
-  bench:
-    name: Bench ${{ inputs.name }}
+  functest:
+    name: Functional tests ${{ inputs.name }}
+    needs: start-ec2-runner
     runs-on: ${{ needs.start-ec2-runner.outputs.label }}
-    needs: start-ec2-runner # required to start the main job when the runner is ready
+    if: ${{ inputs.functest == 'true' }}
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/bench
+      - uses: ./.github/actions/functest
         with:
           use-nix: true
-          name: ${{ inputs.name }}
-          cflags: ${{ inputs.cflags }}
-          archflags: ${{ inputs.archflags }}
-          perf: PERF
-          store_results: ${{ inputs.store_results }}
-          bench_extra_args: ${{ inputs.bench_extra_args }}
-          gh_token: ${{ secrets.AWS_GITHUB_TOKEN }}
+          cflags: ${{ matrix.target.cflags }}
+          cross-prefix: ${{ matrix.target.cross-prefix }}
+  lint:
+    name: Linting ${{ inputs.name }}
+    needs: start-ec2-runner
+    runs-on: ${{ needs.start-ec2-runner.outputs.label }}
+    if: ${{ inputs.lint == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/lint
+        with:
+          use-nix: true
+          cross-prefix: ${{ inputs.cross-prefix }}
+  cbmc:
+    name: CBMC ${{ inputs.name }}
+    needs: start-ec2-runner
+    runs-on: ${{ needs.start-ec2-runner.outputs.label }}
+    if: ${{ inputs.cbmc == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/cbmc
+        with:
+          use-nix: true
+          cross-prefix: ${{ inputs.cross-prefix }}
   stop-ec2-runner:
     name: Stop ${{ github.event.inputs.name }} (${{ github.event.inputs.ec2_instance_type }})
     permissions:
@@ -96,7 +115,7 @@ jobs:
     needs:
       - start-ec2-runner
       - bench # required to wait when the main job is done
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latestn
     if: ${{ (inputs.always_terminate == 'true' && always()) || success() }} # required to stop the runner even if the error happened in the previous jobs
     steps:
       - name: Configure AWS credentials

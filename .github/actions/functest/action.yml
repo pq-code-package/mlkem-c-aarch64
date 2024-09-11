@@ -1,0 +1,64 @@
+# SPDX-License-Identifier: Apache-2.0
+
+name: Functional tests
+description: Run functional tests for MLKEM-C_AArch64
+
+inputs:
+  use-nix:
+    description: Whether to run in the default Nix environment
+    default: true
+  cflags:
+    description: CFLAGS to pass to compilation
+    default: ''
+  cross-prefix:
+    description: Binary prefix for cross compilation
+    default: ''
+runs:
+  using: composite
+  steps:
+      - name: Setup nix
+        uses: ./.github/actions/setup-nix
+        if: ${{ inputs.use-nix }}
+        with:
+          devShell: ci
+          script: |
+            ARCH=$(uname -m)
+            cat >> $GITHUB_STEP_SUMMARY <<-EOF
+              ## Setup
+              Architecture: $ARCH
+              - $(uname -a)
+              - $(nix --version)
+              - $(${{ inputs.cross-prefix }}gcc --version | grep -m1 "")
+              - $(bash --version | grep -m1 "")
+            EOF
+      - name: Set shell
+        shell: bash
+        run: echo SHELL="${{ inputs.use-nix && 'nix develop .#ci -c bash -e {0}' || inputs.custom_shell }}" >> $GITHUB_ENV
+      - name: Run functional tests
+        id: func_test
+        shell: ${{ env.SHELL }}
+        run: |
+          echo "::group::func_test"
+          tests func --cross-prefix=${{ inputs.cross-prefix }} --cflags ${{ inputs.cflags }} -v
+          echo "::endgroup::"
+      - name: Run KAT tests
+        if: |
+          success()
+          || steps.func_test.conclusion == 'failure'
+        id: kat_test
+        shell: ${{ env.SHELL }}
+        run: |
+          echo "::group::func_test"
+          tests kat --cross-prefix=${{ inputs.cross-prefix }} --cflags ${{ inputs.cflags }} -v
+          echo "::endgroup::"
+      - name: Run Nistkat tests
+        id: nistkat_test
+        if: |
+          success()
+          || steps.func_test.conclusion == 'failure'
+          || steps.kat_test.conclusion == 'failure'
+        shell: ${{ env.SHELL }}
+        run: |
+          echo "::group::func_test"
+          tests nistkat --cross-prefix=${{ inputs.cross-prefix }} --cflags ${{ inputs.cflags }} -v
+          echo "::endgroup::"

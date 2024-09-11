@@ -34,110 +34,35 @@ jobs:
            target:
              - runner: 'pqcp-arm64'
                name: 'ubuntu-latest (aarch64)'
-    name: build_kat (${{ matrix.target.name }})
+    name: Functional tests (${{ matrix.target.name }})
     runs-on: ${{ matrix.target.runner }}
-    defaults:
-      run:
-        shell: nix develop .#ci -c bash -e {0}
     steps:
       - uses: actions/checkout@v4
-      - name: Setup nix
-        uses: ./.github/actions/setup-nix
+      - uses: ./.github/actions/functest
         with:
-          devShell: ci
-          script: |
-            ARCH=$(uname -m)
-            cat >> $GITHUB_STEP_SUMMARY <<-EOF
-              ## Setup
-              Architecture: $ARCH
-              - $(uname -a)
-              - $(nix --version)
-              - $(astyle --version)
-              - $(${{ matrix.target.cross-prefix }}gcc --version | grep -m1 "")
-              - $(bash --version | grep -m1 "")
-            EOF
-
-            if [[ "$ARCH" != ${{ matrix.target.arch }} ]]; then
-              echo ":x: Expecting to run on ${{ matrix.target.arch }}, but instead running on $ARCH" >> $GITHUB_STEP_SUMMARY
-              exit 1
-            fi
-      - name: Run functional tests
-        id: func_test
-        run: |
-          tests func --cross-prefix=${{ matrix.target.cross-prefix }} --cflags ${{ matrix.target.cflags }} -v
-      - name: Run KAT tests
-        id: kat_test
-        if: |
-          success()
-          || steps.func_test.conclusion == 'failure'
-        run: |
-          tests kat --cross-prefix=${{ matrix.target.cross-prefix }} --cflags ${{ matrix.target.cflags }} -v
-      - name: Run Nistkat tests
-        id: nistkat_test
-        if: |
-          success()
-          || steps.func_test.conclusion == 'failure'
-          || steps.kat_test.conclusion == 'failure'
-        run: |
-          tests nistkat --cross-prefix=${{ matrix.target.cross-prefix }} --cflags ${{ matrix.target.cflags }} -v
+          use-nix: true
+          cflags: ${{ matrix.target.cflags }}
+          cross-prefix: ${{ matrix.target.cross-prefix }}
   lint:
     strategy:
       matrix:
         system: [ubuntu-latest]
+    name: Linting
     runs-on: ${{ matrix.system }}
-    defaults:
-      run:
-        shell: nix develop .#ci-linter -c bash -e {0}
-    env:
-      CROSS_PREFIX: "${{ (matrix.system == 'ubuntu-latest' && 'aarch64-unknown-linux-gnu-') || '' }}"
     steps:
       - uses: actions/checkout@v4
-      - name: Setup nix
-        uses: ./.github/actions/setup-nix
+      - uses: ./.github/actions/lint
         with:
-          devShell: ci-linter
-          script: |
-            cat >> $GITHUB_STEP_SUMMARY << EOF
-              ## Setup
-              Architecture: $(uname -m)
-              - $(uname -a)
-              - $(nix --version)
-              - $(astyle --version)
-              - $(${{ matrix.target.cross-prefix }}gcc --version | grep -m1 "")
-              - $(bash --version | grep -m1 "")
-            EOF
-      - name: Lint
-        run: |
-          echo "## Lint & Checks" >> $GITHUB_STEP_SUMMARY
-          lint
+          use-nix: true
+          cross-prefix: "aarch64-unknown-linux-gnu-"
   cbmc:
     strategy:
       matrix:
         system: [macos-latest]
+    name: CBMC
     runs-on: ${{ matrix.system }}
-    defaults:
-      run:
-        shell: nix develop .#ci-cbmc -c bash -e {0}
     steps:
       - uses: actions/checkout@v4
-      - name: Setup nix
-        uses: ./.github/actions/setup-nix
+      - uses: ./.github/actions/cbmc
         with:
-          devShell: ci-cbmc
-          script: |
-            cat >> $GITHUB_STEP_SUMMARY << EOF
-              ## Setup
-              Architecture: $(uname -m)
-              - $(nix --version)
-              - $(cbmc --version)
-              - litani Version $(litani --version)
-              - Cadical Version $(cadical --version)
-              - $(${{ matrix.cross_prefix }}gcc --version | grep -m1 "")
-              - $(bash --version | grep -m1 "")
-            EOF
-      - name: Run CBMC proofs
-        run: |
-          cd cbmc/proofs;
-          KYBER_K=2 ./run-cbmc-proofs.py --summarize;
-          KYBER_K=3 ./run-cbmc-proofs.py --summarize;
-          KYBER_K=4 ./run-cbmc-proofs.py --summarize;
+          use-nix: true

@@ -32,35 +32,11 @@ jobs:
           archflags: "-mcpu=cortex-a55 -march=armv8.2-a"
           cflags: "-static -DFORCE_AARCH64"
           bench_extra_args: -w exec-on-a55
-    runs-on: self-hosted-${{ matrix.target.system }}
-    defaults:
-      run:
-        shell: nix develop .#ci -c bash -e {0}
-    permissions:
-      contents: write
     if: github.repository_owner == 'pq-code-package' && (github.event.label.name == 'benchmark' || github.ref == 'refs/heads/main')
+    runs-on: self-hosted-${{ matrix.target.system }}
     steps:
       - uses: actions/checkout@v4
-      - name: Setup nix
-        uses: ./.github/actions/setup-nix
-        with:
-          devShell: ci
-          script: |
-            ARCH=$(uname -m)
-            cat >> $GITHUB_STEP_SUMMARY <<-EOF
-              ## Setup
-              Architecture: $ARCH
-              - $(uname -a)
-              - $(nix --version)
-              - $(astyle --version)
-              - $(${{ matrix.target.cross_prefix }}gcc --version | grep -m1 "")
-              - $(bash --version | grep -m1 "")
-
-              ## CPU Info
-              $(cat /proc/cpuinfo)
-            EOF
-      - name: Run benchmark
-        uses: ./.github/actions/bench
+      - uses: ./.github/actions/bench
         with:
           name: ${{ matrix.target.name }}
           cflags: ${{ matrix.target.cflags }}
@@ -68,4 +44,4 @@ jobs:
           perf: ${{ matrix.target.bench_pmu }}
           store_results: ${{ github.repository_owner == 'pq-code-package' && github.ref == 'refs/heads/main' }}
           bench_extra_args: ${{ matrix.target.bench_extra_args }}
-          gh_token: ${{ secrets.GITHUB_TOKEN }}
+          gh_token: ${{ secrets.AWS_GITHUB_TOKEN }}
