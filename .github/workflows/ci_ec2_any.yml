@@ -39,10 +39,6 @@ on:
         description: Whether to run functional tests
         type: boolean
         default: true
-      lint:
-        description: Whether to lint
-        type: boolean
-        default: true
       cbmc:
         description: Whether to run CBMC proofs
         type: boolean
@@ -59,7 +55,7 @@ jobs:
       cross-prefix: ${{ inputs.cross-prefix }}
       opt: ${{ inputs.opt }}
       functest: ${{ inputs.functest }}
-      lint: ${{ inputs.lint }}
+      lint: true
       cbmc: ${{ inputs.cbmc }}
       always_terminate: ${{ inputs.always_terminate }}
     secrets: inherit
