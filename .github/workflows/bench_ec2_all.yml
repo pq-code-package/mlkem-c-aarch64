@@ -41,6 +41,6 @@ jobs:
       archflags: ${{ matrix.target.archflags }}
       cflags: ${{ matrix.target.cflags }}
       opt: ${{ matrix.opt.value }}
-      store_results: true
-      name: ${{ matrix.target.name }} (${{ matrix.opt.name }})
+      store_results: ${{ matrix.opt.value }} # Only store optimized results
+      name: ${{ matrix.target.name }}
     secrets: inherit
