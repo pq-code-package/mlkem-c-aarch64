@@ -19,30 +19,30 @@ on:
       cflags:
         type: string
         description: Custom CFLAGS for compilation
-        default:
+        default: ""
       cross-prefix:
         type: string
         description: Cross-compilation binary prefix, if any
         default: ' '
       always_terminate:
-        type: string
+        type: boolean
         description: Indicates if instance should always be terminated, even on failure
-        default: 'true'
+        default: true
       functest:
         type: boolean
-        default: 'true'
+        default: true
       lint:
         type: boolean
-        default: 'true'
+        default: true
       cbmc:
         type: boolean
-        default: 'false'
+        default: false
 env:
   AWS_ROLE: arn:aws:iam::559050233797:role/mlkem-c-aarch64-gh-action
   AWS_REGION: us-east-1
 jobs:
   start-ec2-runner:
-    name: Start ${{ github.event.inputs.name }} (${{ github.event.inputs.ec2_instance_type }})
+    name: Start ${{ inputs.name }} (${{ inputs.ec2_instance_type }})
     permissions:
       contents: 'read'
       id-token: 'write'
@@ -77,7 +77,7 @@ jobs:
     name: Functional tests ${{ inputs.name }}
     needs: start-ec2-runner
     runs-on: ${{ needs.start-ec2-runner.outputs.label }}
-    if: ${{ inputs.functest == 'true' }}
+    if: ${{ inputs.functest == true }}
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/functest
@@ -89,7 +89,7 @@ jobs:
     name: Linting ${{ inputs.name }}
     needs: start-ec2-runner
     runs-on: ${{ needs.start-ec2-runner.outputs.label }}
-    if: ${{ inputs.lint == 'true' }}
+    if: ${{ inputs.lint == true }}
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/lint
@@ -100,7 +100,7 @@ jobs:
     name: CBMC ${{ inputs.name }}
     needs: start-ec2-runner
     runs-on: ${{ needs.start-ec2-runner.outputs.label }}
-    if: ${{ inputs.cbmc == 'true' }}
+    if: ${{ inputs.cbmc == true }}
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/cbmc
@@ -108,14 +108,16 @@ jobs:
           use-nix: true
           cross-prefix: ${{ inputs.cross-prefix }}
   stop-ec2-runner:
-    name: Stop ${{ github.event.inputs.name }} (${{ github.event.inputs.ec2_instance_type }})
+    name: Stop ${{ inputs.name }} (${{ inputs.ec2_instance_type }})
     permissions:
       contents: 'read'
       id-token: 'write'
     needs:
       - start-ec2-runner
-      - bench # required to wait when the main job is done
-    runs-on: ubuntu-latestn
+      - cbmc
+      - lint
+      - functest
+    runs-on: ubuntu-latest
     if: ${{ (inputs.always_terminate == 'true' && always()) || success() }} # required to stop the runner even if the error happened in the previous jobs
     steps:
       - name: Configure AWS credentials

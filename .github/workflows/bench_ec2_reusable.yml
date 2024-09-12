@@ -19,19 +19,19 @@ on:
       cflags:
         type: string
         description: Custom CFLAGS for compilation
-        default:
+        default: ""
       archflags:
         type: string
         description: Custom ARCH flags for compilation
         default: -mcpu=neoverse-n1 -march=armv8.2-a
       store_results:
-        type: string
+        type: boolean
         description: Indicates if results should be pushed to github pages
-        default: 'false'
+        default: false
       always_terminate:
-        type: string
+        type: boolean
         description: Indicates if instance should always be terminated, even on failure
-        default: 'true'
+        default: true
       bench_extra_args:
         type: string
         description: Additional command line to be appended to `bench` script
@@ -41,7 +41,7 @@ env:
   AWS_REGION: us-east-1
 jobs:
   start-ec2-runner:
-    name: Start ${{ github.event.inputs.name }} (${{ github.event.inputs.ec2_instance_type }})
+    name: Start ${{ inputs.name }} (${{ inputs.ec2_instance_type }})
     permissions:
       contents: 'read'
       id-token: 'write'
@@ -89,7 +89,7 @@ jobs:
           bench_extra_args: ${{ inputs.bench_extra_args }}
           gh_token: ${{ secrets.AWS_GITHUB_TOKEN }}
   stop-ec2-runner:
-    name: Stop ${{ github.event.inputs.name }} (${{ github.event.inputs.ec2_instance_type }})
+    name: Stop ${{ inputs.name }} (${{ inputs.ec2_instance_type }})
     permissions:
       contents: 'read'
       id-token: 'write'
@@ -97,7 +97,7 @@ jobs:
       - start-ec2-runner
       - bench # required to wait when the main job is done
     runs-on: ubuntu-latest
-    if: ${{ (inputs.always_terminate == 'true' && always()) || success() }} # required to stop the runner even if the error happened in the previous jobs
+    if: ${{ (inputs.always_terminate == true && always()) || success() }} # required to stop the runner even if the error happened in the previous jobs
     steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4

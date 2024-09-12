@@ -21,7 +21,7 @@ jobs:
       ec2_ami_id: ami-096ea6a12ea24a797
       archflags: -mcpu=cortex-a76 -march=armv8.2-a
       cflags: -DFORCE_AARCH64
-      store_results: 'true'
+      store_results: true
       name: Graviton2
     secrets: inherit
   bench-gv3:
@@ -36,6 +36,6 @@ jobs:
       ec2_ami_id: ami-096ea6a12ea24a797
       archflags: -mcpu=neoverse-v1 -march=armv8.4-a
       cflags: -DFORCE_AARCH64
-      store_results: 'true'
+      store_results: true
       name: Graviton3
     secrets: inherit
