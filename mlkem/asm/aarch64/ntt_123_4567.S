@@ -23,8 +23,11 @@
 /// SOFTWARE.
 ///
 
+#include "config.h"
+#if defined(MLKEM_USE_AARCH64_ASM)
+
 // Needed to provide ASM_LOAD directive
-#include <hal_env.h>
+#include "common.i"
 
 .macro mulmodq dst, src, const, idx0, idx1
         sqrdmulh t2.8h,   \src\().8h, \const\().h[\idx1]
@@ -154,7 +157,7 @@
 .data
 .p2align 4
 roots:
-        #include "ntt_kyber_123_45_67_twiddles.s"
+        #include "ntt_kyber_123_45_67_twiddles.S"
 
         in      .req x0
         inp     .req x1
@@ -311,3 +314,5 @@ layer4567_start:
 
         pop_stack
         ret
+
+#endif /* MLKEM_USE_AARCH64_ASM */

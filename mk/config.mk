@@ -69,7 +69,7 @@ endif
 RNG ?=
 BENCH :=
 CYCLES ?=
-OPT ?= REF # (one of REF, AARCH64)
+OPT ?= 1
 RETAINED_VARS := RNG BENCH CYCLES OPT
 
 BUILD_DIR := test/build

@@ -23,6 +23,9 @@
 /// SOFTWARE.
 ///
 
+#include "config.h"
+#if defined(MLKEM_USE_AARCH64_ASM)
+
 roots_l56:
 .short -910
 .short -910
@@ -491,3 +494,5 @@ roots_l012:
 .short 6762
 .short 0
 .short 0
+
+#endif /* MLKEM_USE_AARCH64_ASM */

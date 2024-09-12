@@ -292,8 +292,10 @@ _shared_options = [
     ),
     click.option(
         "--opt",
-        type=click.Choice(["REF", "AARCH64"], case_sensitive=False),
-        help="Choose optimized version",
+        type=bool,
+        show_default=True,
+        default=True,
+        help="Choose whether to enable assembly optimizations (if present)",
     ),
 ]
 
@@ -330,7 +332,7 @@ def func(force_qemu, verbose, cross_prefix, cflags, arch_flags, opt):
         verbose,
         cross_prefix,
         extra_make_envs=process_make_envs(cflags, arch_flags),
-        extra_make_args=[f"OPT={opt}"] if opt is not None else [],
+        extra_make_args=["OPT=1"] if opt is True else ["OPT=0"],
     )
 
 

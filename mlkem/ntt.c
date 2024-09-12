@@ -81,9 +81,9 @@ static int16_t fqmul(int16_t a, int16_t b)
  **************************************************/
 void ntt(int16_t r[256])
 {
-    #ifdef MLKEM_OPT_AARCH64
+    #ifdef MLKEM_USE_AARCH64_ASM
     ntt_kyber_123_4567(r);
-    #else /* OPT_AARCH64 */
+    #else /* MLKEM_USE_AARCH64_ASM */
     unsigned int len, start, j, k;
     int16_t t, zeta;
 
@@ -101,7 +101,7 @@ void ntt(int16_t r[256])
             }
         }
     }
-    #endif /* OPT_AARCH64 */
+    #endif /* MLKEM_USE_AARCH64_ASM */
 }
 
 /*************************************************
@@ -116,9 +116,9 @@ void ntt(int16_t r[256])
  **************************************************/
 void invntt(int16_t r[256])
 {
-    #ifdef MLKEM_OPT_AARCH64
+    #ifdef MLKEM_USE_AARCH64_ASM
     intt_kyber_123_4567(r);
-    #else /* OPT_AARCH64 */
+    #else /* MLKEM_USE_AARCH64_ASM */
     unsigned int start, len, j, k;
     int16_t t, zeta;
     const int16_t f = 1441; // mont^2/128
@@ -143,7 +143,7 @@ void invntt(int16_t r[256])
     {
         r[j] = fqmul(r[j], f);
     }
-    #endif /* OPT_AARCH64 */
+    #endif /* MLKEM_USE_AARCH64_ASM */
 }
 
 /*************************************************
