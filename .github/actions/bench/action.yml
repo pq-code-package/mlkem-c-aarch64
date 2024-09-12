@@ -62,7 +62,7 @@ runs:
     - name: Run benchmark
       shell: ${{ env.SHELL }}
       run: |
-        tests bench -c ${{ inputs.perf }} --cflags "${{ inputs.cflags }}" --arch-flags "${{ inputs.archflags }}" --opt "${{ inputs.opt }}" -v --output output.json ${{ inputs.bench_extra_args }}
+        tests bench -c ${{ inputs.perf }} --cflags="${{ inputs.cflags }}" --arch-flags="${{ inputs.archflags }}" --opt="${{ inputs.opt }}" -v --output=output.json ${{ inputs.bench_extra_args }}
     - name: Store benchmark result
       if: ${{ inputs.store_results }}
       uses: benchmark-action/github-action-benchmark@v1
