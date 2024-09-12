@@ -28,6 +28,10 @@ on:
         type: string
         description: Custom ARCH flags for compilation
         default: -mcpu=neoverse-n1 -march=armv8.2-a
+      opt:
+        type: boolean
+        description: Runs with optimized code if enabled.
+        default: true
       store_results:
         type: boolean
         description: Indicates if results should be pushed to github pages
@@ -102,6 +106,7 @@ jobs:
           name: ${{ inputs.name }}
           cflags: ${{ inputs.cflags }}
           archflags: ${{ inputs.archflags }}
+          opt: ${{ inputs.opt }}
           perf: PERF
           store_results: ${{ inputs.store_results }}
           bench_extra_args: ${{ inputs.bench_extra_args }}

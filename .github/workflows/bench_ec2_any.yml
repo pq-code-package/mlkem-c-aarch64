@@ -28,6 +28,10 @@ on:
       archflags:
         description: Custom ARCH flags for compilation
         default: -mcpu=cortex-a76 -march=armv8.2-a
+      opt:
+        description: Run with optimized code if enabled
+        type: boolean
+        default: true
       store_results:
         description: Indicates if results should be pushed to github pages
         type: boolean
@@ -49,6 +53,7 @@ jobs:
       ec2_ami_id: ${{ inputs.ec2_ami_id }}
       cflags: ${{ inputs.cflags }}
       archflags: ${{ inputs.archflags }}
+      opt: ${{ inputs.opt }}
       name: ${{ inputs.name }}
       store_results: ${{ inputs.store_results }}
       always_terminate: ${{ inputs.always_terminate }}
