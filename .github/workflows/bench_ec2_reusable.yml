@@ -120,7 +120,7 @@ jobs:
       - start-ec2-runner
       - bench # required to wait when the main job is done
     runs-on: ubuntu-latest
-    if: ${{ (inputs.always_terminate == true && always()) || success() }} # required to stop the runner even if the error happened in the previous jobs
+    if: ${{ (inputs.always_terminate && always()) || success() }} # required to stop the runner even if the error happened in the previous jobs
     steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4

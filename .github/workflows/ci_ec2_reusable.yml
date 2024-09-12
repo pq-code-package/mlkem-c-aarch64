@@ -99,7 +99,7 @@ jobs:
     name: Functional tests ${{ inputs.name }}
     needs: start-ec2-runner
     runs-on: ${{ needs.start-ec2-runner.outputs.label }}
-    if: ${{ inputs.functest == true }}
+    if: ${{ inputs.functest }}
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/functest
@@ -112,7 +112,7 @@ jobs:
     name: Linting ${{ inputs.name }}
     needs: start-ec2-runner
     runs-on: ${{ needs.start-ec2-runner.outputs.label }}
-    if: ${{ inputs.lint == true }}
+    if: ${{ inputs.lint }}
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/lint
@@ -123,7 +123,7 @@ jobs:
     name: CBMC ${{ inputs.name }}
     needs: start-ec2-runner
     runs-on: ${{ needs.start-ec2-runner.outputs.label }}
-    if: ${{ inputs.cbmc == true }}
+    if: ${{ inputs.cbmc }}
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/cbmc
@@ -141,7 +141,7 @@ jobs:
       - lint
       - functest
     runs-on: ubuntu-latest
-    if: ${{ (inputs.always_terminate == 'true' && always()) || success() }} # required to stop the runner even if the error happened in the previous jobs
+    if: ${{ (inputs.always_terminate && always()) || success() }} # required to stop the runner even if the error happened in the previous jobs
     steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
