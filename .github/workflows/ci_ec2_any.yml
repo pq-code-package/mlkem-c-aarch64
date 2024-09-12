@@ -17,6 +17,7 @@ on:
           - ubuntu-latest (x86_64)
           - ubuntu-latest (aarch64)
           - ubuntu-latest (custom AMI)
+        default: ubuntu-latest (aarch64)
       ec2_ami_id:
         description: AMI ID
         default: ami-096ea6a12ea24a797
