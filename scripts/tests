@@ -113,10 +113,11 @@ def base_run(
     verbose,
     run_as_root=False,
     exec_wrapper=None,
+    cross_prefix="",
 ):
     """Run the binary in all different ways"""
     cmd = [f"./{bin}"]
-    if force_qemu or (platform.system() == "Linux" and platform.machine() == "x86_64"):
+    if force_qemu or cross_prefix.strip() != "":
         logging.info(f"Emulating {bin} with QEMU")
         cmd = ["qemu-aarch64"] + cmd
 
@@ -196,6 +197,7 @@ def test_schemes(
             verbose,
             run_as_root,
             exec_wrapper,
+            cross_prefix,
         )
         results[scheme] = result
 
