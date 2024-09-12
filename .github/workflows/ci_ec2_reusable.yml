@@ -28,6 +28,10 @@ on:
         type: string
         description: Cross-compilation binary prefix, if any
         default: ' '
+      opt:
+        type: boolean
+        description: Runs with optimized code if enabled.
+        default: true
       always_terminate:
         type: boolean
         description: Indicates if instance should always be terminated, even on failure
@@ -99,8 +103,9 @@ jobs:
       - uses: ./.github/actions/functest
         with:
           use-nix: true
-          cflags: ${{ matrix.target.cflags }}
-          cross-prefix: ${{ matrix.target.cross-prefix }}
+          cflags: ${{ inputs.cflags }}
+          cross-prefix: ${{ inputs.cross-prefix }}
+          opt: ${{ inputs.opt }}
   lint:
     name: Linting ${{ inputs.name }}
     needs: start-ec2-runner

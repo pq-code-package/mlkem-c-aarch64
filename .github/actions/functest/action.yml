@@ -13,6 +13,9 @@ inputs:
   cross-prefix:
     description: Binary prefix for cross compilation
     default: ""
+  opt:
+    description: opt flag to pass to test script
+    default: "true"
 runs:
   using: composite
   steps:
@@ -39,7 +42,7 @@ runs:
         shell: ${{ env.SHELL }}
         run: |
           echo "::group::func_test"
-          tests func --cross-prefix=${{ inputs.cross-prefix }} --cflags ${{ inputs.cflags }} -v
+          tests func --cross-prefix=${{ inputs.cross-prefix }} --cflags ${{ inputs.cflags }} --opt ${{inputs.opt}} -v
           echo "::endgroup::"
       - name: Run KAT tests
         if: |
@@ -49,7 +52,7 @@ runs:
         shell: ${{ env.SHELL }}
         run: |
           echo "::group::kat_test"
-          tests kat --cross-prefix=${{ inputs.cross-prefix }} --cflags ${{ inputs.cflags }} -v
+          tests kat --cross-prefix=${{ inputs.cross-prefix }} --cflags ${{ inputs.cflags }} --opt ${{inputs.opt}} -v
           echo "::endgroup::"
       - name: Run Nistkat tests
         id: nistkat_test
@@ -60,5 +63,5 @@ runs:
         shell: ${{ env.SHELL }}
         run: |
           echo "::group::nistkat_test"
-          tests nistkat --cross-prefix=${{ inputs.cross-prefix }} --cflags ${{ inputs.cflags }} -v
+          tests nistkat --cross-prefix=${{ inputs.cross-prefix }} --cflags ${{ inputs.cflags }} --opt ${{inputs.opt}} -v
           echo "::endgroup::"
