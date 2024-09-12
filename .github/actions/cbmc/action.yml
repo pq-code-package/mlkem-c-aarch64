@@ -6,13 +6,13 @@ description: Run CBMC proofs for MLKEM-C_AArch64
 inputs:
   use-nix:
     description: Whether to run in the default Nix environment
-    default: true
+    default: "true"
   custom_shell:
     description: The shell to use. Only relevant if use-nix is 'false'
-    default: 'bash'
+    default: "bash"
   cross-prefix:
     description: Binary prefix for cross compilation
-    default: ''
+    default: ""
 runs:
   using: composite
   steps:
