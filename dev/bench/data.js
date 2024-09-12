@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1726164423532,
+  "lastUpdate": 1726164450619,
   "repoUrl": "https://github.com/pq-code-package/mlkem-c-aarch64",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -10392,6 +10392,71 @@ window.BENCHMARK_DATA = {
           {
             "name": "MLKEM1024 decaps",
             "value": 249929,
+            "unit": "cycles"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "pq-code-package",
+            "username": "pq-code-package"
+          },
+          "committer": {
+            "name": "pq-code-package",
+            "username": "pq-code-package"
+          },
+          "id": "5543151c04108d76829e496c994749b6583a5aeb",
+          "message": "Disambiguate opt vs non-opt in benchmarking stats",
+          "timestamp": "2024-09-12T17:12:47Z",
+          "url": "https://github.com/pq-code-package/mlkem-c-aarch64/pull/126/commits/5543151c04108d76829e496c994749b6583a5aeb"
+        },
+        "date": 1726164450166,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "MLKEM512 keypair",
+            "value": 59677,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM512 encaps",
+            "value": 60876,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM512 decaps",
+            "value": 71006,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM768 keypair",
+            "value": 104031,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM768 encaps",
+            "value": 105088,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM768 decaps",
+            "value": 119231,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM1024 keypair",
+            "value": 160704,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM1024 encaps",
+            "value": 162195,
+            "unit": "cycles"
+          },
+          {
+            "name": "MLKEM1024 decaps",
+            "value": 180523,
             "unit": "cycles"
           }
         ]
