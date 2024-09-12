@@ -9,8 +9,8 @@ on:
     branches: ["main"]
     types: [ "labeled" ]
 jobs:
-  bench-gv2:
-    name: Graviton2 ${{ matrix.opt.name }}
+  bench:
+    name: ${{ matrix.target.name }} ${{ matrix.opt.name }}
     permissions:
       contents: 'read'
       id-token: 'write'
@@ -22,38 +22,25 @@ jobs:
             value: true
           - name: non-opt
             value: false
+        target:
+          - name: Graviton2
+            ec2_instance_type: t4g.small
+            ec2_ami: ubuntu-latest (aarch64)
+            archflags: -mcpu=cortex-a76 -march=armv8.2-a
+            cflags: -DFORCE_AARCH64
+          - name: Graviton3
+            ec2_instance_type: c7g.medium
+            ec2_ami: ubuntu-latest (aarch64)
+            archflags: -mcpu=neoverse-v1 -march=armv8.4-a
+            cflags: -DFORCE_AARCH64
     uses: ./.github/workflows/bench_ec2_reusable.yml
     if: github.repository_owner == 'pq-code-package' && (github.event.label.name == 'benchmark' || github.ref == 'refs/heads/main')
     with:
-      ec2_instance_type: t4g.small
-      ec2_ami: ubuntu-latest (aarch64)
-      archflags: -mcpu=cortex-a76 -march=armv8.2-a
-      cflags: -DFORCE_AARCH64
+      ec2_instance_type: ${{ matrix.target.ec2_instance_type }}
+      ec2_ami: ${{ matrix.target.ec2_ami }}
+      archflags: ${{ matrix.target.archflags }}
+      cflags: ${{ matrix.target.cflags }}
       opt: ${{ matrix.opt.value }}
       store_results: true
-      name: Graviton2 (${{ matrix.opt.name }})
-    secrets: inherit
-  bench-gv3:
-    name: Graviton3 ${{ matrix.opt.name }}
-    permissions:
-      contents: 'read'
-      id-token: 'write'
-    strategy:
-      fail-fast: false
-      matrix:
-        opt:
-          - name: opt
-            value: true
-          - name: non-opt
-            value: false
-    uses: ./.github/workflows/bench_ec2_reusable.yml
-    if: github.repository_owner == 'pq-code-package' && (github.event.label.name == 'benchmark' || github.ref == 'refs/heads/main')
-    with:
-      ec2_instance_type: c7g.medium
-      ec2_ami: ubuntu-latest (aarch64)
-      archflags: -mcpu=neoverse-v1 -march=armv8.4-a
-      cflags: -DFORCE_AARCH64
-      opt: ${{ matrix.opt.value }}
-      store_results: true
-      name: Graviton3 (${{ matrix.opt.name }})
+      name: ${{ matrix.target.name }} (${{ matrix.opt.name }})
     secrets: inherit
