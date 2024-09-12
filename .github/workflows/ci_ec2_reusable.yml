@@ -12,6 +12,10 @@ on:
         type: string
         description: Type if EC2 instance to benchmark on
         default: t4g.small
+      ec2_ami:
+        type: string
+        description: Textual description of AMI
+        default: ubuntu-latest (aarch64)
       ec2_ami_id:
         type: string
         description: AMI ID
@@ -52,6 +56,18 @@ jobs:
       ec2-instance-id: ${{ steps.start-ec2-runner.outputs.ec2-instance-id }}
     steps:
       - uses: actions/checkout@v4
+      - name: Determine AMI ID
+        id: det_ami_id
+        run: |
+          if [[ "${{ inputs.ec2_ami }}" == "ubuntu-latest (x86_64)" ]]; then
+            AMI_ID=${{ env.AMI_UBUNTU_LATEST_X86_64 }}
+          elif [[ "${{ inputs.ec2_ami }}" == "ubuntu-latest (aarch64)" ]]; then
+            AMI_ID=${{ env.AMI_UBUNTU_LATEST_AARCH64 }}
+          elif [[ "${{ inputs.ec2_ami }}" == "ubuntu-latest (custom AMI)" ]]; then
+            AMI_ID=${{ inputs.ec2_ami_id }}
+          fi
+          echo "Using AMI ID: $AMI_ID"
+          echo "AMI_ID=$AMI_ID" >> $GITHUB_OUTPUT
       - name: Clear nix-installer action cache
         uses: ./.github/actions/clear-cache
         with:
@@ -69,7 +85,7 @@ jobs:
         with:
           mode: start
           github-token: ${{ secrets.AWS_GITHUB_TOKEN }}
-          ec2-image-id: ${{ inputs.ec2_ami_id }}
+          ec2-image-id: ${{ steps.det_ami_id.outputs.AMI_ID }}
           ec2-instance-type: ${{ inputs.ec2_instance_type }}
           subnet-id: subnet-07b2729e5e065962f
           security-group-id: sg-0ab2e297196c8c381

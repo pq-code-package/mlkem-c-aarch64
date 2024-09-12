@@ -18,7 +18,7 @@ jobs:
     if: github.repository_owner == 'pq-code-package' && (github.event.label.name == 'benchmark' || github.ref == 'refs/heads/main')
     with:
       ec2_instance_type: t4g.small
-      ec2_ami_id: ami-096ea6a12ea24a797
+      ec2_ami: ubuntu-latest (aarch64)
       archflags: -mcpu=cortex-a76 -march=armv8.2-a
       cflags: -DFORCE_AARCH64
       store_results: true
@@ -33,7 +33,7 @@ jobs:
     if: github.repository_owner == 'pq-code-package' && (github.event.label.name == 'benchmark' || github.ref == 'refs/heads/main')
     with:
       ec2_instance_type: c7g.medium
-      ec2_ami_id: ami-096ea6a12ea24a797
+      ec2_ami: ubuntu-latest (aarch64)
       archflags: -mcpu=neoverse-v1 -march=armv8.4-a
       cflags: -DFORCE_AARCH64
       store_results: true
