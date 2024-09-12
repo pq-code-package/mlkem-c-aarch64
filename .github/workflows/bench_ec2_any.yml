@@ -10,8 +10,17 @@ on:
       ec2_instance_type:
         description: Type if EC2 instance to benchmark on
         default: t4g.small
+      ec2_ami:
+        description: AMI ID
+        type: choice
+        options:
+          - ubuntu-latest (x86_64)
+          - ubuntu-latest (aarch64)
+          - ubuntu-latest (custom AMI)
+        default: ubuntu-latest (aarch64)
       ec2_ami_id:
         description: AMI ID
+        required: false
         default: ami-096ea6a12ea24a797
       cflags:
         description: Custom CFLAGS for compilation
@@ -36,6 +45,7 @@ jobs:
     uses: ./.github/workflows/bench_ec2_reusable.yml
     with:
       ec2_instance_type: ${{ inputs.ec2_instance_type }}
+      ec2_ami: ${{ inputs.ec2_ami }}
       ec2_ami_id: ${{ inputs.ec2_ami_id }}
       cflags: ${{ inputs.cflags }}
       archflags: ${{ inputs.archflags }}
