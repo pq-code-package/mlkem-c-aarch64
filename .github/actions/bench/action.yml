@@ -27,14 +27,17 @@ inputs:
     description: Whether to push results to GH pages
     default: "false"
   gh_token:
-     description: GitHub access token
-     required: true
+    description: GitHub access token
+    required: true
   use-nix:
     description: Whether to run in the default Nix environment
     default: "true"
   custom_shell:
     description: The shell to use. Only relevant if use-nix is "false"
     default: "bash"
+  cross_prefix:
+    description: "Binary prefix for cross-compilation builds"
+    default: ""
 runs:
   using: composite
   steps:
@@ -62,7 +65,7 @@ runs:
     - name: Run benchmark
       shell: ${{ env.SHELL }}
       run: |
-        tests bench -c ${{ inputs.perf }} --cflags="${{ inputs.cflags }}" --arch-flags="${{ inputs.archflags }}" --opt="${{ inputs.opt }}" -v --output=output.json ${{ inputs.bench_extra_args }}
+        tests bench -c ${{ inputs.perf }} --cross-prefix="${{ inputs.cross_prefix }}" --cflags="${{ inputs.cflags }}" --arch-flags="${{ inputs.archflags }}" --opt="${{ inputs.opt }}" -v --output=output.json ${{ inputs.bench_extra_args }}
     - name: Store benchmark result
       if: ${{ inputs.store_results }}
       uses: benchmark-action/github-action-benchmark@v1
