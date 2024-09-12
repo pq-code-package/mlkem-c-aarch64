@@ -48,7 +48,7 @@ runs:
         id: kat_test
         shell: ${{ env.SHELL }}
         run: |
-          echo "::group::func_test"
+          echo "::group::kat_test"
           tests kat --cross-prefix=${{ inputs.cross-prefix }} --cflags ${{ inputs.cflags }} -v
           echo "::endgroup::"
       - name: Run Nistkat tests
@@ -59,6 +59,6 @@ runs:
           || steps.kat_test.conclusion == 'failure'
         shell: ${{ env.SHELL }}
         run: |
-          echo "::group::func_test"
+          echo "::group::nistkat_test"
           tests nistkat --cross-prefix=${{ inputs.cross-prefix }} --cflags ${{ inputs.cflags }} -v
           echo "::endgroup::"
