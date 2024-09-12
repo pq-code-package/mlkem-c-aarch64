@@ -24,6 +24,10 @@ on:
       cflags:
         description: Custom CFLAGS for compilation
         default:
+      opt:
+        description: Run with optimized code if enabled
+        type: boolean
+        default: true
       cross-prefix:
         description: Cross-compilation binary prefix, if any
         default: ' '
@@ -33,10 +37,6 @@ on:
         default: true
       functest:
         description: Whether to run functional tests
-        type: boolean
-        default: true
-      lint:
-        description: Whether to lint
         type: boolean
         default: true
       cbmc:
@@ -53,8 +53,9 @@ jobs:
       ec2_ami_id: ${{ inputs.ec2_ami_id }}
       cflags: ${{ inputs.cflags }}
       cross-prefix: ${{ inputs.cross-prefix }}
+      opt: ${{ inputs.opt }}
       functest: ${{ inputs.functest }}
-      lint: ${{ inputs.lint }}
+      lint: true
       cbmc: ${{ inputs.cbmc }}
       always_terminate: ${{ inputs.always_terminate }}
     secrets: inherit

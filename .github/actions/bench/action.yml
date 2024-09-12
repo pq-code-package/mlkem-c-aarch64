@@ -17,6 +17,9 @@ inputs:
   archflags:
     description: ARCHFLAGS to pass to compilation
     default: ""
+  opt:
+    description: opt flag to set for tests script
+    default: "true"
   bench_extra_args:
     description: Further arguments to be appended to command line for `bench` script
     default: ""
@@ -59,9 +62,9 @@ runs:
     - name: Run benchmark
       shell: ${{ env.SHELL }}
       run: |
-        tests bench -c ${{ inputs.perf }} --cflags "${{ inputs.cflags }}" --arch-flags "${{ inputs.archflags }}" -v --output output.json ${{ inputs.bench_extra_args }}
+        tests bench -c ${{ inputs.perf }} --cflags="${{ inputs.cflags }}" --arch-flags="${{ inputs.archflags }}" --opt="${{ inputs.opt }}" -v --output=output.json ${{ inputs.bench_extra_args }}
     - name: Store benchmark result
-      if: ${{ inputs.store_results == true }}
+      if: ${{ inputs.store_results }}
       uses: benchmark-action/github-action-benchmark@v1
       with:
         name: ${{ inputs.name }}

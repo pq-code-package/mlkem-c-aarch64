@@ -42,11 +42,20 @@ jobs:
     runs-on: ${{ matrix.target.runner }}
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/functest
+      - name: functest opt
+        uses: ./.github/actions/functest
         with:
           use-nix: true
           cflags: ${{ matrix.target.cflags }}
           cross-prefix: ${{ matrix.target.cross-prefix }}
+          opt: true
+      - name: functest non-opt
+        uses: ./.github/actions/functest
+        with:
+          use-nix: true
+          cflags: ${{ matrix.target.cflags }}
+          cross-prefix: ${{ matrix.target.cross-prefix }}
+          opt: false
   lint:
     strategy:
       matrix:
