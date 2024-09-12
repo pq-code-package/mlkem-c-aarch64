@@ -332,7 +332,7 @@ def func(force_qemu, verbose, cross_prefix, cflags, arch_flags, opt):
         verbose,
         cross_prefix,
         extra_make_envs=process_make_envs(cflags, arch_flags),
-        extra_make_args=["OPT=1"] if opt is True else ["OPT=0"],
+        extra_make_args=[f"OPT={int(opt)}"],
     )
 
 
@@ -353,7 +353,7 @@ def nistkat(force_qemu, verbose, cross_prefix, cflags, arch_flags, opt):
         verbose,
         cross_prefix,
         extra_make_envs=process_make_envs(cflags, arch_flags),
-        extra_make_args=[f"OPT={opt}"] if opt is not None else [],
+        extra_make_args=[f"OPT={int(opt)}"],
     )
 
 
@@ -374,7 +374,7 @@ def kat(force_qemu, verbose, cross_prefix, cflags, arch_flags, opt):
         verbose,
         cross_prefix,
         extra_make_envs=process_make_envs(cflags, arch_flags),
-        extra_make_args=[f"OPT={opt}"] if opt is not None else [],
+        extra_make_args=[f"OPT={int(opt)}"],
     )
 
 
@@ -457,7 +457,7 @@ def bench(
         extra_make_envs=process_make_envs(cflags, arch_flags),
         extra_make_args=[
             f"CYCLES={cycles}",
-            f"OPT={opt}" if opt is not None else "",
+            f"OPT={int(opt)}",
         ],
     )
 
