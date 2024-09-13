@@ -14,8 +14,8 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: DeterminateSystems/nix-installer-action@v13
-    - uses: DeterminateSystems/magic-nix-cache-action@v7
+    - uses: DeterminateSystems/nix-installer-action@v14
+    - uses: DeterminateSystems/magic-nix-cache-action@v8
     - name: Prepare nix dev shell
       shell: nix develop --quiet .#${{ inputs.devShell }} -c bash -e {0}
       run: |
