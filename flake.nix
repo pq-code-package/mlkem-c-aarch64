@@ -52,7 +52,19 @@
                     pkgs.pkgsCross.aarch64-multiplatform.glibc
                     pkgs.pkgsCross.aarch64-multiplatform.glibc.static
                   ];
+              x86_64-gcc =
+                pkgs.lib.optionals
+                  (pkgs.stdenv.isLinux && pkgs.stdenv.isx86_64)
+                  [
+                    (pkgs.gcc13.override {
+                      propagateDoc = true;
+                      isGNU = true;
+                    })
+                    pkgs.glibc
+                    pkgs.glibc.static
+                  ];
             in
+            x86_64-gcc ++
             aarch64-gcc ++
             builtins.attrValues {
               inherit (pkgs)
