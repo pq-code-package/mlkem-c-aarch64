@@ -62,7 +62,7 @@
               gcc =
                 if pkgs.stdenv.isDarwin
                 then
-                  if pkgs.stdenv.x864_64
+                  if pkgs.stdenv.isx86_64
                   then [ ]
                   else aarch64-gcc
                 else
