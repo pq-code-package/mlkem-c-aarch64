@@ -45,7 +45,7 @@ QEMU = qemu-aarch64
 
 HOST_PLATFORM := $(shell uname -s)-$(shell uname -m)
 ifeq ($(HOST_PLATFORM),Linux-x86_64)
-	CFLAGS += -static
+	CFLAGS += -z noexecstack
 endif
 
 CYCLES ?= NO
