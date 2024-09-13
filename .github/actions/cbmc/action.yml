@@ -35,7 +35,12 @@ runs:
             EOF
       - name: Set shell
         shell: bash
-        run: echo SHELL="${{ inputs.nix-shell != '' && 'nix develop .#${{ inputs.nix-shell }} -c bash -e {0}' || inputs.custom_shell }}" >> $GITHUB_ENV
+        run: |
+          if [[ ${{ inputs.nix-shell }} != '' ]]; then
+            echo SHELL="nix develop .#${{ inputs.nix-shell }} -c bash -e {0}" >> $GITHUB_ENV
+          else
+            echo SHELL="${{ inputs.custom_shell }}" >> $GITHUB_ENV
+          fi
       - name: Run CBMC proofs
         shell: ${{ env.SHELL }}
         run: |
