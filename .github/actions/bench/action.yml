@@ -29,11 +29,11 @@ inputs:
   gh_token:
     description: GitHub access token
     required: true
-  use-nix:
-    description: Whether to run in the default Nix environment
-    default: "true"
+  nix-shell:
+    description: Run in the specified Nix environment if exists
+    default: "ci"
   custom_shell:
-    description: The shell to use. Only relevant if use-nix is "false"
+    description: The shell to use. Only relevant if no nix-shell specified
     default: "bash"
   cross_prefix:
     description: "Binary prefix for cross-compilation builds"
@@ -42,10 +42,10 @@ runs:
   using: composite
   steps:
     - name: Setup nix
-      if: ${{ inputs.use-nix }}
+      if: ${{ inputs.nix-shell != '' }}
       uses: ./.github/actions/setup-nix
       with:
-        devShell: ci
+        devShell: ${{ inputs.nix-shell }}
         script: |
           ARCH=$(uname -m)
           cat >> $GITHUB_STEP_SUMMARY <<-EOF
@@ -61,7 +61,7 @@ runs:
           EOF
     - name: Set shell
       shell: bash
-      run: echo SHELL="${{ inputs.use-nix && 'nix develop .#ci -c bash -e {0}' || inputs.custom_shell }}" >> $GITHUB_ENV
+      run: echo SHELL="${{ inputs.nix-shell != '' && 'nix develop .#${{ inputs.nix-shell }} -c bash -e {0}' || inputs.custom_shell }}" >> $GITHUB_ENV
     - name: Run benchmark
       shell: ${{ env.SHELL }}
       run: |

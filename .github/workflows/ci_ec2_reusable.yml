@@ -104,7 +104,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/functest
         with:
-          use-nix: true
+          nix-shell: ci
           cflags: ${{ inputs.cflags }}
           cross-prefix: ${{ inputs.cross-prefix }}
           opt: ${{ inputs.opt }}
@@ -117,7 +117,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/lint
         with:
-          use-nix: true
+          nix-shell: ci-linter
           cross-prefix: ${{ inputs.cross-prefix }}
   cbmc:
     name: CBMC ${{ inputs.name }}
@@ -128,7 +128,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/cbmc
         with:
-          use-nix: true
+          nix-shell: ci-cbmc
           cross-prefix: ${{ inputs.cross-prefix }}
   stop-ec2-runner:
     name: Stop ${{ inputs.name }} (${{ inputs.ec2_instance_type }})

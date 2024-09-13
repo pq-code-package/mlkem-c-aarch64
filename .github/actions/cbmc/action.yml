@@ -4,9 +4,9 @@ name: CBMC
 description: Run CBMC proofs for MLKEM-C_AArch64
 
 inputs:
-  use-nix:
-    description: Whether to run in the default Nix environment
-    default: "true"
+  nix-shell:
+    description: Run in the specified Nix environment if exists
+    default: "ci-cbmc"
   custom_shell:
     description: The shell to use. Only relevant if use-nix is 'false'
     default: "bash"
@@ -18,10 +18,10 @@ runs:
   steps:
       - uses: actions/checkout@v4
       - name: Setup nix
-        if: ${{ inputs.use-nix }}
+        if: ${{ inputs.nix-shell != '' }}
         uses: ./.github/actions/setup-nix
         with:
-          devShell: ci-cbmc
+          devShell: ${{ inputs.nix-shell }}
           script: |
             cat >> $GITHUB_STEP_SUMMARY << EOF
               ## Setup
@@ -35,7 +35,7 @@ runs:
             EOF
       - name: Set shell
         shell: bash
-        run: echo SHELL="${{ inputs.use-nix && 'nix develop .#ci-cbmc -c bash -e {0}' || inputs.custom_shell }}" >> $GITHUB_ENV
+        run: echo SHELL="${{ inputs.nix-shell != '' && 'nix develop .#${{ inputs.nix-shell }} -c bash -e {0}' || inputs.custom_shell }}" >> $GITHUB_ENV
       - name: Run CBMC proofs
         shell: ${{ env.SHELL }}
         run: |
