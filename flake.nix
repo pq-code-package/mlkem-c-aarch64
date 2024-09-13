@@ -37,35 +37,41 @@
               black;
           };
 
-          core =
+          aarch64-gcc = [
+            (
+              pkgs.pkgsCross.aarch64-multiplatform.buildPackages.gcc13.override {
+                propagateDoc = true;
+                isGNU = true;
+              }
+            )
+            pkgs.pkgsCross.aarch64-multiplatform.glibc
+            pkgs.pkgsCross.aarch64-multiplatform.glibc.static
+          ];
+
+          native-gcc = [
+            (pkgs.gcc13.override {
+              propagateDoc = true;
+              isGNU = true;
+            })
+            pkgs.glibc
+            pkgs.glibc.static
+          ];
+
+          core = { cross ? false }:
             let
-              aarch64-gcc =
-                pkgs.lib.optionals
-                  (! (pkgs.stdenv.isDarwin && pkgs.stdenv.isAarch64))
-                  [
-                    (
-                      pkgs.pkgsCross.aarch64-multiplatform.buildPackages.gcc13.override {
-                        propagateDoc = true;
-                        isGNU = true;
-                      }
-                    )
-                    pkgs.pkgsCross.aarch64-multiplatform.glibc
-                    pkgs.pkgsCross.aarch64-multiplatform.glibc.static
-                  ];
-              x86_64-gcc =
-                pkgs.lib.optionals
-                  (pkgs.stdenv.isLinux && pkgs.stdenv.isx86_64)
-                  [
-                    (pkgs.gcc13.override {
-                      propagateDoc = true;
-                      isGNU = true;
-                    })
-                    pkgs.glibc
-                    pkgs.glibc.static
-                  ];
+              gcc =
+                if pkgs.stdenv.isDarwin
+                then
+                  if pkgs.stdenv.x864_64
+                  then [ ]
+                  else aarch64-gcc
+                else
+                  if cross
+                  then aarch64-gcc
+                  else native-gcc
+              ;
             in
-            x86_64-gcc ++
-            aarch64-gcc ++
+            gcc ++
             builtins.attrValues {
               inherit (pkgs)
                 yq
@@ -87,7 +93,7 @@
         in
         {
           devShells.default = wrapShell pkgs.mkShellNoCC {
-            packages = core ++ linters ++ cbmcpkg ++
+            packages = core { } ++ linters ++ cbmcpkg ++
               builtins.attrValues {
                 inherit (pkgs)
                   direnv
@@ -95,8 +101,25 @@
               };
           };
 
-          devShells.ci = wrapShell pkgs.mkShellNoCC { packages = core; };
-          devShells.ci-cbmc = wrapShell pkgs.mkShellNoCC { packages = (core ++ cbmcpkg); };
+          devShells.x86_64-linux-cross = wrapShell pkgs.mkShellNoCC {
+            packages = core { cross = true; } ++ linters ++ cbmcpkg ++
+              builtins.attrValues {
+                inherit (pkgs)
+                  direnv
+                  nix-direnv;
+              };
+          };
+
+          devShells.ci = wrapShell pkgs.mkShellNoCC { packages = core { }; };
+          devShells.x86_64-linux-cross-ci = wrapShell pkgs.mkShellNoCC {
+            packages = core { cross = true; };
+          };
+
+          devShells.ci-cbmc = wrapShell pkgs.mkShellNoCC { packages = core { } ++ cbmcpkg; };
+          devShells.x86_64-linux-cross-ci-cbmc = wrapShell pkgs.mkShellNoCC {
+            packages = core { cross = true; } ++ cbmcpkg;
+          };
+
           devShells.ci-linter = wrapShell pkgs.mkShellNoCC { packages = linters; };
         };
       flake = {
