@@ -9,9 +9,6 @@
 
 #if defined(SYS_AARCH64)
 #define MLKEM_USE_AARCH64_ASM
-#else /* SYS_AARCH64 */
-/* Check x86_64 at some point */
-#warning "Selected optimized build, but no platform-specific assembly present"
 #endif /* SYS_AARCH64 */
 
 #endif /* MLKEM_USE_ASM */

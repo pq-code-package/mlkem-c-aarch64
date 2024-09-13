@@ -44,6 +44,10 @@ on:
         type: string
         description: Additional command line to be appended to `bench` script
         default: ''
+      cross_prefix:
+        type: string
+        description: "Binary prefix for cross-compilation builds"
+        default: ''
 env:
   AWS_ROLE: arn:aws:iam::559050233797:role/mlkem-c-aarch64-gh-action
   AWS_REGION: us-east-1
@@ -111,6 +115,7 @@ jobs:
           store_results: ${{ inputs.store_results }}
           bench_extra_args: ${{ inputs.bench_extra_args }}
           gh_token: ${{ secrets.AWS_GITHUB_TOKEN }}
+          cross_prefix: ${{ inputs.cross_prefix }}
   stop-ec2-runner:
     name: Stop ${{ inputs.name }} (${{ inputs.ec2_instance_type }})
     permissions:
