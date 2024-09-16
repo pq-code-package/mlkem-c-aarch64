@@ -97,7 +97,7 @@ jobs:
             ec2_instance_type: c7a.medium
             ec2_ami: ubuntu-latest (x86_64)
           - name: Intel Xeon 4th gen (c7i)
-            ec2_instance_type: c7i.medium
+            ec2_instance_type: c7i.large
             ec2_ami: ubuntu-latest (x86_64)
     name: ${{ matrix.target.name }}
     permissions:
