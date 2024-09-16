@@ -11,9 +11,31 @@
 #include <assert.h>
 #include "keccakf1600.h"
 
+#include "asm/asm.h"
+#include "config.h"
+
 #define NROUNDS 24
 #define ROL(a, offset) ((a << offset) ^ (a >> (64-offset)))
 
+void KeccakF1600_StateExtractBytes(uint64_t *state, unsigned char *data, unsigned int offset, unsigned int length)
+{
+    unsigned int i;
+    for (i = 0; i < length; i++)
+    {
+        data[i] = state[(offset + i) >> 3] >> (8 * ((offset + i) & 0x07));
+    }
+}
+
+void KeccakF1600_StateXORBytes(uint64_t *state, const unsigned char *data, unsigned int offset, unsigned int length)
+{
+    unsigned int i;
+    for (i = 0; i < length; i++)
+    {
+        state[(offset + i) >> 3] ^= (uint64_t)data[i] << (8 * ((offset + i) & 0x07));
+    }
+}
+
+#if !defined(MLKEM_USE_AARCH64_ASM)
 static const uint64_t KeccakF_RoundConstants[NROUNDS] =
 {
     (uint64_t)0x0000000000000001ULL,
@@ -41,24 +63,6 @@ static const uint64_t KeccakF_RoundConstants[NROUNDS] =
     (uint64_t)0x0000000080000001ULL,
     (uint64_t)0x8000000080008008ULL
 };
-
-void KeccakF1600_StateExtractBytes(uint64_t *state, unsigned char *data, unsigned int offset, unsigned int length)
-{
-    unsigned int i;
-    for (i = 0; i < length; i++)
-    {
-        data[i] = state[(offset + i) >> 3] >> (8 * ((offset + i) & 0x07));
-    }
-}
-
-void KeccakF1600_StateXORBytes(uint64_t *state, const unsigned char *data, unsigned int offset, unsigned int length)
-{
-    unsigned int i;
-    for (i = 0; i < length; i++)
-    {
-        state[(offset + i) >> 3] ^= (uint64_t)data[i] << (8 * ((offset + i) & 0x07));
-    }
-}
 
 void KeccakF1600_StatePermute(uint64_t *state)
 {
@@ -326,3 +330,4 @@ void KeccakF1600_StatePermute(uint64_t *state)
 
 #undef    round
 }
+#endif /* !MLKEM_USE_AARCH64_ASM */

@@ -15,6 +15,11 @@ $(BUILD_DIR)/%.c.o: %.c $(CONFIG)
 	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
 	$(Q)$(CC) -c -o $@ $(CFLAGS) $<
 
+$(BUILD_DIR)/%.S.o: %.S $(CONFIG)
+	$(Q)echo "  AS      $@"
+	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
+	$(Q)$(CC) -c -o $@ $(CFLAGS) $<
+
 $(BUILD_DIR)/mlkem512/%.c.o: %.c $(CONFIG)
 	$(Q)echo "  CC      $@"
 	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
