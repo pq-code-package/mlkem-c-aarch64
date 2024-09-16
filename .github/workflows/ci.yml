@@ -109,5 +109,4 @@ jobs:
       name: ${{ matrix.target.name }}
       ec2_instance_type: ${{ matrix.target.ec2_instance_type }}
       ec2_ami: ${{ matrix.target.ec2_ami }}
-      cross-prefix: 'aarch64-unknown-linux-gnu-'
     secrets: inherit
