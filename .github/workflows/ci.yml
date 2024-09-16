@@ -88,3 +88,32 @@ jobs:
       - uses: ./.github/actions/cbmc
         with:
           nix-shell: ci-cbmc
+  ec2_all:
+    name: ${{ matrix.target.name }}
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - name: AMD EPYC 4th gen (c7a)
+            ec2_instance_type: c7a.medium
+            ec2_ami: ubuntu-latest (x86_64)
+            cross-prefix: 'aarch64-unknown-linux-gnu-'
+          - name: Intel Xeon 4th gen (c7i)
+            ec2_instance_type: c7i.medium
+            ec2_ami: ubuntu-latest (x86_64)
+            cross-prefix: 'aarch64-unknown-linux-gnu-'
+    uses: ./.github/workflows/ci_ec2_reusable.yml
+    if: github.repository_owner == 'pq-code-package' && (github.event.label.name == 'benchmark' || github.ref == 'refs/heads/main')
+    with:
+      name: ${{ matrix.target.name }}
+      ec2_instance_type: ${{ matrix.target.ec2_instance_type }}
+      ec2_ami: ${{ matrix.target.ec2_ami }}
+      cross-prefix: ${{ inputs.cross-prefix }}
+      functest: true
+      lint: true
+      cbmc: false
+      always_terminate: ${{ inputs.always_terminate }}
+    secrets: inherit
