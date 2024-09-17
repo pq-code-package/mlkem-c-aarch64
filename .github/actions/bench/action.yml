@@ -72,7 +72,7 @@ runs:
       run: |
         tests bench -c ${{ inputs.perf }} --cross-prefix="${{ inputs.cross_prefix }}" --cflags="${{ inputs.cflags }}" --arch-flags="${{ inputs.archflags }}" --opt="${{ inputs.opt }}" -v --output=output.json ${{ inputs.bench_extra_args }}
     - name: Store benchmark result
-      if: ${{ inputs.store_results }}
+      if: ${{ inputs.store_results == 'true' }}
       uses: benchmark-action/github-action-benchmark@v1
       with:
         name: ${{ inputs.name }}
