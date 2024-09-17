@@ -21,7 +21,7 @@ runs:
   steps:
       - name: Setup nix
         uses: ./.github/actions/setup-nix
-        if: ${{ inputs.use-nix }}
+        if: ${{ inputs.use-nix == 'true' }}
         with:
           devShell: ci
           script: |

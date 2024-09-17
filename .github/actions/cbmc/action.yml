@@ -18,7 +18,7 @@ runs:
   steps:
       - uses: actions/checkout@v4
       - name: Setup nix
-        if: ${{ inputs.use-nix }}
+        if: ${{ inputs.use-nix == 'true' }}
         uses: ./.github/actions/setup-nix
         with:
           devShell: ci-cbmc
@@ -35,7 +35,7 @@ runs:
             EOF
       - name: Set shell
         shell: bash
-        run: echo SHELL="${{ inputs.use-nix && 'nix develop .#ci-cbmc -c bash -e {0}' || inputs.custom_shell }}" >> $GITHUB_ENV
+        run: echo SHELL="${{ inputs.use-nix == 'true' && 'nix develop .#ci-cbmc -c bash -e {0}' || inputs.custom_shell }}" >> $GITHUB_ENV
       - name: Run CBMC proofs
         shell: ${{ env.SHELL }}
         run: |
