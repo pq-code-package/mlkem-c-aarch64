@@ -11,7 +11,7 @@ void KeccakF1600_StateXORBytes(uint64_t *state, const unsigned char *data, unsig
 #if !defined(MLKEM_USE_AARCH64_ASM)
 void KeccakF1600_StatePermute(uint64_t *state);
 #else
-#define KeccakF1600_StatePermute keccak_f1600_x1_scalar_pre_opt
+#define KeccakF1600_StatePermute keccak_f1600_x1_asm
 #endif
 
 #endif
