@@ -10,9 +10,6 @@ inputs:
   devShell:
     description: The name of the devShell
     required: true
-  nix-not-installed:
-    description: Indicates whether to install Nix if it is not already present on the system.
-    default: 'true'
 
 runs:
   using: composite
@@ -22,11 +19,13 @@ runs:
       continue-on-error: true
       shell: bash -leo pipefail {0}
       run: |
+        . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
         nix --version
         nix config show | grep -E "^trusted-users = .*$USER"
         nix config show | grep -E "^experimental-features = .*flakes"
         nix config show | grep -E "^experimental-features = .*nix-command"
 
+        echo SHELL="$(which nix) develop --quiet .#${{ inputs.devShell }} -c bash -e {0}" >> $GITHUB_ENV
     - name: Install nix
       if: steps.pre-check-nix.outcome == 'failure'
       shell: bash -leo pipefail {0}
@@ -36,18 +35,18 @@ runs:
         --extra-conf "experimental-features = nix-command flakes"
 
         . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+        echo SHELL="$(which nix) develop --quiet .#${{ inputs.devShell }} -c bash -e {0}" >> $GITHUB_ENV
     - name: Post-check nix
       continue-on-error: true
       shell: bash -leo pipefail {0}
       run: |
         nix config check
     - uses: DeterminateSystems/magic-nix-cache-action@v8
-      continue-on-error: true
     - name: Prepare nix dev shell
-      shell: nix develop --quiet .#${{ inputs.devShell }} -c bash -e {0}
+      shell: ${{ env.SHELL }}
       run: |
     - name: Dependency check
-      shell: nix develop --quiet .#${{ inputs.devShell }} -c bash -e {0}
+      shell: ${{ env.SHELL }}
       if: inputs.script != ''
       env:
         INPUT_SCRIPT: ${{ inputs.script }}

@@ -23,10 +23,10 @@ runs:
   using: composite
   steps:
       - name: Setup nix
-        uses: ./.github/actions/setup-nix
-        if: ${{ inputs.nix-shell != '' }}
+        uses: ./.github/actions/setup-shell
         with:
-          devShell: ${{ inputs.nix-shell }}
+          nix-shell: ${{ inputs.nix-shell }}
+          custom_shell: ${{ inputs.custom_shell }}
           script: |
             ARCH=$(uname -m)
             cat >> $GITHUB_STEP_SUMMARY <<-EOF
@@ -37,14 +37,6 @@ runs:
               - $(${{ inputs.cross-prefix }}gcc --version | grep -m1 "")
               - $(bash --version | grep -m1 "")
             EOF
-      - name: Set shell
-        shell: bash
-        run: |
-          if [[ ${{ inputs.nix-shell }} != '' ]]; then
-            echo SHELL="nix develop .#${{ inputs.nix-shell }} -c bash -e {0}" >> $GITHUB_ENV
-          else
-            echo SHELL="${{ inputs.custom_shell }}" >> $GITHUB_ENV
-          fi
       - name: Run functional tests
         id: func_test
         shell: ${{ env.SHELL }}

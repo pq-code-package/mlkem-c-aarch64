@@ -32,9 +32,6 @@ inputs:
   nix-shell:
     description: Run in the specified Nix environment if exists
     default: "ci"
-  nix-not-installed:
-    description: Indicates whether to install Nix if it is not already present on the system.
-    default: 'true'
   custom_shell:
     description: The shell to use. Only relevant if no nix-shell specified
     default: "bash"
@@ -44,12 +41,10 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Setup nix
-      if: ${{ inputs.nix-shell != '' }}
-      uses: ./.github/actions/setup-nix
+    - uses: ./.github/actions/setup-shell
       with:
-        nix-not-installed: ${{ inputs.nix-not-installed }}
-        devShell: ${{ inputs.nix-shell }}
+        nix-shell: ${{ inputs.nix-shell }}
+        custom_shell: ${{ inputs.custom_shell }}
         script: |
           ARCH=$(uname -m)
           cat >> $GITHUB_STEP_SUMMARY <<-EOF
@@ -63,14 +58,6 @@ runs:
             ## CPU Info
             $(cat /proc/cpuinfo)
           EOF
-    - name: Set shell
-      shell: bash
-      run: |
-        if [[ ${{ inputs.nix-shell }} != '' ]]; then
-          echo SHELL="nix develop .#${{ inputs.nix-shell }} -c bash -e {0}" >> $GITHUB_ENV
-        else
-          echo SHELL="${{ inputs.custom_shell }}" >> $GITHUB_ENV
-        fi
     - name: Run benchmark
       shell: ${{ env.SHELL }}
       run: |
