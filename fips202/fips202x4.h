@@ -15,19 +15,16 @@
 //
 // The struct is only exposed here to allow its construction on the stack.
 //
-typedef struct
-{
-    uint64_t ctx[25 * KECCAK_WAY];
-} keccakx4_state;
+typedef uint8_t shakex4_state[KECCAK_WAY * 25 * 8];
 
-void shake128x4_absorb(keccakx4_state *state,
+void shake128x4_absorb(shakex4_state *state,
                        const uint8_t *in0,
                        const uint8_t *in1,
                        const uint8_t *in2,
                        const uint8_t *in3,
                        size_t inlen);
 
-void shake256x4_absorb(keccakx4_state *state,
+void shake256x4_absorb(shakex4_state *state,
                        const uint8_t *in0,
                        const uint8_t *in1,
                        const uint8_t *in2,
@@ -40,14 +37,14 @@ void shake128x4_squeezeblocks(uint8_t *out0,
                               uint8_t *out2,
                               uint8_t *out3,
                               size_t nblocks,
-                              keccakx4_state *state);
+                              shakex4_state *state);
 
 void shake256x4_squeezeblocks(uint8_t *out0,
                               uint8_t *out1,
                               uint8_t *out2,
                               uint8_t *out3,
                               size_t nblocks,
-                              keccakx4_state *state);
+                              shakex4_state *state);
 
 
 void shake256x4(uint8_t *out0,
