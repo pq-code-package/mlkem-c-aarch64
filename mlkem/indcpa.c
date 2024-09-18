@@ -275,7 +275,10 @@ void indcpa_keypair_derand(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
     const uint8_t *noiseseed = buf + KYBER_SYMBYTES;
     polyvec a[KYBER_K], e, pkpv, skpv;
 
-    hash_g(buf, coins, KYBER_SYMBYTES);
+    // Add KYBER_K for domain separation of security levels
+    memcpy(buf, coins, KYBER_SYMBYTES);
+    buf[KYBER_SYMBYTES] = KYBER_K;
+    hash_g(buf, buf, KYBER_SYMBYTES+1);
 
     gen_a(a, publicseed);
 
