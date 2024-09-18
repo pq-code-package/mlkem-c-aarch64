@@ -149,21 +149,6 @@ void shake256x4_squeezeblocks(uint8_t *out0,
     keccak_squeezeblocks_x4(out0, out1, out2, out3, nblocks, state->ctx, SHAKE256_RATE);
 }
 
-void shake256x4_squeezeblocks_single(uint8_t *out,
-                                     size_t nblocks,
-                                     size_t index,
-                                     keccakx4_state *state)
-{
-    uint64_t *ctx = keccakx_get_lane_state(state, index);
-    while (nblocks > 0)
-    {
-        KeccakF1600_StatePermute(ctx);
-        KeccakF1600_StateExtractBytes(ctx, out, 0, SHAKE128_RATE);
-        out += SHAKE128_RATE;
-        nblocks--;
-    }
-}
-
 void shake256x4(uint8_t *out0,
                 uint8_t *out1,
                 uint8_t *out2,

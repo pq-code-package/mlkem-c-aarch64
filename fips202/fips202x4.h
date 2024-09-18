@@ -8,6 +8,13 @@
 
 #include <stdint.h>
 
+// WARNING:
+//
+// The contents of this structure, including the placement
+// and interleaving of Keccak lanes, are IMPLEMENTATION-DEFINED.
+//
+// The struct is only exposed here to allow its construction on the stack.
+//
 typedef struct
 {
     uint64_t ctx[25 * KECCAK_WAY];
@@ -44,13 +51,6 @@ void shake256x4_squeezeblocks(uint8_t *out0,
                               size_t nblocks,
                               keccakx4_state *state);
 
-/*
- * Squeezes a single lane in Keccak 4-way
- */
-void shake256x4_squeezeblocks_single(uint8_t *out,
-                                     size_t nblocks,
-                                     size_t index,
-                                     keccakx4_state *state);
 
 void shake256x4(uint8_t *out0,
                 uint8_t *out1,
