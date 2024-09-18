@@ -20,8 +20,6 @@ typedef struct
     uint64_t ctx[25 * KECCAK_WAY];
 } keccakx4_state;
 
-uint64_t *keccakx_get_lane_state(keccakx4_state *state, size_t index);
-
 void shake128x4_absorb(keccakx4_state *state,
                        const uint8_t *in0,
                        const uint8_t *in1,
