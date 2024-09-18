@@ -4,23 +4,6 @@
 #include "fips202.h"
 #include "keccakf1600.h"
 
-#define KECCAK_LANES 25
-
-// Internal presentation of batched Keccak state.
-//
-// TODO: Lanes need to be interleaved for efficient use of SIMD instructions.
-typedef struct
-{
-    uint64_t lanes[KECCAK_LANES * KECCAK_WAY];
-} keccakx4_state;
-
-
-static inline keccakx4_state *shakex4_state_to_keccakx4(shakex4_state *raw)
-{
-    // TODO: Add static assert that this has the same size as shakex4_state.
-    return (keccakx4_state *) raw;
-}
-
 static void keccak_absorb_x4(keccakx4_state *ctxt,
                              uint32_t r,
                              const uint8_t *in0,
@@ -30,19 +13,12 @@ static void keccak_absorb_x4(keccakx4_state *ctxt,
                              size_t inlen,
                              uint8_t p)
 {
-    uint64_t *s = ctxt->lanes;
+    uint64_t *s = (uint64_t*) ctxt;
 
     while (inlen >= r)
     {
-        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 0, in0, 0, r);
-        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 1, in1, 0, r);
-        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 2, in2, 0, r);
-        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 3, in3, 0, r);
-
-        KeccakF1600_StatePermute(s + KECCAK_LANES * 0);
-        KeccakF1600_StatePermute(s + KECCAK_LANES * 1);
-        KeccakF1600_StatePermute(s + KECCAK_LANES * 2);
-        KeccakF1600_StatePermute(s + KECCAK_LANES * 3);
+        KeccakF1600x4_StateXORBytes(s, in0, in1, in2, in3, 0, r);
+        KeccakF1600x4_StatePermute(s);
 
         in0 += r;
         in1 += r;
@@ -53,31 +29,19 @@ static void keccak_absorb_x4(keccakx4_state *ctxt,
 
     if (inlen > 0)
     {
-        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 0, in0, 0, inlen);
-        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 1, in1, 0, inlen);
-        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 2, in2, 0, inlen);
-        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 3, in3, 0, inlen);
+        KeccakF1600x4_StateXORBytes(s, in0, in1, in2, in3, 0, inlen);
     }
 
     if (inlen == r - 1)
     {
         p |= 128;
-        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 0, &p, inlen, 1);
-//        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 1, &p, inlen, 1);
-        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 2, &p, inlen, 1);
-        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 3, &p, inlen, 1);
+        KeccakF1600x4_StateXORBytes(s, &p, &p, &p, &p, inlen, 1);
     }
     else
     {
-        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 0, &p, inlen, 1);
-        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 1, &p, inlen, 1);
-        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 2, &p, inlen, 1);
-        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 3, &p, inlen, 1);
+        KeccakF1600x4_StateXORBytes(s, &p, &p, &p, &p, inlen, 1);
         p = 128;
-        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 0, &p, r - 1, 1);
-        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 1, &p, r - 1, 1);
-        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 2, &p, r - 1, 1);
-        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 3, &p, r - 1, 1);
+        KeccakF1600x4_StateXORBytes(s, &p, &p, &p, &p, r-1, 1);
     }
 }
 
@@ -89,19 +53,12 @@ static void keccak_squeezeblocks_x4(uint8_t *out0,
                                     keccakx4_state *ctxt,
                                     uint32_t r)
 {
-    uint64_t *s = ctxt->lanes;
+    uint64_t *s = (uint64_t*) ctxt;
 
     while (nblocks > 0)
     {
-        KeccakF1600_StatePermute(s + KECCAK_LANES * 0);
-        KeccakF1600_StatePermute(s + KECCAK_LANES * 1);
-        KeccakF1600_StatePermute(s + KECCAK_LANES * 2);
-        KeccakF1600_StatePermute(s + KECCAK_LANES * 3);
-
-        KeccakF1600_StateExtractBytes(s + KECCAK_LANES * 0, out0, 0, r);
-        KeccakF1600_StateExtractBytes(s + KECCAK_LANES * 1, out1, 0, r);
-        KeccakF1600_StateExtractBytes(s + KECCAK_LANES * 2, out2, 0, r);
-        KeccakF1600_StateExtractBytes(s + KECCAK_LANES * 3, out3, 0, r);
+        KeccakF1600x4_StatePermute(s);
+        KeccakF1600x4_StateExtractBytes(s, out0, out1, out2, out3, 0, r);
 
         out0 += r;
         out1 += r;
@@ -111,28 +68,26 @@ static void keccak_squeezeblocks_x4(uint8_t *out0,
     }
 }
 
-void shake128x4_absorb(shakex4_state *state,
+void shake128x4_absorb(keccakx4_state *state,
                        const uint8_t *in0,
                        const uint8_t *in1,
                        const uint8_t *in2,
                        const uint8_t *in3,
                        size_t inlen)
 {
-    keccakx4_state *ctxt = shakex4_state_to_keccakx4(state);
-    memset(ctxt, 0, sizeof(keccakx4_state));
-    keccak_absorb_x4(ctxt, SHAKE128_RATE, in0, in1, in2, in3, inlen, 0x1F);
+    memset(state, 0, sizeof(keccakx4_state));
+    keccak_absorb_x4(state, SHAKE128_RATE, in0, in1, in2, in3, inlen, 0x1F);
 }
 
-void shake256x4_absorb(shakex4_state *state,
+void shake256x4_absorb(keccakx4_state *state,
                        const uint8_t *in0,
                        const uint8_t *in1,
                        const uint8_t *in2,
                        const uint8_t *in3,
                        size_t inlen)
 {
-    keccakx4_state *ctxt = shakex4_state_to_keccakx4(state);
-    memset(ctxt, 0, sizeof(keccakx4_state));
-    keccak_absorb_x4(ctxt, SHAKE256_RATE, in0, in1, in2, in3, inlen, 0x1F);
+    memset(state, 0, sizeof(keccakx4_state));
+    keccak_absorb_x4(state, SHAKE256_RATE, in0, in1, in2, in3, inlen, 0x1F);
 }
 
 
@@ -141,10 +96,9 @@ void shake128x4_squeezeblocks(uint8_t *out0,
                               uint8_t *out2,
                               uint8_t *out3,
                               size_t nblocks,
-                              shakex4_state *state)
+                              keccakx4_state *state)
 {
-    keccakx4_state *ctxt = shakex4_state_to_keccakx4(state);
-    keccak_squeezeblocks_x4(out0, out1, out2, out3, nblocks, ctxt, SHAKE128_RATE);
+    keccak_squeezeblocks_x4(out0, out1, out2, out3, nblocks, state, SHAKE128_RATE);
 }
 
 void shake256x4_squeezeblocks(uint8_t *out0,
@@ -152,10 +106,9 @@ void shake256x4_squeezeblocks(uint8_t *out0,
                               uint8_t *out2,
                               uint8_t *out3,
                               size_t nblocks,
-                              shakex4_state *state)
+                              keccakx4_state *state)
 {
-    keccakx4_state *ctxt = shakex4_state_to_keccakx4(state);
-    keccak_squeezeblocks_x4(out0, out1, out2, out3, nblocks, ctxt, SHAKE256_RATE);
+    keccak_squeezeblocks_x4(out0, out1, out2, out3, nblocks, state, SHAKE256_RATE);
 }
 
 void shake256x4(uint8_t *out0,
@@ -169,7 +122,7 @@ void shake256x4(uint8_t *out0,
                 uint8_t *in3,
                 size_t inlen)
 {
-    shakex4_state statex;
+    keccakx4_state statex;
     size_t nblocks = outlen/SHAKE256_RATE;
     uint8_t tmp[KECCAK_WAY][SHAKE256_RATE];
 

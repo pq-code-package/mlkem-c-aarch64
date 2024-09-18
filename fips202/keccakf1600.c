@@ -19,6 +19,16 @@
 
 void KeccakF1600_StateExtractBytes(uint64_t *state, unsigned char *data, unsigned int offset, unsigned int length)
 {
+    // TODO: On little-endian platforms, one can just do
+    //
+    //  ```
+    //    uint8_t *state_ptr = (uint8_t*) state + offset;
+    //    for (unsigned int i=0; i < length; i++ )
+    //        data[i] = state_ptr[i];
+    //  ```
+    //
+    //  here.
+
     unsigned int i;
     for (i = 0; i < length; i++)
     {
@@ -28,11 +38,56 @@ void KeccakF1600_StateExtractBytes(uint64_t *state, unsigned char *data, unsigne
 
 void KeccakF1600_StateXORBytes(uint64_t *state, const unsigned char *data, unsigned int offset, unsigned int length)
 {
+    // TODO: On little-endian platforms, one can just do
+    //
+    //  ```
+    //   uint8_t *state_ptr = (uint8_t*) state + offset;
+    //   for (unsigned int i=0; i < length; i++ )
+    //      state_ptr[i] ^= data[i];
+    //  ```
+    //
+    //  here.
+
     unsigned int i;
     for (i = 0; i < length; i++)
     {
         state[(offset + i) >> 3] ^= (uint64_t)data[i] << (8 * ((offset + i) & 0x07));
     }
+}
+
+void KeccakF1600x4_StateExtractBytes(uint64_t *state,
+                                     unsigned char *data0,
+                                     unsigned char *data1,
+                                     unsigned char *data2,
+                                     unsigned char *data3,
+                                     unsigned int offset,
+                                     unsigned int length)
+{
+    KeccakF1600_StateExtractBytes(state + KECCAK_LANES * 0, data0, offset, length);
+    KeccakF1600_StateExtractBytes(state + KECCAK_LANES * 1, data1, offset, length);
+    KeccakF1600_StateExtractBytes(state + KECCAK_LANES * 2, data2, offset, length);
+    KeccakF1600_StateExtractBytes(state + KECCAK_LANES * 3, data3, offset, length);
+}
+
+void KeccakF1600x4_StateXORBytes(uint64_t *state,
+                                 const unsigned char *data0,
+                                 const unsigned char *data1,
+                                 const unsigned char *data2,
+                                 const unsigned char *data3,
+                                 unsigned int offset, unsigned int length)
+{
+    KeccakF1600_StateXORBytes(state + KECCAK_LANES * 0, data0, offset, length);
+    KeccakF1600_StateXORBytes(state + KECCAK_LANES * 1, data1, offset, length);
+    KeccakF1600_StateXORBytes(state + KECCAK_LANES * 2, data2, offset, length);
+    KeccakF1600_StateXORBytes(state + KECCAK_LANES * 3, data3, offset, length);
+}
+
+void KeccakF1600x4_StatePermute(uint64_t *state)
+{
+    KeccakF1600_StatePermute(state + KECCAK_LANES * 0);
+    KeccakF1600_StatePermute(state + KECCAK_LANES * 1);
+    KeccakF1600_StatePermute(state + KECCAK_LANES * 2);
+    KeccakF1600_StatePermute(state + KECCAK_LANES * 3);
 }
 
 #if !defined(MLKEM_USE_AARCH64_ASM)

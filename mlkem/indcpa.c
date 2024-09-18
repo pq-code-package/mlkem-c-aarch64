@@ -173,7 +173,7 @@ void gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMBYTES], int transposed)
     uint8_t bufx[KECCAK_WAY][GEN_MATRIX_NBLOCKS * SHAKE128_RATE];
     int16_t *vec[KECCAK_WAY] = { NULL };
 
-    shakex4_state statex;
+    keccakx4_state statex;
     // The input data to each Keccak lane.
     // Original size; KYBER_SYMBYTES + 2, we add padding to make align load/store.
     uint8_t seedxy[KECCAK_WAY][KYBER_SYMBYTES + 16];
