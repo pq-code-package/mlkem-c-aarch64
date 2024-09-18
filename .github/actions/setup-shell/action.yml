@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: Apache-2.0
+
+name: Set Shell
+description: Setup nix or custom shell for workflows
+
+inputs:
+  use-nix:
+    description: Indicate whether to use nix or not
+    default: 'true'
+  nix-shell:
+    description: Run in the specified Nix environment if exists
+    default: 'ci'
+  custom_shell:
+    description: The shell to use. Only relevant if no nix-shell specified
+    default: 'bash'
+  script:
+    description: The script to be run in the nix shell
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Setup nix
+      uses: ./.github/actions/setup-nix
+      if: ${{ inputs.use-nix == 'true' && env.SHELL == '' }}
+      with:
+        devShell: ${{ inputs.nix-shell }}
+        script: ${{ inputs.script }}
+    - name: Set custom shell
+      shell: bash
+      if: ${{ inputs.use-nix != 'true' && env.SHELL == '' }}
+      run: |
+          echo SHELL="${{ inputs.custom_shell }}" >> $GITHUB_ENV
+
+          if [[ "${{ inputs.script }}" != '' ]]; then
+            eval ${{ inputs.script }}
+          fi
