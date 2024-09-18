@@ -42,6 +42,7 @@ runs:
       run: |
         nix config check
     - uses: DeterminateSystems/magic-nix-cache-action@v8
+      continue-on-error: true
     - name: Prepare nix dev shell
       shell: ${{ env.SHELL }}
       run: |
