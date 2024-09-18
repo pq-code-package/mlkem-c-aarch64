@@ -14,8 +14,33 @@
 #include "asm/asm.h"
 #include "config.h"
 
+#include <string.h>
+
 #define NROUNDS 24
 #define ROL(a, offset) ((a << offset) ^ (a >> (64-offset)))
+
+// TODO: This should either be integrated into the batched Keccak ASM,
+// or we should keep the Keccak state in deinterleaved form throughout,
+// but transpose the inputs/outputs of {Extract,XOR}Bytes functions.
+static void keccakx2_zip(uint64_t *state)
+{
+    uint64_t tmp[2 * KECCAK_LANES];
+    for (unsigned i=0; i < 2; i++)
+        for (unsigned j=0; j < KECCAK_LANES; j++)
+            tmp[2*j + i] = state[KECCAK_LANES*i + j];
+
+    memcpy(state, tmp, sizeof(tmp));
+}
+
+static void keccakx2_unzip(uint64_t *state)
+{
+    uint64_t tmp[2 * KECCAK_LANES];
+    for (unsigned i=0; i < 2; i++)
+        for (unsigned j=0; j < KECCAK_LANES; j++)
+            tmp[KECCAK_LANES*i + j] = state[2*j + i];
+
+    memcpy(state, tmp, sizeof(tmp));
+}
 
 void KeccakF1600_StateExtractBytes(uint64_t *state, unsigned char *data, unsigned int offset, unsigned int length)
 {
@@ -47,7 +72,6 @@ void KeccakF1600_StateXORBytes(uint64_t *state, const unsigned char *data, unsig
     //  ```
     //
     //  here.
-
     unsigned int i;
     for (i = 0; i < length; i++)
     {
@@ -76,6 +100,7 @@ void KeccakF1600x4_StateXORBytes(uint64_t *state,
                                  const unsigned char *data3,
                                  unsigned int offset, unsigned int length)
 {
+
     KeccakF1600_StateXORBytes(state + KECCAK_LANES * 0, data0, offset, length);
     KeccakF1600_StateXORBytes(state + KECCAK_LANES * 1, data1, offset, length);
     KeccakF1600_StateXORBytes(state + KECCAK_LANES * 2, data2, offset, length);
@@ -84,10 +109,18 @@ void KeccakF1600x4_StateXORBytes(uint64_t *state,
 
 void KeccakF1600x4_StatePermute(uint64_t *state)
 {
-    KeccakF1600_StatePermute(state + KECCAK_LANES * 0);
-    KeccakF1600_StatePermute(state + KECCAK_LANES * 1);
-    KeccakF1600_StatePermute(state + KECCAK_LANES * 2);
-    KeccakF1600_StatePermute(state + KECCAK_LANES * 3);
+    /* KeccakF1600_StatePermute(state + KECCAK_LANES * 0); */
+    /* KeccakF1600_StatePermute(state + KECCAK_LANES * 1); */
+    /* KeccakF1600_StatePermute(state + KECCAK_LANES * 2); */
+    /* KeccakF1600_StatePermute(state + KECCAK_LANES * 3); */
+
+    keccakx2_zip(state + 0 * KECCAK_LANES);
+    keccak_f1600_x2_asm(state + 0 * KECCAK_LANES);
+    keccakx2_unzip(state + 0 * KECCAK_LANES);
+
+    keccakx2_zip(state + 2 * KECCAK_LANES);
+    keccak_f1600_x2_asm(state + 2 * KECCAK_LANES);
+    keccakx2_unzip(state + 2 * KECCAK_LANES);
 }
 
 #if !defined(MLKEM_USE_AARCH64_ASM)
