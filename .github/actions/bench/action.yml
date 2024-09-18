@@ -32,6 +32,9 @@ inputs:
   nix-shell:
     description: Run in the specified Nix environment if exists
     default: "ci"
+  nix-not-installed:
+    description: Indicates whether to install Nix if it is not already present on the system.
+    default: 'true'
   custom_shell:
     description: The shell to use. Only relevant if no nix-shell specified
     default: "bash"
@@ -45,6 +48,7 @@ runs:
       if: ${{ inputs.nix-shell != '' }}
       uses: ./.github/actions/setup-nix
       with:
+        nix-not-installed: ${{ inputs.nix-not-installed }}
         devShell: ${{ inputs.nix-shell }}
         script: |
           ARCH=$(uname -m)

@@ -10,12 +10,39 @@ inputs:
   devShell:
     description: The name of the devShell
     required: true
+  nix-not-installed:
+    description: Indicates whether to install Nix if it is not already present on the system.
+    default: 'true'
 
 runs:
   using: composite
   steps:
-    - uses: DeterminateSystems/nix-installer-action@v14
+    - name: Pre-check nix
+      id: pre-check-nix
+      continue-on-error: true
+      shell: bash -leo pipefail {0}
+      run: |
+        nix --version
+        nix config show | grep -E "^trusted-users = .*$USER"
+        nix config show | grep -E "^experimental-features = .*flakes"
+        nix config show | grep -E "^experimental-features = .*nix-command"
+
+    - name: Install nix
+      if: steps.pre-check-nix.outcome == 'failure'
+      shell: bash -leo pipefail {0}
+      run: |
+        curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install --no-confirm \
+        --extra-conf "trusted-users = root ${USER:-}" \
+        --extra-conf "experimental-features = nix-command flakes"
+
+        . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+    - name: Post-check nix
+      continue-on-error: true
+      shell: bash -leo pipefail {0}
+      run: |
+        nix config check
     - uses: DeterminateSystems/magic-nix-cache-action@v8
+      continue-on-error: true
     - name: Prepare nix dev shell
       shell: nix develop --quiet .#${{ inputs.devShell }} -c bash -e {0}
       run: |
