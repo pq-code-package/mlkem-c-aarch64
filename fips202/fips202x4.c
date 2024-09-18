@@ -4,14 +4,14 @@
 #include "fips202.h"
 #include "keccakf1600.h"
 
-#define KECCAK_CTX 25
+#define KECCAK_LANES 25
 
 // Internal presentation of batched Keccak state.
 //
 // TODO: Lanes need to be interleaved for efficient use of SIMD instructions.
 typedef struct
 {
-    uint64_t lanes[25 * KECCAK_WAY];
+    uint64_t lanes[KECCAK_LANES * KECCAK_WAY];
 } keccakx4_state;
 
 
@@ -34,16 +34,15 @@ static void keccak_absorb_x4(keccakx4_state *ctxt,
 
     while (inlen >= r)
     {
+        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 0, in0, 0, r);
+        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 1, in1, 0, r);
+        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 2, in2, 0, r);
+        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 3, in3, 0, r);
 
-        KeccakF1600_StateXORBytes(s + KECCAK_CTX * 0, in0, 0, r);
-        KeccakF1600_StateXORBytes(s + KECCAK_CTX * 1, in1, 0, r);
-        KeccakF1600_StateXORBytes(s + KECCAK_CTX * 2, in2, 0, r);
-        KeccakF1600_StateXORBytes(s + KECCAK_CTX * 3, in3, 0, r);
-
-        KeccakF1600_StatePermute(s + KECCAK_CTX * 0);
-        KeccakF1600_StatePermute(s + KECCAK_CTX * 1);
-        KeccakF1600_StatePermute(s + KECCAK_CTX * 2);
-        KeccakF1600_StatePermute(s + KECCAK_CTX * 3);
+        KeccakF1600_StatePermute(s + KECCAK_LANES * 0);
+        KeccakF1600_StatePermute(s + KECCAK_LANES * 1);
+        KeccakF1600_StatePermute(s + KECCAK_LANES * 2);
+        KeccakF1600_StatePermute(s + KECCAK_LANES * 3);
 
         in0 += r;
         in1 += r;
@@ -54,31 +53,31 @@ static void keccak_absorb_x4(keccakx4_state *ctxt,
 
     if (inlen > 0)
     {
-        KeccakF1600_StateXORBytes(s + KECCAK_CTX * 0, in0, 0, inlen);
-        KeccakF1600_StateXORBytes(s + KECCAK_CTX * 1, in1, 0, inlen);
-        KeccakF1600_StateXORBytes(s + KECCAK_CTX * 2, in2, 0, inlen);
-        KeccakF1600_StateXORBytes(s + KECCAK_CTX * 3, in3, 0, inlen);
+        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 0, in0, 0, inlen);
+        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 1, in1, 0, inlen);
+        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 2, in2, 0, inlen);
+        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 3, in3, 0, inlen);
     }
 
     if (inlen == r - 1)
     {
         p |= 128;
-        KeccakF1600_StateXORBytes(s + KECCAK_CTX * 0, &p, inlen, 1);
-        KeccakF1600_StateXORBytes(s + KECCAK_CTX * 1, &p, inlen, 1);
-        KeccakF1600_StateXORBytes(s + KECCAK_CTX * 2, &p, inlen, 1);
-        KeccakF1600_StateXORBytes(s + KECCAK_CTX * 3, &p, inlen, 1);
+        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 0, &p, inlen, 1);
+//        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 1, &p, inlen, 1);
+        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 2, &p, inlen, 1);
+        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 3, &p, inlen, 1);
     }
     else
     {
-        KeccakF1600_StateXORBytes(s + KECCAK_CTX * 0, &p, inlen, 1);
-        KeccakF1600_StateXORBytes(s + KECCAK_CTX * 1, &p, inlen, 1);
-        KeccakF1600_StateXORBytes(s + KECCAK_CTX * 2, &p, inlen, 1);
-        KeccakF1600_StateXORBytes(s + KECCAK_CTX * 3, &p, inlen, 1);
+        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 0, &p, inlen, 1);
+        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 1, &p, inlen, 1);
+        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 2, &p, inlen, 1);
+        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 3, &p, inlen, 1);
         p = 128;
-        KeccakF1600_StateXORBytes(s + KECCAK_CTX * 0, &p, r - 1, 1);
-        KeccakF1600_StateXORBytes(s + KECCAK_CTX * 1, &p, r - 1, 1);
-        KeccakF1600_StateXORBytes(s + KECCAK_CTX * 2, &p, r - 1, 1);
-        KeccakF1600_StateXORBytes(s + KECCAK_CTX * 3, &p, r - 1, 1);
+        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 0, &p, r - 1, 1);
+        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 1, &p, r - 1, 1);
+        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 2, &p, r - 1, 1);
+        KeccakF1600_StateXORBytes(s + KECCAK_LANES * 3, &p, r - 1, 1);
     }
 }
 
@@ -94,15 +93,15 @@ static void keccak_squeezeblocks_x4(uint8_t *out0,
 
     while (nblocks > 0)
     {
-        KeccakF1600_StatePermute(s + KECCAK_CTX * 0);
-        KeccakF1600_StatePermute(s + KECCAK_CTX * 1);
-        KeccakF1600_StatePermute(s + KECCAK_CTX * 2);
-        KeccakF1600_StatePermute(s + KECCAK_CTX * 3);
+        KeccakF1600_StatePermute(s + KECCAK_LANES * 0);
+        KeccakF1600_StatePermute(s + KECCAK_LANES * 1);
+        KeccakF1600_StatePermute(s + KECCAK_LANES * 2);
+        KeccakF1600_StatePermute(s + KECCAK_LANES * 3);
 
-        KeccakF1600_StateExtractBytes(s + KECCAK_CTX * 0, out0, 0, r);
-        KeccakF1600_StateExtractBytes(s + KECCAK_CTX * 1, out1, 0, r);
-        KeccakF1600_StateExtractBytes(s + KECCAK_CTX * 2, out2, 0, r);
-        KeccakF1600_StateExtractBytes(s + KECCAK_CTX * 3, out3, 0, r);
+        KeccakF1600_StateExtractBytes(s + KECCAK_LANES * 0, out0, 0, r);
+        KeccakF1600_StateExtractBytes(s + KECCAK_LANES * 1, out1, 0, r);
+        KeccakF1600_StateExtractBytes(s + KECCAK_LANES * 2, out2, 0, r);
+        KeccakF1600_StateExtractBytes(s + KECCAK_LANES * 3, out3, 0, r);
 
         out0 += r;
         out1 += r;
