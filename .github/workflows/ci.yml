@@ -93,10 +93,10 @@ jobs:
       fail-fast: false
       matrix:
         target:
-          - name: AMD EPYC 4th gen (c7a)
+          - name: AMD EPYC 4th gen (t3a)
             ec2_instance_type: t3a.small
             ec2_ami: ubuntu-latest (x86_64)
-          - name: Intel Xeon 4th gen (c7i)
+          - name: Intel Xeon 4th gen (t3)
             ec2_instance_type: t3.small
             ec2_ami: ubuntu-latest (x86_64)
     name: ${{ matrix.target.name }}
