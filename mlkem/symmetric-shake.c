@@ -7,30 +7,6 @@
 #include "fips202.h"
 
 /*************************************************
-* Name:        kyber_shake128_absorb
-*
-* Description: Absorb step of the SHAKE128 specialized for the Kyber context.
-*
-* Arguments:   - xof_state *state: pointer to (uninitialized) output Keccak state
-*              - const uint8_t *seed: pointer to KYBER_SYMBYTES input to be absorbed into state
-*              - uint8_t i: additional byte of input
-*              - uint8_t j: additional byte of input
-**************************************************/
-void kyber_shake128_absorb(xof_state *state,
-                           const uint8_t seed[KYBER_SYMBYTES],
-                           uint8_t x,
-                           uint8_t y)
-{
-    uint8_t extseed[KYBER_SYMBYTES + 2];
-
-    memcpy(extseed, seed, KYBER_SYMBYTES);
-    extseed[KYBER_SYMBYTES + 0] = x;
-    extseed[KYBER_SYMBYTES + 1] = y;
-
-    shake128_absorb(state, extseed, sizeof(extseed));
-}
-
-/*************************************************
 * Name:        kyber_shake256_prf
 *
 * Description: Usage of SHAKE256 as a PRF, concatenates secret and public input
