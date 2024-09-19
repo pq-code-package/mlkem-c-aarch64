@@ -14,28 +14,128 @@
 #include "asm/asm.h"
 #include "config.h"
 
+
 #define NROUNDS 24
 #define ROL(a, offset) ((a << offset) ^ (a >> (64-offset)))
 
 void KeccakF1600_StateExtractBytes(uint64_t *state, unsigned char *data, unsigned int offset, unsigned int length)
 {
+    #if defined(SYS_LITTLE_ENDIAN)
+    uint8_t *state_ptr = (uint8_t *) state + offset;
+    for (unsigned int i=0; i < length; i++ )
+    {
+        data[i] = state_ptr[i];
+    }
+    #else /* SYS_LITTLE_ENDIAN */
+    // Portable version
     unsigned int i;
     for (i = 0; i < length; i++)
     {
         data[i] = state[(offset + i) >> 3] >> (8 * ((offset + i) & 0x07));
     }
+    #endif /* SYS_LITTLE_ENDIAN */
 }
 
 void KeccakF1600_StateXORBytes(uint64_t *state, const unsigned char *data, unsigned int offset, unsigned int length)
 {
+    #if defined(SYS_LITTLE_ENDIAN)
+    uint8_t *state_ptr = (uint8_t *) state + offset;
+    for (unsigned int i=0; i < length; i++ )
+    {
+        state_ptr[i] ^= data[i];
+    }
+    #else /* SYS_LITTLE_ENDIAN */
+    // Portable version
     unsigned int i;
     for (i = 0; i < length; i++)
     {
         state[(offset + i) >> 3] ^= (uint64_t)data[i] << (8 * ((offset + i) & 0x07));
     }
+    #endif /* SYS_LITTLE_ENDIAN */
 }
 
-#if !defined(MLKEM_USE_AARCH64_ASM)
+void KeccakF1600x4_StateExtractBytes(uint64_t *state,
+                                     unsigned char *data0,
+                                     unsigned char *data1,
+                                     unsigned char *data2,
+                                     unsigned char *data3,
+                                     unsigned int offset,
+                                     unsigned int length)
+{
+    KeccakF1600_StateExtractBytes(state + KECCAK_LANES * 0, data0, offset, length);
+    KeccakF1600_StateExtractBytes(state + KECCAK_LANES * 1, data1, offset, length);
+    KeccakF1600_StateExtractBytes(state + KECCAK_LANES * 2, data2, offset, length);
+    KeccakF1600_StateExtractBytes(state + KECCAK_LANES * 3, data3, offset, length);
+}
+
+void KeccakF1600x4_StateXORBytes(uint64_t *state,
+                                 const unsigned char *data0,
+                                 const unsigned char *data1,
+                                 const unsigned char *data2,
+                                 const unsigned char *data3,
+                                 unsigned int offset, unsigned int length)
+{
+
+    KeccakF1600_StateXORBytes(state + KECCAK_LANES * 0, data0, offset, length);
+    KeccakF1600_StateXORBytes(state + KECCAK_LANES * 1, data1, offset, length);
+    KeccakF1600_StateXORBytes(state + KECCAK_LANES * 2, data2, offset, length);
+    KeccakF1600_StateXORBytes(state + KECCAK_LANES * 3, data3, offset, length);
+}
+
+#if defined(MLKEM_USE_FIPS202_X2_ASM) && defined(MLKEM_USE_FIPS202_X2_ASM_ZIPPED)
+#include <string.h>
+// TODO: This should either be integrated into the batched Keccak ASM,
+// or we should keep the Keccak state in deinterleaved form throughout,
+// but transpose the inputs/outputs of {Extract,XOR}Bytes functions.
+static void keccakx2_zip(uint64_t *state)
+{
+    uint64_t tmp[2 * KECCAK_LANES];
+    for (unsigned i=0; i < 2; i++)
+        for (unsigned j=0; j < KECCAK_LANES; j++)
+        {
+            tmp[2*j + i] = state[KECCAK_LANES*i + j];
+        }
+
+    memcpy(state, tmp, sizeof(tmp));
+}
+
+static void keccakx2_unzip(uint64_t *state)
+{
+    uint64_t tmp[2 * KECCAK_LANES];
+    for (unsigned i=0; i < 2; i++)
+        for (unsigned j=0; j < KECCAK_LANES; j++)
+        {
+            tmp[KECCAK_LANES*i + j] = state[2*j + i];
+        }
+
+    memcpy(state, tmp, sizeof(tmp));
+}
+#endif /* MLKEM_USE_FIPS202_X2_ASM && MLKEM_USE_FIPS202_X2_ASM_ZIPPED */
+
+void KeccakF1600x4_StatePermute(uint64_t *state)
+{
+    #if !defined(MLKEM_USE_FIPS202_X2_ASM)
+    KeccakF1600_StatePermute(state + KECCAK_LANES * 0);
+    KeccakF1600_StatePermute(state + KECCAK_LANES * 1);
+    KeccakF1600_StatePermute(state + KECCAK_LANES * 2);
+    KeccakF1600_StatePermute(state + KECCAK_LANES * 3);
+    #else /* MLKEM_USE_FIPS202_X2_ASM */
+
+    #if defined(MLKEM_USE_FIPS202_X2_ASM_ZIPPED)
+    keccakx2_zip(state + 0 * KECCAK_LANES);
+    keccakx2_zip(state + 2 * KECCAK_LANES);
+    #endif /* MLKEM_USE_FIPS202_X2_ASM_ZIPPED */
+    keccak_f1600_x2_asm(state + 0 * KECCAK_LANES);
+    keccak_f1600_x2_asm(state + 2 * KECCAK_LANES);
+    #if defined(MLKEM_USE_FIPS202_X2_ASM_ZIPPED)
+    keccakx2_unzip(state + 0 * KECCAK_LANES);
+    keccakx2_unzip(state + 2 * KECCAK_LANES);
+    #endif /* MLKEM_USE_FIPS202_X2_ASM_ZIPPED */
+
+    #endif /* MLKEM_USE_FIPS202_X2_ASM */
+}
+
+#if !defined(MLKEM_USE_FIPS202_X1_ASM)
 static const uint64_t KeccakF_RoundConstants[NROUNDS] =
 {
     (uint64_t)0x0000000000000001ULL,
@@ -330,4 +430,4 @@ void KeccakF1600_StatePermute(uint64_t *state)
 
 #undef    round
 }
-#endif /* !MLKEM_USE_AARCH64_ASM */
+#endif /* !MLKEM_USE_FIPS202_X1_ASM */

@@ -8,6 +8,18 @@
 #define SYS_AARCH64
 #endif
 
+/* Check endianness */
+#if defined(__BYTE_ORDER__)
+
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+#define SYS_LITTLE_ENDIAN
+#elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#define SYS_BIG_ENDIAN
+#else /* __BYTE_ORER__ */
+#error "__BYTE_ORDER__ defined, but don't recognize value."
+#endif /* __BYTE_ORER__ */
+#endif /* !defined(__BYTE_ORER__) */
+
 /* If FORCE_AARCH64 is set, assert that we're indeed on an AArch64 system. */
 #if defined(FORCE_AARCH64) && !defined(SYS_AARCH64)
 #error "FORCE_AARCH64 is set, but we don't seem to be on an AArch64 system."
