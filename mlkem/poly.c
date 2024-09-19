@@ -11,6 +11,8 @@
 #include "verify.h"
 #include "fips202x4.h"
 
+#include "asm/asm.h"
+
 /************************************************************
  * Name: scalar_compress_q_16
  *
@@ -639,11 +641,15 @@ void poly_tomont(poly *r)
 **************************************************/
 void poly_reduce(poly *r)
 {
+    #if !defined(MLKEM_USE_AARCH64_ASM)
     unsigned int i;
     for (i = 0; i < KYBER_N; i++)
     {
         r->coeffs[i] = barrett_reduce(r->coeffs[i]);
     }
+    #else /* MLKEM_USE_AARCH64_ASM */
+    poly_reduce_asm((int16_t *) r);
+    #endif /* MLKEM_USE_AARCH64_ASM */
 }
 
 /*************************************************

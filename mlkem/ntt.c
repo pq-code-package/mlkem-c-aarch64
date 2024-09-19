@@ -67,7 +67,7 @@ const int16_t zetas[128] =
 void ntt(int16_t r[256])
 {
     #ifdef MLKEM_USE_AARCH64_ASM
-    ntt_kyber_123_4567(r);
+    ntt_asm(r);
     #else /* MLKEM_USE_AARCH64_ASM */
     unsigned int len, start, j, k;
     int16_t t, zeta;
@@ -102,7 +102,7 @@ void ntt(int16_t r[256])
 void invntt(int16_t r[256])
 {
     #ifdef MLKEM_USE_AARCH64_ASM
-    intt_kyber_123_4567(r);
+    intt_asm(r);
     #else /* MLKEM_USE_AARCH64_ASM */
     unsigned int start, len, j, k;
     int16_t t, zeta;
