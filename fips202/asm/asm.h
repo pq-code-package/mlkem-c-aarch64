@@ -21,17 +21,14 @@ void keccak_f1600_x2_v8a_v84a_asm_hybrid(uint64_t *state);
 
 #if !defined(MLKEM_USE_FIPS202_ASM_FORCE)
 
-// We use lazy-rotation assembly from [1] for CPUs implementing v8.2A+
-// or later. The code itself is v8A-Neon, but lazy rotation is only beneficial
-// for fast Barrel shifters. Cortex-A72, which is v8.0-A, has slow Barrel
-// shifters, while Cortex-A76, which is v8.2-A, has fast Barrel shifters.
-// As an approximation, we thus pick the lazy rotation assembly v8.2A+.
-// If this happens to exclude CPUs with fast Barrel shifting (Cortex-A53 maybe?)
-// this logic needs refining.
-#if defined(__ARM_ARCH) && __ARM_ARCH >= 802
+// By default, we use lazy-rotation scalar assembly from [1].
+// NOTE: Lazy rotation is only beneficial for fast Barrel shifters.
+// For CPUs where barrel shifting is slow, like Cortex-A72, this
+// implementation should be disabled by setting SYS_AARCH64_SLOW_BARREL_SHIFTER.
+#if !defined(SYS_AARCH64_SLOW_BARREL_SHIFTER)
 #define MLKEM_USE_FIPS202_X1_ASM
 #define keccak_f1600_x1_asm keccak_f1600_x1_scalar_slothy_opt_a55
-#endif /* __ARM_ARCH >= 802 */
+#endif /* !SYS_AARCH64_SLOW_BARREL_SHIFTER */
 
 // If v8.4-A is implemented, leverage SHA3 instructions.
 //

@@ -17,7 +17,7 @@ jobs:
         - system: rpi4
           name: Arm Cortex-A72 (Raspberry Pi 4) benchmarks
           bench_pmu: PMU
-          archflags: -mcpu=cortex-a72
+          archflags: -mcpu=cortex-a72 -DSYS_AARCH64_SLOW_BARREL_SHIFTER
           cflags: -DFORCE_AARCH64
           bench_extra_args: ""
         - system: rpi5
