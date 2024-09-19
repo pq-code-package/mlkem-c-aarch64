@@ -36,7 +36,7 @@ void KeccakF1600x4_StateXORBytes(uint64_t *state,
 
 void KeccakF1600x4_StatePermute(uint64_t *state);
 
-#if !defined(MLKEM_USE_AARCH64_ASM)
+#if !defined(MLKEM_USE_FIPS202_X1_ASM)
 void KeccakF1600_StatePermute(uint64_t *state);
 #else
 #define KeccakF1600_StatePermute keccak_f1600_x1_asm

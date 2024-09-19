@@ -13,7 +13,7 @@ static void keccak_absorb_x4(keccakx4_state *ctxt,
                              size_t inlen,
                              uint8_t p)
 {
-    uint64_t *s = (uint64_t*) ctxt;
+    uint64_t *s = (uint64_t *) ctxt;
 
     while (inlen >= r)
     {
@@ -53,7 +53,7 @@ static void keccak_squeezeblocks_x4(uint8_t *out0,
                                     keccakx4_state *ctxt,
                                     uint32_t r)
 {
-    uint64_t *s = (uint64_t*) ctxt;
+    uint64_t *s = (uint64_t *) ctxt;
 
     while (nblocks > 0)
     {

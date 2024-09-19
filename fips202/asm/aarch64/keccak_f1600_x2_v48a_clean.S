@@ -27,6 +27,14 @@
 // Author: Hanno Becker <hanno.becker@arm.com>
 // Author: Matthias Kannwischer <matthias@kannwischer.eu>
 //
+// This implementation is essentially from the paper
+//
+//   Hybrid scalar/vector implementations of Keccak and SPHINCS+ on AArch64
+//   https://eprint.iacr.org/2022/1243
+//
+// The only difference is interleaving/deinterleaving of Keccak state
+// during load and store, so that the caller need not do this.
+//
 
 #include "config.h"
 #if defined(MLKEM_USE_AARCH64_ASM)
@@ -67,10 +75,10 @@ round_constants:
 
 /****************** REGISTER ALLOCATIONS *******************/
 
-    input_addr     .req x0
-    const_addr     .req x1
-    count          .req x2
-    cur_const      .req x3
+    input_addr    .req x0
+    const_addr    .req x1
+    count         .req x2
+    cur_const     .req x3
 
     /* Mapping of Kecck-f1600 state to vector registers
      * at the beginning and end of each round. */
@@ -171,24 +179,65 @@ round_constants:
 /************************ MACROS ****************************/
 
 .macro load_input
-    ld1 {Aba.2d, Abe.2d, Abi.2d, Abo.2d}, [input_addr], #64
-    ld1 {Abu.2d, Aga.2d, Age.2d, Agi.2d}, [input_addr], #64
-    ld1 {Ago.2d, Agu.2d, Aka.2d, Ake.2d}, [input_addr], #64
-    ld1 {Aki.2d, Ako.2d, Aku.2d, Ama.2d}, [input_addr], #64
-    ld1 {Ame.2d, Ami.2d, Amo.2d, Amu.2d}, [input_addr], #64
-    ld1 {Asa.2d, Ase.2d, Asi.2d, Aso.2d}, [input_addr], #64
-    ld1 {Asu.2d}, [input_addr]
-    sub input_addr, input_addr, #(6*64)
+    ld2 {Aba.d, Abe.d}[0], [input_addr], #16
+    ld2 {Abi.d, Abo.d}[0], [input_addr], #16
+    ld2 {Abu.d, Aga.d}[0], [input_addr], #16
+    ld2 {Age.d, Agi.d}[0], [input_addr], #16
+    ld2 {Ago.d, Agu.d}[0], [input_addr], #16
+    ld2 {Aka.d, Ake.d}[0], [input_addr], #16
+    ld2 {Aki.d, Ako.d}[0], [input_addr], #16
+    ld2 {Aku.d, Ama.d}[0], [input_addr], #16
+    ld2 {Ame.d, Ami.d}[0], [input_addr], #16
+    ld2 {Amo.d, Amu.d}[0], [input_addr], #16
+    ld2 {Asa.d, Ase.d}[0], [input_addr], #16
+    ld2 {Asi.d, Aso.d}[0], [input_addr], #16
+    ld1 {Asu.d}[0], [input_addr], #8
+
+    ld2 {Aba.d, Abe.d}[1], [input_addr], #16
+    ld2 {Abi.d, Abo.d}[1], [input_addr], #16
+    ld2 {Abu.d, Aga.d}[1], [input_addr], #16
+    ld2 {Age.d, Agi.d}[1], [input_addr], #16
+    ld2 {Ago.d, Agu.d}[1], [input_addr], #16
+    ld2 {Aka.d, Ake.d}[1], [input_addr], #16
+    ld2 {Aki.d, Ako.d}[1], [input_addr], #16
+    ld2 {Aku.d, Ama.d}[1], [input_addr], #16
+    ld2 {Ame.d, Ami.d}[1], [input_addr], #16
+    ld2 {Amo.d, Amu.d}[1], [input_addr], #16
+    ld2 {Asa.d, Ase.d}[1], [input_addr], #16
+    ld2 {Asi.d, Aso.d}[1], [input_addr], #16
+    ld1 {Asu.d}[1], [input_addr], #8
+
+    sub input_addr, input_addr, #(25*8*2)
 .endm
 
 .macro store_input
-    st1 {Aba.2d, Abe.2d, Abi.2d, Abo.2d}, [input_addr], #64
-    st1 {Abu.2d, Aga.2d, Age.2d, Agi.2d}, [input_addr], #64
-    st1 {Ago.2d, Agu.2d, Aka.2d, Ake.2d}, [input_addr], #64
-    st1 {Aki.2d, Ako.2d, Aku.2d, Ama.2d}, [input_addr], #64
-    st1 {Ame.2d, Ami.2d, Amo.2d, Amu.2d}, [input_addr], #64
-    st1 {Asa.2d, Ase.2d, Asi.2d, Aso.2d}, [input_addr], #64
-    st1 {Asu.2d}, [input_addr]
+    st2 {Aba.d, Abe.d}[0], [input_addr], #16
+    st2 {Abi.d, Abo.d}[0], [input_addr], #16
+    st2 {Abu.d, Aga.d}[0], [input_addr], #16
+    st2 {Age.d, Agi.d}[0], [input_addr], #16
+    st2 {Ago.d, Agu.d}[0], [input_addr], #16
+    st2 {Aka.d, Ake.d}[0], [input_addr], #16
+    st2 {Aki.d, Ako.d}[0], [input_addr], #16
+    st2 {Aku.d, Ama.d}[0], [input_addr], #16
+    st2 {Ame.d, Ami.d}[0], [input_addr], #16
+    st2 {Amo.d, Amu.d}[0], [input_addr], #16
+    st2 {Asa.d, Ase.d}[0], [input_addr], #16
+    st2 {Asi.d, Aso.d}[0], [input_addr], #16
+    st1 {Asu.d}[0], [input_addr], #8
+
+    st2 {Aba.d, Abe.d}[1], [input_addr], #16
+    st2 {Abi.d, Abo.d}[1], [input_addr], #16
+    st2 {Abu.d, Aga.d}[1], [input_addr], #16
+    st2 {Age.d, Agi.d}[1], [input_addr], #16
+    st2 {Ago.d, Agu.d}[1], [input_addr], #16
+    st2 {Aka.d, Ake.d}[1], [input_addr], #16
+    st2 {Aki.d, Ako.d}[1], [input_addr], #16
+    st2 {Aku.d, Ama.d}[1], [input_addr], #16
+    st2 {Ame.d, Ami.d}[1], [input_addr], #16
+    st2 {Amo.d, Amu.d}[1], [input_addr], #16
+    st2 {Asa.d, Ase.d}[1], [input_addr], #16
+    st2 {Asi.d, Aso.d}[1], [input_addr], #16
+    st1 {Asu.d}[1], [input_addr], #8
 .endm
 
 #define STACK_SIZE (16*4 + 16*6) // VREGS (16*4) + GPRS (TODO: Remove)
