@@ -49,6 +49,4 @@ runs:
     - name: Dependency check
       shell: ${{ env.SHELL }}
       if: inputs.script != ''
-      env:
-        INPUT_SCRIPT: ${{ inputs.script }}
-      run: eval "$INPUT_SCRIPT"
+      run: eval ${{ inputs.script }}
