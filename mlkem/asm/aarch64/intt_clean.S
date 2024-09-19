@@ -103,27 +103,6 @@
         trn2 \data_out\()3.4s, \data_in\()2.4s, \data_in\()3.4s
 .endm
 
-.macro save_gprs
-        sub sp, sp, #(16*6)
-        stp x19, x20, [sp, #16*0]
-        stp x19, x20, [sp, #16*0]
-        stp x21, x22, [sp, #16*1]
-        stp x23, x24, [sp, #16*2]
-        stp x25, x26, [sp, #16*3]
-        stp x27, x28, [sp, #16*4]
-        str x29, [sp, #16*5]
-.endm
-
-.macro restore_gprs
-        ldp x19, x20, [sp, #16*0]
-        ldp x21, x22, [sp, #16*1]
-        ldp x23, x24, [sp, #16*2]
-        ldp x25, x26, [sp, #16*3]
-        ldp x27, x28, [sp, #16*4]
-        ldr x29, [sp, #16*5]
-        add sp, sp, #(16*6)
-.endm
-
 .macro save_vregs
         sub sp, sp, #(16*4)
         stp  d8,  d9, [sp, #16*0]
@@ -141,13 +120,11 @@
 .endm
 
 .macro push_stack
-        save_gprs
         save_vregs
 .endm
 
 .macro pop_stack
         restore_vregs
-        restore_gprs
 .endm
 
 // For comparability reasons, the output range for the coefficients of this
@@ -159,11 +136,11 @@
 .data
 .p2align 4
 roots:
-#include "intt_kyber_123_45_67_twiddles.S"
+#include "intt_123_45_67_twiddles.S"
 .text
 
-        .global intt_kyber_123_4567
-        .global _intt_kyber_123_4567
+        .global intt_asm_clean
+        .global _intt_asm_clean
 
 .p2align 4
 const_addr:       .short 3329
@@ -191,8 +168,8 @@ ninv_tw_addr:     .short 5040
                   .short 5040
                   .short 5040
 
-intt_kyber_123_4567:
-_intt_kyber_123_4567:
+intt_asm_clean:
+_intt_asm_clean:
         push_stack
 
         in      .req x0
