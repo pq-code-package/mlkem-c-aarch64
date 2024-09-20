@@ -16,6 +16,17 @@ typedef struct
     int16_t coeffs[KYBER_N];
 } poly;
 
+/*
+ * INTERNAL presentation of precomputed data speeding up
+ * the base multiplication of two polynomials in NTT domain.
+ */
+// REF-CHANGE: This structure does not exist in the reference
+// implementation.
+typedef struct
+{
+    int16_t coeffs[KYBER_N >> 1];
+} poly_mulcache;
+
 #define scalar_compress_q_16           KYBER_NAMESPACE(scalar_compress_q_16)
 #define scalar_decompress_q_16         KYBER_NAMESPACE(scalar_decompress_q_16)
 #define scalar_compress_q_32           KYBER_NAMESPACE(scalar_compress_q_32)
@@ -127,8 +138,14 @@ void poly_ntt(poly *r);
 void poly_invntt_tomont(poly *r);
 #define poly_basemul_montgomery KYBER_NAMESPACE(poly_basemul_montgomery)
 void poly_basemul_montgomery(poly *r, const poly *a, const poly *b);
+#define poly_basemul_montgomery_cached KYBER_NAMESPACE(poly_basemul_montgomery_cached)
+void poly_basemul_montgomery_cached(poly *r, const poly *a, const poly *b, const poly_mulcache *b_cache);
 #define poly_tomont KYBER_NAMESPACE(poly_tomont)
 void poly_tomont(poly *r);
+
+// REF-CHANGE: This function does not exist in the reference implementation
+#define poly_mulcache_compute KYBER_NAMESPACE(poly_mulcache_compute)
+void poly_mulcache_compute(poly_mulcache *x, const poly *a);
 
 #define poly_reduce KYBER_NAMESPACE(poly_reduce)
 void poly_reduce(poly *r);

@@ -166,3 +166,22 @@ void basemul(int16_t r[2], const int16_t a[2], const int16_t b[2],
     r[1] = fqmul(a[0], b[1]);
     r[1] += fqmul(a[1], b[0]);
 }
+
+/*************************************************
+ * Name:        basemul_cached
+ *
+ * Description: Multiplication of polynomials in Zq[X]/(X^2-zeta)
+ *              used for multiplication of elements in Rq in NTT domain
+ *
+ * Arguments:   - int16_t r[2]: pointer to the output polynomial
+ *              - const int16_t a[2]: pointer to the first factor
+ *              - const int16_t b[2]: pointer to the second factor
+ *              - int16_t b_cached: Cached precomputation of b[1] * zeta
+ **************************************************/
+void basemul_cached(int16_t r[2], const int16_t a[2], const int16_t b[2], int16_t b_cached)
+{
+    r[0] = fqmul(a[1], b_cached);
+    r[0] += fqmul(a[0], b[0]);
+    r[1] = fqmul(a[0], b[1]);
+    r[1] += fqmul(a[1], b[0]);
+}

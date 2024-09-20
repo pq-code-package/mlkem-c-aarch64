@@ -290,6 +290,7 @@ void indcpa_keypair_derand(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
     const uint8_t *publicseed = buf;
     const uint8_t *noiseseed = buf + KYBER_SYMBYTES;
     polyvec a[KYBER_K], e, pkpv, skpv;
+    polyvec_mulcache skpv_cache;
 
     // Add KYBER_K for domain separation of security levels
     memcpy(buf, coins, KYBER_SYMBYTES);
@@ -311,10 +312,12 @@ void indcpa_keypair_derand(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
     polyvec_ntt(&skpv);
     polyvec_ntt(&e);
 
+    polyvec_mulcache_compute(&skpv_cache, &skpv);
+
     // matrix-vector multiplication
     for (i = 0; i < KYBER_K; i++)
     {
-        polyvec_basemul_acc_montgomery(&pkpv.vec[i], &a[i], &skpv);
+        polyvec_basemul_acc_montgomery_cached(&pkpv.vec[i], &a[i], &skpv, &skpv_cache);
         poly_tomont(&pkpv.vec[i]);
     }
 
@@ -349,6 +352,7 @@ void indcpa_enc(uint8_t c[KYBER_INDCPA_BYTES],
     unsigned int i;
     uint8_t seed[KYBER_SYMBYTES];
     polyvec sp, pkpv, ep, at[KYBER_K], b;
+    polyvec_mulcache sp_cache;
     poly v, k, epp;
 
     unpack_pk(&pkpv, seed, pk);
@@ -368,11 +372,12 @@ void indcpa_enc(uint8_t c[KYBER_INDCPA_BYTES],
     #endif
 
     polyvec_ntt(&sp);
+    polyvec_mulcache_compute(&sp_cache, &sp);
 
     // matrix-vector multiplication
     for (i = 0; i < KYBER_K; i++)
     {
-        polyvec_basemul_acc_montgomery(&b.vec[i], &at[i], &sp);
+        polyvec_basemul_acc_montgomery_cached(&b.vec[i], &at[i], &sp, &sp_cache);
     }
 
     polyvec_basemul_acc_montgomery(&v, &pkpv, &sp);

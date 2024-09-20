@@ -223,7 +223,8 @@ void polyvec_invntt_tomont(polyvec *r)
 *            - const polyvec *a: pointer to first input vector of polynomials
 *            - const polyvec *b: pointer to second input vector of polynomials
 **************************************************/
-void polyvec_basemul_acc_montgomery(poly *r, const polyvec *a, const polyvec *b)
+void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a, const polyvec *b,
+        const polyvec_mulcache *b_cache)
 {
     unsigned int i;
     poly t;
@@ -231,12 +232,49 @@ void polyvec_basemul_acc_montgomery(poly *r, const polyvec *a, const polyvec *b)
     poly_basemul_montgomery(r, &a->vec[0], &b->vec[0]);
     for (i = 1; i < KYBER_K; i++)
     {
-        poly_basemul_montgomery(&t, &a->vec[i], &b->vec[i]);
+        poly_basemul_montgomery_cached(&t, &a->vec[i], &b->vec[i], &b_cache->vec[i]);
         poly_add(r, r, &t);
     }
 
     poly_reduce(r);
 }
+
+/*************************************************
+* Name:        polyvec_basemul_acc_montgomery
+*
+* Description: Multiply elements of a and b in NTT domain, accumulate into r,
+*              and multiply by 2^-16.
+*
+* Arguments: - poly *r: pointer to output polynomial
+*            - const polyvec *a: pointer to first input vector of polynomials
+*            - const polyvec *b: pointer to second input vector of polynomials
+**************************************************/
+void polyvec_basemul_acc_montgomery(poly *r, const polyvec *a, const polyvec *b)
+{
+    polyvec_mulcache b_cache;
+    polyvec_mulcache_compute(&b_cache, b);
+    polyvec_basemul_acc_montgomery_cached( r, a, b, &b_cache);
+}
+
+/*************************************************
+* Name:        polyvec_mulcache_compute
+*
+* Description: Precompute values speeding up
+*              base multiplications of polynomials
+*              in NTT domain.
+*
+* Arguments: - polyvec_mulcache *x: point to output cache.
+*            - const poly *a: pointer to input polynomial
+**************************************************/
+void polyvec_mulcache_compute(polyvec_mulcache *x, const polyvec *a)
+{
+    unsigned int i;
+    for (i = 0; i < KYBER_K; i++)
+    {
+        poly_mulcache_compute(&x->vec[i], &a->vec[i]);
+    }
+}
+
 
 /*************************************************
 * Name:        polyvec_reduce
