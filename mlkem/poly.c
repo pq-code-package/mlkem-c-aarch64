@@ -587,6 +587,31 @@ void poly_basemul_montgomery(poly *r, const poly *a, const poly *b)
 }
 
 /*************************************************
+* Name:        poly_basemul_montgomery_cached
+*
+* Description: Multiplication of two polynomials in NTT domain,
+*              using mulcache for second operand.
+*
+* Arguments:   - poly *r: pointer to output polynomial
+*              - const poly *a: pointer to first input polynomial
+*              - const poly *b: pointer to second input polynomial
+*              - const poly_mulcache *b_cache: pointer to mulcache
+*                  for second input polynomial. Can be computed
+*                  via poly_mulcache_compute().
+**************************************************/
+void poly_basemul_montgomery_cached(poly *r, const poly *a, const poly *b, const poly_mulcache *b_cache)
+{
+    unsigned int i;
+    for (i = 0; i < KYBER_N / 4; i++)
+    {
+        basemul_cached(&r->coeffs[4 * i], &a->coeffs[4 * i], &b->coeffs[4 * i],
+                       b_cache->coeffs[2 * i]);
+        basemul_cached(&r->coeffs[4 * i + 2], &a->coeffs[4 * i + 2], &b->coeffs[4 * i + 2],
+                       b_cache->coeffs[2 * i + 1]);
+    }
+}
+
+/*************************************************
 * Name:        poly_tomont
 *
 * Description: Inplace conversion of all coefficients of a polynomial
@@ -654,5 +679,43 @@ void poly_sub(poly *r, const poly *a, const poly *b)
     for (i = 0; i < KYBER_N; i++)
     {
         r->coeffs[i] = a->coeffs[i] - b->coeffs[i];
+    }
+}
+
+// REF-CHANGE: Duplicates fqmul() from ntt.c.
+// TODO: Consolidate this
+
+/*************************************************
+ * Name:        fqmul
+ *
+ * Description: Multiplication followed by Montgomery reduction
+ *
+ * Arguments:   - int16_t a: first factor
+ *              - int16_t b: second factor
+ *
+ * Returns 16-bit integer congruent to a*b*R^{-1} mod q
+ **************************************************/
+static int16_t fqmul(int16_t a, int16_t b)
+{
+    return montgomery_reduce((int32_t)a * b);
+}
+
+/*************************************************
+* Name:        poly_mulcache_compute
+*
+* Description: Precompute values speeding up
+*              base multiplications of polynomials
+*              in NTT domain.
+*
+* Arguments: - poly_mulcache *x: point to output cache.
+*            - const poly *a: pointer to input polynomial
+**************************************************/
+void poly_mulcache_compute(poly_mulcache *x, const poly *a)
+{
+    unsigned int i;
+    for (i = 0; i < KYBER_N/4; i++)
+    {
+        x->coeffs[2*i+0] = fqmul(a->coeffs[4*i+1],  zetas[64 + i]);
+        x->coeffs[2*i+1] = fqmul(a->coeffs[4*i+3], -zetas[64 + i]);
     }
 }
