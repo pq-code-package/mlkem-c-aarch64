@@ -160,10 +160,10 @@ void invntt(int16_t r[256])
 void basemul(int16_t r[2], const int16_t a[2], const int16_t b[2],
              int16_t zeta)
 {
-    r[0] = fqmul(a[1], b[1]);
-    r[0] = fqmul(r[0], zeta);
+    r[0]  = fqmul(a[1], b[1]);
+    r[0]  = fqmul(r[0], zeta);
     r[0] += fqmul(a[0], b[0]);
-    r[1] = fqmul(a[0], b[1]);
+    r[1]  = fqmul(a[0], b[1]);
     r[1] += fqmul(a[1], b[0]);
 }
 
@@ -180,8 +180,11 @@ void basemul(int16_t r[2], const int16_t a[2], const int16_t b[2],
  **************************************************/
 void basemul_cached(int16_t r[2], const int16_t a[2], const int16_t b[2], int16_t b_cached)
 {
-    r[0] = fqmul(a[1], b_cached);
-    r[0] += fqmul(a[0], b[0]);
-    r[1] = fqmul(a[0], b[1]);
-    r[1] += fqmul(a[1], b[0]);
+    int32_t t0, t1;
+    t0  = (int32_t) a[1] * b_cached;
+    t0 += (int32_t) a[0] * b[0];
+    t1  = (int32_t) a[0] * b[1];
+    t1 += (int32_t) a[1] * b[0];
+    r[0] = montgomery_reduce(t0);
+    r[1] = montgomery_reduce(t1);
 }
