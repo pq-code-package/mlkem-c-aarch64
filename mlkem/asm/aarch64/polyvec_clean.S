@@ -87,9 +87,6 @@
         restore_vregs
 .endm
 
-.global polyvec_basemul_acc_montgomery_cached_asm_clean
-.global _polyvec_basemul_acc_montgomery_cached_asm_clean
-
         out          .req x0
         a0_ptr       .req x1
         b0_ptr       .req x2
@@ -139,13 +136,17 @@ const_addr:
         .short 0
         .short 0
 
-polyvec_basemul_acc_montgomery_cached_asm_clean:
-_polyvec_basemul_acc_montgomery_cached_asm_clean:
+#if KYBER_K == 2
+
+.global polyvec_basemul_acc_montgomery_cached_asm_k2_clean
+.global _polyvec_basemul_acc_montgomery_cached_asm_k2_clean
+
+polyvec_basemul_acc_montgomery_cached_asm_k2_clean:
+_polyvec_basemul_acc_montgomery_cached_asm_k2_clean:
         push_stack
 
         ASM_LOAD(xtmp, const_addr)
         ld1 {consts.8h}, [xtmp]
-
         ldrsh modulus, [xtmp]
         dup constN.8h, modulus
 
@@ -155,50 +156,127 @@ _polyvec_basemul_acc_montgomery_cached_asm_clean:
         add b1_ptr, b0_ptr, #(1 * 512)
         add b1_cache_ptr, b0_cache_ptr, #(1 * 512/2)
 
-#if KYBER_K > 2
-        add a2_ptr, a0_ptr, #(2 * 512)
-        add b2_ptr, b0_ptr, #(2 * 512)
-        add b2_cache_ptr, b0_cache_ptr, #(2 * 512/2)
-#endif
-
-#if KYBER_K > 3
-        add a3_ptr, a0_ptr, #(3 * 512)
-        add b3_ptr, b0_ptr, #(3 * 512)
-        add b3_cache_ptr, b0_cache_ptr, #(3 * 512/2)
-#endif
-
         mov count, #(KYBER_N / 16)
-loop_start:
+k2_loop_start:
 
         load_polys aa, bb, a0_ptr, b0_ptr, b0_cache_ptr
         pmull res, aa, bb
-
         load_polys aa, bb, a1_ptr, b1_ptr, b1_cache_ptr
         pmlal res, aa, bb
-
-#if KYBER_K > 2
-        load_polys aa, bb, a2_ptr, b2_ptr, b2_cache_ptr
-        pmlal res, aa, bb
-#endif
-
-#if KYBER_K > 3
-        load_polys aa, bb, a3_ptr, b3_ptr, b3_cache_ptr
-        pmlal res, aa, bb
-#endif
 
         montgomery_reduce_long out0, res0
         montgomery_reduce_long out1, res1
 
-        // CHECK: Is this really needed at this point?
+        // CHECK: Is this needed?
         barrett_reduce out0
         barrett_reduce out1
 
         st2 {out0.8h, out1.8h}, [out], #32
 
         subs count, count, #1
-        cbnz count, loop_start
+        cbnz count, k2_loop_start
 
         pop_stack
         ret
+#endif /* KYBER_K == 2 */
+
+#if KYBER_K == 3
+.global polyvec_basemul_acc_montgomery_cached_asm_k3_clean
+.global _polyvec_basemul_acc_montgomery_cached_asm_k3_clean
+
+polyvec_basemul_acc_montgomery_cached_asm_k3_clean:
+_polyvec_basemul_acc_montgomery_cached_asm_k3_clean:
+        push_stack
+
+        ASM_LOAD(xtmp, const_addr)
+        ld1 {consts.8h}, [xtmp]
+        ldrsh modulus, [xtmp]
+        dup constN.8h, modulus
+
+        // Computed bases of vector entries
+
+        add a1_ptr, a0_ptr, #(1 * 512)
+        add b1_ptr, b0_ptr, #(1 * 512)
+        add b1_cache_ptr, b0_cache_ptr, #(1 * 512/2)
+        add a2_ptr, a0_ptr, #(2 * 512)
+        add b2_ptr, b0_ptr, #(2 * 512)
+        add b2_cache_ptr, b0_cache_ptr, #(2 * 512/2)
+
+        mov count, #(KYBER_N / 16)
+k3_loop_start:
+
+        load_polys aa, bb, a0_ptr, b0_ptr, b0_cache_ptr
+        pmull res, aa, bb
+        load_polys aa, bb, a1_ptr, b1_ptr, b1_cache_ptr
+        pmlal res, aa, bb
+        load_polys aa, bb, a2_ptr, b2_ptr, b2_cache_ptr
+        pmlal res, aa, bb
+
+        montgomery_reduce_long out0, res0
+        montgomery_reduce_long out1, res1
+        // CHECK: Is this needed?
+        barrett_reduce out0
+        barrett_reduce out1
+
+        st2 {out0.8h, out1.8h}, [out], #32
+
+        subs count, count, #1
+        cbnz count, k3_loop_start
+
+        pop_stack
+        ret
+#endif /* KYBER_K == 3 */
+
+#if KYBER_K == 4
+.global polyvec_basemul_acc_montgomery_cached_asm_k4_clean
+.global _polyvec_basemul_acc_montgomery_cached_asm_k4_clean
+
+polyvec_basemul_acc_montgomery_cached_asm_k4_clean:
+_polyvec_basemul_acc_montgomery_cached_asm_k4_clean:
+        push_stack
+
+        ASM_LOAD(xtmp, const_addr)
+        ld1 {consts.8h}, [xtmp]
+        ldrsh modulus, [xtmp]
+        dup constN.8h, modulus
+
+        // Computed bases of vector entries
+
+        add a1_ptr, a0_ptr, #(1 * 512)
+        add b1_ptr, b0_ptr, #(1 * 512)
+        add b1_cache_ptr, b0_cache_ptr, #(1 * 512/2)
+        add a2_ptr, a0_ptr, #(2 * 512)
+        add b2_ptr, b0_ptr, #(2 * 512)
+        add b2_cache_ptr, b0_cache_ptr, #(2 * 512/2)
+        add a3_ptr, a0_ptr, #(3 * 512)
+        add b3_ptr, b0_ptr, #(3 * 512)
+        add b3_cache_ptr, b0_cache_ptr, #(3 * 512/2)
+
+        mov count, #(KYBER_N / 16)
+k4_loop_start:
+
+        load_polys aa, bb, a0_ptr, b0_ptr, b0_cache_ptr
+        pmull res, aa, bb
+        load_polys aa, bb, a1_ptr, b1_ptr, b1_cache_ptr
+        pmlal res, aa, bb
+        load_polys aa, bb, a2_ptr, b2_ptr, b2_cache_ptr
+        pmlal res, aa, bb
+        load_polys aa, bb, a3_ptr, b3_ptr, b3_cache_ptr
+        pmlal res, aa, bb
+
+        montgomery_reduce_long out0, res0
+        montgomery_reduce_long out1, res1
+        // CHECK: Is this needed?
+        barrett_reduce out0
+        barrett_reduce out1
+
+        st2 {out0.8h, out1.8h}, [out], #32
+
+        subs count, count, #1
+        cbnz count, k4_loop_start
+
+        pop_stack
+        ret
+#endif /* KYBER_K == 4 */
 
 #endif /* MLKEM_USE_AARCH64_ASM */
