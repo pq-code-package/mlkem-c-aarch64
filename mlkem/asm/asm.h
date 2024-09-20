@@ -16,6 +16,9 @@ void intt_asm_opt(int16_t *);
 void poly_reduce_asm_clean(int16_t *);
 void poly_reduce_asm_opt(int16_t *);
 
+void polyvec_basemul_acc_montgomery_cached_asm_clean(int16_t *r, const int16_t *a, const int16_t *b,
+        const int16_t *b_cache);
+
 #if !defined(MLKEM_USE_NTT_ASM_FORCE)
 
 #if defined(MLKEM_USE_NTT_ASM_CLEAN)
@@ -28,6 +31,7 @@ void poly_reduce_asm_opt(int16_t *);
 #define poly_reduce_asm poly_reduce_asm_opt
 #endif /* !MLKEM_USE_NTT_ASM_CLEAN */
 
+#define polyvec_basemul_acc_montgomery_cached_asm polyvec_basemul_acc_montgomery_cached_asm_clean
 #endif /* !MLKEM_USE_NTT_ASM_FORCE */
 
 #endif /* MLKEM_ASM_H */

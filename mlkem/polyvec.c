@@ -3,7 +3,8 @@
 #include "params.h"
 #include "poly.h"
 #include "polyvec.h"
-
+#include "config.h"
+#include "asm/asm.h"
 /*************************************************
 * Name:        polyvec_compress
 *
@@ -226,6 +227,7 @@ void polyvec_invntt_tomont(polyvec *r)
 void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a, const polyvec *b,
         const polyvec_mulcache *b_cache)
 {
+    #if !defined(MLKEM_USE_AARCH64_ASM)
     unsigned int i;
     poly t;
 
@@ -237,6 +239,9 @@ void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a, const poly
     }
 
     poly_reduce(r);
+    #else /* MLKEM_USE_AARCH64_ASM */
+    polyvec_basemul_acc_montgomery_cached_asm_clean((int16_t *) r, (int16_t *) a, (int16_t *) b, (int16_t *) b_cache);
+    #endif /* MLKEM_USE_AARCH64_ASM */
 }
 
 /*************************************************
