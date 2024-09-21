@@ -14,7 +14,7 @@
 typedef struct
 {
     int16_t coeffs[KYBER_N];
-} poly;
+} ALIGN(16) poly;
 
 /*
  * INTERNAL presentation of precomputed data speeding up

@@ -9,7 +9,7 @@
 typedef struct
 {
     poly vec[KYBER_K];
-} polyvec;
+} ALIGN(16) polyvec;
 
 // REF-CHANGE: This struct does not exist in the reference implementation
 typedef struct

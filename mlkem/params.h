@@ -2,6 +2,7 @@
 #ifndef PARAMS_H
 #define PARAMS_H
 
+#include "common.h"
 #include "cpucap.h"
 
 #ifndef KYBER_K
