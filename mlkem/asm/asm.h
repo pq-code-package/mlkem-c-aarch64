@@ -16,6 +16,9 @@ void intt_asm_opt(int16_t *);
 void poly_reduce_asm_clean(int16_t *);
 void poly_reduce_asm_opt(int16_t *);
 
+void poly_mulcache_compute_asm_clean(int16_t *, int16_t *, int16_t *, int16_t *);
+void poly_mulcache_compute_asm_opt(int16_t *, int16_t *, int16_t *, int16_t *);
+
 void polyvec_basemul_acc_montgomery_cached_asm_k2_clean(
     int16_t *r, const int16_t *a, const int16_t *b, const int16_t *b_cache);
 void polyvec_basemul_acc_montgomery_cached_asm_k3_clean(
@@ -48,12 +51,14 @@ void polyvec_basemul_acc_montgomery_cached_asm_k4_opt(
 #define poly_reduce_asm poly_reduce_asm_clean
 #define polyvec_basemul_acc_montgomery_cached_asm \
     polyvec_basemul_acc_montgomery_cached_asm_clean_name(KYBER_K)
+#define poly_mulcache_compute_asm poly_mulcache_compute_asm_clean
 #else /* MLKEM_USE_NTT_ASM_CLEAN */
 #define ntt_asm ntt_asm_opt
 #define intt_asm intt_asm_opt
 #define poly_reduce_asm poly_reduce_asm_opt
 #define polyvec_basemul_acc_montgomery_cached_asm \
     polyvec_basemul_acc_montgomery_cached_asm_opt_name(KYBER_K)
+#define poly_mulcache_compute_asm poly_mulcache_compute_asm_clean
 #endif /* !MLKEM_USE_NTT_ASM_CLEAN */
 
 #endif /* !MLKEM_USE_NTT_ASM_FORCE */

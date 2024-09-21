@@ -50,43 +50,58 @@ slothy-cli Arm_AArch64 $TARGET \
   -c sw_pipelining.allow_post \
   -c constraints.stalls_first_attempt=64
 
-# echo "* poly_reduce, ${TARGET_NAME}"
+cp poly_clean.S poly_opt.S
 
-# slothy-cli Arm_AArch64 $TARGET \
-#   poly_clean.S -o poly_opt.S \
-#   -r poly_reduce_asm_clean,poly_reduce_asm_opt \
-#   -l loop_start \
-#   -c sw_pipelining.enabled=true \
-#   -c inputs_are_outputs \
-#   -c reserved_regs="[x0--30,v10--v31,sp]" \
-#   -c sw_pipelining.minimize_overlapping=False \
-#   -c variable_size \
-#   -c constraints.stalls_first_attempt=64
+echo "* poly_reduce, ${TARGET_NAME}"
 
-# echo " * ntt, ${TARGET_NAME}"
+slothy-cli Arm_AArch64 $TARGET \
+  poly_opt.S -o poly_opt.S \
+  -r poly_reduce_asm_clean,poly_reduce_asm_opt \
+  -l loop_start \
+  -c sw_pipelining.enabled=true \
+  -c inputs_are_outputs \
+  -c reserved_regs="[x0--30,v8--v15,sp]" \
+  -c sw_pipelining.minimize_overlapping=False \
+  -c variable_size \
+  -c constraints.stalls_first_attempt=64
 
-# slothy-cli Arm_AArch64 $TARGET \
-#   ntt_clean.S -o ntt_opt.S \
-#   -r ntt_asm_clean,ntt_asm_opt \
-#   -l layer123_start \
-#   -l layer4567_start \
-#   -c sw_pipelining.enabled=true \
-#   -c inputs_are_outputs \
-#   -c reserved_regs="[x18--30,sp]" \
-#   -c sw_pipelining.minimize_overlapping=False \
-#   -c variable_size \
-#   -c constraints.stalls_first_attempt=64
+echo "* poly_mulcache_compute, ${TARGET_NAME}"
 
-# echo " * intt, ${TARGET_NAME}"
+slothy-cli Arm_AArch64 $TARGET \
+  poly_opt.S -o poly_opt.S \
+  -r poly_mulcache_compute_asm_clean,poly_mulcache_compute_asm_opt \
+  -l mulcache_compute_loop_start \
+  -c sw_pipelining.enabled=true \
+  -c inputs_are_outputs \
+  -c reserved_regs="[x0--30,v8--v15,sp]" \
+  -c sw_pipelining.minimize_overlapping=False \
+  -c variable_size \
+  -c constraints.stalls_first_attempt=64
 
-# slothy-cli Arm_AArch64 $TARGET \
-#   intt_clean.S -o intt_opt.S \
-#   -r intt_asm_clean,intt_asm_opt \
-#   -l layer123_start \
-#   -l layer4567_start \
-#   -c sw_pipelining.enabled=true \
-#   -c inputs_are_outputs \
-#   -c reserved_regs="[x18--30,sp]" \
-#   -c sw_pipelining.minimize_overlapping=False \
-#   -c variable_size \
-#   -c constraints.stalls_first_attempt=64
+echo " * ntt, ${TARGET_NAME}"
+
+slothy-cli Arm_AArch64 $TARGET \
+  ntt_clean.S -o ntt_opt.S \
+  -r ntt_asm_clean,ntt_asm_opt \
+  -l layer123_start \
+  -l layer4567_start \
+  -c sw_pipelining.enabled=true \
+  -c inputs_are_outputs \
+  -c reserved_regs="[x18--30,sp]" \
+  -c sw_pipelining.minimize_overlapping=False \
+  -c variable_size \
+  -c constraints.stalls_first_attempt=64
+
+echo " * intt, ${TARGET_NAME}"
+
+slothy-cli Arm_AArch64 $TARGET \
+  intt_clean.S -o intt_opt.S \
+  -r intt_asm_clean,intt_asm_opt \
+  -l layer123_start \
+  -l layer4567_start \
+  -c sw_pipelining.enabled=true \
+  -c inputs_are_outputs \
+  -c reserved_regs="[x18--30,sp]" \
+  -c sw_pipelining.minimize_overlapping=False \
+  -c variable_size \
+  -c constraints.stalls_first_attempt=64
