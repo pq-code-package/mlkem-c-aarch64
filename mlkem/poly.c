@@ -707,7 +707,7 @@ static int16_t fqmul(int16_t a, int16_t b)
 *              base multiplications of polynomials
 *              in NTT domain.
 *
-* Arguments: - poly_mulcache *x: point to output cache.
+* Arguments: - poly_mulcache *x: pointer to output cache.
 *            - const poly *a: pointer to input polynomial
 **************************************************/
 void poly_mulcache_compute(poly_mulcache *x, const poly *a)

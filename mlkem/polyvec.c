@@ -263,7 +263,7 @@ void polyvec_basemul_acc_montgomery(poly *r, const polyvec *a, const polyvec *b)
 *              base multiplications of polynomials
 *              in NTT domain.
 *
-* Arguments: - polyvec_mulcache *x: point to output cache.
+* Arguments: - polyvec_mulcache *x: pointer to output cache.
 *            - const poly *a: pointer to input polynomial
 **************************************************/
 void polyvec_mulcache_compute(polyvec_mulcache *x, const polyvec *a)
