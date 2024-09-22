@@ -272,6 +272,7 @@ void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES])
 *              - r: pointer to output byte array
 *                   (of KYBER_POLYBYTES bytes)
 **************************************************/
+#if !defined(MLKEM_USE_AARCH64_ASM)
 void poly_tobytes(uint8_t r[KYBER_POLYBYTES], const poly *a)
 {
     unsigned int i;
@@ -288,7 +289,12 @@ void poly_tobytes(uint8_t r[KYBER_POLYBYTES], const poly *a)
         r[3 * i + 2] = (t1 >> 4);
     }
 }
-
+#else /* MLKEM_USE_AARCH64_ASM */
+void poly_tobytes(uint8_t r[KYBER_POLYBYTES], const poly *a)
+{
+    poly_tobytes_asm(r, (const int16_t *) a);
+}
+#endif /* MLKEM_USE_AARCH64_ASM */
 /*************************************************
 * Name:        poly_frombytes
 *
