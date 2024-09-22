@@ -16,6 +16,8 @@ void intt_asm_opt(int16_t *);
 void poly_reduce_asm_clean(int16_t *);
 void poly_reduce_asm_opt(int16_t *);
 
+void poly_tomont_asm_clean(int16_t *);
+
 void poly_mulcache_compute_asm_clean(int16_t *, int16_t *, int16_t *, int16_t *);
 void poly_mulcache_compute_asm_opt(int16_t *, int16_t *, int16_t *, int16_t *);
 
@@ -64,6 +66,7 @@ void polyvec_basemul_acc_montgomery_cached_asm_k4_opt(
 #endif /* !MLKEM_USE_NTT_ASM_CLEAN */
 
 #define poly_tobytes_asm poly_tobytes_asm_clean
+#define poly_tomont_asm poly_tomont_asm_clean
 
 #endif /* !MLKEM_USE_NTT_ASM_FORCE */
 

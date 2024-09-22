@@ -18,15 +18,19 @@
         mls      \dst\().8h, tmp0.8h,    consts.h[0]
 .endm
 
+/**********************************
+ *          poly_reduce()         *
+ **********************************/
+
 .global poly_reduce_asm_clean
 .global _poly_reduce_asm_clean
 
 .p2align 4
 const_addr:
-        .short 3329
-        .short 20159
-        .short 0
-        .short 0
+        .short 3329   // Kyber modulus
+        .short 20159  // Barrett twist of 1 wrt 2^27
+        .short -1044  // 2^16 % 3329
+        .short -10276 // Barrett twist of -1044 (wrt 2^16)
         .short 0
         .short 0
         .short 0
@@ -77,6 +81,10 @@ loop_start:
         .unreq data
         .unreq t0
         .unreq consts
+
+/********************************************
+ *          poly_mulcache_compute()         *
+ ********************************************/
 
 .global poly_mulcache_compute_asm_clean
 .global _poly_mulcache_compute_asm_clean
@@ -143,6 +151,10 @@ mulcache_compute_loop_start:
         .unreq consts
         .unreq dst
 
+/********************************************
+ *             poly_tobytes()               *
+ ********************************************/
+
 .global poly_tobytes_asm_clean
 .global _poly_tobytes_asm_clean
 
@@ -200,6 +212,79 @@ poly_tobytes_asm_clean_asm_loop_start:
 
         subs count, count, #1
         cbnz count, poly_tobytes_asm_clean_asm_loop_start
+        ret
+
+        .unreq data0
+        .unreq data1
+        .unreq out0
+        .unreq out1
+        .unreq out2
+        .unreq wmodulus
+        .unreq mask
+        .unreq tmp
+        .unreq modulus
+        .unreq dst
+        .unreq src
+        .unreq count
+
+/**********************************
+ *          poly_tomont()         *
+ **********************************/
+
+.global poly_tomont_asm_clean
+.global _poly_tomont_asm_clean
+
+        src     .req x0
+        count   .req x1
+        xtmp    .req x2
+
+        wtmp2   .req w3
+
+        data    .req v0
+        q_data  .req q0
+        res     .req v1
+        q_res   .req q1
+
+        consts  .req v2
+
+        factor   .req v3
+        factor_t .req v4
+
+        tmp0    .req v5
+
+poly_tomont_asm_clean:
+_poly_tomont_asm_clean:
+
+        ASM_LOAD(xtmp, const_addr)
+        ld1 {consts.8h}, [xtmp]
+
+        ldrsh wtmp2, [xtmp, #(2*2)]
+        dup factor.8h, wtmp2
+        ldrh wtmp2, [xtmp, #(3*2)]
+        dup factor_t.8h, wtmp2
+
+        mov count, #8
+poly_tomont_asm_loop:
+
+        ldr q_data, [src], #64
+        mulmod res, data, factor, factor_t
+        str q_res, [src, #-64]
+
+        ldr q_data, [src, #-48]
+        mulmod res, data, factor, factor_t
+        str q_res, [src, #-48]
+
+        ldr q_data, [src, #-32]
+        mulmod res, data, factor, factor_t
+        str q_res, [src, #-32]
+
+        ldr q_data, [src, #-16]
+        mulmod res, data, factor, factor_t
+        str q_res, [src, #-16]
+
+        sub count, count, #1
+        cbnz count, poly_tomont_asm_loop
+
         ret
 
 #endif /* MLKEM_USE_AARCH64_ASM */
