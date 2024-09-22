@@ -608,6 +608,7 @@ void poly_basemul_montgomery_cached(poly *r, const poly *a, const poly *b, const
 *
 * Arguments:   - poly *r: pointer to input/output polynomial
 **************************************************/
+#if !defined(MLKEM_USE_AARCH64_ASM)
 void poly_tomont(poly *r)
 {
     unsigned int i;
@@ -617,6 +618,12 @@ void poly_tomont(poly *r)
         r->coeffs[i] = montgomery_reduce((int32_t)r->coeffs[i] * f);
     }
 }
+#else /* MLKEM_USE_AARCH64_ASM */
+void poly_tomont(poly *r)
+{
+    poly_tomont_asm((int16_t *) r);
+}
+#endif /* MLKEM_USE_AARCH64_ASM */
 
 /*************************************************
 * Name:        poly_reduce
