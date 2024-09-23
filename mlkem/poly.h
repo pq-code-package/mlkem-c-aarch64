@@ -81,7 +81,15 @@ __CPROVER_assigns(__CPROVER_object_whole(r));
 
 
 #define poly_decompress KYBER_NAMESPACE(poly_decompress)
-void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES]);
+void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES])
+/* *INDENT-OFF* */
+__CPROVER_requires(a != NULL)
+__CPROVER_requires(__CPROVER_is_fresh(a, KYBER_POLYCOMPRESSEDBYTES))
+__CPROVER_requires(r != NULL)
+__CPROVER_requires(__CPROVER_is_fresh(r, sizeof(poly)))
+__CPROVER_assigns(__CPROVER_object_whole(r))
+__CPROVER_ensures(__CPROVER_forall { unsigned k; (k < KYBER_N) ==> ( r->coeffs[k] >= 0 && r->coeffs[k] < KYBER_Q ) });
+/* *INDENT-ON* */
 
 #define poly_tobytes KYBER_NAMESPACE(poly_tobytes)
 void poly_tobytes(uint8_t r[KYBER_POLYBYTES], const poly *a);

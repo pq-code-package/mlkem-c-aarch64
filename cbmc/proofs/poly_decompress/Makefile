@@ -10,41 +10,40 @@ HARNESS_FILE = poly_decompress_harness
 PROOF_UID = poly_decompress
 
 DEFINES +=
+INCLUDES +=
 
 REMOVE_FUNCTION_BODY +=
 UNWINDSET +=
 
 PROOF_SOURCES += $(PROOFDIR)/$(HARNESS_FILE).c
 PROJECT_SOURCES += $(SRCDIR)/mlkem/poly.c
+PROJECT_SOURCES += $(SRCDIR)/mlkem/verify.c
 
-# For KYBER_K=2,3 a loop with 128 iterations is used.
-# For KYBER_K=4, a nested loop with 32 and 8 iterations is used.
-ifneq ($(KYBER_K),4)
-	UNWINDSET += $(KYBER_NAMESPACE)poly_decompress.0:129
+CHECK_FUNCTION_CONTRACTS=$(KYBER_NAMESPACE)poly_decompress
+
+# For K = 2 or 3, the code calls scalar_decompress_q_16, so
+ifeq ($(KYBER_POLYCOMPRESSBYTES),128)
+USE_FUNCTION_CONTRACTS = $(KYBER_NAMESPACE)scalar_decompress_q_16
 else
-	UNWINDSET += $(KYBER_NAMESPACE)poly_decompress.1:33
-	UNWINDSET += $(KYBER_NAMESPACE)poly_decompress.0:9
 endif
 
+APPLY_LOOP_CONTRACTS=on
+USE_DYNAMIC_FRAMES=1
+
+# Disable any setting of EXTERNAL_SAT_SOLVER, and choose SMT backend instead
+EXTERNAL_SAT_SOLVER=
+CBMCFLAGS=--bitwuzla
+
 FUNCTION_NAME = $(KYBER_NAMESPACE)poly_decompress
-
-USE_FUNCTION_CONTRACTS = $(KYBER_NAMESPACE)scalar_decompress_q_16
-
-# TODO: I would like to comment this out to have CBMC validate the
-# function contract as annotated in the source, rather than being forced
-# to replicate it in the harness. But somehow this doesn't work...?
-
-# USE_FUNCTION_CONTRACTS = $(FUNCTION_NAME)
-
-# USE_DYNAMIC_FRAMES = 1
-# EXTERNAL_SAT_SOLVER = cadical
-# CBMCFLAGS += --smt2
 
 # If this proof is found to consume huge amounts of RAM, you can set the
 # EXPENSIVE variable. With new enough versions of the proof tools, this will
 # restrict the number of EXPENSIVE CBMC jobs running at once. See the
 # documentation in Makefile.common under the "Job Pools" heading for details.
 # EXPENSIVE = true
+
+# This function is large enough to need...
+CBMC_OBJECT_BITS = 12
 
 # If you require access to a file-local ("static") function or object to conduct
 # your proof, set the following (and do not include the original source file
