@@ -253,7 +253,7 @@ void polyvec_basemul_acc_montgomery(poly *r, const polyvec *a, const polyvec *b)
 {
     polyvec_mulcache b_cache;
     polyvec_mulcache_compute(&b_cache, b);
-    polyvec_basemul_acc_montgomery_cached( r, a, b, &b_cache);
+    polyvec_basemul_acc_montgomery_cached(r, a, b, &b_cache);
 }
 
 /*************************************************
