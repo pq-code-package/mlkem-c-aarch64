@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 #include "asm/asm.h"
+#include "debug.h"
 
 /* Code to generate zetas and zetas_inv used in the number-theoretic transform:
 
@@ -55,18 +56,28 @@ const int16_t zetas[128] =
     -308,  996,   991,   958,   -1460, 1522,  1628
 };
 
-/*************************************************
+/*****************************************************************************
  * Name:        ntt
  *
  * Description: Inplace number-theoretic transform (NTT) in Rq.
  *              input is in standard order, output is in bitreversed order
  *
- * Arguments:   - int16_t r[256]: pointer to input/output vector of elements of
- *Zq
- **************************************************/
+ * Arguments:   - int16_t r[256]:
+ *                The pointer to the input/output vector of elements of Zq.
+ *
+ *                Precondition:
+ *                  At function call, each element of r must be _weakly signed canonical_
+ *                  modulo Zq: That is, lie within {-(Q-1),...,(Q+1)}.
+ *
+ *                Postcondition:
+ *                  At function return, elements of r are _signed canonical_:
+ *                  That is, lie within {-(Q-1)/2,...,(Q-1)/2}.
+ ******************************************************************************/
 #if !defined(MLKEM_USE_AARCH64_ASM)
 void ntt(int16_t r[256])
 {
+    MLKEM_DEBUG_ASSERT_BOUND(r, 256, -(KYBER_Q-1), KYBER_Q-1, "NTT input bound");
+
     unsigned int len, start, j, k;
     int16_t t, zeta;
 
@@ -78,33 +89,53 @@ void ntt(int16_t r[256])
             zeta = zetas[k++];
             for (j = start; j < start + len; j++)
             {
+                // fqmul normalizes to absolute value < |q|
                 t = fqmul(zeta, r[j + len]);
                 r[j + len] = r[j] - t;
                 r[j] = r[j] + t;
             }
         }
     }
+
+    MLKEM_DEBUG_ASSERT_BOUND(r, 256, -3*KYBER_Q, 3*KYBER_Q,
+                             "NTT output bound");
 }
 #else /* MLKEM_USE_AARCH64_ASM */
 void ntt(int16_t r[256])
 {
+    MLKEM_DEBUG_ASSERT_BOUND(r, 256, -(KYBER_Q-1), KYBER_Q-1, "NTT input bound");
+
     ntt_asm(r);
+
+    MLKEM_DEBUG_ASSERT_BOUND(r, 256, -3*KYBER_Q, 3*KYBER_Q, "NTT output bound");
 }
 #endif /* MLKEM_USE_AARCH64_ASM */
 
-/*************************************************
+/*****************************************************************************
  * Name:        invntt_tomont
  *
  * Description: Inplace inverse number-theoretic transform in Rq and
  *              multiplication by Montgomery factor 2^16.
  *              Input is in bitreversed order, output is in standard order
  *
- * Arguments:   - int16_t r[256]: pointer to input/output vector of elements of
- *Zq
- **************************************************/
+ * Arguments:   - int16_t r[256]
+ *                The pointer to the input/output vector of elements of Zq.
+ *
+ * Preconditions:
+ *              - At call, each element of r must be _signed canonical_
+ *                modulo Zq: That is, lie within {-(Q-1)/2,...,(Q+1)/2}.
+ *
+ * Postconditions:
+ *              - At return, elements of r are _weakly signed canonical_:
+ *                That is, lie within {-(Q-1),...,(Q-1)}.
+ *
+ *****************************************************************************/
 #if !defined(MLKEM_USE_AARCH64_ASM)
 void invntt(int16_t r[256])
 {
+    MLKEM_DEBUG_ASSERT_BOUND(r, 256, KYBER_Q_SIGNED_MIN, KYBER_Q_SIGNED_MAX,
+                             "invNTT input bound");
+
     unsigned int start, len, j, k;
     int16_t t, zeta;
     const int16_t f = 1441; // mont^2/128
@@ -129,11 +160,20 @@ void invntt(int16_t r[256])
     {
         r[j] = fqmul(r[j], f);
     }
+
+    MLKEM_DEBUG_ASSERT_BOUND(r, 256, -KYBER_Q_UNSIGNED_MAX, KYBER_Q_UNSIGNED_MAX,
+                             "invNTT output bound");
 }
 #else /* MLKEM_USE_AARCH64_ASM */
 void invntt(int16_t r[256])
 {
+    MLKEM_DEBUG_ASSERT_BOUND(r, 256, KYBER_Q_SIGNED_MIN, KYBER_Q_SIGNED_MAX,
+                             "invNTT input bound");
+
     intt_asm(r);
+
+    MLKEM_DEBUG_ASSERT_BOUND(r, 256, -KYBER_Q_UNSIGNED_MAX, KYBER_Q_UNSIGNED_MAX,
+                             "invNTT output bound");
 }
 #endif /* MLKEM_USE_AARCH64_ASM */
 

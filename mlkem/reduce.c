@@ -14,12 +14,25 @@
 *
 * Returns:     integer in {-q+1,...,q-1} congruent to a * R^-1 modulo q.
 **************************************************/
+
+// TODO: The output bound < |q| is easier to prove for input bound < |q|*2^15.
+// (no special case needed for a=-2^15*q).
 int16_t montgomery_reduce(int32_t a)
 {
     int16_t t;
 
     t = (int16_t)a * QINV;
     t = (a - (int32_t)t * KYBER_Q) >> 16;
+
+    // |t| <= |a|/2^16 + |t|*q/2^16 <= q/2 + q/2  q.
+    //
+    // Equality can only be attained for a=-q*2^16. In that case:
+    // - (int16_t) a = -2^15,
+    // - (int16_t)a * QINV = -2^15 (in int16_t),
+    // - (int32_t)((int16_t) a * QINV) = -2^15,
+    // and the final result is 0.
+    //
+    // Thus, we always have |t| < q.
     return t;
 }
 
