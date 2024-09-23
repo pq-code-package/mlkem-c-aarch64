@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1727116733028,
+  "lastUpdate": 1727116746164,
   "repoUrl": "https://github.com/pq-code-package/mlkem-c-aarch64",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -15623,6 +15623,75 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 199390,
+            "unit": "cycles"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "beckphan@amazon.co.uk",
+            "name": "Hanno Becker",
+            "username": "hanno-becker"
+          },
+          "committer": {
+            "email": "beckphan@amazon.co.uk",
+            "name": "Hanno Becker",
+            "username": "hanno-becker"
+          },
+          "distinct": true,
+          "id": "a1fb12f988469f62a23097b201b45072b453c3cc",
+          "message": "Add experimental SLOTHY-optimized NTTs\n\nSo far, clean ASM is only optimized according to Cortex-A55 model,\nand we do not yet explore algorithmic variations from\n\n  Fast and Clean: Auditable high-performance\n  assembly via constraint solving\n\n  https://eprint.iacr.org/2022/1303\n\nThis will come at a later point.\n\nBoth the clean and the optimized code are added to the repository,\nas well as the SLOTHY script.\n\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>",
+          "timestamp": "2024-09-23T19:35:24+01:00",
+          "tree_id": "07667c34908b647257a9840f604732b11eb87c19",
+          "url": "https://github.com/pq-code-package/mlkem-c-aarch64/commit/a1fb12f988469f62a23097b201b45072b453c3cc"
+        },
+        "date": 1727116745313,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ML-KEM-512 keypair",
+            "value": 60122,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 encaps",
+            "value": 63585,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 decaps",
+            "value": 76103,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 keypair",
+            "value": 103597,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 encaps",
+            "value": 104452,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 decaps",
+            "value": 120978,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 keypair",
+            "value": 157541,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 encaps",
+            "value": 156156,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 decaps",
+            "value": 176937,
             "unit": "cycles"
           }
         ]
