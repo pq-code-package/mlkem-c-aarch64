@@ -78,6 +78,19 @@ slothy-cli Arm_AArch64 $TARGET \
   -c variable_size \
   -c constraints.stalls_first_attempt=64
 
+echo "* poly_tomont, ${TARGET_NAME}"
+
+slothy-cli Arm_AArch64 $TARGET \
+  poly_opt.S -o poly_opt.S \
+  -r poly_tomont_asm_clean,poly_tomont_asm_opt \
+  -l poly_tomont_asm_loop \
+  -c sw_pipelining.enabled=true \
+  -c inputs_are_outputs \
+  -c reserved_regs="[x0--30,v8--v15,sp]" \
+  -c sw_pipelining.minimize_overlapping=False \
+  -c variable_size \
+  -c constraints.stalls_first_attempt=64
+
 echo " * ntt, ${TARGET_NAME}"
 
 slothy-cli Arm_AArch64 $TARGET \
