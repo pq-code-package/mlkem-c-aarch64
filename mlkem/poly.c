@@ -224,13 +224,13 @@ void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES])
 
     #if (KYBER_POLYCOMPRESSEDBYTES == 128)
     for (i = 0; i < KYBER_N / 2; i++)
-    __CPROVER_assigns(i, __CPROVER_object_whole(r))
-    __CPROVER_loop_invariant(i >= 0)
-    __CPROVER_loop_invariant(i <= KYBER_N / 2)
-    __CPROVER_loop_invariant(__CPROVER_forall { unsigned int k; (k < i) ==>
-        ( r->coeffs[2 * k]     >= 0 && r->coeffs[2 * k]     < KYBER_Q &&
-          r->coeffs[2 * k + 1] >= 0 && r->coeffs[2 * k + 1] < KYBER_Q ) })
-    __CPROVER_decreases(KYBER_N / 2 - i)
+        __CPROVER_assigns(i, __CPROVER_object_whole(r))
+        __CPROVER_loop_invariant(i >= 0)
+        __CPROVER_loop_invariant(i <= KYBER_N / 2)
+        __CPROVER_loop_invariant(__CPROVER_forall { unsigned int k; (k < i) ==>
+                                 ( r->coeffs[2 * k]     >= 0 && r->coeffs[2 * k]     < KYBER_Q &&
+                                   r->coeffs[2 * k + 1] >= 0 && r->coeffs[2 * k + 1] < KYBER_Q ) })
+        __CPROVER_decreases(KYBER_N / 2 - i)
     {
         // REF-CHANGE: Hoist scalar decompression into separate function
         r->coeffs[2 * i + 0] = scalar_decompress_q_16((a[i] >> 0) & 0xF);
@@ -241,19 +241,19 @@ void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES])
 
     #elif (KYBER_POLYCOMPRESSEDBYTES == 160)
     for (i = 0; i < KYBER_N / 8; i++)
-    __CPROVER_assigns(i, __CPROVER_object_whole(r))
-    __CPROVER_loop_invariant(i >= 0)
-    __CPROVER_loop_invariant(i <= KYBER_N / 8)
-    __CPROVER_loop_invariant(__CPROVER_forall { unsigned int k; (k < i) ==>
-        ( r->coeffs[8 * k]     >= 0 && r->coeffs[8 * k]     < KYBER_Q &&
-          r->coeffs[8 * k + 1] >= 0 && r->coeffs[8 * k + 1] < KYBER_Q &&
-          r->coeffs[8 * k + 2] >= 0 && r->coeffs[8 * k + 2] < KYBER_Q &&
-          r->coeffs[8 * k + 3] >= 0 && r->coeffs[8 * k + 3] < KYBER_Q &&
-          r->coeffs[8 * k + 4] >= 0 && r->coeffs[8 * k + 4] < KYBER_Q &&
-          r->coeffs[8 * k + 5] >= 0 && r->coeffs[8 * k + 5] < KYBER_Q &&
-          r->coeffs[8 * k + 6] >= 0 && r->coeffs[8 * k + 6] < KYBER_Q &&
-          r->coeffs[8 * k + 7] >= 0 && r->coeffs[8 * k + 7] < KYBER_Q ) })
-    __CPROVER_decreases(KYBER_N / 8 - i)
+        __CPROVER_assigns(i, __CPROVER_object_whole(r))
+        __CPROVER_loop_invariant(i >= 0)
+        __CPROVER_loop_invariant(i <= KYBER_N / 8)
+        __CPROVER_loop_invariant(__CPROVER_forall { unsigned int k; (k < i) ==>
+                                 ( r->coeffs[8 * k]     >= 0 && r->coeffs[8 * k]     < KYBER_Q &&
+                                   r->coeffs[8 * k + 1] >= 0 && r->coeffs[8 * k + 1] < KYBER_Q &&
+                                   r->coeffs[8 * k + 2] >= 0 && r->coeffs[8 * k + 2] < KYBER_Q &&
+                                   r->coeffs[8 * k + 3] >= 0 && r->coeffs[8 * k + 3] < KYBER_Q &&
+                                   r->coeffs[8 * k + 4] >= 0 && r->coeffs[8 * k + 4] < KYBER_Q &&
+                                   r->coeffs[8 * k + 5] >= 0 && r->coeffs[8 * k + 5] < KYBER_Q &&
+                                   r->coeffs[8 * k + 6] >= 0 && r->coeffs[8 * k + 6] < KYBER_Q &&
+                                   r->coeffs[8 * k + 7] >= 0 && r->coeffs[8 * k + 7] < KYBER_Q ) })
+        __CPROVER_decreases(KYBER_N / 8 - i)
     {
         uint8_t t;
         const unsigned int offset = i * 5;
