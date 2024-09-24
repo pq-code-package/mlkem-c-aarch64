@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1727178634981,
+  "lastUpdate": 1727193648578,
   "repoUrl": "https://github.com/pq-code-package/mlkem-c-aarch64",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -11512,6 +11512,75 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 127887,
+            "unit": "cycles"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "ry@linux.com",
+            "name": "Ry Jones",
+            "username": "ryjones"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b2032494c5b278a99447f64d412b0053d4163d99",
+          "message": "Use large runners (#160)\n\nUses ubuntu-24.04 large runners\r\n\r\nRemove macos cbmc job\r\n\r\nSigned-off-by: Ry Jones <ry@linux.com>",
+          "timestamp": "2024-09-24T16:59:52+01:00",
+          "tree_id": "e1c918d6efc8215da4539c1807edf0425e1ff24b",
+          "url": "https://github.com/pq-code-package/mlkem-c-aarch64/commit/b2032494c5b278a99447f64d412b0053d4163d99"
+        },
+        "date": 1727193645351,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ML-KEM-512 keypair",
+            "value": 39044,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 encaps",
+            "value": 47177,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 decaps",
+            "value": 54043,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 keypair",
+            "value": 67897,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 encaps",
+            "value": 77297,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 decaps",
+            "value": 86208,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 keypair",
+            "value": 106426,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 encaps",
+            "value": 117056,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 decaps",
+            "value": 128057,
             "unit": "cycles"
           }
         ]
