@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1727167559980,
+  "lastUpdate": 1727167698097,
   "repoUrl": "https://github.com/pq-code-package/mlkem-c-aarch64",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -3746,6 +3746,75 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 279641,
+            "unit": "cycles"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "beckphan@amazon.co.uk",
+            "name": "Hanno Becker",
+            "username": "hanno-becker"
+          },
+          "committer": {
+            "email": "beckphan@amazon.co.uk",
+            "name": "Hanno Becker",
+            "username": "hanno-becker"
+          },
+          "distinct": true,
+          "id": "09d6442a2370c7350687db951bb26d1ca360688a",
+          "message": "Use v8.4A-based x1 Keccak-f1600 on Apple CPUs\n\nPrevious, we would use the lazy-rotation scalar assembly.\nSince Barrel shifting comes at a performance penalty on\nApple CPUs (see https://dougallj.github.io/applecpu/firestorm.html),\nthis implementation is slower than the standard C implementation.\n\nMoreover, the standard C implementation is slower than the\nx2-batched Neon implementation, restricted to one lane.\n\nThis commit therefore changes the default Keccak-f1600 implementation\non Apple CPUs to be a 1-fold Neon-based Keccak using SHA3 instructions.\n\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>",
+          "timestamp": "2024-09-24T09:41:49+01:00",
+          "tree_id": "9ff414dcd8a1a725ba2e49b67a6e4904a3bbc520",
+          "url": "https://github.com/pq-code-package/mlkem-c-aarch64/commit/09d6442a2370c7350687db951bb26d1ca360688a"
+        },
+        "date": 1727167692809,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ML-KEM-512 keypair",
+            "value": 90037,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 encaps",
+            "value": 94841,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 decaps",
+            "value": 111828,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 keypair",
+            "value": 158482,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 encaps",
+            "value": 162576,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 decaps",
+            "value": 185332,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 keypair",
+            "value": 247036,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 encaps",
+            "value": 249089,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 decaps",
+            "value": 277496,
             "unit": "cycles"
           }
         ]
