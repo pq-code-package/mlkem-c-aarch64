@@ -19,8 +19,8 @@ void poly_reduce_asm_opt(int16_t *);
 void poly_tomont_asm_clean(int16_t *);
 void poly_tomont_asm_opt(int16_t *);
 
-void poly_mulcache_compute_asm_clean(int16_t *, int16_t *, int16_t *, int16_t *);
-void poly_mulcache_compute_asm_opt(int16_t *, int16_t *, int16_t *, int16_t *);
+void poly_mulcache_compute_asm_clean(int16_t *, const int16_t *, const int16_t *, const int16_t *);
+void poly_mulcache_compute_asm_opt(int16_t *, const int16_t *, const int16_t *, const int16_t *);
 
 void poly_tobytes_asm_clean(uint8_t *r, const int16_t *a);
 

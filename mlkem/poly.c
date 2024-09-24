@@ -292,7 +292,7 @@ void poly_tobytes(uint8_t r[KYBER_POLYBYTES], const poly *a)
 #else /* MLKEM_USE_AARCH64_ASM */
 void poly_tobytes(uint8_t r[KYBER_POLYBYTES], const poly *a)
 {
-    poly_tobytes_asm(r, (const int16_t *) a);
+    poly_tobytes_asm(r, a->coeffs);
 }
 #endif /* MLKEM_USE_AARCH64_ASM */
 /*************************************************
@@ -621,7 +621,7 @@ void poly_tomont(poly *r)
 #else /* MLKEM_USE_AARCH64_ASM */
 void poly_tomont(poly *r)
 {
-    poly_tomont_asm((int16_t *) r);
+    poly_tomont_asm(r->coeffs);
 }
 #endif /* MLKEM_USE_AARCH64_ASM */
 
@@ -642,7 +642,7 @@ void poly_reduce(poly *r)
         r->coeffs[i] = barrett_reduce(r->coeffs[i]);
     }
     #else /* MLKEM_USE_AARCH64_ASM */
-    poly_reduce_asm((int16_t *) r);
+    poly_reduce_asm(r->coeffs);
     #endif /* MLKEM_USE_AARCH64_ASM */
 }
 
@@ -703,7 +703,7 @@ void poly_mulcache_compute(poly_mulcache *x, const poly *a)
     }
 }
 #else /* MLKEM_USE_AARCH64_ASM */
-const int16_t zetas_mulcache_asm[256] =
+static const int16_t zetas_mulcache_asm[256] =
 {
     17, -17, -568, 568, 583, -583, -680, 680, 1637, -1637, 723, -723, -1041, 1041, 1100,
     -1100, 1409, -1409, -667, 667, -48, 48, 233, -233, 756, -756, -1173, 1173, -314, 314,
@@ -716,7 +716,7 @@ const int16_t zetas_mulcache_asm[256] =
     1212, -1212, -1455, 1455, 1029, -1029, -1219, 1219, -394, 394, 885, -885, -1175, 1175
 };
 
-const int16_t zetas_mulcache_twisted_asm[256] =
+static const int16_t zetas_mulcache_twisted_asm[256] =
 {
     167, -167, -5591, 5591, 5739, -5739, -6693, 6693, 16113, -16113, 7117, -7117, -10247,
     10247, 10828, -10828, 13869, -13869, -6565, 6565, -472, 472, 2293, -2293, 7441, -7441,
@@ -733,7 +733,7 @@ const int16_t zetas_mulcache_twisted_asm[256] =
 
 void poly_mulcache_compute(poly_mulcache *x, const poly *a)
 {
-    poly_mulcache_compute_asm((int16_t *) x, (int16_t *)a, (int16_t *)zetas_mulcache_asm,
-                              (int16_t *) zetas_mulcache_twisted_asm);
+    poly_mulcache_compute_asm(x->coeffs, a->coeffs, zetas_mulcache_asm,
+                              zetas_mulcache_twisted_asm);
 }
 #endif /* MLKEM_USE_AARCH64_ASM */
