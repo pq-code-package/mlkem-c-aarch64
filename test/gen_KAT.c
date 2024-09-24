@@ -27,12 +27,12 @@ static void shake256_absorb(shake256incctx *state, const uint8_t *input, size_t 
 
 int main(void)
 {
-    uint8_t coins[3 * KYBER_SYMBYTES];
-    uint8_t pk[CRYPTO_PUBLICKEYBYTES];
-    uint8_t sk[CRYPTO_SECRETKEYBYTES];
-    uint8_t ct[CRYPTO_CIPHERTEXTBYTES];
-    uint8_t ss1[CRYPTO_BYTES];
-    uint8_t ss2[CRYPTO_BYTES];
+    uint8_t coins[3 * KYBER_SYMBYTES] ALIGN(16);
+    uint8_t pk[CRYPTO_PUBLICKEYBYTES] ALIGN(16);
+    uint8_t sk[CRYPTO_SECRETKEYBYTES] ALIGN(16);
+    uint8_t ct[CRYPTO_CIPHERTEXTBYTES] ALIGN(16);
+    uint8_t ss1[CRYPTO_BYTES] ALIGN(16);
+    uint8_t ss2[CRYPTO_BYTES] ALIGN(16);
 
     const uint8_t seed[64] = {32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
                               48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,

@@ -413,8 +413,8 @@ void poly_getnoise_eta1_4x(poly *r0,
                            uint8_t nonce2,
                            uint8_t nonce3)
 {
-    uint8_t buf[KECCAK_WAY][KYBER_ETA1 * KYBER_N / 4];
-    uint8_t extkey[KECCAK_WAY][KYBER_SYMBYTES + 1];
+    uint8_t buf[KECCAK_WAY][KYBER_ETA1 * KYBER_N / 4] ALIGN(16);
+    uint8_t extkey[KECCAK_WAY][KYBER_SYMBYTES + 1] ALIGN(16);
     memcpy(extkey[0], seed, KYBER_SYMBYTES);
     memcpy(extkey[1], seed, KYBER_SYMBYTES);
     memcpy(extkey[2], seed, KYBER_SYMBYTES);
@@ -445,7 +445,7 @@ void poly_getnoise_eta1_4x(poly *r0,
 **************************************************/
 void poly_getnoise_eta2(poly *r, const uint8_t seed[KYBER_SYMBYTES], uint8_t nonce)
 {
-    uint8_t buf[KYBER_ETA2 * KYBER_N / 4];
+    uint8_t buf[KYBER_ETA2 * KYBER_N / 4] ALIGN(16);
     prf(buf, sizeof(buf), seed, nonce);
     poly_cbd_eta2(r, buf);
 }
@@ -472,8 +472,8 @@ void poly_getnoise_eta2_4x(poly *r0,
                            uint8_t nonce2,
                            uint8_t nonce3)
 {
-    uint8_t buf[KECCAK_WAY][KYBER_ETA2 * KYBER_N / 4];
-    uint8_t extkey[KECCAK_WAY][KYBER_SYMBYTES + 1];
+    uint8_t buf[KECCAK_WAY][KYBER_ETA2 * KYBER_N / 4] ALIGN(16);
+    uint8_t extkey[KECCAK_WAY][KYBER_SYMBYTES + 1] ALIGN(16);
     memcpy(extkey[0], seed, KYBER_SYMBYTES);
     memcpy(extkey[1], seed, KYBER_SYMBYTES);
     memcpy(extkey[2], seed, KYBER_SYMBYTES);
@@ -512,9 +512,9 @@ void poly_getnoise_eta1122_4x(poly *r0,
                               uint8_t nonce2,
                               uint8_t nonce3)
 {
-    uint8_t buf1[KECCAK_WAY/2][KYBER_ETA1 * KYBER_N / 4];
-    uint8_t buf2[KECCAK_WAY/2][KYBER_ETA2 * KYBER_N / 4];
-    uint8_t extkey[KECCAK_WAY][KYBER_SYMBYTES + 1];
+    uint8_t buf1[KECCAK_WAY/2][KYBER_ETA1 * KYBER_N / 4] ALIGN(16);
+    uint8_t buf2[KECCAK_WAY/2][KYBER_ETA2 * KYBER_N / 4] ALIGN(16);
+    uint8_t extkey[KECCAK_WAY][KYBER_SYMBYTES + 1] ALIGN(16);
     memcpy(extkey[0], seed, KYBER_SYMBYTES);
     memcpy(extkey[1], seed, KYBER_SYMBYTES);
     memcpy(extkey[2], seed, KYBER_SYMBYTES);

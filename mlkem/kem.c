@@ -51,7 +51,7 @@ int crypto_kem_keypair_derand(uint8_t *pk,
 int crypto_kem_keypair(uint8_t *pk,
                        uint8_t *sk)
 {
-    uint8_t coins[2 * KYBER_SYMBYTES];
+    uint8_t coins[2 * KYBER_SYMBYTES] ALIGN(16);
     randombytes(coins, 2 * KYBER_SYMBYTES);
     crypto_kem_keypair_derand(pk, sk, coins);
     return 0;
@@ -79,9 +79,9 @@ int crypto_kem_enc_derand(uint8_t *ct,
                           const uint8_t *pk,
                           const uint8_t *coins)
 {
-    uint8_t buf[2 * KYBER_SYMBYTES];
+    uint8_t buf[2 * KYBER_SYMBYTES] ALIGN(16);
     /* Will contain key, coins */
-    uint8_t kr[2 * KYBER_SYMBYTES];
+    uint8_t kr[2 * KYBER_SYMBYTES] ALIGN(16);
 
     memcpy(buf, coins, KYBER_SYMBYTES);
 
@@ -115,7 +115,7 @@ int crypto_kem_enc(uint8_t *ct,
                    uint8_t *ss,
                    const uint8_t *pk)
 {
-    uint8_t coins[KYBER_SYMBYTES];
+    uint8_t coins[KYBER_SYMBYTES] ALIGN(16);
     randombytes(coins, KYBER_SYMBYTES);
     crypto_kem_enc_derand(ct, ss, pk, coins);
     return 0;
@@ -143,10 +143,10 @@ int crypto_kem_dec(uint8_t *ss,
                    const uint8_t *sk)
 {
     int fail;
-    uint8_t buf[2 * KYBER_SYMBYTES];
+    uint8_t buf[2 * KYBER_SYMBYTES] ALIGN(16);
     /* Will contain key, coins */
-    uint8_t kr[2 * KYBER_SYMBYTES];
-    uint8_t cmp[KYBER_CIPHERTEXTBYTES + KYBER_SYMBYTES];
+    uint8_t kr[2 * KYBER_SYMBYTES] ALIGN(16);
+    uint8_t cmp[KYBER_CIPHERTEXTBYTES + KYBER_SYMBYTES] ALIGN(16);
     const uint8_t *pk = sk + KYBER_INDCPA_SECRETKEYBYTES;
 
     indcpa_dec(buf, ct, sk);
