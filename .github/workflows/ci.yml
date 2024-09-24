@@ -6,6 +6,7 @@ on:
     branches: ["*"]
   pull_request:
     branches: ["main"]
+    types: [ "labeled" ]
 jobs:
   build_kat:
     strategy:
@@ -96,17 +97,26 @@ jobs:
           - name: AMD EPYC 4th gen (t3a)
             ec2_instance_type: t3a.small
             ec2_ami: ubuntu-latest (x86_64)
+            cbmc: 'false'
           - name: Intel Xeon 4th gen (t3)
             ec2_instance_type: t3.small
             ec2_ami: ubuntu-latest (x86_64)
+            cbmc: 'false'
+          - name: Graviton3, CBMC (c7g.4xlarge)
+            ec2_instance_type: c7g.4xlarge
+            ec2_ami: ubuntu-latest (custom AMI)
+            ec2_ami_id: ami-08ddb0acd99dc3d33
+            cbmc: 'true'
     name: ${{ matrix.target.name }}
     permissions:
       contents: 'read'
       id-token: 'write'
     uses: ./.github/workflows/ci_ec2_reusable.yml
-    if: github.repository_owner == 'pq-code-package' || github.ref == 'refs/heads/main'
+    if: github.repository_owner == 'pq-code-package' && (github.event.label.name == 'ci' || github.ref == 'refs/heads/main')
     with:
       name: ${{ matrix.target.name }}
       ec2_instance_type: ${{ matrix.target.ec2_instance_type }}
       ec2_ami: ${{ matrix.target.ec2_ami }}
+      ec2_ami_id: ${{ matrix.target.ec2_ami_id }}
+      cbmc: ${{ matrix.target.cbmc == 'true' }}
     secrets: inherit
