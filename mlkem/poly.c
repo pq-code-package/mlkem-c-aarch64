@@ -633,18 +633,21 @@ void poly_tomont(poly *r)
 *
 * Arguments:   - poly *r: pointer to input/output polynomial
 **************************************************/
+#if !defined(MLKEM_USE_AARCH64_ASM)
 void poly_reduce(poly *r)
 {
-    #if !defined(MLKEM_USE_AARCH64_ASM)
     unsigned int i;
     for (i = 0; i < KYBER_N; i++)
     {
         r->coeffs[i] = barrett_reduce(r->coeffs[i]);
     }
-    #else /* MLKEM_USE_AARCH64_ASM */
-    poly_reduce_asm(r->coeffs);
-    #endif /* MLKEM_USE_AARCH64_ASM */
 }
+#else /* MLKEM_USE_AARCH64_ASM */
+void poly_reduce(poly *r)
+{
+    poly_reduce_asm(r->coeffs);
+}
+#endif /* MLKEM_USE_AARCH64_ASM */
 
 /*************************************************
 * Name:        poly_add

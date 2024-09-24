@@ -64,11 +64,9 @@ const int16_t zetas[128] =
  * Arguments:   - int16_t r[256]: pointer to input/output vector of elements of
  *Zq
  **************************************************/
+#if !defined(MLKEM_USE_AARCH64_ASM)
 void ntt(int16_t r[256])
 {
-    #ifdef MLKEM_USE_AARCH64_ASM
-    ntt_asm(r);
-    #else /* MLKEM_USE_AARCH64_ASM */
     unsigned int len, start, j, k;
     int16_t t, zeta;
 
@@ -86,8 +84,13 @@ void ntt(int16_t r[256])
             }
         }
     }
-    #endif /* MLKEM_USE_AARCH64_ASM */
 }
+#else /* MLKEM_USE_AARCH64_ASM */
+void ntt(int16_t r[256])
+{
+    ntt_asm(r);
+}
+#endif /* MLKEM_USE_AARCH64_ASM */
 
 /*************************************************
  * Name:        invntt_tomont
@@ -99,11 +102,9 @@ void ntt(int16_t r[256])
  * Arguments:   - int16_t r[256]: pointer to input/output vector of elements of
  *Zq
  **************************************************/
+#if !defined(MLKEM_USE_AARCH64_ASM)
 void invntt(int16_t r[256])
 {
-    #ifdef MLKEM_USE_AARCH64_ASM
-    intt_asm(r);
-    #else /* MLKEM_USE_AARCH64_ASM */
     unsigned int start, len, j, k;
     int16_t t, zeta;
     const int16_t f = 1441; // mont^2/128
@@ -128,8 +129,13 @@ void invntt(int16_t r[256])
     {
         r[j] = fqmul(r[j], f);
     }
-    #endif /* MLKEM_USE_AARCH64_ASM */
 }
+#else /* MLKEM_USE_AARCH64_ASM */
+void invntt(int16_t r[256])
+{
+    intt_asm(r);
+}
+#endif /* MLKEM_USE_AARCH64_ASM */
 
 /*************************************************
  * Name:        basemul

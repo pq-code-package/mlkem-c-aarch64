@@ -224,10 +224,10 @@ void polyvec_invntt_tomont(polyvec *r)
 *            - const polyvec *a: pointer to first input vector of polynomials
 *            - const polyvec *b: pointer to second input vector of polynomials
 **************************************************/
+#if !defined(MLKEM_USE_AARCH64_ASM)
 void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a, const polyvec *b,
         const polyvec_mulcache *b_cache)
 {
-    #if !defined(MLKEM_USE_AARCH64_ASM)
     unsigned int i;
     poly t;
 
@@ -239,12 +239,16 @@ void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a, const poly
     }
 
     poly_reduce(r);
-    #else /* MLKEM_USE_AARCH64_ASM */
+}
+#else /* MLKEM_USE_AARCH64_ASM */
+void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a, const polyvec *b,
+        const polyvec_mulcache *b_cache)
+{
     polyvec_basemul_acc_montgomery_cached_asm(r->coeffs, a->vec[0].coeffs,
             b->vec[0].coeffs,
             b_cache->vec[0].coeffs);
-    #endif /* MLKEM_USE_AARCH64_ASM */
 }
+#endif /* MLKEM_USE_AARCH64_ASM */
 
 /*************************************************
 * Name:        polyvec_basemul_acc_montgomery
