@@ -23,6 +23,10 @@
 #define KYBER_N 256
 #define KYBER_Q 3329
 
+#define KYBER_Q_SIGNED_MIN (-1664)
+#define KYBER_Q_SIGNED_MAX (+1664)
+#define KYBER_Q_UNSIGNED_MAX (KYBER_Q-1)
+
 #define KYBER_SYMBYTES 32   /* size in bytes of hashes, and seeds */
 #define KYBER_SSBYTES  32   /* size in bytes of shared key */
 

@@ -5,6 +5,8 @@
 #include "polyvec.h"
 #include "config.h"
 #include "asm/asm.h"
+#include "debug.h"
+
 /*************************************************
 * Name:        polyvec_compress
 *
@@ -223,11 +225,24 @@ void polyvec_invntt_tomont(polyvec *r)
 * Arguments: - poly *r: pointer to output polynomial
 *            - const polyvec *a: pointer to first input vector of polynomials
 *            - const polyvec *b: pointer to second input vector of polynomials
+*
+* Preconditions:
+*              - At call, each element of a and b must be _signed canonical_
+*                modulo Zq: That is, lie within {-(Q-1)/2,...,(Q+1)/2}.
+*
+* Postconditions:
+*              - At return, elements of r are TODO.
+*
 **************************************************/
 #if !defined(MLKEM_USE_AARCH64_ASM)
 void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a, const polyvec *b,
         const polyvec_mulcache *b_cache)
 {
+    /* MLKEM_DEBUG_ASSERT_BOUND(a, 256 * KYBER_K, KYBER_Q_SIGNED_MIN, KYBER_Q_SIGNED_MAX, */
+    /*                          "polyvec_basemul_acc_montgomery, input a"); */
+    /* MLKEM_DEBUG_ASSERT_BOUND(b, 256 * KYBER_K, KYBER_Q_SIGNED_MIN, KYBER_Q_SIGNED_MAX, */
+    /*                          "polyvec_basemul_acc_montgomery, input b"); */
+
     unsigned int i;
     poly t;
 
@@ -239,6 +254,9 @@ void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a, const poly
     }
 
     poly_reduce(r);
+
+    /* MLKEM_DEBUG_ASSERT_BOUND(r, 256, KYBER_Q_SIGNED_MIN, KYBER_Q_SIGNED_MAX, */
+    /*                          "polyvec_basemul_acc_montgomery, output"); */
 }
 #else /* MLKEM_USE_AARCH64_ASM */
 void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a, const polyvec *b,

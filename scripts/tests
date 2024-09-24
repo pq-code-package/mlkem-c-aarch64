@@ -146,9 +146,10 @@ def base_run(
     )
 
     if result.returncode != 0:
-        logging.error(
-            f"Running '{cmd}' failed: {result.returncode} {result.stderr.decode()}"
-        )
+        logging.error(f"Running '{cmd}' failed: {result.returncode}")
+        for l in result.stderr.decode().splitlines():
+            logging.error(l)
+
         sys.exit(1)
 
     return result.stdout
