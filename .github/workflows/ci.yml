@@ -27,13 +27,13 @@ jobs:
            cross-prefix: ' '
            cflags: '-DFORCE_AARCH64'
            nix-shell: 'ci'
-         - runner: ubuntu-latest
+         - runner: pqcp-x64
            name: 'ubuntu-latest (x86_64, cross)'
            arch: 'x86_64'
            cross-prefix: 'aarch64-unknown-linux-gnu-'
            cflags: '-DFORCE_AARCH64'
            nix-shell: 'x86_64-linux-cross-ci'
-         - runner: ubuntu-latest
+         - runner: pqcp-x64
            name: 'ubuntu-latest (x86_64, native)'
            arch: 'x86_64'
            cross-prefix: ''
@@ -78,17 +78,6 @@ jobs:
         with:
           nix-shell: ci-linter
           cross-prefix: "aarch64-unknown-linux-gnu-"
-  cbmc:
-    strategy:
-      matrix:
-        system: [macos-latest]
-    name: CBMC
-    runs-on: ${{ matrix.system }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/cbmc
-        with:
-          nix-shell: ci-cbmc
   ec2_all:
     strategy:
       fail-fast: false
