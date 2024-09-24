@@ -16,7 +16,7 @@ slothy-cli Arm_AArch64 $TARGET \
   -l k2_loop_start \
   -c sw_pipelining.enabled=true \
   -c inputs_are_outputs \
-  -c reserved_regs="[x18, sp]" \
+  -c reserved_regs="[x18--30,sp]" \
   -c sw_pipelining.minimize_overlapping=False \
   -c sw_pipelining.allow_post \
   -c variable_size \
@@ -30,7 +30,7 @@ slothy-cli Arm_AArch64 $TARGET \
   -l k3_loop_start \
   -c sw_pipelining.enabled=true \
   -c inputs_are_outputs \
-  -c reserved_regs="[x18, sp]" \
+  -c reserved_regs="[x18--30,sp]" \
   -c sw_pipelining.minimize_overlapping=False \
   -c sw_pipelining.allow_post \
   -c variable_size \
@@ -44,7 +44,7 @@ slothy-cli Arm_AArch64 $TARGET \
   -l k4_loop_start \
   -c sw_pipelining.enabled=true \
   -c inputs_are_outputs \
-  -c reserved_regs="[x18, sp]" \
+  -c reserved_regs="[x18--30,sp]" \
   -c sw_pipelining.minimize_overlapping=False \
   -c variable_size \
   -c sw_pipelining.allow_post \
@@ -60,7 +60,7 @@ slothy-cli Arm_AArch64 $TARGET \
   -l loop_start \
   -c sw_pipelining.enabled=true \
   -c inputs_are_outputs \
-  -c reserved_regs="[x0--30,v8--v15,sp]" \
+  -c reserved_regs="[x18--30,sp,v8--v15]" \
   -c sw_pipelining.minimize_overlapping=False \
   -c variable_size \
   -c constraints.stalls_first_attempt=64
@@ -73,7 +73,7 @@ slothy-cli Arm_AArch64 $TARGET \
   -l mulcache_compute_loop_start \
   -c sw_pipelining.enabled=true \
   -c inputs_are_outputs \
-  -c reserved_regs="[x0--30,v8--v15,sp]" \
+  -c reserved_regs="[x18--30,sp,v8--v15]" \
   -c sw_pipelining.minimize_overlapping=False \
   -c variable_size \
   -c constraints.stalls_first_attempt=64
@@ -86,7 +86,7 @@ slothy-cli Arm_AArch64 $TARGET \
   -l poly_tomont_asm_loop \
   -c sw_pipelining.enabled=true \
   -c inputs_are_outputs \
-  -c reserved_regs="[x0--30,v8--v15,sp]" \
+  -c reserved_regs="[x18--30,sp,v8--v15]" \
   -c sw_pipelining.minimize_overlapping=False \
   -c variable_size \
   -c constraints.stalls_first_attempt=64
