@@ -258,7 +258,8 @@ void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES])
         uint8_t t;
         const unsigned int offset = i * 5;
         // REF-CHANGE: Explicitly truncate to avoid warning about
-        // implicit truncation in CBMC.
+        // implicit truncation in CBMC and unwind loop for ease
+        // of proof.
 
         // Decompress 5 8-bit bytes (so 40 bits) into
         // 8 5-bit values stored in t[]
