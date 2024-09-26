@@ -220,10 +220,8 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
 **************************************************/
 void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES])
 {
-    unsigned int i;
-
     #if (KYBER_POLYCOMPRESSEDBYTES == 128)
-    for (i = 0; i < KYBER_N / 2; i++)
+    for (int i = 0; i < KYBER_N / 2; i++)
         __CPROVER_assigns(i, __CPROVER_object_whole(r))
         __CPROVER_loop_invariant(i >= 0)
         __CPROVER_loop_invariant(i <= KYBER_N / 2)
@@ -240,52 +238,46 @@ void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES])
 
 
     #elif (KYBER_POLYCOMPRESSEDBYTES == 160)
-    for (i = 0; i < KYBER_N / 8; i++)
+    const int num_blocks = KYBER_N / 8;
+    for (int i = 0; i < num_blocks; i++)
         __CPROVER_assigns(i, __CPROVER_object_whole(r))
         __CPROVER_loop_invariant(i >= 0)
-        __CPROVER_loop_invariant(i <= KYBER_N / 8)
-        __CPROVER_loop_invariant(__CPROVER_forall { unsigned int k; (k < i) ==>
-                                 ( r->coeffs[8 * k]     >= 0 && r->coeffs[8 * k]     < KYBER_Q &&
-                                   r->coeffs[8 * k + 1] >= 0 && r->coeffs[8 * k + 1] < KYBER_Q &&
-                                   r->coeffs[8 * k + 2] >= 0 && r->coeffs[8 * k + 2] < KYBER_Q &&
-                                   r->coeffs[8 * k + 3] >= 0 && r->coeffs[8 * k + 3] < KYBER_Q &&
-                                   r->coeffs[8 * k + 4] >= 0 && r->coeffs[8 * k + 4] < KYBER_Q &&
-                                   r->coeffs[8 * k + 5] >= 0 && r->coeffs[8 * k + 5] < KYBER_Q &&
-                                   r->coeffs[8 * k + 6] >= 0 && r->coeffs[8 * k + 6] < KYBER_Q &&
-                                   r->coeffs[8 * k + 7] >= 0 && r->coeffs[8 * k + 7] < KYBER_Q ) })
-        __CPROVER_decreases(KYBER_N / 8 - i)
+        __CPROVER_loop_invariant(i <= num_blocks)
+        __CPROVER_loop_invariant(num_blocks == 32)
+        __CPROVER_loop_invariant(__CPROVER_forall { int k; k >= 0 && k <= (8 * i - 1) ==>
+                                 ( r->coeffs[k] >= 0 && r->coeffs[k] < KYBER_Q )})
+        __CPROVER_decreases(num_blocks - i)
     {
-        uint8_t t;
-        const unsigned int offset = i * 5;
+        uint8_t t[8];
+        const int offset = i * 5;
         // REF-CHANGE: Explicitly truncate to avoid warning about
         // implicit truncation in CBMC and unwind loop for ease
         // of proof.
 
         // Decompress 5 8-bit bytes (so 40 bits) into
         // 8 5-bit values stored in t[]
-        t = 0x1F &  (a[offset + 0] >> 0);
-        r->coeffs[8 * i]     = ((uint32_t) t * KYBER_Q + 16) >> 5;
+        t[0] = 0x1F &  (a[offset + 0] >> 0);
+        t[1] = 0x1F & ((a[offset + 0] >> 5) | (a[offset + 1] << 3));
+        t[2] = 0x1F &  (a[offset + 1] >> 2);
+        t[3] = 0x1F & ((a[offset + 1] >> 7) | (a[offset + 2] << 1));
+        t[4] = 0x1F & ((a[offset + 2] >> 4) | (a[offset + 3] << 4));
+        t[5] = 0x1F &  (a[offset + 3] >> 1);
+        t[6] = 0x1F & ((a[offset + 3] >> 6) | (a[offset + 4] << 2));
+        t[7] = 0x1F &  (a[offset + 4] >> 3);
 
-        t = 0x1F & ((a[offset + 0] >> 5) | (a[offset + 1] << 3));
-        r->coeffs[8 * i + 1] = ((uint32_t) t * KYBER_Q + 16) >> 5;
-
-        t = 0x1F &  (a[offset + 1] >> 2);
-        r->coeffs[8 * i + 2] = ((uint32_t) t * KYBER_Q + 16) >> 5;
-
-        t = 0x1F & ((a[offset + 1] >> 7) | (a[offset + 2] << 1));
-        r->coeffs[8 * i + 3] = ((uint32_t) t * KYBER_Q + 16) >> 5;
-
-        t = 0x1F & ((a[offset + 2] >> 4) | (a[offset + 3] << 4));
-        r->coeffs[8 * i + 4] = ((uint32_t) t * KYBER_Q + 16) >> 5;
-
-        t = 0x1F &  (a[offset + 3] >> 1);
-        r->coeffs[8 * i + 5] = ((uint32_t) t * KYBER_Q + 16) >> 5;
-
-        t = 0x1F & ((a[offset + 3] >> 6) | (a[offset + 4] << 2));
-        r->coeffs[8 * i + 6] = ((uint32_t) t * KYBER_Q + 16) >> 5;
-
-        t = 0x1F &  (a[offset + 4] >> 3);
-        r->coeffs[8 * i + 7] = ((uint32_t) t * KYBER_Q + 16) >> 5;
+        // and copy to the correct slice in r[]
+        for (int j = 0; j < 8; j++)
+            __CPROVER_assigns(j, __CPROVER_object_whole(r))
+            __CPROVER_loop_invariant(j >= 0)
+            __CPROVER_loop_invariant(j <= 8)
+            __CPROVER_loop_invariant(i >= 0)
+            __CPROVER_loop_invariant(i <= num_blocks)
+            __CPROVER_loop_invariant(__CPROVER_forall { int k; k >= 0 && k <= (8 * i + j - 1) ==>
+                                     ( r->coeffs[k] >= 0 && r->coeffs[k] < KYBER_Q )})
+            __CPROVER_decreases(8 - j)
+        {
+            r->coeffs[8 * i + j] = ((uint32_t) t[j] * KYBER_Q + 16) >> 5;
+        }
     }
     #else
 #error "KYBER_POLYCOMPRESSEDBYTES needs to be in {128, 160}"
