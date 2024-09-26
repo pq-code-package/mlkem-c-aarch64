@@ -528,35 +528,6 @@ void poly_getnoise_eta1122_4x(poly *r0,
 }
 
 /*************************************************
-* Name:        poly_ntt
-*
-* Description: Computes negacyclic number-theoretic transform (NTT) of
-*              a polynomial in place;
-*              inputs assumed to be in normal order, output in bitreversed order
-*
-* Arguments:   - uint16_t *r: pointer to in/output polynomial
-**************************************************/
-void poly_ntt(poly *r)
-{
-    ntt(r->coeffs);
-    poly_reduce(r);
-}
-
-/*************************************************
-* Name:        poly_invntt_tomont
-*
-* Description: Computes inverse of negacyclic number-theoretic transform (NTT)
-*              of a polynomial in place;
-*              inputs assumed to be in bitreversed order, output in normal order
-*
-* Arguments:   - uint16_t *a: pointer to in/output polynomial
-**************************************************/
-void poly_invntt_tomont(poly *r)
-{
-    invntt(r->coeffs);
-}
-
-/*************************************************
 * Name:        poly_basemul_montgomery
 *
 * Description: Multiplication of two polynomials in NTT domain

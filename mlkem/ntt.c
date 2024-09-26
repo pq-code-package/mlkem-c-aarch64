@@ -56,19 +56,22 @@ const int16_t zetas[128] =
 };
 
 /*************************************************
- * Name:        ntt
- *
- * Description: Inplace number-theoretic transform (NTT) in Rq.
- *              input is in standard order, output is in bitreversed order
- *
- * Arguments:   - int16_t r[256]: pointer to input/output vector of elements of
- *Zq
- **************************************************/
+* Name:        poly_ntt
+*
+* Description: Computes negacyclic number-theoretic transform (NTT) of
+*              a polynomial in place;
+*              inputs assumed to be in normal order, output in bitreversed order
+*
+* Arguments:   - poly *p: pointer to in/output polynomial
+**************************************************/
 #if !defined(MLKEM_USE_AARCH64_ASM)
-void ntt(int16_t r[256])
+// REF-CHANGE: Removed indirection poly_ntt -> ntt()
+// and integrated polynomial reduction into the NTT.
+void poly_ntt(poly *p)
 {
     unsigned int len, start, j, k;
     int16_t t, zeta;
+    int16_t *r = p->coeffs;
 
     k = 1;
     for (len = 128; len >= 2; len >>= 1)
@@ -84,30 +87,33 @@ void ntt(int16_t r[256])
             }
         }
     }
+
+    poly_reduce(p);
 }
 #else /* MLKEM_USE_AARCH64_ASM */
-void ntt(int16_t r[256])
+void poly_ntt(poly *p)
 {
-    ntt_asm(r);
+    ntt_asm(p->coeffs);
 }
 #endif /* MLKEM_USE_AARCH64_ASM */
 
 /*************************************************
- * Name:        invntt_tomont
- *
- * Description: Inplace inverse number-theoretic transform in Rq and
- *              multiplication by Montgomery factor 2^16.
- *              Input is in bitreversed order, output is in standard order
- *
- * Arguments:   - int16_t r[256]: pointer to input/output vector of elements of
- *Zq
- **************************************************/
+* Name:        poly_invntt_tomont
+*
+* Description: Computes inverse of negacyclic number-theoretic transform (NTT)
+*              of a polynomial in place;
+*              inputs assumed to be in bitreversed order, output in normal order
+*
+* Arguments:   - uint16_t *a: pointer to in/output polynomial
+**************************************************/
 #if !defined(MLKEM_USE_AARCH64_ASM)
-void invntt(int16_t r[256])
+// REF-CHANGE: Removed indirection poly_invntt_tomont -> invntt()
+void poly_invntt_tomont(poly *p)
 {
     unsigned int start, len, j, k;
     int16_t t, zeta;
     const int16_t f = 1441; // mont^2/128
+    int16_t *r = p->coeffs;
 
     k = 127;
     for (len = 2; len <= 128; len <<= 1)
@@ -131,9 +137,9 @@ void invntt(int16_t r[256])
     }
 }
 #else /* MLKEM_USE_AARCH64_ASM */
-void invntt(int16_t r[256])
+void poly_invntt_tomont(poly *p)
 {
-    intt_asm(r);
+    intt_asm(p->coeffs);
 }
 #endif /* MLKEM_USE_AARCH64_ASM */
 

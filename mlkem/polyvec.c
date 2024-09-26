@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include "params.h"
 #include "poly.h"
+#include "ntt.h"
 #include "polyvec.h"
 #include "config.h"
 #include "asm/asm.h"
