@@ -4,15 +4,16 @@
 
 #include <stdint.h>
 #include "params.h"
+#include "poly.h"
 
 #define zetas KYBER_NAMESPACE(zetas)
 extern const int16_t zetas[128];
 
 #define ntt KYBER_NAMESPACE(ntt)
-void ntt(int16_t poly[256]);
+void poly_ntt(poly *r);
 
 #define invntt KYBER_NAMESPACE(invntt)
-void invntt(int16_t poly[256]);
+void poly_invntt_tomont(poly *r);
 
 #define basemul KYBER_NAMESPACE(basemul)
 void basemul(int16_t r[2], const int16_t a[2], const int16_t b[2], int16_t zeta);
