@@ -57,10 +57,32 @@
         smlal2 \d\()1h.4s, \a\()1.8h, \b\()0.8h
 .endm
 
+.macro ST2 d0, d1, src
+        // This instruction is likely broken down into uOps
+        // anyway, so we may achieve better scheduling by
+        // breaking manually.
+        // st2 {\d0\().8h, \d1\().8h}, [\src], #32
+        zip1 tmp0.8h, \d0\().8h, \d1\().8h
+        zip2 tmp1.8h, \d0\().8h, \d1\().8h
+        str q_tmp0, [\src], #32
+        str q_tmp1, [\src, #-16]
+.endm
+
+.macro LD2 d0, d1, src
+        // This instruction is likely broken down into uOps
+        // anyway, so we may achieve better scheduling by
+        // breaking manually.
+        // ld2 {\d0\().8h, \d1\().8h}, [\src], #32
+        ldr q_tmp0, [\src], #32
+        ldr q_tmp1, [\src, #-16]
+        uzp1 \d0\().8h, tmp0.8h, tmp1.8h
+        uzp2 \d1\().8h, tmp0.8h, tmp1.8h
+.endm
+
 .macro load_polys a, b, a_ptr, b_ptr, b_cache_ptr
-        ld2 {\a\()0.8h, \a\()1.8h}, [\a_ptr],       #32
-        ld2 {\b\()0.8h, \b\()1.8h}, [\b_ptr],       #32
-        ld1 {\b\()1t.8h},           [\b_cache_ptr], #16
+        LD2 \a\()0, \a\()1, \a_ptr
+        LD2 \b\()0, \b\()1, \b_ptr
+        ld1 {\b\()1t.8h}, [\b_cache_ptr], #16
 .endm
 
 .macro save_vregs
@@ -120,6 +142,11 @@
         res0h   .req v10
         res1h   .req v11
 
+        tmp0   .req v12
+        tmp1   .req v13
+        q_tmp0 .req q12
+        q_tmp1 .req q13
+
         out0 .req v26
         out1 .req v27
 
@@ -171,7 +198,7 @@ k2_loop_start:
         barrett_reduce out0
         barrett_reduce out1
 
-        st2 {out0.8h, out1.8h}, [out], #32
+        ST2 out0, out1, out
 
         subs count, count, #1
         cbnz count, k2_loop_start
@@ -218,7 +245,7 @@ k3_loop_start:
         barrett_reduce out0
         barrett_reduce out1
 
-        st2 {out0.8h, out1.8h}, [out], #32
+        ST2 out0, out1, out
 
         subs count, count, #1
         cbnz count, k3_loop_start
@@ -270,7 +297,7 @@ k4_loop_start:
         barrett_reduce out0
         barrett_reduce out1
 
-        st2 {out0.8h, out1.8h}, [out], #32
+        ST2 out0, out1, out
 
         subs count, count, #1
         cbnz count, k4_loop_start
