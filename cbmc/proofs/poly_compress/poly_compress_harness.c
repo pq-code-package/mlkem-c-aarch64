@@ -9,7 +9,7 @@
  * @file poly_compress_harness.c
  * @brief Implements the proof harness for poly_compress function.
  */
-#include "poly.h"
+#include <poly_specs.h>
 
 /*
  * Insert project header files that

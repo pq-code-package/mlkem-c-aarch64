@@ -15,7 +15,7 @@
  *   - include the declaration of the function
  *   - include the types needed to declare function arguments
  */
-#include <poly.h>
+#include <poly_specs.h>
 
 /**
  * @brief Starting point for formal analysis
