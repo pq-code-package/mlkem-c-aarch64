@@ -94,8 +94,6 @@ void poly_ntt(poly *p)
 void poly_ntt(poly *p)
 {
     ntt_asm(p->coeffs);
-
-    poly_reduce(p);
 }
 #endif /* MLKEM_USE_AARCH64_ASM */
 
