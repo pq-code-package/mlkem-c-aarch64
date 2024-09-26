@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1727377930744,
+  "lastUpdate": 1727378028378,
   "repoUrl": "https://github.com/pq-code-package/mlkem-c-aarch64",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -7909,6 +7909,75 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 228718,
+            "unit": "cycles"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "beckphan@amazon.co.uk",
+            "name": "Hanno Becker",
+            "username": "hanno-becker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c9b6379f7f5bb213611ab58a5fb187743e75abb3",
+          "message": "Remove `poly_[inv]ntt -> [inv]ntt()` indirection and unnecessary reduction (#162)\n\n* Remove indirection poly_[inv]ntt -> [inv]ntt()\r\n\r\nPreviously, there were wrappers poly_ntt() and poly_invntt_tomont()\r\naround the core NTT/invNTT routines ntt() and invntt().\r\n\r\nThis commit removes those wrappers and directly defines NTT and invNTT\r\non the type `poly` of polynomials.\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Remove unnecessary polynomial reduction at the end of NTT ASM\r\n\r\nPreviously, the `poly_ntt()` wrapper around the C/ASM NTT unconditionally\r\nincluded a Barrett reduction.\r\n\r\nSince the AArch64 ASM for the NTT already conducts a Barrett reduction\r\nat the end, the additional call to `poly_reduce()` can be removed from\r\nthe `poly_ntt()` wrapper.\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n---------\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>",
+          "timestamp": "2024-09-26T20:11:16+01:00",
+          "tree_id": "60c0db395d46ed5345ae1b656a8c02d142b6661a",
+          "url": "https://github.com/pq-code-package/mlkem-c-aarch64/commit/c9b6379f7f5bb213611ab58a5fb187743e75abb3"
+        },
+        "date": 1727378023040,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ML-KEM-512 keypair",
+            "value": 67231,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 encaps",
+            "value": 83763,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 decaps",
+            "value": 96945,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 keypair",
+            "value": 119342,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 encaps",
+            "value": 139192,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 decaps",
+            "value": 156231,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 keypair",
+            "value": 183257,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 encaps",
+            "value": 207478,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 decaps",
+            "value": 226850,
             "unit": "cycles"
           }
         ]
