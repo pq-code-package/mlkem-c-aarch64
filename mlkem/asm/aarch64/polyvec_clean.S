@@ -57,15 +57,15 @@
         smlal2 \d\()1h.4s, \a\()1.8h, \b\()0.8h
 .endm
 
-.macro ST2 d0, d1, src
+.macro st2p d0, d1, src
         // This instruction is likely broken down into uOps
         // anyway, so we may achieve better scheduling by
         // breaking manually.
-        // st2 {\d0\().8h, \d1\().8h}, [\src], #32
-        zip1 tmp0.8h, \d0\().8h, \d1\().8h
-        zip2 tmp1.8h, \d0\().8h, \d1\().8h
-        str q_tmp0, [\src], #32
-        str q_tmp1, [\src, #-16]
+        st2 {\d0\().8h, \d1\().8h}, [\src], #32
+        // zip1 tmp0.8h, \d0\().8h, \d1\().8h
+        // zip2 tmp1.8h, \d0\().8h, \d1\().8h
+        // str q_tmp0, [\src], #32
+        // str q_tmp1, [\src, #-16]
 .endm
 
 .macro LD2 d0, d1, src
@@ -198,7 +198,7 @@ k2_loop_start:
         barrett_reduce out0
         barrett_reduce out1
 
-        ST2 out0, out1, out
+        st2p out0, out1, out
 
         subs count, count, #1
         cbnz count, k2_loop_start
@@ -245,7 +245,7 @@ k3_loop_start:
         barrett_reduce out0
         barrett_reduce out1
 
-        ST2 out0, out1, out
+        st2p out0, out1, out
 
         subs count, count, #1
         cbnz count, k3_loop_start
@@ -297,7 +297,7 @@ k4_loop_start:
         barrett_reduce out0
         barrett_reduce out1
 
-        ST2 out0, out1, out
+        st2p out0, out1, out
 
         subs count, count, #1
         cbnz count, k4_loop_start
