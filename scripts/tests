@@ -30,6 +30,7 @@ class TEST_TYPES(Enum):
     BENCH = 2
     NISTKAT = 3
     KAT = 4
+    BENCH_COMPONENTS = 5
 
     def __str__(self):
         return self.name.lower()
@@ -40,6 +41,8 @@ class TEST_TYPES(Enum):
                 return "Functional Test"
             case TEST_TYPES.BENCH:
                 return "Benchmark"
+            case TEST_TYPES.BENCH_COMPONENTS:
+                return "Benchmark Components"
             case TEST_TYPES.NISTKAT:
                 return "Nistkat Test"
             case TEST_TYPES.KAT:
@@ -51,6 +54,8 @@ class TEST_TYPES(Enum):
                 return "test_kyber"
             case TEST_TYPES.BENCH:
                 return "bench_kyber"
+            case TEST_TYPES.BENCH_COMPONENTS:
+                return "bench_components_kyber"
             case TEST_TYPES.NISTKAT:
                 return "gen_NISTKAT"
             case TEST_TYPES.KAT:
@@ -307,6 +312,56 @@ _shared_options = [
     ),
 ]
 
+_bench_options = [
+    click.option(
+        "-c",
+        "--cycles",
+        nargs=1,
+        type=click.Choice(["NO", "PMU", "PERF", "M1"]),
+        show_default=True,
+        default="NO",
+        help="Method for counting clock cycles. PMU requires (user-space) access to the Arm Performance Monitor Unit (PMU). PERF requires a kernel with perf support. M1 only works on Apple silicon.",
+    ),
+    click.option(
+        "-o",
+        "--output",
+        nargs=1,
+        help="Path to output file in json format",
+    ),
+    click.option(
+        "-r",
+        "--run-as-root",
+        is_flag=True,
+        show_default=True,
+        default=False,
+        type=bool,
+        help="Benchmarking binary is run with sudo.",
+    ),
+    click.option(
+        "-w",
+        "--exec-wrapper",
+        help="Run the benchmark binary with the user-customized wrapper.",
+    ),
+    click.option(
+        "-t",
+        "--mac-taskpolicy",
+        nargs=1,
+        type=click.Choice(["utility", "background", "maintenance"]),
+        hidden=platform.system() != "Darwin",
+        show_default=True,
+        default=None,
+        help="Run the program using the specified QoS clamp. Applies to MacOS only. Setting this flag to 'background' guarantees running on E-cores. This is an abbreviation of --exec-wrapper 'taskpolicy -c {mac_taskpolicy}'.",
+    ),
+    click.option(
+        "--components",
+        is_flag=True,
+        type=bool,
+        show_default=True,
+        default=False,
+        help="Benchmark low-level components",
+    ),
+]
+
 
 def add_options(options):
     return lambda func: reduce(lambda f, o: o(f), reversed(options), func)
@@ -391,45 +446,7 @@ def kat(force_qemu, verbose, cross_prefix, cflags, arch_flags, opt):
     context_settings={"show_default": True},
 )
 @add_options(_shared_options)
-@click.option(
-    "-c",
-    "--cycles",
-    nargs=1,
-    type=click.Choice(["NO", "PMU", "PERF", "M1"]),
-    show_default=True,
-    default="NO",
-    help="Method for counting clock cycles. PMU requires (user-space) access to the Arm Performance Monitor Unit (PMU). PERF requires a kernel with perf support. M1 only works on Apple silicon.",
-)
-@click.option(
-    "-o",
-    "--output",
-    nargs=1,
-    help="Path to output file in json format",
-)
-@click.option(
-    "-r",
-    "--run-as-root",
-    is_flag=True,
-    show_default=True,
-    default=False,
-    type=bool,
-    help="Benchmarking binary is run with sudo.",
-)
-@click.option(
-    "-w",
-    "--exec-wrapper",
-    help="Run the benchmark binary with the user-customized wrapper.",
-)
-@click.option(
-    "-t",
-    "--mac-taskpolicy",
-    nargs=1,
-    type=click.Choice(["utility", "background", "maintenance"]),
-    hidden=platform.system() != "Darwin",
-    show_default=True,
-    default=None,
-    help="Run the program using the specified QoS clamp. Applies to MacOS only. Setting this flag to 'background' guarantees running on E-cores. This is an abbreviation of --exec-wrapper 'taskpolicy -c {mac_taskpolicy}'.",
-)
+@add_options(_bench_options)
 def bench(
     force_qemu,
     verbose,
@@ -442,6 +459,7 @@ def bench(
     run_as_root,
     exec_wrapper,
     mac_taskpolicy,
+    components,
 ):
     config_logger(verbose)
 
@@ -452,8 +470,14 @@ def bench(
         else:
             exec_wrapper = f"taskpolicy -c {mac_taskpolicy}"
 
+    if components is False:
+        bench_type = TEST_TYPES.BENCH
+    else:
+        bench_type = TEST_TYPES.BENCH_COMPONENTS
+        output = False
+
     results = test_schemes(
-        TEST_TYPES.BENCH,
+        bench_type,
         lambda _: True,
         lambda _: True,
         process_bench,
@@ -469,7 +493,7 @@ def bench(
         ],
     )
 
-    if output:
+    if output is True and components is False:
         import json
 
         with open(output, "w") as f:
