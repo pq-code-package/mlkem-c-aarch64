@@ -35,33 +35,33 @@ typedef struct
 #define scalar_signed_to_unsigned_q_16 KYBER_NAMESPACE(scalar_signed_to_unsigned_q_16)
 
 static inline uint32_t scalar_compress_q_16   (int32_t u)
-REQUIRES(0 <= u && u <= QM1)
+REQUIRES(0 <= u && u <= (KYBER_Q - 1))
 ENSURES(RETURN_VALUE < 16)
 ENSURES(RETURN_VALUE == (((uint32_t) u * 16 + KYBER_Q / 2) / KYBER_Q) % 16);
 
 static inline uint32_t scalar_decompress_q_16 (uint32_t u)
 REQUIRES(0 <= u && u < 16)
-ENSURES(RETURN_VALUE <= QM1);
+ENSURES(RETURN_VALUE <= (KYBER_Q - 1));
 
 static inline uint32_t scalar_compress_q_32   (int32_t u)
-REQUIRES(0 <= u && u <= QM1)
+REQUIRES(0 <= u && u <= (KYBER_Q - 1))
 ENSURES(RETURN_VALUE < 32)
 ENSURES(RETURN_VALUE == (((uint32_t) u * 32 + KYBER_Q / 2) / KYBER_Q) % 32);
 
 static inline uint32_t scalar_decompress_q_32 (uint32_t u)
 REQUIRES(0 <= u && u < 32)
-ENSURES(RETURN_VALUE <= QM1);
+ENSURES(RETURN_VALUE <= (KYBER_Q - 1));
 
 static inline uint16_t scalar_signed_to_unsigned_q_16 (int16_t c)
-REQUIRES(c >= -QM1 && c <= QM1)
-ENSURES(RETURN_VALUE >= 0 && RETURN_VALUE <= QM1)
+REQUIRES(c >= -(KYBER_Q - 1) && c <= (KYBER_Q - 1))
+ENSURES(RETURN_VALUE >= 0 && RETURN_VALUE <= (KYBER_Q - 1))
 ENSURES(RETURN_VALUE == (int32_t) c + (((int32_t) c < 0) * KYBER_Q));
 
 #define poly_compress KYBER_NAMESPACE(poly_compress)
 void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
 REQUIRES(r != NULL && IS_FRESH(r, KYBER_POLYCOMPRESSEDBYTES))
 REQUIRES(a != NULL && IS_FRESH(a, sizeof(poly)))
-REQUIRES(ARRAY_IN_BOUNDS(unsigned, k, 0, (KYBER_N-1), a->coeffs, -QM1, QM1))
+REQUIRES(ARRAY_IN_BOUNDS(unsigned, k, 0, (KYBER_N-1), a->coeffs, -(KYBER_Q - 1), (KYBER_Q - 1)))
 ASSIGNS(OBJECT_WHOLE(r));
 
 /************************************************************
@@ -183,7 +183,7 @@ void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES])
 REQUIRES(a != NULL && IS_FRESH(a, KYBER_POLYCOMPRESSEDBYTES))
 REQUIRES(r != NULL && IS_FRESH(r, sizeof(poly)))
 ASSIGNS(OBJECT_WHOLE(r))
-ENSURES(ARRAY_IN_BOUNDS(unsigned, k, 0, (KYBER_N-1), r->coeffs, 0, QM1));
+ENSURES(ARRAY_IN_BOUNDS(unsigned, k, 0, (KYBER_N-1), r->coeffs, 0, (KYBER_Q - 1)));
 
 #define poly_tobytes KYBER_NAMESPACE(poly_tobytes)
 void poly_tobytes(uint8_t r[KYBER_POLYBYTES], const poly *a);
