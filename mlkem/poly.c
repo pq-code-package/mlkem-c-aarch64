@@ -276,7 +276,8 @@ void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES])
                                      ( r->coeffs[k] >= 0 && r->coeffs[k] < KYBER_Q )})
             __CPROVER_decreases(8 - j)
         {
-            r->coeffs[8 * i + j] = ((uint32_t) t[j] * KYBER_Q + 16) >> 5;
+            // REF-CHANGE: Hoist scalar decompression into separate function
+            r->coeffs[8 * i + j] = scalar_decompress_q_32(t[j]);
         }
     }
     #else
