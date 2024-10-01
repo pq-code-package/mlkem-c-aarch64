@@ -53,8 +53,7 @@ REQUIRES(0 <= u && u < 32)
 ENSURES(RETURN_VALUE <= QM1);
 
 static inline uint16_t scalar_signed_to_unsigned_q_16 (int16_t c)
-REQUIRES(c >= -QM1) // c >= -3328
-REQUIRES(c <= QM1)  // c <= 3328
+REQUIRES(c >= -QM1 && c <= QM1)
 ENSURES(RETURN_VALUE >= 0 && RETURN_VALUE <= QM1)
 ENSURES(RETURN_VALUE == (int32_t) c + (((int32_t) c < 0) * KYBER_Q));
 
