@@ -171,8 +171,8 @@ static inline uint16_t scalar_signed_to_unsigned_q_16 (int16_t c)
     // Add Q if c is negative, but in constant time
     cmov_int16(&c, c + KYBER_Q, c < 0);
 
-    __CPROVER_assert(c >= 0, "scalar_signed_to_unsigned_q_16 result lower bound");
-    __CPROVER_assert(c < KYBER_Q, "scalar_signed_to_unsigned_q_16 result upper bound");
+    ASSERT(c >= 0, "scalar_signed_to_unsigned_q_16 result lower bound");
+    ASSERT(c < KYBER_Q, "scalar_signed_to_unsigned_q_16 result upper bound");
 
     // and therefore cast to uint16_t is safe.
     return (uint16_t) c;
