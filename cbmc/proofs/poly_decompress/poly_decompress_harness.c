@@ -27,12 +27,4 @@ void harness(void)
     uint8_t a[KYBER_POLYCOMPRESSEDBYTES];
 
     poly_decompress(&r, a);
-
-    // TODO: We're replicating the post-condition of the function contract of
-    // poly_decompress here. Ideally, we'd use CBMC's function contract mechanism
-    // here, but there are still issues. cf. a similar comment in the Makefile.
-    __CPROVER_assert(__CPROVER_forall
-    {
-        unsigned i; (i < KYBER_N) ==> ( 0 <= r.coeffs[i] && r.coeffs[i] < KYBER_Q )
-    }, "failed to prove post-condition for poly_decompress");
 }
