@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1727759300040,
+  "lastUpdate": 1727759448872,
   "repoUrl": "https://github.com/pq-code-package/mlkem-c-aarch64",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -4160,6 +4160,75 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 206035,
+            "unit": "cycles"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "beckphan@amazon.co.uk",
+            "name": "Hanno Becker",
+            "username": "hanno-becker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "0cc4591a7f92228737098032b271940e1784d11f",
+          "message": "tests: Fix bug in export of benchmarking results (#172)\n\nSymptom: `scripts/tests` does no longer write benchmarking\r\noutputs.\r\n\r\nBug: A previous commit replaced an `if output` check by\r\n`if output is True` in the wrong assumption that `output`\r\nis a boolean. Instead, it's `None` or a string, so the\r\nprevious version of the check is necessary.\r\n\r\nThis commit reverts the respective change.\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>",
+          "timestamp": "2024-10-01T13:04:46+08:00",
+          "tree_id": "88bd726b06856045030ff99226256f790c09143c",
+          "url": "https://github.com/pq-code-package/mlkem-c-aarch64/commit/0cc4591a7f92228737098032b271940e1784d11f"
+        },
+        "date": 1727759441689,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ML-KEM-512 keypair",
+            "value": 62514,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 encaps",
+            "value": 72571,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 decaps",
+            "value": 81710,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 keypair",
+            "value": 110803,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 encaps",
+            "value": 123664,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 decaps",
+            "value": 135738,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 keypair",
+            "value": 175783,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 encaps",
+            "value": 191212,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 decaps",
+            "value": 208418,
             "unit": "cycles"
           }
         ]
