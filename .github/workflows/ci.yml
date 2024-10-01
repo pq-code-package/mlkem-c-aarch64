@@ -6,7 +6,6 @@ on:
     branches: ["*"]
   pull_request:
     branches: ["main"]
-    types: [ "labeled" ]
 jobs:
   build_kat:
     strategy:
@@ -101,7 +100,7 @@ jobs:
       contents: 'read'
       id-token: 'write'
     uses: ./.github/workflows/ci_ec2_reusable.yml
-    if: github.repository_owner == 'pq-code-package' && (github.event.label.name == 'ci' || github.ref == 'refs/heads/main')
+    if: github.repository_owner == 'pq-code-package' && !github.event.pull_request.head.repo.fork
     with:
       name: ${{ matrix.target.name }}
       ec2_instance_type: ${{ matrix.target.ec2_instance_type }}
