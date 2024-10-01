@@ -22,9 +22,10 @@ PROJECT_SOURCES += $(SRCDIR)/mlkem/verify.c
 CHECK_FUNCTION_CONTRACTS=$(KYBER_NAMESPACE)poly_decompress
 
 # For K = 2 or 3, the code calls scalar_decompress_q_16, so
-ifeq ($(KYBER_POLYCOMPRESSBYTES),128)
-USE_FUNCTION_CONTRACTS = $(KYBER_NAMESPACE)scalar_decompress_q_16
+ifeq ($(KYBER_K),4)
+USE_FUNCTION_CONTRACTS = $(KYBER_NAMESPACE)scalar_decompress_q_32
 else
+USE_FUNCTION_CONTRACTS = $(KYBER_NAMESPACE)scalar_decompress_q_16
 endif
 
 APPLY_LOOP_CONTRACTS=on
