@@ -23,5 +23,5 @@ builtins.attrValues {
 
   inherit
     z3_4_12# 4.12.5
-    bitwuzla;
+    bitwuzla; # 0.4.0
 }
