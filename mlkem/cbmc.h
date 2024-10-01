@@ -1,10 +1,86 @@
 // SPDX-License-Identifier: Apache-2.0
 
+///////////////////////////////////////////////////
+// Basic replacements for __CPROVER_XXX contracts
+///////////////////////////////////////////////////
+
 #ifndef CBMC
-#define __CPROVER_assert(...)
-#define __CPROVER_assigns(...)
-#define __CPROVER_decreases(...)
-#define __CPROVER_ensures(...)
-#define __CPROVER_loop_invariant(...)
-#define __CPROVER_requires(...)
+
+// CBMC top-level contracts are replaced by "" for compilation
+#define ASSIGNS(...)
+#define REQUIRES(...)
+#define ENSURES(...)
+#define DECREASES(...)
+#define INVARIANT(...)
+#define ASSERT(...)
+#define ASSUME(...)
+
+#else // CBMC _is_ defined, therefore we're doing proof
+
+// https://diffblue.github.io/cbmc/contracts-assigns.html
+#define ASSIGNS(...)     __CPROVER_assigns(__VA_ARGS__)
+
+// https://diffblue.github.io/cbmc/contracts-requires-ensures.html
+#define REQUIRES(...)    __CPROVER_requires(__VA_ARGS__)
+#define ENSURES(...)     __CPROVER_ensures(__VA_ARGS__)
+
+// note we drop "loop_" here since there are no other kind of invariants
+// in CBMC. An "invariant" is _always_ a "loop invariant" so no need to
+// keep that qualification
+// https://diffblue.github.io/cbmc/contracts-loops.html
+#define INVARIANT(...)   __CPROVER_loop_invariant(__VA_ARGS__)
+#define DECREASES(...)   __CPROVER_decreases(__VA_ARGS__)
+
+#define ASSERT(...)      __CPROVER_assert(__VA_ARGS__)
+#define ASSUME(...)      __CPROVER_assume(__VA_ARGS__)
+
+///////////////////////////////////////////////////
+// Macros for "expression" forms that may appear
+// _inside_ top-level contracts.
+///////////////////////////////////////////////////
+
+// function return value - useful inside ENSURES
+// https://diffblue.github.io/cbmc/contracts-functions.html
+#define RETURN_VALUE     (__CPROVER_return_value)
+
+// ASSIGNS l-value targets
+// https://diffblue.github.io/cbmc/contracts-assigns.html
+#define TYPED_TARGET(...) __CPROVER_typed_target(__VA_ARGS__)
+#define OBJECT_WHOLE(...) __CPROVER_object_whole(__VA_ARGS__)
+#define OBJECT_FROM(...)  __CPROVER_object_from(__VA_ARGS__)
+#define OBJECT_UPTO(...)  __CPROVER_object_upto(__VA_ARGS__)
+
+// Pointer-related predicates
+// https://diffblue.github.io/cbmc/contracts-memory-predicates.html
+#define IS_FRESH(...)          __CPROVER_is_fresh(__VA_ARGS__)
+#define POINTER_IN_RANGE(...)  __CPROVER_pointer_in_range_dfcc(__VA_ARGS__)
+
+// Function pointer/contract establishment
+// https://diffblue.github.io/cbmc/contracts-function-pointer-predicates.html
+#define OBEYS_CONTRACT(...)      __CPROVER_obeys_contract(__VA_ARGS__)
+
+// History variables
+// https://diffblue.github.io/cbmc/contracts-history-variables.html
+#define OLD(...)             __CPROVER_old(__VA_ARGS__)
+#define LOOP_ENTRY(...)      __CPROVER_loop_entry(__VA_ARGS__)
+
+// Quantifiers
+// Note that the range on qvar is _inclusive_ between qvar_lb .. qvar_ub
+// https://diffblue.github.io/cbmc/contracts-quantifiers.html
+#define FORALL(type, qvar, qvar_lb, qvar_ub, predicate) __CPROVER_forall { type qvar; (qvar_lb <= qvar && qvar <= qvar_ub) ==> ( predicate ) }
+#define EXISTS(type, qvar, qvar_lb, qvar_ub, predicate) __CPROVER_exists { type qvar; (qvar_lb <= qvar && qvar <= qvar_ub) && ( predicate ) }
+
+///////////////////////////////////////////////////
+// Convenience macros for common contract patterns
+///////////////////////////////////////////////////
+
+// Boolean-value predidate that asserts that "all values of array_var are in range value_lb .. value_ub (inclusive)"
+//
+// Example:
+//  ARRAY_IN_TYPE(unsigned, k, 0, KYBER_N-1, a->coeffs, -QM1, QM1)
+// expands to
+//  __CPROVER_forall { unsigned k; (0 <= k && k <= KYBER_N-1) ==> ( (-QM1 <= a->coeffs[k]) && (a->coeffs[k] <= QM1)) }
+
+#define ARRAY_IN_TYPE(indextype, qvar, qvar_lb, qvar_ub, array_var, value_lb, value_ub) __CPROVER_forall { indextype qvar; (qvar_lb <= qvar && qvar <= qvar_ub) ==> ( (value_lb <= array_var[qvar]) && (array_var[qvar] <= value_ub)) }
+
 #endif
