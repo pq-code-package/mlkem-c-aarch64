@@ -33,7 +33,10 @@ CFLAGS += \
 	-fomit-frame-pointer \
 	-pedantic \
 	-MMD \
+        -flto \
 	$(CPPFLAGS)
+
+LDFLAGS += -flto
 
 LINKDEPS += $(LIBDEPS)
 
