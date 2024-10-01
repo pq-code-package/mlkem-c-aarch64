@@ -493,7 +493,7 @@ def bench(
         ],
     )
 
-    if output is True and components is False:
+    if output is not None and components is False:
         import json
 
         with open(output, "w") as f:
