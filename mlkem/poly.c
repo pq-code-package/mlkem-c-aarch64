@@ -26,19 +26,19 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
 {
     uint8_t t[8] = { 0 };
 
-    const size_t num_blocks = KYBER_N / 8;
+    const int num_blocks = KYBER_N / 8;
 
     #if (KYBER_POLYCOMPRESSEDBYTES == 128)
-    for (size_t i = 0; i < num_blocks; i++)
+    for (int i = 0; i < num_blocks; i++)
     ASSIGNS(i, OBJECT_WHOLE(t), OBJECT_WHOLE(r))
-    INVARIANT(i <= num_blocks)
+    INVARIANT(i >= 0 && i <= num_blocks)
     DECREASES(num_blocks - i)
     {
-        for (size_t j = 0; j < 8; j++)
+        for (int j = 0; j < 8; j++)
         ASSIGNS(j, OBJECT_WHOLE(t))
-        INVARIANT(i <= num_blocks)
-        INVARIANT(j <= 8)
-        INVARIANT(ARRAY_IN_TYPE(size_t, k2, 0, (j-1), t, 0, 15))
+        INVARIANT(i >= 0 && i <= num_blocks)
+        INVARIANT(j >= 0 && j <= 8)
+        INVARIANT(ARRAY_IN_TYPE(int, k2, 0, (j-1), t, 0, 15))
         DECREASES(8 - j)
         {
             // map to positive standard representatives
@@ -57,16 +57,17 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
         r[i * 4 + 3] = t[6] | (t[7] << 4);
     }
     #elif (KYBER_POLYCOMPRESSEDBYTES == 160)
-    for (size_t i = 0; i < num_blocks; i++)
+    for (int i = 0; i < num_blocks; i++)
     ASSIGNS(i, OBJECT_WHOLE(t), OBJECT_WHOLE(r))
-    INVARIANT(i <= num_blocks)
+    INVARIANT(i >= 0 && i <= num_blocks)
     DECREASES(num_blocks - i)
     {
-        for (size_t j = 0; j < 8; j++)
+        for (int j = 0; j < 8; j++)
         ASSIGNS(j, OBJECT_WHOLE(t))
+        INVARIANT(i >= 0)
         INVARIANT(i <= num_blocks)
-        INVARIANT(j <= 8)
-        INVARIANT(ARRAY_IN_TYPE(size_t, k2, 0, (j-1), t, 0, 31))
+        INVARIANT(j >= 0 && j <= 8)
+        INVARIANT(ARRAY_IN_TYPE(int, k2, 0, (j-1), t, 0, 31))
         DECREASES(8 - j)
         {
             // map to positive standard representatives
@@ -111,8 +112,8 @@ void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES])
     ASSIGNS(i, OBJECT_WHOLE(r))
     INVARIANT(i >= 0)
     INVARIANT(i <= KYBER_N / 2)
-    INVARIANT(FORALL(unsigned int, k, 0, (i-1), (r->coeffs[2 * k]     >= 0 && r->coeffs[2 * k]     < KYBER_Q &&
-                                                 r->coeffs[2 * k + 1] >= 0 && r->coeffs[2 * k + 1] < KYBER_Q)))
+    INVARIANT(FORALL(int, k, 0, (i-1), (r->coeffs[2 * k]     >= 0 && r->coeffs[2 * k]     < KYBER_Q &&
+                                        r->coeffs[2 * k + 1] >= 0 && r->coeffs[2 * k + 1] < KYBER_Q)))
     DECREASES(KYBER_N / 2 - i)
     {
         // REF-CHANGE: Hoist scalar decompression into separate function
