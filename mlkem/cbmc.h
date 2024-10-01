@@ -67,8 +67,8 @@
 // Quantifiers
 // Note that the range on qvar is _inclusive_ between qvar_lb .. qvar_ub
 // https://diffblue.github.io/cbmc/contracts-quantifiers.html
-#define FORALL(type, qvar, qvar_lb, qvar_ub, predicate) __CPROVER_forall { type qvar; (qvar_lb <= qvar && qvar <= qvar_ub) ==> ( predicate ) }
-#define EXISTS(type, qvar, qvar_lb, qvar_ub, predicate) __CPROVER_exists { type qvar; (qvar_lb <= qvar && qvar <= qvar_ub) && ( predicate ) }
+#define FORALL(type, qvar, qvar_lb, qvar_ub, predicate) __CPROVER_forall { type qvar; ((qvar_lb) <= (qvar) && (qvar) <= (qvar_ub)) ==> ( predicate ) }
+#define EXISTS(type, qvar, qvar_lb, qvar_ub, predicate) __CPROVER_exists { type qvar; ((qvar_lb) <= (qvar) && (qvar) <= (qvar_ub))  && ( predicate ) }
 
 ///////////////////////////////////////////////////
 // Convenience macros for common contract patterns
@@ -81,6 +81,6 @@
 // expands to
 //  __CPROVER_forall { unsigned k; (0 <= k && k <= KYBER_N-1) ==> ( (-(KYBER_Q - 1) <= a->coeffs[k]) && (a->coeffs[k] <= (KYBER_Q - 1))) }
 
-#define ARRAY_IN_BOUNDS(indextype, qvar, qvar_lb, qvar_ub, array_var, value_lb, value_ub) __CPROVER_forall { indextype qvar; (qvar_lb <= qvar && qvar <= qvar_ub) ==> ( (value_lb <= array_var[qvar]) && (array_var[qvar] <= value_ub)) }
+#define ARRAY_IN_BOUNDS(indextype, qvar, qvar_lb, qvar_ub, array_var, value_lb, value_ub) __CPROVER_forall { indextype qvar; ((qvar_lb) <= (qvar) && (qvar) <= (qvar_ub)) ==> ( ((value_lb) <= (array_var[(qvar)])) && ((array_var[(qvar)]) <= (value_ub))) }
 
 #endif
