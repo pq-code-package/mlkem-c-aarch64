@@ -110,16 +110,51 @@ static void keccakx2_unzip(uint64_t *state)
 
     memcpy(state, tmp, sizeof(tmp));
 }
-#endif /* MLKEM_USE_FIPS202_X2_ASM && MLKEM_USE_FIPS202_X2_ASM_ZIPPED */
+#endif
+
+#if defined(MLKEM_USE_FIPS202_X4_ASM) && defined(MLKEM_USE_FIPS202_X4_ASM_ZIPPED)
+#include <string.h>
+// TODO: This should either be integrated into the batched Keccak ASM,
+// or we should keep the Keccak state in deinterleaved form throughout,
+// but transpose the inputs/outputs of {Extract,XOR}Bytes functions.
+static void keccakx4_zip(uint64_t *state)
+{
+    uint64_t tmp[4 * KECCAK_LANES];
+    for (unsigned i=0; i < 4; i++)
+        for (unsigned j=0; j < KECCAK_LANES; j++)
+        {
+            tmp[4*j + i] = state[KECCAK_LANES*i + j];
+        }
+
+    memcpy(state, tmp, sizeof(tmp));
+}
+
+static void keccakx4_unzip(uint64_t *state)
+{
+    uint64_t tmp[4 * KECCAK_LANES];
+    for (unsigned i=0; i < 4; i++)
+        for (unsigned j=0; j < KECCAK_LANES; j++)
+        {
+            tmp[KECCAK_LANES*i + j] = state[4*j + i];
+        }
+
+    memcpy(state, tmp, sizeof(tmp));
+}
+#endif
 
 void KeccakF1600x4_StatePermute(uint64_t *state)
 {
-    #if !defined(MLKEM_USE_FIPS202_X2_ASM)
-    KeccakF1600_StatePermute(state + KECCAK_LANES * 0);
-    KeccakF1600_StatePermute(state + KECCAK_LANES * 1);
-    KeccakF1600_StatePermute(state + KECCAK_LANES * 2);
-    KeccakF1600_StatePermute(state + KECCAK_LANES * 3);
-    #else /* MLKEM_USE_FIPS202_X2_ASM */
+    #if defined(MLKEM_USE_FIPS202_X4_ASM)
+
+    #if defined(MLKEM_USE_FIPS202_X4_ASM_ZIPPED)
+    keccakx4_zip(state);
+    #endif /* MLKEM_USE_FIPS202_X4_ASM_ZIPPED */
+    keccak_f1600_x4_asm(state);
+    #if defined(MLKEM_USE_FIPS202_X4_ASM_ZIPPED)
+    keccakx4_unzip(state);
+    #endif /* MLKEM_USE_FIPS202_X4_ASM_ZIPPED */
+
+    #elif defined(MLKEM_USE_FIPS202_X2_ASM)
 
     #if defined(MLKEM_USE_FIPS202_X2_ASM_ZIPPED)
     keccakx2_zip(state + 0 * KECCAK_LANES);
@@ -132,7 +167,14 @@ void KeccakF1600x4_StatePermute(uint64_t *state)
     keccakx2_unzip(state + 2 * KECCAK_LANES);
     #endif /* MLKEM_USE_FIPS202_X2_ASM_ZIPPED */
 
-    #endif /* MLKEM_USE_FIPS202_X2_ASM */
+    #else /* !MLKEM_USE_FIPS202_X2_ASM && !MLKEM_USE_FIPS202_X4_ASM */
+
+    KeccakF1600_StatePermute(state + KECCAK_LANES * 0);
+    KeccakF1600_StatePermute(state + KECCAK_LANES * 1);
+    KeccakF1600_StatePermute(state + KECCAK_LANES * 2);
+    KeccakF1600_StatePermute(state + KECCAK_LANES * 3);
+
+    #endif
 }
 
 #if !defined(MLKEM_USE_FIPS202_X1_ASM)

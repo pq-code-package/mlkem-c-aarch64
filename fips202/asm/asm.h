@@ -11,6 +11,7 @@ void keccak_f1600_x1_scalar_slothy_opt_a55(uint64_t *state);
 void keccak_f1600_x1_v84a_asm_clean(uint64_t *state);
 void keccak_f1600_x2_v84a_asm_clean(uint64_t *state);
 void keccak_f1600_x2_v8a_v84a_asm_hybrid(uint64_t *state);
+void keccak_f1600_x4_scalar_v8a_v84a_asm_hybrid(uint64_t *state);
 
 /*
  * Logic to decide which implementation to use.
@@ -53,8 +54,11 @@ void keccak_f1600_x2_v8a_v84a_asm_hybrid(uint64_t *state);
 // For Apple-M cores, we use a plain implementation leveraging SHA3
 // instructions only.
 #if defined(__APPLE__)
-#define MLKEM_USE_FIPS202_X2_ASM
-#define keccak_f1600_x2_asm keccak_f1600_x2_v84a_asm_clean
+//#define MLKEM_USE_FIPS202_X2_ASM
+//#define keccak_f1600_x2_asm keccak_f1600_x2_v84a_asm_clean
+#define MLKEM_USE_FIPS202_X4_ASM
+#define MLKEM_USE_FIPS202_X4_ASM_ZIPPED
+#define keccak_f1600_x4_asm keccak_f1600_x4_scalar_v8a_v84a_asm_hybrid
 #else /* __APPLE__ */
 #define MLKEM_USE_FIPS202_X2_ASM
 #define keccak_f1600_x2_asm keccak_f1600_x2_v8a_v84a_asm_hybrid
