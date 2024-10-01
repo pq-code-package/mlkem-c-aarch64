@@ -57,7 +57,6 @@ void keccak_f1600_x4_scalar_v8a_v84a_asm_hybrid(uint64_t *state);
 //#define MLKEM_USE_FIPS202_X2_ASM
 //#define keccak_f1600_x2_asm keccak_f1600_x2_v84a_asm_clean
 #define MLKEM_USE_FIPS202_X4_ASM
-#define MLKEM_USE_FIPS202_X4_ASM_ZIPPED
 #define keccak_f1600_x4_asm keccak_f1600_x4_scalar_v8a_v84a_asm_hybrid
 #else /* __APPLE__ */
 #define MLKEM_USE_FIPS202_X2_ASM

@@ -227,116 +227,104 @@ round_constants:
     eor \d\().16b, vtmp.16b, \s0\().16b
 .endm
 
-.macro load_input_vector num idx
-    ldr vAbaq, [input_addr, #(16*(\num*0+\idx))]
-    ldr vAbeq, [input_addr, #(16*(\num*1+\idx))]
-    ldr vAbiq, [input_addr, #(16*(\num*2+\idx))]
-    ldr vAboq, [input_addr, #(16*(\num*3+\idx))]
-    ldr vAbuq, [input_addr, #(16*(\num*4+\idx))]
-    ldr vAgaq, [input_addr, #(16*(\num*5+\idx))]
-    ldr vAgeq, [input_addr, #(16*(\num*6+\idx))]
-    ldr vAgiq, [input_addr, #(16*(\num*7+\idx))]
-    ldr vAgoq, [input_addr, #(16*(\num*8+\idx))]
-    ldr vAguq, [input_addr, #(16*(\num*9+\idx))]
-    ldr vAkaq, [input_addr, #(16*(\num*10+\idx))]
-    ldr vAkeq, [input_addr, #(16*(\num*11+\idx))]
-    ldr vAkiq, [input_addr, #(16*(\num*12+\idx))]
-    ldr vAkoq, [input_addr, #(16*(\num*13+\idx))]
-    ldr vAkuq, [input_addr, #(16*(\num*14+\idx))]
-    ldr vAmaq, [input_addr, #(16*(\num*15+\idx))]
-    ldr vAmeq, [input_addr, #(16*(\num*16+\idx))]
-    ldr vAmiq, [input_addr, #(16*(\num*17+\idx))]
-    ldr vAmoq, [input_addr, #(16*(\num*18+\idx))]
-    ldr vAmuq, [input_addr, #(16*(\num*19+\idx))]
-    ldr vAsaq, [input_addr, #(16*(\num*20+\idx))]
-    ldr vAseq, [input_addr, #(16*(\num*21+\idx))]
-    ldr vAsiq, [input_addr, #(16*(\num*22+\idx))]
-    ldr vAsoq, [input_addr, #(16*(\num*23+\idx))]
-    ldr vAsuq, [input_addr, #(16*(\num*24+\idx))]
+.macro load_input_vector
+    ld2 {vAba.d, vAbe.d}[0], [input_addr], #16
+    ld2 {vAbi.d, vAbo.d}[0], [input_addr], #16
+    ld2 {vAbu.d, vAga.d}[0], [input_addr], #16
+    ld2 {vAge.d, vAgi.d}[0], [input_addr], #16
+    ld2 {vAgo.d, vAgu.d}[0], [input_addr], #16
+    ld2 {vAka.d, vAke.d}[0], [input_addr], #16
+    ld2 {vAki.d, vAko.d}[0], [input_addr], #16
+    ld2 {vAku.d, vAma.d}[0], [input_addr], #16
+    ld2 {vAme.d, vAmi.d}[0], [input_addr], #16
+    ld2 {vAmo.d, vAmu.d}[0], [input_addr], #16
+    ld2 {vAsa.d, vAse.d}[0], [input_addr], #16
+    ld2 {vAsi.d, vAso.d}[0], [input_addr], #16
+    ld1 {vAsu.d}[0], [input_addr], #8
+
+    ld2 {vAba.d, vAbe.d}[1], [input_addr], #16
+    ld2 {vAbi.d, vAbo.d}[1], [input_addr], #16
+    ld2 {vAbu.d, vAga.d}[1], [input_addr], #16
+    ld2 {vAge.d, vAgi.d}[1], [input_addr], #16
+    ld2 {vAgo.d, vAgu.d}[1], [input_addr], #16
+    ld2 {vAka.d, vAke.d}[1], [input_addr], #16
+    ld2 {vAki.d, vAko.d}[1], [input_addr], #16
+    ld2 {vAku.d, vAma.d}[1], [input_addr], #16
+    ld2 {vAme.d, vAmi.d}[1], [input_addr], #16
+    ld2 {vAmo.d, vAmu.d}[1], [input_addr], #16
+    ld2 {vAsa.d, vAse.d}[1], [input_addr], #16
+    ld2 {vAsi.d, vAso.d}[1], [input_addr], #16
+    ld1 {vAsu.d}[1], [input_addr], #8
+
+    sub input_addr, input_addr, #(25*8*2)
 .endm
 
-.macro store_input_vector num idx
-    str vAbaq, [input_addr, #(16*(\num*0+\idx))]
-    str vAbeq, [input_addr, #(16*(\num*1+\idx))]
-    str vAbiq, [input_addr, #(16*(\num*2+\idx))]
-    str vAboq, [input_addr, #(16*(\num*3+\idx))]
-    str vAbuq, [input_addr, #(16*(\num*4+\idx))]
-    str vAgaq, [input_addr, #(16*(\num*5+\idx))]
-    str vAgeq, [input_addr, #(16*(\num*6+\idx))]
-    str vAgiq, [input_addr, #(16*(\num*7+\idx))]
-    str vAgoq, [input_addr, #(16*(\num*8+\idx))]
-    str vAguq, [input_addr, #(16*(\num*9+\idx))]
-    str vAkaq, [input_addr, #(16*(\num*10+\idx))]
-    str vAkeq, [input_addr, #(16*(\num*11+\idx))]
-    str vAkiq, [input_addr, #(16*(\num*12+\idx))]
-    str vAkoq, [input_addr, #(16*(\num*13+\idx))]
-    str vAkuq, [input_addr, #(16*(\num*14+\idx))]
-    str vAmaq, [input_addr, #(16*(\num*15+\idx))]
-    str vAmeq, [input_addr, #(16*(\num*16+\idx))]
-    str vAmiq, [input_addr, #(16*(\num*17+\idx))]
-    str vAmoq, [input_addr, #(16*(\num*18+\idx))]
-    str vAmuq, [input_addr, #(16*(\num*19+\idx))]
-    str vAsaq, [input_addr, #(16*(\num*20+\idx))]
-    str vAseq, [input_addr, #(16*(\num*21+\idx))]
-    str vAsiq, [input_addr, #(16*(\num*22+\idx))]
-    str vAsoq, [input_addr, #(16*(\num*23+\idx))]
-    str vAsuq, [input_addr, #(16*(\num*24+\idx))]
+.macro store_input_vector
+    st2 {vAba.d, vAbe.d}[0], [input_addr], #16
+    st2 {vAbi.d, vAbo.d}[0], [input_addr], #16
+    st2 {vAbu.d, vAga.d}[0], [input_addr], #16
+    st2 {vAge.d, vAgi.d}[0], [input_addr], #16
+    st2 {vAgo.d, vAgu.d}[0], [input_addr], #16
+    st2 {vAka.d, vAke.d}[0], [input_addr], #16
+    st2 {vAki.d, vAko.d}[0], [input_addr], #16
+    st2 {vAku.d, vAma.d}[0], [input_addr], #16
+    st2 {vAme.d, vAmi.d}[0], [input_addr], #16
+    st2 {vAmo.d, vAmu.d}[0], [input_addr], #16
+    st2 {vAsa.d, vAse.d}[0], [input_addr], #16
+    st2 {vAsi.d, vAso.d}[0], [input_addr], #16
+    st1 {vAsu.d}[0], [input_addr], #8
+
+    st2 {vAba.d, vAbe.d}[1], [input_addr], #16
+    st2 {vAbi.d, vAbo.d}[1], [input_addr], #16
+    st2 {vAbu.d, vAga.d}[1], [input_addr], #16
+    st2 {vAge.d, vAgi.d}[1], [input_addr], #16
+    st2 {vAgo.d, vAgu.d}[1], [input_addr], #16
+    st2 {vAka.d, vAke.d}[1], [input_addr], #16
+    st2 {vAki.d, vAko.d}[1], [input_addr], #16
+    st2 {vAku.d, vAma.d}[1], [input_addr], #16
+    st2 {vAme.d, vAmi.d}[1], [input_addr], #16
+    st2 {vAmo.d, vAmu.d}[1], [input_addr], #16
+    st2 {vAsa.d, vAse.d}[1], [input_addr], #16
+    st2 {vAsi.d, vAso.d}[1], [input_addr], #16
+    st1 {vAsu.d}[1], [input_addr], #8
+
+    sub input_addr, input_addr, #(25*8*2)
 .endm
 
-.macro store_input_scalar num idx
-    str sAba, [input_addr, 8*(\num*(0)  +\idx)]
-    str sAbe, [input_addr, 8*(\num*(0+1) +\idx)]
-    str sAbi, [input_addr, 8*(\num*(2)+   \idx)]
-    str sAbo, [input_addr, 8*(\num*(2+1) +\idx)]
-    str sAbu, [input_addr, 8*(\num*(4)+   \idx)]
-    str sAga, [input_addr, 8*(\num*(4+1) +\idx)]
-    str sAge, [input_addr, 8*(\num*(6)+   \idx)]
-    str sAgi, [input_addr, 8*(\num*(6+1) +\idx)]
-    str sAgo, [input_addr, 8*(\num*(8)+   \idx)]
-    str sAgu, [input_addr, 8*(\num*(8+1) +\idx)]
-    str sAka, [input_addr, 8*(\num*(10)  +\idx)]
-    str sAke, [input_addr, 8*(\num*(10+1)+\idx)]
-    str sAki, [input_addr, 8*(\num*(12)  +\idx)]
-    str sAko, [input_addr, 8*(\num*(12+1)+\idx)]
-    str sAku, [input_addr, 8*(\num*(14)  +\idx)]
-    str sAma, [input_addr, 8*(\num*(14+1)+\idx)]
-    str sAme, [input_addr, 8*(\num*(16)  +\idx)]
-    str sAmi, [input_addr, 8*(\num*(16+1)+\idx)]
-    str sAmo, [input_addr, 8*(\num*(18)  +\idx)]
-    str sAmu, [input_addr, 8*(\num*(18+1)+\idx)]
-    str sAsa, [input_addr, 8*(\num*(20)  +\idx)]
-    str sAse, [input_addr, 8*(\num*(20+1)+\idx)]
-    str sAsi, [input_addr, 8*(\num*(22)  +\idx)]
-    str sAso, [input_addr, 8*(\num*(22+1)+\idx)]
-    str sAsu, [input_addr, 8*(\num*(24)  +\idx)]
+.macro store_input_scalar idx
+    add input_addr, input_addr, #((2 + \idx)*25*8)
+    stp sAba, sAbe, [input_addr, #(1*8*0)]
+    stp sAbi, sAbo, [input_addr, #(1*8*2)]
+    stp sAbu, sAga, [input_addr, #(1*8*4)]
+    stp sAge, sAgi, [input_addr, #(1*8*6)]
+    stp sAgo, sAgu, [input_addr, #(1*8*8)]
+    stp sAka, sAke, [input_addr, #(1*8*10)]
+    stp sAki, sAko, [input_addr, #(1*8*12)]
+    stp sAku, sAma, [input_addr, #(1*8*14)]
+    stp sAme, sAmi, [input_addr, #(1*8*16)]
+    stp sAmo, sAmu, [input_addr, #(1*8*18)]
+    stp sAsa, sAse, [input_addr, #(1*8*20)]
+    stp sAsi, sAso, [input_addr, #(1*8*22)]
+    str sAsu,       [input_addr, #(1*8*24)]
+    sub input_addr, input_addr, #((2 + \idx)*25*8)
 .endm
 
-.macro load_input_scalar num idx
-    ldr sAba, [input_addr, 8*(\num*(0)  +\idx)]
-    ldr sAbe, [input_addr, 8*(\num*(0+1) +\idx)]
-    ldr sAbi, [input_addr, 8*(\num*(2)+   \idx)]
-    ldr sAbo, [input_addr, 8*(\num*(2+1) +\idx)]
-    ldr sAbu, [input_addr, 8*(\num*(4)+   \idx)]
-    ldr sAga, [input_addr, 8*(\num*(4+1) +\idx)]
-    ldr sAge, [input_addr, 8*(\num*(6)+   \idx)]
-    ldr sAgi, [input_addr, 8*(\num*(6+1) +\idx)]
-    ldr sAgo, [input_addr, 8*(\num*(8)+   \idx)]
-    ldr sAgu, [input_addr, 8*(\num*(8+1) +\idx)]
-    ldr sAka, [input_addr, 8*(\num*(10)  +\idx)]
-    ldr sAke, [input_addr, 8*(\num*(10+1)+\idx)]
-    ldr sAki, [input_addr, 8*(\num*(12)  +\idx)]
-    ldr sAko, [input_addr, 8*(\num*(12+1)+\idx)]
-    ldr sAku, [input_addr, 8*(\num*(14)  +\idx)]
-    ldr sAma, [input_addr, 8*(\num*(14+1)+\idx)]
-    ldr sAme, [input_addr, 8*(\num*(16)  +\idx)]
-    ldr sAmi, [input_addr, 8*(\num*(16+1)+\idx)]
-    ldr sAmo, [input_addr, 8*(\num*(18)  +\idx)]
-    ldr sAmu, [input_addr, 8*(\num*(18+1)+\idx)]
-    ldr sAsa, [input_addr, 8*(\num*(20)  +\idx)]
-    ldr sAse, [input_addr, 8*(\num*(20+1)+\idx)]
-    ldr sAsi, [input_addr, 8*(\num*(22)  +\idx)]
-    ldr sAso, [input_addr, 8*(\num*(22+1)+\idx)]
-    ldr sAsu, [input_addr, 8*(\num*(24)  +\idx)]
+.macro load_input_scalar idx
+    add input_addr, input_addr, #((2 + \idx)*25*8)
+    ldp sAba, sAbe, [input_addr, #(1*8*0)]
+    ldp sAbi, sAbo, [input_addr, #(1*8*2)]
+    ldp sAbu, sAga, [input_addr, #(1*8*4)]
+    ldp sAge, sAgi, [input_addr, #(1*8*6)]
+    ldp sAgo, sAgu, [input_addr, #(1*8*8)]
+    ldp sAka, sAke, [input_addr, #(1*8*10)]
+    ldp sAki, sAko, [input_addr, #(1*8*12)]
+    ldp sAku, sAma, [input_addr, #(1*8*14)]
+    ldp sAme, sAmi, [input_addr, #(1*8*16)]
+    ldp sAmo, sAmu, [input_addr, #(1*8*18)]
+    ldp sAsa, sAse, [input_addr, #(1*8*20)]
+    ldp sAsi, sAso, [input_addr, #(1*8*22)]
+    ldr sAsu,       [input_addr, #(1*8*24)]
+    sub input_addr, input_addr, #((2 + \idx)*25*8)
 .endm
 
 #define STACK_LOCS 6
@@ -924,8 +912,8 @@ _keccak_f1600_x4_scalar_v8a_v84a_asm_hybrid:
     str const_addr, [sp, #STACK_OFFSET_CONST_VECTOR] // @slothy:writes=STACK_OFFSET_CONST_VECTOR
     str input_addr, [sp, #STACK_OFFSET_INPUT]        // @slothy:writes=STACK_OFFSET_INPUT
 
-    load_input_vector 2,1 // Vector input
-    load_input_scalar 4,0 // First scalar input
+    load_input_vector   // Vector input
+    load_input_scalar 0 // First scalar input
 
  initial:
     scalar_round_initial    // @slothy:interleaving_class=0
@@ -1731,15 +1719,15 @@ _keccak_f1600_x4_scalar_v8a_v84a_asm_hybrid:
     str outer, [sp, #STACK_OFFSET_OUTER]      // @slothy:writes=STACK_OFFSET_OUTER
 
     ldr input_addr, [sp, #STACK_OFFSET_INPUT] // @slothy:reads=STACK_OFFSET_INPUT
-    store_input_scalar 4,0 // Store first scalar data
-    load_input_scalar  4,1 // Load second scalar input
+    store_input_scalar 0 // Store first scalar data
+    load_input_scalar  1 // Load second scalar input
 
     b initial
 done:
 
     ldr input_addr, [sp, #STACK_OFFSET_INPUT] // @slothy:reads=STACK_OFFSET_INPUT
-    store_input_scalar 4,1
-    store_input_vector 2,1
+    store_input_scalar 1
+    store_input_vector
 
     restore_vregs
     restore_gprs
