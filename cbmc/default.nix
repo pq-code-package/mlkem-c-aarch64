@@ -3,6 +3,7 @@
 , fetchFromGitHub
 , callPackage
 , z3_4_12
+, bitwuzla
 }:
 builtins.attrValues {
   cbmc = cbmc.overrideAttrs (old: rec {
@@ -21,5 +22,6 @@ builtins.attrValues {
   cbmc-viewer = callPackage ./cbmc-viewer.nix { }; # 3.9
 
   inherit
-    z3_4_12; # 4.12.5
+    z3_4_12# 4.12.5
+    bitwuzla;
 }
