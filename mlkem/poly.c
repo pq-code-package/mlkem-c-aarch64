@@ -30,16 +30,16 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
 
     #if (KYBER_POLYCOMPRESSEDBYTES == 128)
     for (size_t i = 0; i < num_blocks; i++)
-        __CPROVER_assigns(i, __CPROVER_object_whole(t), __CPROVER_object_whole(r))
-        __CPROVER_loop_invariant(i <= num_blocks)
-        __CPROVER_decreases(num_blocks - i)
+    ASSIGNS(i, OBJECT_WHOLE(t), OBJECT_WHOLE(r))
+    INVARIANT(i <= num_blocks)
+    DECREASES(num_blocks - i)
     {
         for (size_t j = 0; j < 8; j++)
-            __CPROVER_assigns(j, __CPROVER_object_whole(t))
-            __CPROVER_loop_invariant(i <= num_blocks)
-            __CPROVER_loop_invariant(j <= 8)
-            __CPROVER_loop_invariant(__CPROVER_forall { size_t k2; (0 <= k2 && k2 < j) ==> (t[k2] >= 0 && t[k2] < 16) })
-            __CPROVER_decreases(8 - j)
+        ASSIGNS(j, OBJECT_WHOLE(t))
+        INVARIANT(i <= num_blocks)
+        INVARIANT(j <= 8)
+        INVARIANT(ARRAY_IN_TYPE(size_t, k2, 0, (j-1), t, 0, 15))
+        DECREASES(8 - j)
         {
             // map to positive standard representatives
             // REF-CHANGE: Hoist signed-to-unsigned conversion into separate function
@@ -58,16 +58,16 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
     }
     #elif (KYBER_POLYCOMPRESSEDBYTES == 160)
     for (size_t i = 0; i < num_blocks; i++)
-        __CPROVER_assigns(i, __CPROVER_object_whole(t), __CPROVER_object_whole(r))
-        __CPROVER_loop_invariant(i <= num_blocks)
-        __CPROVER_decreases(num_blocks - i)
+    ASSIGNS(i, OBJECT_WHOLE(t), OBJECT_WHOLE(r))
+    INVARIANT(i <= num_blocks)
+    DECREASES(num_blocks - i)
     {
         for (size_t j = 0; j < 8; j++)
-            __CPROVER_assigns(j, __CPROVER_object_whole(t))
-            __CPROVER_loop_invariant(i <= num_blocks)
-            __CPROVER_loop_invariant(j <= 8)
-            __CPROVER_loop_invariant(__CPROVER_forall { size_t k2; (0 <= k2 && k2 < j) ==> (t[k2] >= 0 && t[k2] < 32) })
-            __CPROVER_decreases(8 - j)
+        ASSIGNS(j, OBJECT_WHOLE(t))
+        INVARIANT(i <= num_blocks)
+        INVARIANT(j <= 8)
+        INVARIANT(ARRAY_IN_TYPE(size_t, k2, 0, (j-1), t, 0, 31))
+        DECREASES(8 - j)
         {
             // map to positive standard representatives
             // REF-CHANGE: Hoist signed-to-unsigned conversion into separate function
@@ -108,13 +108,12 @@ void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES])
 {
     #if (KYBER_POLYCOMPRESSEDBYTES == 128)
     for (int i = 0; i < KYBER_N / 2; i++)
-        __CPROVER_assigns(i, __CPROVER_object_whole(r))
-        __CPROVER_loop_invariant(i >= 0)
-        __CPROVER_loop_invariant(i <= KYBER_N / 2)
-        __CPROVER_loop_invariant(__CPROVER_forall { unsigned int k; (k < i) ==>
-                                 ( r->coeffs[2 * k]     >= 0 && r->coeffs[2 * k]     < KYBER_Q &&
-                                   r->coeffs[2 * k + 1] >= 0 && r->coeffs[2 * k + 1] < KYBER_Q ) })
-        __CPROVER_decreases(KYBER_N / 2 - i)
+    ASSIGNS(i, OBJECT_WHOLE(r))
+    INVARIANT(i >= 0)
+    INVARIANT(i <= KYBER_N / 2)
+    INVARIANT(FORALL(unsigned int, k, 0, (i-1), (r->coeffs[2 * k]     >= 0 && r->coeffs[2 * k]     < KYBER_Q &&
+                                                 r->coeffs[2 * k + 1] >= 0 && r->coeffs[2 * k + 1] < KYBER_Q)))
+    DECREASES(KYBER_N / 2 - i)
     {
         // REF-CHANGE: Hoist scalar decompression into separate function
         r->coeffs[2 * i + 0] = scalar_decompress_q_16((a[i] >> 0) & 0xF);
@@ -126,13 +125,12 @@ void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES])
     #elif (KYBER_POLYCOMPRESSEDBYTES == 160)
     const int num_blocks = KYBER_N / 8;
     for (int i = 0; i < num_blocks; i++)
-        __CPROVER_assigns(i, __CPROVER_object_whole(r))
-        __CPROVER_loop_invariant(i >= 0)
-        __CPROVER_loop_invariant(i <= num_blocks)
-        __CPROVER_loop_invariant(num_blocks == 32)
-        __CPROVER_loop_invariant(__CPROVER_forall { int k; k >= 0 && k <= (8 * i - 1) ==>
-                                 ( r->coeffs[k] >= 0 && r->coeffs[k] < KYBER_Q )})
-        __CPROVER_decreases(num_blocks - i)
+    ASSIGNS(i, OBJECT_WHOLE(r))
+    INVARIANT(i >= 0)
+    INVARIANT(i <= num_blocks)
+    INVARIANT(num_blocks == 32)
+    INVARIANT(ARRAY_IN_TYPE(int, k, 0, (8 * i - 1), r->coeffs, 0, QM1))
+    DECREASES(num_blocks - i)
     {
         uint8_t t[8];
         const int offset = i * 5;
@@ -153,14 +151,13 @@ void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES])
 
         // and copy to the correct slice in r[]
         for (int j = 0; j < 8; j++)
-            __CPROVER_assigns(j, __CPROVER_object_whole(r))
-            __CPROVER_loop_invariant(j >= 0)
-            __CPROVER_loop_invariant(j <= 8)
-            __CPROVER_loop_invariant(i >= 0)
-            __CPROVER_loop_invariant(i <= num_blocks)
-            __CPROVER_loop_invariant(__CPROVER_forall { int k; k >= 0 && k <= (8 * i + j - 1) ==>
-                                     ( r->coeffs[k] >= 0 && r->coeffs[k] < KYBER_Q )})
-            __CPROVER_decreases(8 - j)
+        ASSIGNS(j, OBJECT_WHOLE(r))
+        INVARIANT(j >= 0)
+        INVARIANT(j <= 8)
+        INVARIANT(i >= 0)
+        INVARIANT(i <= num_blocks)
+        INVARIANT(ARRAY_IN_TYPE(int, k, 0, (8 * i + j - 1), r->coeffs, 0, QM1))
+        DECREASES(8 - j)
         {
             // REF-CHANGE: Hoist scalar decompression into separate function
             r->coeffs[8 * i + j] = scalar_decompress_q_32(t[j]);
