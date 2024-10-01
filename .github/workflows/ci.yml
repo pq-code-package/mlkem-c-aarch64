@@ -73,6 +73,8 @@ jobs:
     name: Linting
     runs-on: ${{ matrix.system }}
     steps:
+      - run: |
+          echo test
       - uses: actions/checkout@v4
       - uses: ./.github/actions/lint
         with:
