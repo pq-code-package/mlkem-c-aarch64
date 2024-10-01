@@ -61,7 +61,7 @@ ENSURES(RETURN_VALUE == (int32_t) c + (((int32_t) c < 0) * KYBER_Q));
 void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
 REQUIRES(r != NULL && IS_FRESH(r, KYBER_POLYCOMPRESSEDBYTES))
 REQUIRES(a != NULL && IS_FRESH(a, sizeof(poly)))
-REQUIRES(ARRAY_IN_TYPE(unsigned, k, 0, (KYBER_N-1), a->coeffs, -QM1, QM1))
+REQUIRES(ARRAY_IN_BOUNDS(unsigned, k, 0, (KYBER_N-1), a->coeffs, -QM1, QM1))
 ASSIGNS(OBJECT_WHOLE(r));
 
 /************************************************************
@@ -183,7 +183,7 @@ void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES])
 REQUIRES(a != NULL && IS_FRESH(a, KYBER_POLYCOMPRESSEDBYTES))
 REQUIRES(r != NULL && IS_FRESH(r, sizeof(poly)))
 ASSIGNS(OBJECT_WHOLE(r))
-ENSURES(ARRAY_IN_TYPE(unsigned, k, 0, (KYBER_N-1), r->coeffs, 0, QM1));
+ENSURES(ARRAY_IN_BOUNDS(unsigned, k, 0, (KYBER_N-1), r->coeffs, 0, QM1));
 
 #define poly_tobytes KYBER_NAMESPACE(poly_tobytes)
 void poly_tobytes(uint8_t r[KYBER_POLYBYTES], const poly *a);

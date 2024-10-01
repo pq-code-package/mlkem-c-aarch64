@@ -38,7 +38,7 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
             ASSIGNS(j, OBJECT_WHOLE(t))
             INVARIANT(i >= 0 && i <= num_blocks)
             INVARIANT(j >= 0 && j <= 8)
-            INVARIANT(ARRAY_IN_TYPE(int, k2, 0, (j-1), t, 0, 15))
+            INVARIANT(ARRAY_IN_BOUNDS(int, k2, 0, (j-1), t, 0, 15))
             DECREASES(8 - j)
         {
             // map to positive standard representatives
@@ -67,7 +67,7 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
             INVARIANT(i >= 0)
             INVARIANT(i <= num_blocks)
             INVARIANT(j >= 0 && j <= 8)
-            INVARIANT(ARRAY_IN_TYPE(int, k2, 0, (j-1), t, 0, 31))
+            INVARIANT(ARRAY_IN_BOUNDS(int, k2, 0, (j-1), t, 0, 31))
             DECREASES(8 - j)
         {
             // map to positive standard representatives
@@ -130,7 +130,7 @@ void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES])
         INVARIANT(i >= 0)
         INVARIANT(i <= num_blocks)
         INVARIANT(num_blocks == 32)
-        INVARIANT(ARRAY_IN_TYPE(int, k, 0, (8 * i - 1), r->coeffs, 0, QM1))
+        INVARIANT(ARRAY_IN_BOUNDS(int, k, 0, (8 * i - 1), r->coeffs, 0, QM1))
         DECREASES(num_blocks - i)
     {
         uint8_t t[8];
@@ -157,7 +157,7 @@ void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES])
             INVARIANT(j <= 8)
             INVARIANT(i >= 0)
             INVARIANT(i <= num_blocks)
-            INVARIANT(ARRAY_IN_TYPE(int, k, 0, (8 * i + j - 1), r->coeffs, 0, QM1))
+            INVARIANT(ARRAY_IN_BOUNDS(int, k, 0, (8 * i + j - 1), r->coeffs, 0, QM1))
             DECREASES(8 - j)
         {
             // REF-CHANGE: Hoist scalar decompression into separate function

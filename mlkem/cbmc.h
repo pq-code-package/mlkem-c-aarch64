@@ -77,10 +77,10 @@
 // Boolean-value predidate that asserts that "all values of array_var are in range value_lb .. value_ub (inclusive)"
 //
 // Example:
-//  ARRAY_IN_TYPE(unsigned, k, 0, KYBER_N-1, a->coeffs, -QM1, QM1)
+//  ARRAY_IN_BOUNDS(unsigned, k, 0, KYBER_N-1, a->coeffs, -(KYBER_Q - 1), KYBER_Q - 1)
 // expands to
-//  __CPROVER_forall { unsigned k; (0 <= k && k <= KYBER_N-1) ==> ( (-QM1 <= a->coeffs[k]) && (a->coeffs[k] <= QM1)) }
+//  __CPROVER_forall { unsigned k; (0 <= k && k <= KYBER_N-1) ==> ( (-(KYBER_Q - 1) <= a->coeffs[k]) && (a->coeffs[k] <= (KYBER_Q - 1))) }
 
-#define ARRAY_IN_TYPE(indextype, qvar, qvar_lb, qvar_ub, array_var, value_lb, value_ub) __CPROVER_forall { indextype qvar; (qvar_lb <= qvar && qvar <= qvar_ub) ==> ( (value_lb <= array_var[qvar]) && (array_var[qvar] <= value_ub)) }
+#define ARRAY_IN_BOUNDS(indextype, qvar, qvar_lb, qvar_ub, array_var, value_lb, value_ub) __CPROVER_forall { indextype qvar; (qvar_lb <= qvar && qvar <= qvar_ub) ==> ( (value_lb <= array_var[qvar]) && (array_var[qvar] <= value_ub)) }
 
 #endif
