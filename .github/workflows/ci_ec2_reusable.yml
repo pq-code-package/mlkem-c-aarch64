@@ -74,12 +74,6 @@ jobs:
           fi
           echo "Using AMI ID: $AMI_ID"
           echo "AMI_ID=$AMI_ID" >> $GITHUB_OUTPUT
-      - name: Clear nix-installer action cache
-        uses: ./.github/actions/clear-cache
-        with:
-           key_prefix: determinatesystem-nix-installer-
-           repository: ${{ github.repository }}
-           gh_token: ${{ secrets.AWS_GITHUB_TOKEN }}
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
