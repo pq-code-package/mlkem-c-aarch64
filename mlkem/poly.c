@@ -112,8 +112,7 @@ void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES])
         ASSIGNS(i, OBJECT_WHOLE(r))
         INVARIANT(i >= 0)
         INVARIANT(i <= KYBER_N / 2)
-        INVARIANT(FORALL(int, k, 0, (i-1), (r->coeffs[2 * k]     >= 0 && r->coeffs[2 * k]     < KYBER_Q &&
-                                            r->coeffs[2 * k + 1] >= 0 && r->coeffs[2 * k + 1] < KYBER_Q)))
+        INVARIANT(ARRAY_IN_BOUNDS(int, k, 0, (2 * i - 1), r->coeffs, 0, (KYBER_Q - 1)))
         DECREASES(KYBER_N / 2 - i)
     {
         // REF-CHANGE: Hoist scalar decompression into separate function
