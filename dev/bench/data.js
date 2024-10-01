@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1727782787663,
+  "lastUpdate": 1727782824078,
   "repoUrl": "https://github.com/pq-code-package/mlkem-c-aarch64",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -18659,6 +18659,75 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 125473,
+            "unit": "cycles"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "rodchap@amazon.com",
+            "name": "Roderick Chapman",
+            "username": "rod-chapman"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d90448b04b6065ae663f3d64ae53c5c86e31d750",
+          "message": "New macros for CBMC contracts (#176)\n\n* First effort at new macros for CBMC contracts\r\n\r\nSigned-off-by: Rod Chapman <rodchap@amazon.com>\r\n\r\n* Update USE_FUNCTION_CONTRACTS setting now that code calls scalar_decompress_q_32()\r\n\r\nSigned-off-by: Rod Chapman <rodchap@amazon.com>\r\n\r\n* Add QM1 (\"Q Minus 1\") constant here.\r\n\r\nThis eases writing inclusive range constraints in CBMC macros.\r\n\r\ne.g. you can write\r\n  a >= 0 && a <= QM1\r\n\r\nrather than\r\n\r\n  a >= 0 && a < Q\r\n\r\nwhich is easier when defining and expanding macros.\r\n\r\nSigned-off-by: Rod Chapman <rodchap@amazon.com>\r\n\r\n* Use proposed new macros for CBMC contracts.\r\n\r\nNote:\r\n\r\n1. types of quantified variables that index arrays should be \"int\"\r\nto allow \"j - 1\" to evaluate to -1 not UINT_MAX, and thus yield\r\na null range on the left hand side of a quantified expression.\r\n\r\n2. Using signed types in \"for loop\" index variables means\r\nthat we do have to include a loop invariant that they really\r\nare >= 0 where appropriate, since this is no longer implicit.\r\n\r\nSigned-off-by: Rod Chapman <rodchap@amazon.com>\r\n\r\n* Apply astyle to all sources.\r\n\r\nSigned-off-by: Rod Chapman <rodchap@amazon.com>\r\n\r\n* Remove astyle INDENT-OFF and INDENT-ON markers for now.\r\n\r\nSigned-off-by: Rod Chapman <rodchap@amazon.com>\r\n\r\n* Use new QM1 constant where possible, and conjoin simple range constraints\r\n\r\nSigned-off-by: Rod Chapman <rodchap@amazon.com>\r\n\r\n* One more range constraint conjoined onto a single line for brevity.\r\n\r\nSigned-off-by: Rod Chapman <rodchap@amazon.com>\r\n\r\n* Correct selection of function contract replacement based on value of KYBER_K\r\n\r\nSigned-off-by: Rod Chapman <rodchap@amazon.com>\r\n\r\n* Use new macro ASSERT not __CPROVER_assert() in inline body here.\r\n\r\nSigned-off-by: Rod Chapman <rodchap@amazon.com>\r\n\r\n* Change macro name ARRAY_IN_TYPE to ARRAY_IN_BOUNDS throughout\r\n\r\nSigned-off-by: Rod Chapman <rodchap@amazon.com>\r\n\r\n* Parenthesize expression parameters during macro expansion.\r\n\r\nSigned-off-by: Rod Chapman <rodchap@amazon.com>\r\n\r\n* Upon review and reflection, use (KYBER_Q - 1) not QM1 throughout.\r\n\r\nSigned-off-by: Rod Chapman <rodchap@amazon.com>\r\n\r\n* Reformulate loop invariant in poly_decompress() to use a single ARRAY_IN_BOUNDS term\r\n\r\nSigned-off-by: Rod Chapman <rodchap@amazon.com>\r\n\r\n---------\r\n\r\nSigned-off-by: Rod Chapman <rodchap@amazon.com>",
+          "timestamp": "2024-10-01T12:36:30+01:00",
+          "tree_id": "0f079c070833cb6e29042a35be51d2a020c12913",
+          "url": "https://github.com/pq-code-package/mlkem-c-aarch64/commit/d90448b04b6065ae663f3d64ae53c5c86e31d750"
+        },
+        "date": 1727782823158,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ML-KEM-512 keypair",
+            "value": 38589,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 encaps",
+            "value": 46165,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 decaps",
+            "value": 52069,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 keypair",
+            "value": 67204,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 encaps",
+            "value": 75946,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 decaps",
+            "value": 83810,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 keypair",
+            "value": 104952,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 encaps",
+            "value": 114874,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 decaps",
+            "value": 125264,
             "unit": "cycles"
           }
         ]
