@@ -14,7 +14,6 @@ void keccak_f1600_x2_v8a_v84a_asm_hybrid(uint64_t *state);
 void keccak_f1600_x4_scalar_v8a_asm_hybrid_opt(uint64_t *state);
 void keccak_f1600_x4_scalar_v84a_asm_hybrid_opt(uint64_t *state);
 void keccak_f1600_x4_scalar_v8a_v84a_asm_hybrid_opt(uint64_t *state);
-#endif /* MLKEM_USE_AARCH64_ASM */
 
 /*
  * The FIPS202 ASM profile decides which implementation(s) of FIPS202 to use.
@@ -51,5 +50,7 @@ void keccak_f1600_x4_scalar_v8a_v84a_asm_hybrid_opt(uint64_t *state);
 /* Option 3: Build your own profile here, or via CFLAGS */
 
 #endif /* !FIPS202_ASM_PROFILE && !FIPS202_ASM_MANUAL */
+
+#endif /* MLKEM_USE_AARCH64_ASM */
 
 #endif /* FIPS202_ASM_H */
