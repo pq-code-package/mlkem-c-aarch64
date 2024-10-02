@@ -342,7 +342,7 @@ round_constants:
     sub input_addr, input_addr, #((2 + \idx)*25*8)
 .endm
 
-#define STACK_LOCS 6
+#define STACK_LOCS 2
 
 #define STACK_SIZE (16*6 + 8*8 + 6*8 + (STACK_LOCS) * 8)
 #define STACK_BASE_GPRS (6*8)
@@ -357,10 +357,6 @@ round_constants:
 
 #define STACK_LOC_0 ((STACK_OFFSET_LOCS) + 0*8)
 #define STACK_LOC_1 ((STACK_OFFSET_LOCS) + 1*8)
-#define STACK_LOC_2 ((STACK_OFFSET_LOCS) + 2*8)
-#define STACK_LOC_3 ((STACK_OFFSET_LOCS) + 3*8)
-#define STACK_LOC_4 ((STACK_OFFSET_LOCS) + 4*8)
-#define STACK_LOC_5 ((STACK_OFFSET_LOCS) + 4*8)
 
 .macro save_gprs
     stp x19, x20, [sp, #(STACK_BASE_GPRS + 16*0)]
