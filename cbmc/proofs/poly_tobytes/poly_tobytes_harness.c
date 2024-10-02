@@ -1,14 +1,13 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT-0
 
 /*
  * Insert copyright notice
  */
 
 /**
- * @file scalar_signed_to_unsigned_q_16.c
- * @brief Implements the proof harness for scalar_signed_to_unsigned_q_16
- * function.
+ * @file poly_tobytes_harness.c
+ * @brief Implements the proof harness for poly_tobytes function.
  */
 
 /*
@@ -23,8 +22,9 @@
  *
  */
 void harness(void) {
-  int16_t u;
+  poly a;
+  uint8_t r[KYBER_POLYBYTES];
 
   /* Contracts for this function are in poly.h */
-  uint16_t d = scalar_signed_to_unsigned_q_16(u);
+  poly_tobytes(r, &a);
 }

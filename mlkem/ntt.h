@@ -16,9 +16,11 @@ void poly_ntt(poly *r);
 void poly_invntt_tomont(poly *r);
 
 #define basemul KYBER_NAMESPACE(basemul)
-void basemul(int16_t r[2], const int16_t a[2], const int16_t b[2], int16_t zeta);
+void basemul(int16_t r[2], const int16_t a[2], const int16_t b[2],
+             int16_t zeta);
 
 #define basemul_cached KYBER_NAMESPACE(basemul_cached)
-void basemul_cached(int16_t r[2], const int16_t a[2], const int16_t b[2], int16_t b_cached);
+void basemul_cached(int16_t r[2], const int16_t a[2], const int16_t b[2],
+                    int16_t b_cached);
 
 #endif

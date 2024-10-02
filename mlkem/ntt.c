@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 #include "ntt.h"
+#include <stdint.h>
 #include "params.h"
 #include "reduce.h"
-#include <stdint.h>
 
 #include "asm/asm.h"
 
@@ -39,8 +39,7 @@ void init_ntt() {
 }
 */
 
-const int16_t zetas[128] =
-{
+const int16_t zetas[128] = {
     -1044, -758,  -359,  -1517, 1493,  1422,  287,   202,  -171,  622,   1577,
     182,   962,   -1202, -1474, 1468,  573,   -1325, 264,  383,   -829,  1458,
     -1602, -130,  -681,  1017,  732,   608,   -1542, 411,  -205,  -1571, 1223,
@@ -52,95 +51,81 @@ const int16_t zetas[128] =
     -1590, 644,   -872,  349,   418,   329,   -156,  -75,  817,   1097,  603,
     610,   1322,  -1285, -1465, 384,   -1215, -136,  1218, -1335, -874,  220,
     -1187, -1659, -1185, -1530, -1278, 794,   -1510, -854, -870,  478,   -108,
-    -308,  996,   991,   958,   -1460, 1522,  1628
-};
+    -308,  996,   991,   958,   -1460, 1522,  1628};
 
 /*************************************************
-* Name:        poly_ntt
-*
-* Description: Computes negacyclic number-theoretic transform (NTT) of
-*              a polynomial in place;
-*              inputs assumed to be in normal order, output in bitreversed order
-*
-* Arguments:   - poly *p: pointer to in/output polynomial
-**************************************************/
+ * Name:        poly_ntt
+ *
+ * Description: Computes negacyclic number-theoretic transform (NTT) of
+ *              a polynomial in place;
+ *              inputs assumed to be in normal order, output in bitreversed
+ *order
+ *
+ * Arguments:   - poly *p: pointer to in/output polynomial
+ **************************************************/
 #if !defined(MLKEM_USE_AARCH64_ASM)
 // REF-CHANGE: Removed indirection poly_ntt -> ntt()
 // and integrated polynomial reduction into the NTT.
-void poly_ntt(poly *p)
-{
-    unsigned int len, start, j, k;
-    int16_t t, zeta;
-    int16_t *r = p->coeffs;
+void poly_ntt(poly *p) {
+  unsigned int len, start, j, k;
+  int16_t t, zeta;
+  int16_t *r = p->coeffs;
 
-    k = 1;
-    for (len = 128; len >= 2; len >>= 1)
-    {
-        for (start = 0; start < 256; start = j + len)
-        {
-            zeta = zetas[k++];
-            for (j = start; j < start + len; j++)
-            {
-                t = fqmul(zeta, r[j + len]);
-                r[j + len] = r[j] - t;
-                r[j] = r[j] + t;
-            }
-        }
+  k = 1;
+  for (len = 128; len >= 2; len >>= 1) {
+    for (start = 0; start < 256; start = j + len) {
+      zeta = zetas[k++];
+      for (j = start; j < start + len; j++) {
+        t = fqmul(zeta, r[j + len]);
+        r[j + len] = r[j] - t;
+        r[j] = r[j] + t;
+      }
     }
+  }
 
-    poly_reduce(p);
+  poly_reduce(p);
 }
-#else /* MLKEM_USE_AARCH64_ASM */
-void poly_ntt(poly *p)
-{
-    ntt_asm(p->coeffs);
-}
+#else  /* MLKEM_USE_AARCH64_ASM */
+void poly_ntt(poly *p) { ntt_asm(p->coeffs); }
 #endif /* MLKEM_USE_AARCH64_ASM */
 
 /*************************************************
-* Name:        poly_invntt_tomont
-*
-* Description: Computes inverse of negacyclic number-theoretic transform (NTT)
-*              of a polynomial in place;
-*              inputs assumed to be in bitreversed order, output in normal order
-*
-* Arguments:   - uint16_t *a: pointer to in/output polynomial
-**************************************************/
+ * Name:        poly_invntt_tomont
+ *
+ * Description: Computes inverse of negacyclic number-theoretic transform (NTT)
+ *              of a polynomial in place;
+ *              inputs assumed to be in bitreversed order, output in normal
+ *order
+ *
+ * Arguments:   - uint16_t *a: pointer to in/output polynomial
+ **************************************************/
 #if !defined(MLKEM_USE_AARCH64_ASM)
 // REF-CHANGE: Removed indirection poly_invntt_tomont -> invntt()
-void poly_invntt_tomont(poly *p)
-{
-    unsigned int start, len, j, k;
-    int16_t t, zeta;
-    const int16_t f = 1441; // mont^2/128
-    int16_t *r = p->coeffs;
+void poly_invntt_tomont(poly *p) {
+  unsigned int start, len, j, k;
+  int16_t t, zeta;
+  const int16_t f = 1441;  // mont^2/128
+  int16_t *r = p->coeffs;
 
-    k = 127;
-    for (len = 2; len <= 128; len <<= 1)
-    {
-        for (start = 0; start < 256; start = j + len)
-        {
-            zeta = zetas[k--];
-            for (j = start; j < start + len; j++)
-            {
-                t = r[j];
-                r[j] = barrett_reduce(t + r[j + len]);
-                r[j + len] = r[j + len] - t;
-                r[j + len] = fqmul(zeta, r[j + len]);
-            }
-        }
+  k = 127;
+  for (len = 2; len <= 128; len <<= 1) {
+    for (start = 0; start < 256; start = j + len) {
+      zeta = zetas[k--];
+      for (j = start; j < start + len; j++) {
+        t = r[j];
+        r[j] = barrett_reduce(t + r[j + len]);
+        r[j + len] = r[j + len] - t;
+        r[j + len] = fqmul(zeta, r[j + len]);
+      }
     }
+  }
 
-    for (j = 0; j < 256; j++)
-    {
-        r[j] = fqmul(r[j], f);
-    }
+  for (j = 0; j < 256; j++) {
+    r[j] = fqmul(r[j], f);
+  }
 }
-#else /* MLKEM_USE_AARCH64_ASM */
-void poly_invntt_tomont(poly *p)
-{
-    intt_asm(p->coeffs);
-}
+#else  /* MLKEM_USE_AARCH64_ASM */
+void poly_invntt_tomont(poly *p) { intt_asm(p->coeffs); }
 #endif /* MLKEM_USE_AARCH64_ASM */
 
 /*************************************************
@@ -155,13 +140,12 @@ void poly_invntt_tomont(poly *p)
  *              - int16_t zeta: integer defining the reduction polynomial
  **************************************************/
 void basemul(int16_t r[2], const int16_t a[2], const int16_t b[2],
-             int16_t zeta)
-{
-    r[0]  = fqmul(a[1], b[1]);
-    r[0]  = fqmul(r[0], zeta);
-    r[0] += fqmul(a[0], b[0]);
-    r[1]  = fqmul(a[0], b[1]);
-    r[1] += fqmul(a[1], b[0]);
+             int16_t zeta) {
+  r[0] = fqmul(a[1], b[1]);
+  r[0] = fqmul(r[0], zeta);
+  r[0] += fqmul(a[0], b[0]);
+  r[1] = fqmul(a[0], b[1]);
+  r[1] += fqmul(a[1], b[0]);
 }
 
 /*************************************************
@@ -175,13 +159,13 @@ void basemul(int16_t r[2], const int16_t a[2], const int16_t b[2],
  *              - const int16_t b[2]: pointer to the second factor
  *              - int16_t b_cached: Cached precomputation of b[1] * zeta
  **************************************************/
-void basemul_cached(int16_t r[2], const int16_t a[2], const int16_t b[2], int16_t b_cached)
-{
-    int32_t t0, t1;
-    t0  = (int32_t) a[1] * b_cached;
-    t0 += (int32_t) a[0] * b[0];
-    t1  = (int32_t) a[0] * b[1];
-    t1 += (int32_t) a[1] * b[0];
-    r[0] = montgomery_reduce(t0);
-    r[1] = montgomery_reduce(t1);
+void basemul_cached(int16_t r[2], const int16_t a[2], const int16_t b[2],
+                    int16_t b_cached) {
+  int32_t t0, t1;
+  t0 = (int32_t)a[1] * b_cached;
+  t0 += (int32_t)a[0] * b[0];
+  t1 = (int32_t)a[0] * b[1];
+  t1 += (int32_t)a[1] * b[0];
+  r[0] = montgomery_reduce(t0);
+  r[1] = montgomery_reduce(t1);
 }

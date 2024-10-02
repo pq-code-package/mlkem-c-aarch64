@@ -3,8 +3,8 @@
 #define FIPS202_ASM_H
 
 #include <stdint.h>
-#include "params.h"
 #include "config.h"
+#include "params.h"
 
 #ifdef MLKEM_USE_AARCH64_ASM
 void keccak_f1600_x1_scalar_asm_opt(uint64_t *state);
@@ -43,7 +43,7 @@ void keccak_f1600_x4_scalar_v8a_v84a_hybrid_asm_opt(uint64_t *state);
 
 // Pick exactly one profile from the following list
 #include "profiles/default.h"
-//#include "profiles/cortex_a55.h"
+// #include "profiles/cortex_a55.h"
 
 #else /* !FIPS202_ASM_PROFILE && FIPS202_ASM_MANUAL */
 
