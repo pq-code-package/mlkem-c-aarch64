@@ -17,6 +17,7 @@
 ***************************************************/
 
 #include "config.h"
+#include "params.h"
 #if defined(MLKEM_USE_AARCH64_ASM)
 
 // Needed to provide ASM_LOAD directive
@@ -284,15 +285,46 @@ table_data:
 bit_table_data:
     .short 0x1, 0x2, 0x4, 0x8, 0x10, 0x20, 0x40, 0x80
 
-.text
-.align 4
-.global     rej_uniform_asm_clean
-.global     _rej_uniform_asm_clean
-rej_uniform_asm_clean:
-_rej_uniform_asm_clean:
+/* Return multiple of 48: (n/48) * 48 */
+.macro round_48x    dst, src
+    mov     w8, #48
+    udiv    \dst, \src, w8
+    mul     \dst, \dst, w8
+.endm
+
+#define STACK_LOCS 2
+#define STACK_SIZE_TMP_OUTPUT (2*KYBER_N + 64) // We overwrite by max. 64 bytes in loop48
+#define STACK_SIZE_LOCS (8*STACK_LOCS)
+#define STACK_SIZE_GPRS (6 * 8)
+#define STACK_OFFSET_GPRS 0
+#define STACK_OFFSET_LOCS STACK_SIZE_GPRS
+#define STACK_OFFSET_TMP_OUTPUT (STACK_SIZE_LOCS + STACK_SIZE_GPRS)
+#define STACK_SIZE (STACK_SIZE_TMP_OUTPUT + STACK_SIZE_LOCS + STACK_SIZE_GPRS)
+
+#define STACK_OFFSET_RESULT (STACK_OFFSET_LOCS)
+
+.macro push_stack
+        sub sp, sp, #STACK_SIZE
+.endm
+
+.macro pop_stack
+        add sp, sp, #STACK_SIZE
+.endm
+
+.macro save_gprs
+    str     x8,       [sp, #(STACK_OFFSET_GPRS + 0)]
+    stp     x16, x17, [sp, #(STACK_OFFSET_GPRS + 16)]
+    stp     x29, x30, [sp, #(STACK_OFFSET_GPRS + 32)]
+.endm
+
+.macro restore_gprs
+    ldr     x8,       [sp, #(STACK_OFFSET_GPRS + 0)]
+    ldp     x16, x17, [sp, #(STACK_OFFSET_GPRS + 16)]
+    ldp     x29, x30, [sp, #(STACK_OFFSET_GPRS + 32)]
+.endm
 
     /* Input registers */
-    stack                       .req x0
+    output                      .req x0
     buf                         .req x1
     buf_consumed                .req x2
     buflen                      .req w3
@@ -302,9 +334,8 @@ _rej_uniform_asm_clean:
     bit_table                   .req x6
 
     /* Output registers */
-    output                      .req x11
-    sp_copy                     .req x16
-    buf_consumed_cpy            .req x17
+    output_tmp                  .req x11
+    output_tmp_base             .req x16
 
     /* Temporary registers */
     tmp                         .req w8
@@ -368,35 +399,17 @@ _rej_uniform_asm_clean:
     bits                        .req v31
     bits_q                      .req q31
 
-
-/* Return multiple of 48: (n/48) * 48 */
-.macro round_48x    dst, src
-    mov     w8, #48
-    udiv    \dst, \src, w8
-    mul     \dst, \dst, w8
-.endm
-
-    /*
-    * Preserve registers and restore them at the end of the function.
-    * Stack alignment must be 16 bytes.
-    * Stack size: 0x270 = 16 * 3 (preserve registers + place_holder) + sizeof(int16_t) * (KYBER_N + 32)
-    * Memory layout from the bottom of the stack to the top:
-    * 0x00:   x8            |  place_holder
-    * 0x10:   x16           |  x17
-    * 0x20:   x29           |  x30
-    * Start at 0x030 to the end at 0x220:   KYBER_N * sizeof(int16_t)
-    * 0x230 -> 0x270: 64 = sizeof(int16_t) * 32 bytes padding to avoid overflow in the `str` sequence.
-    * The 4 `str` sequences at the end of `loop48` can write from 0 bytes (4*0) to 64 bytes (4*16).
-    * However, we only copy the maximum amount of `len` stored in x4 from stack to `x0`.
-    */
+.text
+.align 4
+.global     rej_uniform_asm_clean
+.global     _rej_uniform_asm_clean
+rej_uniform_asm_clean:
+_rej_uniform_asm_clean:
+    push_stack
+    save_gprs
 
     // TODO: This routine seems to write the results on the stack first, which is statically sized.
     //       It therefore only works for input buffers of bounded size, which needs to be documented.
-
-    sub     sp, sp, #0x270
-    str     x8, [sp]
-    stp     x16, x17, [sp, #16]
-    stp     x29, x30, [sp, #32]
 
     ASM_LOAD(bit_table, bit_table_data)
     ASM_LOAD(table_idx, table_data)
@@ -409,9 +422,8 @@ _rej_uniform_asm_clean:
     round_48x   bound, buflen
 
     mov     iterw, #0
-    add     output, sp, #48
-    mov     sp_copy, output
-    mov     buf_consumed_cpy, buf_consumed
+    add     output_tmp_base, sp, #STACK_OFFSET_TMP_OUTPUT
+    mov     output_tmp, output_tmp_base
 
     loop48:
         add     x8, buf, iter
@@ -509,19 +521,19 @@ _rej_uniform_asm_clean:
         tbl     val2.16b, {val2.16b}, table2.16b
         tbl     val3.16b, {val3.16b}, table3.16b
 
-        str     val0q, [output]
-        add     output, output, ctr0, uxtw #1
+        str     val0q, [output_tmp]
+        add     output_tmp, output_tmp, ctr0, uxtw #1
 
-        str     val1q, [output]
-        add     output, output, ctr1, uxtw #1
+        str     val1q, [output_tmp]
+        add     output_tmp, output_tmp, ctr1, uxtw #1
 
-        str     val2q, [output]
-        add     output, output, ctr2, uxtw #1
+        str     val2q, [output_tmp]
+        add     output_tmp, output_tmp, ctr2, uxtw #1
 
-        str     val3q, [output]
-        add     output, output, ctr3, uxtw #1
+        str     val3q, [output_tmp]
+        add     output_tmp, output_tmp, ctr3, uxtw #1
 
-        sub     x8, output, sp_copy
+        sub     x8, output_tmp, output_tmp_base
         lsr     x8, x8, #1
 
         cmp     count, lenw
@@ -573,13 +585,13 @@ _rej_uniform_asm_clean:
         tbl     val0.16b, {val0.16b}, table0.16b
         tbl     val1.16b, {val1.16b}, table1.16b
 
-        str     val0q, [output]
-        add     output, output, ctr0, uxtw #1
+        str     val0q, [output_tmp]
+        add     output_tmp, output_tmp, ctr0, uxtw #1
 
-        str     val1q, [output]
-        add     output, output, ctr1, uxtw #1
+        str     val1q, [output_tmp]
+        add     output_tmp, output_tmp, ctr1, uxtw #1
 
-        sub     x8, output, sp_copy
+        sub     x8, output_tmp, output_tmp_base
         lsr     x8, x8, #1
 
         cmp     count, lenw
@@ -589,17 +601,18 @@ _rej_uniform_asm_clean:
         b.lo    loop24
 
     memory_copy:
-        str     iterw, [buf_consumed_cpy]
+        str     iterw, [buf_consumed]
 
         cmp     count, lenw
         csel    minw, count, lenw, lo
-        str     min, [sp, #8]
+        str     min, [sp, #STACK_OFFSET_RESULT]
         cbz     minw, end
 
         ubfiz   x2, min, #1, #32
-        mov     x1, sp_copy
+        mov     x1, output_tmp_base
 
-        // TODO: Hoist this out
+        // TODO: Hoist this out or write it manually
+        // Also, once that's done, x30 is no longer clobbered
     #ifdef __APPLE__
         bl _memcpy
     #else
@@ -607,13 +620,11 @@ _rej_uniform_asm_clean:
     #endif
 
     end:
-        ldr     min, [sp, #8]
+        ldr     min, [sp, #STACK_OFFSET_RESULT]
         mov     w0, minw
 
-        ldr     x8, [sp]
-        ldp     x16, x17, [sp, #16]
-        ldp     x29, x30, [sp, #32]
-        add     sp, sp, #0x270
+        restore_gprs
+        pop_stack
         ret
 
 #endif /* MLKEM_USE_AARCH64_ASM */
