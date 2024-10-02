@@ -44,6 +44,7 @@ void keccak_f1600_x4_scalar_v8a_v84a_asm_hybrid_opt(uint64_t *state);
 
 // Pick exactly one profile from the following list
 #include "profiles/default.h"
+//#include "profiles/cortex_a55.h"
 
 #else /* !FIPS202_ASM_PROFILE && FIPS202_ASM_MANUAL */
 
