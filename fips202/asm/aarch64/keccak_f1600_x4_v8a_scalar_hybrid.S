@@ -29,8 +29,6 @@
 // Needed to provide ASM_LOAD directive
 #include "common.i"
 
-#if defined(__ARM_FEATURE_SHA3)
-
 #define KECCAK_F1600_ROUNDS 24
 
 
@@ -893,13 +891,13 @@ round_constants:
     ror sAsu, sAsu,#(64-55)
 .endm
 
-.global keccak_f1600_x4_scalar_v8a_v84a_asm_hybrid
-.global _keccak_f1600_x4_scalar_v8a_v84a_asm_hybrid
+.global keccak_f1600_x4_scalar_v8a_asm_hybrid
+.global _keccak_f1600_x4_scalar_v8a_asm_hybrid
 .text
 .align 4
 
-keccak_f1600_x4_scalar_v8a_v84a_asm_hybrid:
-_keccak_f1600_x4_scalar_v8a_v84a_asm_hybrid:
+keccak_f1600_x4_scalar_v8a_asm_hybrid:
+_keccak_f1600_x4_scalar_v8a_asm_hybrid:
     alloc_stack
     save_gprs
     save_vregs
@@ -1733,7 +1731,5 @@ done:
     restore_gprs
     free_stack
     ret
-
-#endif
 
 #endif

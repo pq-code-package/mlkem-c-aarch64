@@ -11,6 +11,8 @@ void keccak_f1600_x1_scalar_slothy_opt_a55(uint64_t *state);
 void keccak_f1600_x1_v84a_asm_clean(uint64_t *state);
 void keccak_f1600_x2_v84a_asm_clean(uint64_t *state);
 void keccak_f1600_x2_v8a_v84a_asm_hybrid(uint64_t *state);
+void keccak_f1600_x4_scalar_v8a_asm_hybrid(uint64_t *state);
+void keccak_f1600_x4_scalar_v84a_asm_hybrid(uint64_t *state);
 void keccak_f1600_x4_scalar_v8a_v84a_asm_hybrid(uint64_t *state);
 
 /*
