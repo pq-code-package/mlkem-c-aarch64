@@ -28,7 +28,7 @@ info "Formatting python scripts"
 black --include scripts/tests "$ROOT"
 
 info "Formatting c files"
-astyle $(git ls-files ":/*.c" ":/*.h") --options="$ROOT/.astylerc" --formatted | awk '{print $2}'
+clang-format -i $(git ls-files ":/*.c" ":/*.h")
 
 info "Checking for eol"
 check-eol()
