@@ -11,9 +11,9 @@ void keccak_f1600_x1_scalar_slothy_opt_a55(uint64_t *state);
 void keccak_f1600_x1_v84a_asm_clean(uint64_t *state);
 void keccak_f1600_x2_v84a_asm_clean(uint64_t *state);
 void keccak_f1600_x2_v8a_v84a_asm_hybrid(uint64_t *state);
-void keccak_f1600_x4_scalar_v8a_asm_hybrid(uint64_t *state);
-void keccak_f1600_x4_scalar_v84a_asm_hybrid(uint64_t *state);
-void keccak_f1600_x4_scalar_v8a_v84a_asm_hybrid(uint64_t *state);
+void keccak_f1600_x4_scalar_v8a_asm_hybrid_opt(uint64_t *state);
+void keccak_f1600_x4_scalar_v84a_asm_hybrid_opt(uint64_t *state);
+void keccak_f1600_x4_scalar_v8a_v84a_asm_hybrid_opt(uint64_t *state);
 
 /*
  * Logic to decide which implementation to use.
@@ -48,7 +48,7 @@ void keccak_f1600_x4_scalar_v8a_v84a_asm_hybrid(uint64_t *state);
 // If v8.4-A is implemented and we are on an Apple CPU, we use a plain
 // Neon-based implementation.
 // If v8.4-A is implemented and we are not on an Apple CPU, we use a
-// Neon/Neon hybrid.
+// scalar/Neon/Neon hybrid.
 // The reason for this distinction is that Apple CPUs appear to implement
 // the SHA3 instructions on all SIMD units, while Arm CPUs prior to Cortex-X4
 // don't, and ordinary Neon instructions are still needed.
@@ -60,13 +60,13 @@ void keccak_f1600_x4_scalar_v8a_v84a_asm_hybrid(uint64_t *state);
 #define keccak_f1600_x2_asm keccak_f1600_x2_v84a_asm_clean
 #else /* __APPLE__ */
 #define MLKEM_USE_FIPS202_X4_ASM
-#define keccak_f1600_x4_asm keccak_f1600_x4_scalar_v8a_v84a_asm_hybrid
+#define keccak_f1600_x4_asm keccak_f1600_x4_scalar_v8a_v84a_asm_hybrid_opt
 #endif /* __APPLE__ */
 
 #else /* __ARM_FEATURE_SHA3 */
 
 #define MLKEM_USE_FIPS202_X4_ASM
-#define keccak_f1600_x4_asm keccak_f1600_x4_scalar_v8a_asm_hybrid
+#define keccak_f1600_x4_asm keccak_f1600_x4_scalar_v8a_asm_hybrid_opt
 
 #endif /* __ARM_FEATURE_SHA3 */
 
