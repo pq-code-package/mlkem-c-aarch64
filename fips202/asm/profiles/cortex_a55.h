@@ -10,6 +10,6 @@
 // On Cortex-A55, we use lazy rotation assembly for Keccak-x1,
 // but no batched assembly implementation.
 #define MLKEM_USE_FIPS202_X1_ASM
-#define keccak_f1600_x1_asm keccak_f1600_x1_scalar_slothy_opt_a55
+#define keccak_f1600_x1_asm keccak_f1600_x1_scalar_asm_opt
 
 #endif /* FIPS202_ASM_PROFILE_H */

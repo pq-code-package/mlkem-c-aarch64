@@ -27,7 +27,7 @@
 #define keccak_f1600_x1_asm keccak_f1600_x1_v84a_asm_clean
 #elif !defined(SYS_AARCH64_SLOW_BARREL_SHIFTER)
 #define MLKEM_USE_FIPS202_X1_ASM
-#define keccak_f1600_x1_asm keccak_f1600_x1_scalar_slothy_opt_a55
+#define keccak_f1600_x1_asm keccak_f1600_x1_scalar_asm_opt
 #endif /* !SYS_AARCH64_SLOW_BARREL_SHIFTER */
 
 // Keccak-f1600x2/x4
@@ -50,7 +50,7 @@
 #define keccak_f1600_x2_asm keccak_f1600_x2_v84a_asm_clean
 #else /* __APPLE__ */
 #define MLKEM_USE_FIPS202_X4_ASM
-#define keccak_f1600_x4_asm keccak_f1600_x4_scalar_v8a_v84a_asm_hybrid_opt
+#define keccak_f1600_x4_asm keccak_f1600_x4_scalar_v8a_v84a_hybrid_asm_opt
 #endif /* __APPLE__ */
 
 #else /* __ARM_FEATURE_SHA3 */
