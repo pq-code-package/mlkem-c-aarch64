@@ -22,13 +22,6 @@
 // Needed to provide ASM_LOAD directive
 #include "common.i"
 
-/* Return multiple of 48: (n/48) * 48 */
-.macro round_48x    dst, src
-    mov     w8, #48
-    udiv    \dst, \src, w8
-    mul     \dst, \dst, w8
-.endm
-
 .data
 table_data:
     .byte -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 // 0
@@ -376,6 +369,13 @@ _rej_uniform_asm_clean:
     bits_q                      .req q31
 
 
+/* Return multiple of 48: (n/48) * 48 */
+.macro round_48x    dst, src
+    mov     w8, #48
+    udiv    \dst, \src, w8
+    mul     \dst, \dst, w8
+.endm
+
     /*
     * Preserve registers and restore them at the end of the function.
     * Stack alignment must be 16 bytes.
@@ -389,6 +389,10 @@ _rej_uniform_asm_clean:
     * The 4 `str` sequences at the end of `loop48` can write from 0 bytes (4*0) to 64 bytes (4*16).
     * However, we only copy the maximum amount of `len` stored in x4 from stack to `x0`.
     */
+
+    // TODO: This routine seems to write the results on the stack first, which is statically sized.
+    //       It therefore only works for input buffers of bounded size, which needs to be documented.
+
     sub     sp, sp, #0x270
     str     x8, [sp]
     stp     x16, x17, [sp, #16]
@@ -412,9 +416,17 @@ _rej_uniform_asm_clean:
     loop48:
         add     x8, buf, iter
 
+        // First, we unpack the byte stream into a stream of signed
+        // coefficients, interpreting each consecutive 3 bytes as two
+        // signed 12-bit coefficients, presented as 16-bit integers.
+        //
+        // We handle 16 such triples a time, and use ld3 for the required
+        // de-interleaving of the byte stream.
         ld3     {buf0.16b, buf1.16b, buf2.16b}, [x8]
         add     iterw, iterw, #48
 
+        // Unpack 16 triples of bytes into 16 pairs of 16-bit integers,
+        // represented as 4 vectors val0-val3.
         zip1    tmp0.16b, buf0.16b, buf1.16b
         zip2    tmp1.16b, buf0.16b, buf1.16b
         zip1    tmp2.16b, buf1.16b, buf2.16b
@@ -430,16 +442,30 @@ _rej_uniform_asm_clean:
         zip1    val2.8h, tmp1.8h, tmp3.8h
         zip2    val3.8h, tmp1.8h, tmp3.8h
 
+        // At this point, val0-val3 are the signed integers to do rejection
+        // sampling on. For each of them, do the following:
+        // - Check which coefficients are within range, and represent the set
+        //   of lane-indices of those coefficients as an 8-bit bitmap.
+        // - Move the respective lanes to the front of the vector. This is the
+        //   most complex part, and is done by interpreting the 8-bit bitmap as
+        //   an index into a lookup table giving the lane-table to be use for
+        //   the `tbl` instruction.
+        // - Write the vector to the output buffer, but merely increase the output
+        //   buffer pointer by the number of valid coefficients.
+
+        // Set valid lanes to -1 (0b1...1)
         cmhi    sign0.8h, kyber_q.8h, val0.8h
         cmhi    sign1.8h, kyber_q.8h, val1.8h
         cmhi    sign2.8h, kyber_q.8h, val2.8h
         cmhi    sign3.8h, kyber_q.8h, val3.8h
 
+        // If lane i is valid and has value -1, retain only i-th bit
         and     sign0.16b, sign0.16b, bits.16b
         and     sign1.16b, sign1.16b, bits.16b
         and     sign2.16b, sign2.16b, bits.16b
         and     sign3.16b, sign3.16b, bits.16b
 
+        // Get 8-bit bitmap of valid lane indices by adding lanes
         uaddlv  t0, sign0.8h
         uaddlv  t1, sign1.8h
         uaddlv  t2, sign2.8h
@@ -455,11 +481,18 @@ _rej_uniform_asm_clean:
         ldr     table2q, [table_idx, rec_idx_2, uxtw #4]
         ldr     table3q, [table_idx, rec_idx_3, uxtw #4]
 
+        // Compute number of valid coefficients. Recall that at this
+        // point, lane i has value 2^i (hence popcount 1) if its coefficient
+        // is valid, and 0 otherwise.
+        //
+        // TODO: We could do this popcount directly on the result of cmhi,
+        // thereby reducing the computation depth.
         cnt     sign0.16b, sign0.16b
         cnt     sign1.16b, sign1.16b
         cnt     sign2.16b, sign2.16b
         cnt     sign3.16b, sign3.16b
 
+        // Extract number of valid coefficients
         uaddlv  t0, sign0.8h
         uaddlv  t1, sign1.8h
         uaddlv  t2, sign2.8h
@@ -470,6 +503,7 @@ _rej_uniform_asm_clean:
         fmov    ctr2, t2
         fmov    ctr3, t3
 
+        // Move valid coefficients to the front
         tbl     val0.16b, {val0.16b}, table0.16b
         tbl     val1.16b, {val1.16b}, table1.16b
         tbl     val2.16b, {val2.16b}, table2.16b
