@@ -14,9 +14,7 @@ void intt_asm_opt(int16_t *);
 
 unsigned int rej_uniform_asm_clean(int16_t *r, const uint8_t *buf,
                                    unsigned int *buf_consumed,
-                                   unsigned int buflen, unsigned int len,
-                                   const uint8_t idx[256][16],
-                                   const uint16_t bits[8]);
+                                   unsigned int buflen, unsigned int len);
 
 void poly_reduce_asm_clean(int16_t *);
 void poly_reduce_asm_opt(int16_t *);
