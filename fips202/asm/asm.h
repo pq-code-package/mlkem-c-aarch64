@@ -40,7 +40,7 @@ void keccak_f1600_x4_scalar_v8a_v84a_asm_hybrid(uint64_t *state);
 #define keccak_f1600_x1_asm keccak_f1600_x1_scalar_slothy_opt_a55
 #endif /* !SYS_AARCH64_SLOW_BARREL_SHIFTER */
 
-// Keccak-f1600x2
+// Keccak-f1600x2/x4
 //
 // The optimal implementation is highly CPU-specific; see [1].
 //
@@ -59,9 +59,14 @@ void keccak_f1600_x4_scalar_v8a_v84a_asm_hybrid(uint64_t *state);
 #define MLKEM_USE_FIPS202_X2_ASM
 #define keccak_f1600_x2_asm keccak_f1600_x2_v84a_asm_clean
 #else /* __APPLE__ */
-#define MLKEM_USE_FIPS202_X2_ASM
-#define keccak_f1600_x2_asm keccak_f1600_x2_v8a_v84a_asm_hybrid
+#define MLKEM_USE_FIPS202_X4_ASM
+#define keccak_f1600_x4_asm keccak_f1600_x4_scalar_v8a_v84a_asm_hybrid
 #endif /* __APPLE__ */
+
+#else /* __ARM_FEATURE_SHA3 */
+
+#define MLKEM_USE_FIPS202_X4_ASM
+#define keccak_f1600_x4_asm keccak_f1600_x4_scalar_v8a_asm_hybrid
 
 #endif /* __ARM_FEATURE_SHA3 */
 
