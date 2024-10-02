@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1727859409087,
+  "lastUpdate": 1727859434222,
   "repoUrl": "https://github.com/pq-code-package/mlkem-c-aarch64",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -24316,6 +24316,75 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 75414,
+            "unit": "cycles"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "beckphan@amazon.co.uk",
+            "name": "Hanno Becker",
+            "username": "hanno-becker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "5de13cbb17719433e16ef74425169d53e3c23eb2",
+          "message": "Add scalar/Neon/Neon hybrid for Keccak-x4 (#179)\n\n* Add scalar/v8/v84 Keccak-x4 hybrid\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Rework scalar/Neon/Neon Keccak-x4 hybrid to not use zipped states\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Don't use scalar/Neon/Neon Keccak-x4 hybrid by default\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Align input data during component benchmarking\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Add more hybrid Keccak-x4 variants\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Use hybrid Keccak-x4 implementations by default on non-Apple systems\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Add `_opt` suffix to interleaved Keccak-x4 hybrids\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Rename MLKEM_USE_NTT_ASM_CLEAN -> MLKEM_USE_AARCH64_ASM_CLEAN\r\n\r\nThe scope of MLKEM_USE_NTT_ASM_CLEAN already went beyond the NTT,\r\nand will soon be further expanded to cover the choice of Keccak\r\nimplementation.\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Make FIPS202 ASM profile configurable\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Add FIPS202 ASM profile for A55\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Remove unnecessary stack locations in Keccak hybrids\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Guard usage of FIPS202 assembly by MLKEM_USE_AARCH64_ASM\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* FIPS202 ASM: Sync filenames and function symbol names\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n---------\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>",
+          "timestamp": "2024-10-02T16:54:07+08:00",
+          "tree_id": "23db00ed893afdd9afb73d0937407392bb89c812",
+          "url": "https://github.com/pq-code-package/mlkem-c-aarch64/commit/5de13cbb17719433e16ef74425169d53e3c23eb2"
+        },
+        "date": 1727859433226,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ML-KEM-512 keypair",
+            "value": 21340,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 encaps",
+            "value": 28323,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 decaps",
+            "value": 31786,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 keypair",
+            "value": 37228,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 encaps",
+            "value": 43187,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 decaps",
+            "value": 47787,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 keypair",
+            "value": 54948,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 encaps",
+            "value": 62758,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 decaps",
+            "value": 69226,
             "unit": "cycles"
           }
         ]
