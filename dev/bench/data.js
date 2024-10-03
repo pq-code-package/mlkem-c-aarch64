@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1727944111952,
+  "lastUpdate": 1727944119802,
   "repoUrl": "https://github.com/pq-code-package/mlkem-c-aarch64",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -19759,6 +19759,73 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 109170,
+            "unit": "cycles"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Hanno Becker",
+            "username": "hanno-becker",
+            "email": "beckphan@amazon.co.uk"
+          },
+          "committer": {
+            "name": "GitHub",
+            "username": "web-flow",
+            "email": "noreply@github.com"
+          },
+          "id": "8f21415a76ff394040e42a0c90d8a9fb06a253ce",
+          "message": "Fix gen_matrix() (#185)\n\nWhen building the public matrix, we first squeeze GEN_MATRIX_NBLOCKS\r\nout of the Keccak state and rejection sample them into the matrix\r\nentries. We run a 'fill up' stage, squeezing and sampling one block a time,\r\nuntil the entry buffers are full.\r\n\r\nThe previous code got the fill-up stage wrong: Instead of squeezing one block\r\na time, we squeezed GEN_MATRIX_NBLOCKS, _but_ sampled as if we had only squeezed\r\none. This would lead to incorrect results if the fill-up stage needs more than\r\none iteration. Thanks to the large default value of GEN_MATRIX_NBLOCKS, this\r\nwould not happen in any of the KAT tests, but it may still fail in rare cases.\r\nIt also fails when setting GEN_MATRIX_NBLOCKS=2.\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>",
+          "timestamp": "2024-10-03T06:01:50Z",
+          "url": "https://github.com/pq-code-package/mlkem-c-aarch64/commit/8f21415a76ff394040e42a0c90d8a9fb06a253ce"
+        },
+        "date": 1727944118704,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ML-KEM-512 keypair",
+            "value": 33099,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 encaps",
+            "value": 42886,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 decaps",
+            "value": 48767,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 keypair",
+            "value": 58390,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 encaps",
+            "value": 67111,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 decaps",
+            "value": 74950,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 keypair",
+            "value": 89304,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 encaps",
+            "value": 99289,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 decaps",
+            "value": 109692,
             "unit": "cycles"
           }
         ]
