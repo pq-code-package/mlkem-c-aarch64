@@ -315,25 +315,27 @@ bit_table_data:
     ldr x30, [sp, #(STACK_OFFSET_GPRS)]
 .endm
 
-    /* Input registers */
+    /* Parameters */
     output                      .req x0
     len                         .req w1
     buf                         .req x2
     buf_consumed_ptr            .req x3
     buflen                      .req w4
+
+    /* Pointers to static data */
     table_idx                   .req x5
     bit_table                   .req x6
 
-    /* Output registers */
-    output_tmp                  .req x11
-    output_tmp_base             .req x16
+    /* Temporary output on the stack */
+    output_tmp                  .req x7
+    output_tmp_base             .req x8
 
     /* Number of coefficients sampled so far */
-    count                       .req w6
-    buf_consumed                .req w7
+    count                       .req w9
+    buf_consumed                .req w10
 
     /* Temporary registers */
-    tmp                         .req w8
+    tmp                         .req w11
 
     rec_idx_0                   .req w12
     rec_idx_1                   .req w13
