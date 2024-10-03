@@ -419,6 +419,13 @@ _rej_uniform_asm_clean:
     ldr         bits_q, [bit_table]
     movz        tmp, #3329
     dup         kyber_q.8h, tmp
+
+    // Truncate buffer length to be <= KYBER_N.
+    mov tmp, #KYBER_N
+    cmp lenw, tmp
+    // Use _unsigned_ higher (hi)
+    csel lenw, tmp, lenw, hi
+
     round_48x   bound, buflen
 
     mov     iterw, #0
