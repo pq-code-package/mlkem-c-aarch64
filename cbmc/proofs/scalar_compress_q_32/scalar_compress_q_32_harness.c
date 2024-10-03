@@ -21,10 +21,9 @@
  * @brief Starting point for formal analysis
  *
  */
-void harness(void)
-{
-    int32_t u;
+void harness(void) {
+  int32_t u;
 
-    /* Contracts for this function are in poly.h */
-    uint32_t d = scalar_compress_q_32(u);
+  /* Contracts for this function are in poly.h */
+  uint32_t d = scalar_compress_q_32(u);
 }

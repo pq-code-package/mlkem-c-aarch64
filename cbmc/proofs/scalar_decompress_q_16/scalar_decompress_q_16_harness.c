@@ -21,12 +21,12 @@
  * @brief Starting point for formal analysis
  *
  */
-void harness(void)
-{
-    // Check that decompression followed by compression is the identity
-    uint32_t c0, c1, d;
+void harness(void) {
+  // Check that decompression followed by compression is the identity
+  uint32_t c0, c1, d;
 
-    d = scalar_decompress_q_16(c0);
-    c1 = scalar_compress_q_16(d);
-    __CPROVER_assert(c0 == c1, "scalar_compress_q_16 o scalar_decompress_q_16 != id");
+  d = scalar_decompress_q_16(c0);
+  c1 = scalar_compress_q_16(d);
+  __CPROVER_assert(c0 == c1,
+                   "scalar_compress_q_16 o scalar_decompress_q_16 != id");
 }

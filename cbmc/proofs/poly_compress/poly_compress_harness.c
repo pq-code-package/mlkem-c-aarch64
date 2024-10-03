@@ -21,10 +21,9 @@
  * @brief Starting point for formal analysis
  *
  */
-void harness(void)
-{
-    poly r;
-    uint8_t a[KYBER_POLYCOMPRESSEDBYTES];
+void harness(void) {
+  poly r;
+  uint8_t a[KYBER_POLYCOMPRESSEDBYTES];
 
-    poly_compress(a, &r);
+  poly_compress(a, &r);
 }

@@ -31,6 +31,7 @@
 
             inherit (pkgs)
               nixpkgs-fmt
+              clang-tools
               shfmt;
 
             inherit (pkgs.python3Packages)

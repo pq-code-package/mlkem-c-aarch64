@@ -4,17 +4,16 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "params.h"
 #include "cbmc.h"
+#include "params.h"
 #include "verify.h"
 
 /*
  * Elements of R_q = Z_q[X]/(X^n + 1). Represents polynomial
  * coeffs[0] + X*coeffs[1] + X^2*coeffs[2] + ... + X^{n-1}*coeffs[n-1]
  */
-typedef struct
-{
-    int16_t coeffs[KYBER_N];
+typedef struct {
+  int16_t coeffs[KYBER_N];
 } ALIGN(16) poly;
 
 /*
@@ -23,46 +22,45 @@ typedef struct
  */
 // REF-CHANGE: This structure does not exist in the reference
 // implementation.
-typedef struct
-{
-    int16_t coeffs[KYBER_N >> 1];
+typedef struct {
+  int16_t coeffs[KYBER_N >> 1];
 } poly_mulcache;
 
-#define scalar_compress_q_16           KYBER_NAMESPACE(scalar_compress_q_16)
-#define scalar_decompress_q_16         KYBER_NAMESPACE(scalar_decompress_q_16)
-#define scalar_compress_q_32           KYBER_NAMESPACE(scalar_compress_q_32)
-#define scalar_decompress_q_32         KYBER_NAMESPACE(scalar_decompress_q_32)
-#define scalar_signed_to_unsigned_q_16 KYBER_NAMESPACE(scalar_signed_to_unsigned_q_16)
+#define scalar_compress_q_16 KYBER_NAMESPACE(scalar_compress_q_16)
+#define scalar_decompress_q_16 KYBER_NAMESPACE(scalar_decompress_q_16)
+#define scalar_compress_q_32 KYBER_NAMESPACE(scalar_compress_q_32)
+#define scalar_decompress_q_32 KYBER_NAMESPACE(scalar_decompress_q_32)
+#define scalar_signed_to_unsigned_q_16 \
+  KYBER_NAMESPACE(scalar_signed_to_unsigned_q_16)
 
-static inline uint32_t scalar_compress_q_16   (int32_t u)
-REQUIRES(0 <= u && u <= (KYBER_Q - 1))
-ENSURES(RETURN_VALUE < 16)
-ENSURES(RETURN_VALUE == (((uint32_t) u * 16 + KYBER_Q / 2) / KYBER_Q) % 16);
+static inline uint32_t scalar_compress_q_16(int32_t u)
+    REQUIRES(0 <= u && u <= (KYBER_Q - 1)) ENSURES(RETURN_VALUE < 16)
+        ENSURES(RETURN_VALUE ==
+                (((uint32_t)u * 16 + KYBER_Q / 2) / KYBER_Q) % 16);
 
-static inline uint32_t scalar_decompress_q_16 (uint32_t u)
-REQUIRES(0 <= u && u < 16)
-ENSURES(RETURN_VALUE <= (KYBER_Q - 1));
+static inline uint32_t scalar_decompress_q_16(uint32_t u)
+    REQUIRES(0 <= u && u < 16) ENSURES(RETURN_VALUE <= (KYBER_Q - 1));
 
-static inline uint32_t scalar_compress_q_32   (int32_t u)
-REQUIRES(0 <= u && u <= (KYBER_Q - 1))
-ENSURES(RETURN_VALUE < 32)
-ENSURES(RETURN_VALUE == (((uint32_t) u * 32 + KYBER_Q / 2) / KYBER_Q) % 32);
+static inline uint32_t scalar_compress_q_32(int32_t u)
+    REQUIRES(0 <= u && u <= (KYBER_Q - 1)) ENSURES(RETURN_VALUE < 32)
+        ENSURES(RETURN_VALUE ==
+                (((uint32_t)u * 32 + KYBER_Q / 2) / KYBER_Q) % 32);
 
-static inline uint32_t scalar_decompress_q_32 (uint32_t u)
-REQUIRES(0 <= u && u < 32)
-ENSURES(RETURN_VALUE <= (KYBER_Q - 1));
+static inline uint32_t scalar_decompress_q_32(uint32_t u)
+    REQUIRES(0 <= u && u < 32) ENSURES(RETURN_VALUE <= (KYBER_Q - 1));
 
-static inline uint16_t scalar_signed_to_unsigned_q_16 (int16_t c)
-REQUIRES(c >= -(KYBER_Q - 1) && c <= (KYBER_Q - 1))
-ENSURES(RETURN_VALUE >= 0 && RETURN_VALUE <= (KYBER_Q - 1))
-ENSURES(RETURN_VALUE == (int32_t) c + (((int32_t) c < 0) * KYBER_Q));
+static inline uint16_t scalar_signed_to_unsigned_q_16(int16_t c)
+    REQUIRES(c >= -(KYBER_Q - 1) && c <= (KYBER_Q - 1))
+        ENSURES(RETURN_VALUE >= 0 && RETURN_VALUE <= (KYBER_Q - 1))
+            ENSURES(RETURN_VALUE == (int32_t)c + (((int32_t)c < 0) * KYBER_Q));
 
 #define poly_compress KYBER_NAMESPACE(poly_compress)
 void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
-REQUIRES(r != NULL && IS_FRESH(r, KYBER_POLYCOMPRESSEDBYTES))
-REQUIRES(a != NULL && IS_FRESH(a, sizeof(poly)))
-REQUIRES(ARRAY_IN_BOUNDS(unsigned, k, 0, (KYBER_N-1), a->coeffs, -(KYBER_Q - 1), (KYBER_Q - 1)))
-ASSIGNS(OBJECT_WHOLE(r));
+    REQUIRES(r != NULL && IS_FRESH(r, KYBER_POLYCOMPRESSEDBYTES))
+        REQUIRES(a != NULL && IS_FRESH(a, sizeof(poly)))
+            REQUIRES(ARRAY_IN_BOUNDS(int, k, 0, (KYBER_N - 1), a->coeffs,
+                                     -(KYBER_Q - 1), (KYBER_Q - 1)))
+                ASSIGNS(OBJECT_WHOLE(r));
 
 /************************************************************
  * Name: scalar_compress_q_16
@@ -72,25 +70,24 @@ ASSIGNS(OBJECT_WHOLE(r));
  * Arguments: - u: Unsigned canonical modulus modulo q
  *                 to be compressed.
  ************************************************************/
-static inline uint32_t scalar_compress_q_16(int32_t u)
-{
-    uint32_t d0 = (uint32_t) u;
-    d0 <<= 4;
-    d0 +=  1665;
+static inline uint32_t scalar_compress_q_16(int32_t u) {
+  uint32_t d0 = (uint32_t)u;
+  d0 <<= 4;
+  d0 += 1665;
 
-    /* This multiply will exceed UINT32_MAX and wrap around */
-    /* for large values of u. This is expected and required */
-    #ifdef CBMC
+/* This multiply will exceed UINT32_MAX and wrap around */
+/* for large values of u. This is expected and required */
+#ifdef CBMC
 #pragma CPROVER check push
 #pragma CPROVER check disable "unsigned-overflow"
-    #endif
-    d0 *=  80635;
-    #ifdef CBMC
+#endif
+  d0 *= 80635;
+#ifdef CBMC
 #pragma CPROVER check pop
-    #endif
-    d0 >>= 28;
-    d0 &=  0xF;
-    return d0;
+#endif
+  d0 >>= 28;
+  d0 &= 0xF;
+  return d0;
 }
 
 /************************************************************
@@ -101,9 +98,8 @@ static inline uint32_t scalar_compress_q_16(int32_t u)
  * Arguments: - u: Unsigned canonical modulus modulo 16
  *                 to be decompressed.
  ************************************************************/
-static inline uint32_t scalar_decompress_q_16(uint32_t u)
-{
-    return ((u * KYBER_Q) + 8) / 16;
+static inline uint32_t scalar_decompress_q_16(uint32_t u) {
+  return ((u * KYBER_Q) + 8) / 16;
 }
 
 /************************************************************
@@ -114,25 +110,24 @@ static inline uint32_t scalar_decompress_q_16(uint32_t u)
  * Arguments: - u: Unsigned canonical modulus modulo q
  *                 to be compressed.
  ************************************************************/
-static inline uint32_t scalar_compress_q_32(int32_t u)
-{
-    uint32_t d0 = (uint32_t) u;
-    d0 <<= 5;
-    d0 +=  1664;
+static inline uint32_t scalar_compress_q_32(int32_t u) {
+  uint32_t d0 = (uint32_t)u;
+  d0 <<= 5;
+  d0 += 1664;
 
-    /* This multiply will exceed UINT32_MAX and wrap around */
-    /* for large values of u. This is expected and required */
-    #ifdef CBMC
+/* This multiply will exceed UINT32_MAX and wrap around */
+/* for large values of u. This is expected and required */
+#ifdef CBMC
 #pragma CPROVER check push
 #pragma CPROVER check disable "unsigned-overflow"
-    #endif
-    d0 *=  40318;
-    #ifdef CBMC
+#endif
+  d0 *= 40318;
+#ifdef CBMC
 #pragma CPROVER check pop
-    #endif
-    d0 >>= 27;
-    d0 &=  0x1f;
-    return d0;
+#endif
+  d0 >>= 27;
+  d0 &= 0x1f;
+  return d0;
 }
 
 /************************************************************
@@ -143,9 +138,8 @@ static inline uint32_t scalar_compress_q_32(int32_t u)
  * Arguments: - u: Unsigned canonical modulus modulo 32
  *                 to be decompressed.
  ************************************************************/
-static inline uint32_t scalar_decompress_q_32(uint32_t u)
-{
-    return ((u * KYBER_Q) + 16) / 32;
+static inline uint32_t scalar_decompress_q_32(uint32_t u) {
+  return ((u * KYBER_Q) + 16) / 32;
 }
 
 /************************************************************
@@ -166,24 +160,24 @@ static inline uint32_t scalar_decompress_q_32(uint32_t u)
  *
  * Arguments: c: signed coefficient to be converted
  ************************************************************/
-static inline uint16_t scalar_signed_to_unsigned_q_16 (int16_t c)
-{
-    // Add Q if c is negative, but in constant time
-    cmov_int16(&c, c + KYBER_Q, c < 0);
+static inline uint16_t scalar_signed_to_unsigned_q_16(int16_t c) {
+  // Add Q if c is negative, but in constant time
+  cmov_int16(&c, c + KYBER_Q, c < 0);
 
-    ASSERT(c >= 0, "scalar_signed_to_unsigned_q_16 result lower bound");
-    ASSERT(c < KYBER_Q, "scalar_signed_to_unsigned_q_16 result upper bound");
+  ASSERT(c >= 0, "scalar_signed_to_unsigned_q_16 result lower bound");
+  ASSERT(c < KYBER_Q, "scalar_signed_to_unsigned_q_16 result upper bound");
 
-    // and therefore cast to uint16_t is safe.
-    return (uint16_t) c;
+  // and therefore cast to uint16_t is safe.
+  return (uint16_t)c;
 }
 
 #define poly_decompress KYBER_NAMESPACE(poly_decompress)
 void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES])
-REQUIRES(a != NULL && IS_FRESH(a, KYBER_POLYCOMPRESSEDBYTES))
-REQUIRES(r != NULL && IS_FRESH(r, sizeof(poly)))
-ASSIGNS(OBJECT_WHOLE(r))
-ENSURES(ARRAY_IN_BOUNDS(unsigned, k, 0, (KYBER_N-1), r->coeffs, 0, (KYBER_Q - 1)));
+    REQUIRES(a != NULL && IS_FRESH(a, KYBER_POLYCOMPRESSEDBYTES))
+        REQUIRES(r != NULL && IS_FRESH(r, sizeof(poly)))
+            ASSIGNS(OBJECT_WHOLE(r))
+                ENSURES(ARRAY_IN_BOUNDS(int, k, 0, (KYBER_N - 1), r->coeffs, 0,
+                                        (KYBER_Q - 1)));
 
 #define poly_tobytes KYBER_NAMESPACE(poly_tobytes)
 void poly_tobytes(uint8_t r[KYBER_POLYBYTES], const poly *a);
@@ -196,45 +190,31 @@ void poly_frommsg(poly *r, const uint8_t msg[KYBER_INDCPA_MSGBYTES]);
 void poly_tomsg(uint8_t msg[KYBER_INDCPA_MSGBYTES], const poly *r);
 
 #define poly_getnoise_eta1_4x KYBER_NAMESPACE(poly_getnoise_eta1_4x)
-void poly_getnoise_eta1_4x(poly *r0,
-                           poly *r1,
-                           poly *r2,
-                           poly *r3,
-                           const uint8_t seed[KYBER_SYMBYTES],
-                           uint8_t nonce0,
-                           uint8_t nonce1,
-                           uint8_t nonce2,
-                           uint8_t nonce3);
+void poly_getnoise_eta1_4x(poly *r0, poly *r1, poly *r2, poly *r3,
+                           const uint8_t seed[KYBER_SYMBYTES], uint8_t nonce0,
+                           uint8_t nonce1, uint8_t nonce2, uint8_t nonce3);
 
 #define poly_getnoise_eta2 KYBER_NAMESPACE(poly_getnoise_eta2)
-void poly_getnoise_eta2(poly *r, const uint8_t seed[KYBER_SYMBYTES], uint8_t nonce);
+void poly_getnoise_eta2(poly *r, const uint8_t seed[KYBER_SYMBYTES],
+                        uint8_t nonce);
 
 #define poly_getnoise_eta2_4x KYBER_NAMESPACE(poly_getnoise_eta2_4x)
-void poly_getnoise_eta2_4x(poly *r0,
-                           poly *r1,
-                           poly *r2,
-                           poly *r3,
-                           const uint8_t seed[KYBER_SYMBYTES],
-                           uint8_t nonce0,
-                           uint8_t nonce1,
-                           uint8_t nonce2,
-                           uint8_t nonce3);
+void poly_getnoise_eta2_4x(poly *r0, poly *r1, poly *r2, poly *r3,
+                           const uint8_t seed[KYBER_SYMBYTES], uint8_t nonce0,
+                           uint8_t nonce1, uint8_t nonce2, uint8_t nonce3);
 
 #define poly_getnoise_eta1122_4x KYBER_NAMESPACE(poly_getnoise_eta1122_4x)
-void poly_getnoise_eta1122_4x(poly *r0,
-                              poly *r1,
-                              poly *r2,
-                              poly *r3,
+void poly_getnoise_eta1122_4x(poly *r0, poly *r1, poly *r2, poly *r3,
                               const uint8_t seed[KYBER_SYMBYTES],
-                              uint8_t nonce0,
-                              uint8_t nonce1,
-                              uint8_t nonce2,
+                              uint8_t nonce0, uint8_t nonce1, uint8_t nonce2,
                               uint8_t nonce3);
 
 #define poly_basemul_montgomery KYBER_NAMESPACE(poly_basemul_montgomery)
 void poly_basemul_montgomery(poly *r, const poly *a, const poly *b);
-#define poly_basemul_montgomery_cached KYBER_NAMESPACE(poly_basemul_montgomery_cached)
-void poly_basemul_montgomery_cached(poly *r, const poly *a, const poly *b, const poly_mulcache *b_cache);
+#define poly_basemul_montgomery_cached \
+  KYBER_NAMESPACE(poly_basemul_montgomery_cached)
+void poly_basemul_montgomery_cached(poly *r, const poly *a, const poly *b,
+                                    const poly_mulcache *b_cache);
 #define poly_tomont KYBER_NAMESPACE(poly_tomont)
 void poly_tomont(poly *r);
 

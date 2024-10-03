@@ -12,27 +12,23 @@
 #define SHA3_512_RATE 72
 
 // Context for incremental API
-typedef struct
-{
-    uint64_t ctx[26];
+typedef struct {
+  uint64_t ctx[26];
 } shake128incctx;
 
 // Context for non-incremental API
-typedef struct
-{
-    uint64_t ctx[25];
+typedef struct {
+  uint64_t ctx[25];
 } shake128ctx;
 
 // Context for incremental API
-typedef struct
-{
-    uint64_t ctx[26];
+typedef struct {
+  uint64_t ctx[26];
 } shake256incctx;
 
 // Context for non-incremental API
-typedef struct
-{
-    uint64_t ctx[25];
+typedef struct {
+  uint64_t ctx[25];
 } shake256ctx;
 
 /* Initialize the state and absorb the provided input.
@@ -45,11 +41,13 @@ void shake128_absorb(shake128ctx *state, const uint8_t *input, size_t inlen);
  *
  * Supports being called multiple times
  */
-void shake128_squeezeblocks(uint8_t *output, size_t nblocks, shake128ctx *state);
+void shake128_squeezeblocks(uint8_t *output, size_t nblocks,
+                            shake128ctx *state);
 
 /* Initialize incremental hashing API */
 void shake256_inc_init(shake256incctx *state);
-void shake256_inc_absorb(shake256incctx *state, const uint8_t *input, size_t inlen);
+void shake256_inc_absorb(shake256incctx *state, const uint8_t *input,
+                         size_t inlen);
 /* Prepares for squeeze phase */
 void shake256_inc_finalize(shake256incctx *state);
 
@@ -57,11 +55,12 @@ void shake256_inc_finalize(shake256incctx *state);
  *
  * Supports being called multiple times
  */
-void shake256_inc_squeeze(uint8_t *output, size_t outlen, shake256incctx *state);
+void shake256_inc_squeeze(uint8_t *output, size_t outlen,
+                          shake256incctx *state);
 
 /* One-stop SHAKE256 call */
-void shake256(uint8_t *output, size_t outlen,
-              const uint8_t *input, size_t inlen);
+void shake256(uint8_t *output, size_t outlen, const uint8_t *input,
+              size_t inlen);
 
 /* One-stop SHA3-256 shop */
 void sha3_256(uint8_t *output, const uint8_t *input, size_t inlen);

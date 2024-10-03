@@ -56,8 +56,8 @@ else
 fi
 echo "::endgroup::"
 
-echo "::group::Linting c files with astyle"
-checkerr "Lint C" "$(astyle $(git ls-files ":/*.c" ":/*.h") --options="$ROOT/.astylerc" --dry-run --formatted | awk '{print $2}')"
+echo "::group::Linting c files with clang-format"
+checkerr "Lint C" "$(clang-format $(git ls-files ":/*.c" ":/*.h") --dry-run)"
 echo "::endgroup::"
 
 check-eol-dry-run()

@@ -1,0 +1,20 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# clang-format style file for MLKEM-C
+#
+# This is based on the style for for AWS-LC
+#
+BasedOnStyle: Google
+MaxEmptyLinesToKeep: 3
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+DerivePointerAlignment: false
+PointerAlignment: Right
+# TODO(davidben): The default for Google style is now Regroup, but the default
+# IncludeCategories does not recognize <openssl/header.h>. We should
+# reconfigure IncludeCategories to match. For now, keep it at Preserve.
+IncludeBlocks: Preserve
+
+# Designate CBMC contracts/macros that appear in .h files
+# as "attributes" so they don't get increasingly indented line after line
+AttributeMacros: ['REQUIRES', 'ENSURES', 'ASSIGNS']
