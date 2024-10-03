@@ -285,11 +285,8 @@ table_data:
 bit_table_data:
     .short 0x1, 0x2, 0x4, 0x8, 0x10, 0x20, 0x40, 0x80
 
-// Maximum size of int16 output array
-#define REJ_UNIFORM_ASM_MAX_OUTPUT KYBER_N
-
 #define STACK_LOCS 2
-#define STACK_SIZE_TMP_OUTPUT (2*REJ_UNIFORM_ASM_MAX_OUTPUT + 64) // We overwrite by max. 64 bytes in loop48
+#define STACK_SIZE_TMP_OUTPUT (2*KYBER_N + 64) // We overwrite by max. 64 bytes in loop48
 #define STACK_SIZE_LOCS (8*STACK_LOCS)
 #define STACK_SIZE_GPRS (2 * 8)
 #define STACK_OFFSET_GPRS 0
@@ -409,12 +406,10 @@ _rej_uniform_asm_clean:
     movz        tmp, #KYBER_Q
     dup         kyber_q.8h, tmp
 
-    // We cannot handle buffer lengths larger than REJ_UNIFORM_ASM_MAX_OUTPUT
-    // In this case, we just return immediately, indicating that 0 bytes have
-    // been processed.
-    mov tmp, #REJ_UNIFORM_ASM_MAX_OUTPUT
+    // We only deal with output buffer length KYBER_N.
+    mov tmp, #KYBER_N
     cmp len, tmp
-    b.hi reject
+    b.ne reject
 
     add output_tmp_base, sp, #STACK_OFFSET_TMP_OUTPUT
     mov output_tmp, output_tmp_base
