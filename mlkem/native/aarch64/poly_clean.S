@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "config.h"
-#if defined(MLKEM_USE_AARCH64_ASM)
+#if defined(MLKEM_USE_NATIVE_AARCH64)
 
 // Needed to provide ASM_LOAD directive
 #include "common.i"
@@ -287,4 +287,4 @@ poly_tomont_asm_loop:
 
         ret
 
-#endif /* MLKEM_USE_AARCH64_ASM */
+#endif /* MLKEM_USE_NATIVE_AARCH64 */

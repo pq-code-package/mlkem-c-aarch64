@@ -24,7 +24,7 @@
 ///
 
 #include "config.h"
-#if defined(MLKEM_USE_AARCH64_ASM)
+#if defined(MLKEM_USE_NATIVE_AARCH64)
 
 // Needed to provide ASM_LOAD directive
 #include "common.i"
@@ -1051,4 +1051,4 @@ layer123_start:
         pop_stack
         ret
 
-#endif /* MLKEM_USE_AARCH64_ASM */
+#endif /* MLKEM_USE_NATIVE_AARCH64 */

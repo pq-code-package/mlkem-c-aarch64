@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 #include "params.h"
 
-#include "asm/asm.h"
+#include "arith_native.h"
 #include "rej_uniform.h"
 
 /*************************************************
@@ -41,12 +41,12 @@ static unsigned int rej_uniform_scalar(int16_t *r, unsigned int len,
   return ctr;
 }
 
-#if !defined(MLKEM_USE_AARCH64_ASM)
+#if !defined(MLKEM_USE_NATIVE_AARCH64)
 unsigned int rej_uniform(int16_t *r, unsigned int len, const uint8_t *buf,
                          unsigned int buflen) {
   return rej_uniform_scalar(r, len, buf, buflen);
 }
-#else  /* MLKEM_USE_AARCH64_ASM */
+#else  /* MLKEM_USE_NATIVE_AARCH64 */
 
 /*************************************************
  * Name:        rej_uniform
@@ -68,7 +68,7 @@ unsigned int rej_uniform(int16_t *r, unsigned int len, const uint8_t *buf,
   unsigned int ctr, consumed = 0;
 
   // Sample from large buffer with full lane as much as possible.
-  ctr = rej_uniform_asm(r, len, buf, &consumed, buflen);
+  ctr = rej_uniform_native(r, len, buf, &consumed, buflen);
   if (ctr < len) {
     // This function will utilize every last byte of the buffer.
     ctr += rej_uniform_scalar(r + ctr, len - ctr, buf + consumed,
@@ -77,4 +77,4 @@ unsigned int rej_uniform(int16_t *r, unsigned int len, const uint8_t *buf,
 
   return ctr;
 }
-#endif /* MLKEM_USE_AARCH64_ASM */
+#endif /* MLKEM_USE_NATIVE_AARCH64 */

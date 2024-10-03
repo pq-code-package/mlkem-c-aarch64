@@ -24,7 +24,7 @@
  */
 
 #include "config.h"
-#if defined(MLKEM_USE_AARCH64_ASM)
+#if defined(MLKEM_USE_NATIVE_AARCH64)
 
 // Needed to provide ASM_LOAD directive
 #include "common.i"

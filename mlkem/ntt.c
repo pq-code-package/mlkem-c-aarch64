@@ -4,7 +4,7 @@
 #include "params.h"
 #include "reduce.h"
 
-#include "asm/asm.h"
+#include "arith_native.h"
 
 /* Code to generate zetas and zetas_inv used in the number-theoretic transform:
 
@@ -63,7 +63,7 @@ const int16_t zetas[128] = {
  *
  * Arguments:   - poly *p: pointer to in/output polynomial
  **************************************************/
-#if !defined(MLKEM_USE_AARCH64_ASM)
+#if !defined(MLKEM_USE_NATIVE_NTT)
 // REF-CHANGE: Removed indirection poly_ntt -> ntt()
 // and integrated polynomial reduction into the NTT.
 void poly_ntt(poly *p) {
@@ -85,9 +85,9 @@ void poly_ntt(poly *p) {
 
   poly_reduce(p);
 }
-#else  /* MLKEM_USE_AARCH64_ASM */
-void poly_ntt(poly *p) { ntt_asm(p->coeffs); }
-#endif /* MLKEM_USE_AARCH64_ASM */
+#else  /* MLKEM_USE_NATIVE_NTT */
+void poly_ntt(poly *p) { ntt_native(p); }
+#endif /* MLKEM_USE_NATIVE_NTT */
 
 /*************************************************
  * Name:        poly_invntt_tomont
@@ -99,7 +99,7 @@ void poly_ntt(poly *p) { ntt_asm(p->coeffs); }
  *
  * Arguments:   - uint16_t *a: pointer to in/output polynomial
  **************************************************/
-#if !defined(MLKEM_USE_AARCH64_ASM)
+#if !defined(MLKEM_USE_NATIVE_INTT)
 // REF-CHANGE: Removed indirection poly_invntt_tomont -> invntt()
 void poly_invntt_tomont(poly *p) {
   unsigned int start, len, j, k;
@@ -124,9 +124,9 @@ void poly_invntt_tomont(poly *p) {
     r[j] = fqmul(r[j], f);
   }
 }
-#else  /* MLKEM_USE_AARCH64_ASM */
-void poly_invntt_tomont(poly *p) { intt_asm(p->coeffs); }
-#endif /* MLKEM_USE_AARCH64_ASM */
+#else  /* MLKEM_USE_NATIVE_INTT */
+void poly_invntt_tomont(poly *p) { intt_native(p); }
+#endif /* MLKEM_USE_NATIVE_INTT */
 
 /*************************************************
  * Name:        basemul

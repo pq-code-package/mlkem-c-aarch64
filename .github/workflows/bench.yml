@@ -31,7 +31,7 @@ jobs:
           name: Arm Cortex-A55 (Snapdragon 888) benchmarks
           bench_pmu: PERF
           archflags: "-mcpu=cortex-a55 -march=armv8.2-a"
-          cflags: "-static -DFORCE_AARCH64 -DFIPS202_ASM_PROFILE=\"profiles/cortex_a55.h\""
+          cflags: "-static -DFORCE_AARCH64 -DFIPS202_NATIVE_PROFILE=\"aarch64/profiles/cortex_a55.h\""
           bench_extra_args: -w exec-on-a55
     if: github.repository_owner == 'pq-code-package' && (github.event.label.name == 'benchmark' || github.ref == 'refs/heads/main')
     runs-on: self-hosted-${{ matrix.target.system }}

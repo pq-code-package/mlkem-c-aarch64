@@ -25,7 +25,6 @@ CFLAGS += \
 	-Wpedantic \
 	-Werror \
 	-Wmissing-prototypes \
-	-Wredundant-decls \
 	-Wshadow \
 	-Wpointer-arith \
 	-Wno-unknown-pragmas \

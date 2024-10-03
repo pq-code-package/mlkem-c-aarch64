@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 #include "polyvec.h"
 #include <stdint.h>
-#include "asm/asm.h"
+#include "arith_native.h"
 #include "config.h"
 #include "ntt.h"
 #include "params.h"
@@ -208,7 +208,7 @@ void polyvec_invntt_tomont(polyvec *r) {
  *            - const polyvec *a: pointer to first input vector of polynomials
  *            - const polyvec *b: pointer to second input vector of polynomials
  **************************************************/
-#if !defined(MLKEM_USE_AARCH64_ASM)
+#if !defined(MLKEM_USE_NATIVE_POLYVEC_BASEMUL_ACC_MONTGOMERY_CACHED)
 void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a,
                                            const polyvec *b,
                                            const polyvec_mulcache *b_cache) {
@@ -224,14 +224,13 @@ void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a,
 
   poly_reduce(r);
 }
-#else  /* MLKEM_USE_AARCH64_ASM */
+#else  /* !MLKEM_USE_NATIVE_POLYVEC_BASEMUL_ACC_MONTGOMERY_CACHED */
 void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a,
                                            const polyvec *b,
                                            const polyvec_mulcache *b_cache) {
-  polyvec_basemul_acc_montgomery_cached_asm(
-      r->coeffs, a->vec[0].coeffs, b->vec[0].coeffs, b_cache->vec[0].coeffs);
+  polyvec_basemul_acc_montgomery_cached_native(r, a, b, b_cache);
 }
-#endif /* MLKEM_USE_AARCH64_ASM */
+#endif /* MLKEM_USE_NATIVE_POLYVEC_BASEMUL_ACC_MONTGOMERY_CACHED */
 
 /*************************************************
  * Name:        polyvec_basemul_acc_montgomery
