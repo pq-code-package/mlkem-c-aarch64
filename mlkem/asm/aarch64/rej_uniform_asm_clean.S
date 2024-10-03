@@ -406,7 +406,7 @@ _rej_uniform_asm_clean:
     ASM_LOAD(table_idx, table_data)
 
     ldr         bits_q, [bit_table]
-    movz        tmp, #3329
+    movz        tmp, #KYBER_Q
     dup         kyber_q.8h, tmp
 
     // We cannot handle buffer lengths larger than REJ_UNIFORM_ASM_MAX_OUTPUT
