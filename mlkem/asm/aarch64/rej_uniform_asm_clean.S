@@ -402,9 +402,6 @@ _rej_uniform_asm_clean:
     push_stack
     save_gprs
 
-    // TODO: This routine seems to write the results on the stack first, which is statically sized.
-    //       It therefore only works for input buffers of bounded size, which needs to be documented.
-
     ASM_LOAD(bit_table, bit_table_data)
     ASM_LOAD(table_idx, table_data)
 
