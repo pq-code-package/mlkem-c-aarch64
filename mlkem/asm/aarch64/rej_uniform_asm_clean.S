@@ -479,9 +479,6 @@ loop48:
         // Compute number of valid coefficients. Recall that at this
         // point, lane i has value 2^i (hence popcount 1) if its coefficient
         // is valid, and 0 otherwise.
-        //
-        // TODO: We could do this popcount directly on the result of cmhi,
-        // thereby reducing the computation depth.
         cnt     sign0.16b, sign0.16b
         cnt     sign1.16b, sign1.16b
         cnt     sign2.16b, sign2.16b
