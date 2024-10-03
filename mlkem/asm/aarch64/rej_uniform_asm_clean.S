@@ -285,13 +285,6 @@ table_data:
 bit_table_data:
     .short 0x1, 0x2, 0x4, 0x8, 0x10, 0x20, 0x40, 0x80
 
-/* Return multiple of 48: (n/48) * 48 */
-.macro round_48x    dst, src
-    mov     w8, #48
-    udiv    \dst, \src, w8
-    mul     \dst, \dst, w8
-.endm
-
 // Maximum size of int16 output array
 #define REJ_UNIFORM_ASM_MAX_OUTPUT KYBER_N
 
@@ -328,11 +321,10 @@ bit_table_data:
 
     /* Input registers */
     output                      .req x0
+    len                         .req w1
     buf                         .req x2
-    buf_consumed                .req x3
+    buf_consumed_ptr            .req x3
     buflen                      .req w4
-    len                         .req x1
-    lenw                        .req w1
     table_idx                   .req x5
     bit_table                   .req x6
 
@@ -340,14 +332,12 @@ bit_table_data:
     output_tmp                  .req x11
     output_tmp_base             .req x16
 
+    /* Number of coefficients sampled so far */
+    count                       .req w6
+    buf_consumed                .req w7
+
     /* Temporary registers */
     tmp                         .req w8
-    count                       .req w8
-    bound                       .req w9
-    minw                        .req w8
-    min                         .req x8
-    iterw                       .req w10
-    iter                        .req x10
 
     rec_idx_0                   .req w12
     rec_idx_1                   .req w13
@@ -358,6 +348,9 @@ bit_table_data:
     ctr1                        .req w13
     ctr2                        .req w14
     ctr3                        .req w15
+
+    ctr01                       .req ctr0
+    ctr23                       .req ctr2
 
     /* Vector registers */
 
@@ -417,8 +410,6 @@ _rej_uniform_asm_clean:
     ASM_LOAD(bit_table, bit_table_data)
     ASM_LOAD(table_idx, table_data)
 
-    /* Vectorize code start */
-
     ldr         bits_q, [bit_table]
     movz        tmp, #3329
     dup         kyber_q.8h, tmp
@@ -427,26 +418,28 @@ _rej_uniform_asm_clean:
     // In this case, we just return immediately, indicating that 0 bytes have
     // been processed.
     mov tmp, #REJ_UNIFORM_ASM_MAX_OUTPUT
-    cmp lenw, tmp
+    cmp len, tmp
     b.hi reject
 
-    round_48x   bound, buflen
-    mov     iterw, #0
-    add     output_tmp_base, sp, #STACK_OFFSET_TMP_OUTPUT
-    mov     output_tmp, output_tmp_base
+    add output_tmp_base, sp, #STACK_OFFSET_TMP_OUTPUT
+    mov output_tmp, output_tmp_base
 
-    // TODO: This must be skipped if the remaining length is < 48
-    loop48:
-        add     x8, buf, iter
+    mov count, #0
+    mov buf_consumed, #0
 
+    cmp buflen, #48
+    b.lo loop48_end
+
+loop48:
         // First, we unpack the byte stream into a stream of signed
         // coefficients, interpreting each consecutive 3 bytes as two
         // signed 12-bit coefficients, presented as 16-bit integers.
         //
         // We handle 16 such triples a time, and use ld3 for the required
         // de-interleaving of the byte stream.
-        ld3     {buf0.16b, buf1.16b, buf2.16b}, [x8]
-        add     iterw, iterw, #48
+        sub     buflen, buflen, #48
+        add     buf_consumed, buf_consumed, #48
+        ld3     {buf0.16b, buf1.16b, buf2.16b}, [buf], #48
 
         // Unpack 16 triples of bytes into 16 pairs of 16-bit integers,
         // represented as 4 vectors val0-val3.
@@ -544,24 +537,25 @@ _rej_uniform_asm_clean:
         str     val3q, [output_tmp]
         add     output_tmp, output_tmp, ctr3, uxtw #1
 
-        sub     x8, output_tmp, output_tmp_base
-        lsr     x8, x8, #1
+        add     ctr01, ctr0, ctr1
+        add     ctr23, ctr2, ctr3
+        add     count, count, ctr01
+        add     count, count, ctr23
 
         // Finish once we've generated sufficiently many coefficients
-        cmp     count, lenw
+        cmp     count, len
         b.hs    memory_copy
 
-        cmp     iterw, bound
-        b.lo    loop48
+        cmp buflen, #48
+        b.hs loop48
+loop48_end:
 
-        // TODO: This must be skipped if the remaining length is < 24
-        // it is by luck only that this doesn't happen...
-    loop24:
+    cmp buflen, #24
+    b.lo memory_copy
 
-        add     x8, buf, iter
-
-        ld3     {buf0.8b, buf1.8b, buf2.8b}, [x8]
-        add     iterw, iterw, #24
+        sub     buflen, buflen, #24
+        add     buf_consumed, buf_consumed, #24
+        ld3     {buf0.8b, buf1.8b, buf2.8b}, [buf], #24
 
         zip1    tmp0.16b, buf0.16b, buf1.16b
         zip1    tmp1.16b, buf1.16b, buf2.16b
@@ -605,48 +599,43 @@ _rej_uniform_asm_clean:
         str     val1q, [output_tmp]
         add     output_tmp, output_tmp, ctr1, uxtw #1
 
-        sub     x8, output_tmp, output_tmp_base
-        lsr     x8, x8, #1
-
-        // Finish once we've generated sufficiently many coefficients
-        cmp     count, lenw
-        b.hs    memory_copy
-
-        cmp     iterw, buflen
-        b.lo    loop24
+        add     count, count, ctr0
+        add     count, count, ctr1
 
 memory_copy:
-        str     iterw, [buf_consumed]
+    str     buf_consumed, [buf_consumed_ptr]
 
-        // min = min(count,len)
-        cmp     count, lenw
-        csel    minw, count, lenw, lo
-        str     min, [sp, #STACK_OFFSET_RESULT]
+    // min = min(count,len)
+    cmp     count, len
+    csel    count, count, len, lo
+    str     count, [sp, #STACK_OFFSET_RESULT]
 
-        // Skip memcpy if length is 0
-        // TODO: Remove this?
-        cbz     minw, end
+    // Skip memcpy if length is 0
+    cbz     count, end
 
-        ubfiz   x2, min, #1, #32
-        mov     x1, output_tmp_base
-        // x0 is still the output buffer pointer
+    // Set parameters for memcpy:
+    // x0: Destination pointer, same as destination pointer to this routine
+    // x1: Source pointer -- temporary output pointer on the stack
+    // x2: Number of bytes to copy, twice the number of int16 coefficients
+    add     w2, wzr, count, LSL #1
+    mov     x1, output_tmp_base
 
-        // TODO: Hoist this out or write it manually
-        // Also, once that's done, x30 is no longer clobbered
+    // TODO: Hoist this out or write it manually
+    // Also, once that's done, x30 is no longer clobbered
     #ifdef __APPLE__
-        bl _memcpy
+    bl _memcpy
     #else
-        bl memcpy
+    bl memcpy
     #endif
 
-    end:
-        ldr     min, [sp, #STACK_OFFSET_RESULT]
-        mov     w0, minw
-        b return
+end:
+    ldr     count, [sp, #STACK_OFFSET_RESULT]
+    mov     w0, count
+    b return
 
 reject:
         mov x0, #0
-        str w0, [buf_consumed]
+        str w0, [buf_consumed_ptr]
 return:
         restore_gprs
         pop_stack
