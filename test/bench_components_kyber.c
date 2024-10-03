@@ -6,10 +6,12 @@
 #include <string.h>
 #include "hal.h"
 #include "kem.h"
+#include "rej_uniform.h"
 #include "randombytes.h"
 
 #include "../mlkem/asm/asm.h"
 #include "keccakf1600.h"
+#include "fips202.h"
 
 #define NWARMUP 50
 #define NITERERATIONS 300
@@ -51,6 +53,8 @@ static int bench(void) {
 
   BENCH("keccak-f1600-x1", KeccakF1600_StatePermute(data0));
   BENCH("keccak-f1600-x4", KeccakF1600x4_StatePermute(data0));
+  BENCH("rej_uniform (bulk)", rej_uniform((int16_t*)data0, KYBER_N, (const uint8_t*) data1, 3 * SHAKE128_RATE));
+  BENCH("rej_uniform (residue)", rej_uniform((int16_t*)data0, KYBER_N/2, (const uint8_t*) data1, 1 * SHAKE128_RATE));
 
 #if defined(MLKEM_USE_AARCH64_ASM)
   BENCH("ntt-clean", ntt_asm_clean((int16_t *)data0));
