@@ -95,7 +95,7 @@ jobs:
           ec2-instance-type: ${{ inputs.ec2_instance_type }}
           subnet-id: subnet-07b2729e5e065962f
           security-group-id: sg-0ab2e297196c8c381
-  test:
+  tests:
     name: ${{ matrix.tests.name }} ${{ inputs.name }}
     needs: start-ec2-runner
     runs-on: ${{ needs.start-ec2-runner.outputs.label }}
@@ -151,9 +151,7 @@ jobs:
       id-token: 'write'
     needs:
       - start-ec2-runner
-      - cbmc
-      - lint
-      - functest
+      - tests
     runs-on: ubuntu-latest
     if: ${{ (inputs.always_terminate && always()) || success() }} # required to stop the runner even if the error happened in the previous jobs
     steps:
