@@ -68,7 +68,7 @@ unsigned int rej_uniform(int16_t *r, unsigned int len, const uint8_t *buf,
   unsigned int ctr, consumed = 0;
 
   // Sample from large buffer with full lane as much as possible.
-  ctr = rej_uniform_asm(r, buf, &consumed, buflen, len);
+  ctr = rej_uniform_asm(r, len, buf, &consumed, buflen);
   if (ctr < len) {
     // This function will utilize every last byte of the buffer.
     ctr += rej_uniform_scalar(r + ctr, len - ctr, buf + consumed,

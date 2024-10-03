@@ -325,11 +325,11 @@ bit_table_data:
 
     /* Input registers */
     output                      .req x0
-    buf                         .req x1
-    buf_consumed                .req x2
-    buflen                      .req w3
-    len                         .req x4
-    lenw                        .req w4
+    buf                         .req x2
+    buf_consumed                .req x3
+    buflen                      .req w4
+    len                         .req x1
+    lenw                        .req w1
     table_idx                   .req x5
     bit_table                   .req x6
 
