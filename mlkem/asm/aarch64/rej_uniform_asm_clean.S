@@ -288,11 +288,9 @@ bit_table_data:
 #define STACK_LOCS 2
 #define STACK_SIZE_TMP_OUTPUT (2*KYBER_N + 64) // We overwrite by max. 64 bytes in loop48
 #define STACK_SIZE_LOCS (8*STACK_LOCS)
-#define STACK_SIZE_GPRS (2 * 8)
-#define STACK_OFFSET_GPRS 0
-#define STACK_OFFSET_LOCS STACK_SIZE_GPRS
-#define STACK_OFFSET_TMP_OUTPUT (STACK_SIZE_LOCS + STACK_SIZE_GPRS)
-#define STACK_SIZE (STACK_SIZE_TMP_OUTPUT + STACK_SIZE_LOCS + STACK_SIZE_GPRS)
+#define STACK_OFFSET_LOCS 0
+#define STACK_OFFSET_TMP_OUTPUT STACK_SIZE_LOCS
+#define STACK_SIZE (STACK_SIZE_TMP_OUTPUT + STACK_SIZE_LOCS)
 
 #define STACK_OFFSET_RESULT (STACK_OFFSET_LOCS)
 
@@ -302,14 +300,6 @@ bit_table_data:
 
 .macro pop_stack
         add sp, sp, #STACK_SIZE
-.endm
-
-.macro save_gprs
-    str x30, [sp, #(STACK_OFFSET_GPRS)]
-.endm
-
-.macro restore_gprs
-    ldr x30, [sp, #(STACK_OFFSET_GPRS)]
 .endm
 
     /* Parameters */
@@ -333,6 +323,7 @@ bit_table_data:
 
     /* Temporary registers */
     tmp                         .req w11
+    final_copy_count            .req w11
 
     rec_idx_0                   .req w12
     rec_idx_1                   .req w13
@@ -397,7 +388,6 @@ bit_table_data:
 rej_uniform_asm_clean:
 _rej_uniform_asm_clean:
     push_stack
-    save_gprs
 
     ASM_LOAD(bit_table, bit_table_data)
     ASM_LOAD(table_idx, table_data)
@@ -593,42 +583,38 @@ loop48_end:
         add     count, count, ctr1
 
 memory_copy:
-    str     buf_consumed, [buf_consumed_ptr]
+    str buf_consumed, [buf_consumed_ptr]
 
     // min = min(count,len)
-    cmp     count, len
-    csel    count, count, len, lo
-    str     count, [sp, #STACK_OFFSET_RESULT]
+    cmp  count, len
+    csel count, count, len, lo
 
-    // Skip memcpy if length is 0
-    cbz     count, end
+    // Always copy KYBER_N coefficients from the stack to the destination,
+    // even if not all of them may be valid. This simplifies the loop and
+    // allows us to stick to vectorized code.
+    mov final_copy_count, #0
+    mov output_tmp, output_tmp_base
+final_copy:
+        ldr val0q, [output_tmp], #64
+        ldr val1q, [output_tmp, #-48]
+        ldr val2q, [output_tmp, #-32]
+        ldr val3q, [output_tmp, #-16]
+        str val0q, [output], #64
+        str val1q, [output, #-48]
+        str val2q, [output, #-32]
+        str val3q, [output, #-16]
+        add final_copy_count, final_copy_count, #32
+        cmp final_copy_count, #KYBER_N
+        b.lt final_copy
 
-    // Set parameters for memcpy:
-    // x0: Destination pointer, same as destination pointer to this routine
-    // x1: Source pointer -- temporary output pointer on the stack
-    // x2: Number of bytes to copy, twice the number of int16 coefficients
-    add     w2, wzr, count, LSL #1
-    mov     x1, output_tmp_base
-
-    // TODO: Hoist this out or write it manually
-    // Also, once that's done, x30 is no longer clobbered
-    #ifdef __APPLE__
-    bl _memcpy
-    #else
-    bl memcpy
-    #endif
-
-end:
-    ldr     count, [sp, #STACK_OFFSET_RESULT]
-    mov     w0, count
+    mov w0, count
     b return
 
 reject:
-        mov x0, #0
-        str w0, [buf_consumed_ptr]
+    mov x0, #0
+    str w0, [buf_consumed_ptr]
 return:
-        restore_gprs
-        pop_stack
-        ret
+    pop_stack
+    ret
 
 #endif /* MLKEM_USE_AARCH64_ASM */
