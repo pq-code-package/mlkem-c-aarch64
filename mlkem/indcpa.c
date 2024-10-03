@@ -214,8 +214,7 @@ void gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMBYTES],
 
     while (ctr[0] < KYBER_N || ctr[1] < KYBER_N || ctr[2] < KYBER_N ||
            ctr[3] < KYBER_N) {
-      shake128x4_squeezeblocks(bufx[0], bufx[1], bufx[2], bufx[3],
-                               GEN_MATRIX_NBLOCKS, &statex);
+      shake128x4_squeezeblocks(bufx[0], bufx[1], bufx[2], bufx[3], 1, &statex);
       buflen = SHAKE128_RATE;
 
       for (unsigned j = 0; j < KECCAK_WAY; j++) {
