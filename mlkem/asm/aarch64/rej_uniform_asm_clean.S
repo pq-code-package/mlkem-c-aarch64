@@ -285,14 +285,11 @@ table_data:
 bit_table_data:
     .short 0x1, 0x2, 0x4, 0x8, 0x10, 0x20, 0x40, 0x80
 
-#define STACK_LOCS 2
-#define STACK_SIZE_TMP_OUTPUT (2*KYBER_N + 64) // We overwrite by max. 64 bytes in loop48
-#define STACK_SIZE_LOCS (8*STACK_LOCS)
-#define STACK_OFFSET_LOCS 0
-#define STACK_OFFSET_TMP_OUTPUT STACK_SIZE_LOCS
-#define STACK_SIZE (STACK_SIZE_TMP_OUTPUT + STACK_SIZE_LOCS)
-
-#define STACK_OFFSET_RESULT (STACK_OFFSET_LOCS)
+// We save the output on the stack first, and copy to the actual
+// output buffer only in the end. This is because the main loop can overwrite
+// by up to 62 bytes, which we account for here (we use 64 bytes for alignment).
+#define STACK_SIZE (2*KYBER_N + 64)
+#define STACK_OFFSET_TMP_OUTPUT 0
 
 .macro push_stack
         sub sp, sp, #STACK_SIZE
