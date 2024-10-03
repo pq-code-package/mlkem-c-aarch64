@@ -410,6 +410,10 @@ _rej_uniform_asm_clean:
     b.lo loop48_end
 
 loop48:
+        // Finish once we've generated sufficiently many coefficients
+        cmp     count, len
+        b.hs    memory_copy
+
         // First, we unpack the byte stream into a stream of signed
         // coefficients, interpreting each consecutive 3 bytes as two
         // signed 12-bit coefficients, presented as 16-bit integers.
@@ -518,13 +522,13 @@ loop48:
         add     count, count, ctr01
         add     count, count, ctr23
 
-        // Finish once we've generated sufficiently many coefficients
-        cmp     count, len
-        b.hs    memory_copy
-
         cmp buflen, #48
         b.hs loop48
 loop48_end:
+
+    // Finish once we've generated sufficiently many coefficients
+    cmp     count, len
+    b.hs    memory_copy
 
     cmp buflen, #24
     b.lo memory_copy
