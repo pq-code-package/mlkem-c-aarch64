@@ -1,20 +1,22 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /*************************************************
-* Name:        rej_uniform_asm
-*
-* Description: Full SIMD lane, run rejection sampling on uniform random bytes to generate
-*              uniform random integers mod q
-*
-* Arguments:   - int16_t *r:          pointer to output buffer
-*              - unsigned int len:    requested number of 16-bit integers
-*                                     (uniform mod q)
-*              - const uint8_t *buf:  pointer to input buffer
-*                                     (assumed to be uniform random bytes)
-*              - unsigned int buflen: length of input buffer in bytes
-*              - unsigned int *consumed: the length of consumed buffer
-* Returns number of sampled 16-bit integers (at most len)
-***************************************************/
+ * Name:        rej_uniform_asm_clean
+ *
+ * Description: Run rejection sampling on uniform random bytes to generate
+ *              uniform random integers mod q
+ *
+ * Arguments:   - int16_t *r:          pointer to output buffer
+ *              - unsigned int len:    requested number of 16-bit integers
+ *                                     (uniform mod q)
+ *              - const uint8_t *buf:  pointer to input buffer
+ *                                     (assumed to be uniform random bytes)
+ *              - unsigned int *buf_consumed: pointer at which to store the
+ *                                            number of bytes processed
+ *              - unsigned int buflen: length of input buffer in bytes
+ *
+ * Returns number of sampled 16-bit integers (at most len)
+ **************************************************/
 
 #include "config.h"
 #include "params.h"
