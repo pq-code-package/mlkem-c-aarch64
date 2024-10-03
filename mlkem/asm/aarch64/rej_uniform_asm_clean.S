@@ -292,8 +292,11 @@ bit_table_data:
     mul     \dst, \dst, w8
 .endm
 
+// Maximum size of int16 output array
+#define REJ_UNIFORM_ASM_MAX_OUTPUT KYBER_N
+
 #define STACK_LOCS 2
-#define STACK_SIZE_TMP_OUTPUT (2*KYBER_N + 64) // We overwrite by max. 64 bytes in loop48
+#define STACK_SIZE_TMP_OUTPUT (2*REJ_UNIFORM_ASM_MAX_OUTPUT + 64) // We overwrite by max. 64 bytes in loop48
 #define STACK_SIZE_LOCS (8*STACK_LOCS)
 #define STACK_SIZE_GPRS (6 * 8)
 #define STACK_OFFSET_GPRS 0
@@ -420,18 +423,19 @@ _rej_uniform_asm_clean:
     movz        tmp, #3329
     dup         kyber_q.8h, tmp
 
-    // Truncate buffer length to be <= KYBER_N.
-    mov tmp, #KYBER_N
+    // We cannot handle buffer lengths larger than REJ_UNIFORM_ASM_MAX_OUTPUT
+    // In this case, we just return immediately, indicating that 0 bytes have
+    // been processed.
+    mov tmp, #REJ_UNIFORM_ASM_MAX_OUTPUT
     cmp lenw, tmp
-    // Use _unsigned_ higher (hi)
-    csel lenw, tmp, lenw, hi
+    b.hi reject
 
     round_48x   bound, buflen
-
     mov     iterw, #0
     add     output_tmp_base, sp, #STACK_OFFSET_TMP_OUTPUT
     mov     output_tmp, output_tmp_base
 
+    // TODO: This must be skipped if the remaining length is < 48
     loop48:
         add     x8, buf, iter
 
@@ -543,12 +547,15 @@ _rej_uniform_asm_clean:
         sub     x8, output_tmp, output_tmp_base
         lsr     x8, x8, #1
 
+        // Finish once we've generated sufficiently many coefficients
         cmp     count, lenw
         b.hs    memory_copy
 
         cmp     iterw, bound
         b.lo    loop48
 
+        // TODO: This must be skipped if the remaining length is < 24
+        // it is by luck only that this doesn't happen...
     loop24:
 
         add     x8, buf, iter
@@ -601,22 +608,28 @@ _rej_uniform_asm_clean:
         sub     x8, output_tmp, output_tmp_base
         lsr     x8, x8, #1
 
+        // Finish once we've generated sufficiently many coefficients
         cmp     count, lenw
         b.hs    memory_copy
 
         cmp     iterw, buflen
         b.lo    loop24
 
-    memory_copy:
+memory_copy:
         str     iterw, [buf_consumed]
 
+        // min = min(count,len)
         cmp     count, lenw
         csel    minw, count, lenw, lo
         str     min, [sp, #STACK_OFFSET_RESULT]
+
+        // Skip memcpy if length is 0
+        // TODO: Remove this?
         cbz     minw, end
 
         ubfiz   x2, min, #1, #32
         mov     x1, output_tmp_base
+        // x0 is still the output buffer pointer
 
         // TODO: Hoist this out or write it manually
         // Also, once that's done, x30 is no longer clobbered
@@ -629,7 +642,12 @@ _rej_uniform_asm_clean:
     end:
         ldr     min, [sp, #STACK_OFFSET_RESULT]
         mov     w0, minw
+        b return
 
+reject:
+        mov x0, #0
+        str w0, [buf_consumed]
+return:
         restore_gprs
         pop_stack
         ret
