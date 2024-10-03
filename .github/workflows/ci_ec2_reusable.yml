@@ -104,15 +104,15 @@ jobs:
       matrix:
         tests:
         - name: Functional tests
-          action: ./.github/actions/functest
+          action: functest
           nix-shell: ci
           run: ${{ inputs.functest }}
         - name: Linting
-          action: ./.github/actions/lint
+          action: lint
           nix-shell: ci-linter
           run: ${{ inputs.lint }}
         - name: CBMC
-          action: ./.github/actions/cbmc
+          action: cbmc
           nix-shell: ci-cbmc
           run: ${{ inputs.cbmc }}
         exclude:
