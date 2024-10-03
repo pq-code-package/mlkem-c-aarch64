@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1727950106809,
+  "lastUpdate": 1727950158229,
   "repoUrl": "https://github.com/pq-code-package/mlkem-c-aarch64",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -25755,6 +25755,75 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 69234,
+            "unit": "cycles"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "beckphan@amazon.co.uk",
+            "name": "Hanno Becker",
+            "username": "hanno-becker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "becaaf3e312a8691af1a0205a1d7f11fa66be513",
+          "message": "Add asm for rejection sampling (#182)\n\n* Add asm for rejection sampling\r\n\r\nSigned-off-by: Duc Tri Nguyen <dnguye69@gmu.edu>\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Move implementation-specific table for rej_uniform to assembly\r\n\r\nIt is unlikely that another assembly implementation of rej_uniform\r\nwould share the signature and table with the AArch64 implementation.\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Start documenting rejection sampling assembly\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Minor cleanup of AArch64 ASM for rejection sampling\r\n\r\n- Introduce macros for stack layout and stack save/restore ops\r\n- Rename `stack` -> `output` register x0\r\n- Rename former `sp_copy` to `output_tmp_base`, which is the pointer\r\n  to the base of the temporary output buffer on the stack.\r\n- Rename `output` to `output_tmp`, which is the pointer to the\r\n  current write position in the temporary output buffer on the stack.\r\n- Remove unnecessary alias `buf_consumed_copy`\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Change order of parameters in rej_uniform ASM to match C version\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Limit input buffer size to KYBER_N in aarch64 rej sampling\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Return from aarch64 rejection sampling if output too large\r\n\r\nPreviously, an overly large output buffer would lead to a\r\nstack overflow. There's no call-site with such a buffer,\r\nbut the limitation was not documented.\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Refactor aarch64 rej_uniform assembly\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Remove unnecessary stack spills in aarch64 rejection sampling\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Minor cleanup of egister aliases in aarch64 rej uniform\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Remove outdated todo from aarch64 rejection sampling\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Don't hardcode 3329 in aarch64 rejection sampling assembly\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Reject output lengths != KYBER_N in aarch64 rejection sampling\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Remove call to memcpy in aarch64 rejection sampling asm\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Add rej_uniform to bench_components\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Remove unnecessary stack allocations\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Cleanup documentation of rej_uniform_asm_clean\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Remove TODO from aarch64 rejection sampling code\r\n\r\nThe idea proposed in the TODO introduces a dependency later on\r\nand is unlikely to be of any benefit.\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Return immediately from aarch64 rejection sampling if outlen==0\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n---------\r\n\r\nSigned-off-by: Duc Tri Nguyen <dnguye69@gmu.edu>\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\nCo-authored-by: Duc Tri Nguyen <dnguye69@gmu.edu>",
+          "timestamp": "2024-10-03T11:04:50+01:00",
+          "tree_id": "976ccbfc854add91bcbedf5c5d9ca57608a17df2",
+          "url": "https://github.com/pq-code-package/mlkem-c-aarch64/commit/becaaf3e312a8691af1a0205a1d7f11fa66be513"
+        },
+        "date": 1727950157258,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ML-KEM-512 keypair",
+            "value": 19684,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 encaps",
+            "value": 26401,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 decaps",
+            "value": 29861,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 keypair",
+            "value": 33550,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 encaps",
+            "value": 39159,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 decaps",
+            "value": 43800,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 keypair",
+            "value": 48447,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 encaps",
+            "value": 56004,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 decaps",
+            "value": 62519,
             "unit": "cycles"
           }
         ]
