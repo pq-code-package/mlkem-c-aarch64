@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1727928203496,
+  "lastUpdate": 1727928313655,
   "repoUrl": "https://github.com/pq-code-package/mlkem-c-aarch64",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -8737,6 +8737,75 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 225652,
+            "unit": "cycles"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "rodchap@amazon.com",
+            "name": "Roderick Chapman",
+            "username": "rod-chapman"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "eaad70c1c7174a179e6c3ae50aec9d5e7d2286d1",
+          "message": "Adoption of clang-format (#181)\n\n* Adoption of clang-format, phase 1:\r\n\r\n1. Add clang-tools to our nix environment to get clang-format on all platforms.\r\n2. Add a proposed .clang-format file, based on that used by AWS-LC\r\n\r\nMore to come.\r\n\r\nSigned-off-by: Rod Chapman <rodchap@amazon.com>\r\n\r\n* Adoption of clang-format phase 2\r\n\r\nUpdate \"format\" and \"lint\" scripts to use clang-format\r\nby default.\r\n\r\nSigned-off-by: Rod Chapman <rodchap@amazon.com>\r\n\r\n* Adoption of clang-format Phase 3\r\n\r\nRe-format ALL C language .h and .c files using\r\nour chosen .clang-format style.\r\n\r\nSigned-off-by: Rod Chapman <rodchap@amazon.com>\r\n\r\n* Use custom AMI with 32g for x86_64 linting jobs\r\n\r\nPrevious images with 8g mem led to out-of-memory failures.\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n---------\r\n\r\nSigned-off-by: Rod Chapman <rodchap@amazon.com>\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\nCo-authored-by: Hanno Becker <beckphan@amazon.co.uk>",
+          "timestamp": "2024-10-03T05:02:29+01:00",
+          "tree_id": "576818459060277316c3670c5a0ca9146d25d0eb",
+          "url": "https://github.com/pq-code-package/mlkem-c-aarch64/commit/eaad70c1c7174a179e6c3ae50aec9d5e7d2286d1"
+        },
+        "date": 1727928307996,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ML-KEM-512 keypair",
+            "value": 67279,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 encaps",
+            "value": 82585,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 decaps",
+            "value": 93314,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 keypair",
+            "value": 119356,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 encaps",
+            "value": 137935,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 decaps",
+            "value": 152928,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 keypair",
+            "value": 183207,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 encaps",
+            "value": 206417,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 decaps",
+            "value": 226041,
             "unit": "cycles"
           }
         ]
