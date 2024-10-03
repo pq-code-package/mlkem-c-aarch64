@@ -291,7 +291,7 @@ bit_table_data:
 #define STACK_LOCS 2
 #define STACK_SIZE_TMP_OUTPUT (2*REJ_UNIFORM_ASM_MAX_OUTPUT + 64) // We overwrite by max. 64 bytes in loop48
 #define STACK_SIZE_LOCS (8*STACK_LOCS)
-#define STACK_SIZE_GPRS (6 * 8)
+#define STACK_SIZE_GPRS (2 * 8)
 #define STACK_OFFSET_GPRS 0
 #define STACK_OFFSET_LOCS STACK_SIZE_GPRS
 #define STACK_OFFSET_TMP_OUTPUT (STACK_SIZE_LOCS + STACK_SIZE_GPRS)
@@ -308,15 +308,11 @@ bit_table_data:
 .endm
 
 .macro save_gprs
-    str     x8,       [sp, #(STACK_OFFSET_GPRS + 0)]
-    stp     x16, x17, [sp, #(STACK_OFFSET_GPRS + 16)]
-    stp     x29, x30, [sp, #(STACK_OFFSET_GPRS + 32)]
+    str x30, [sp, #(STACK_OFFSET_GPRS)]
 .endm
 
 .macro restore_gprs
-    ldr     x8,       [sp, #(STACK_OFFSET_GPRS + 0)]
-    ldp     x16, x17, [sp, #(STACK_OFFSET_GPRS + 16)]
-    ldp     x29, x30, [sp, #(STACK_OFFSET_GPRS + 32)]
+    ldr x30, [sp, #(STACK_OFFSET_GPRS)]
 .endm
 
     /* Input registers */
