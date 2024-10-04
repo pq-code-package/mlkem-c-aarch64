@@ -57,7 +57,7 @@ fi
 echo "::endgroup::"
 
 echo "::group::Linting c files with clang-format"
-checkerr "Lint C" "$(clang-format $(git ls-files ":/*.c" ":/*.h") --dry-run)"
+checkerr "Lint C" "$(clang-format $(git ls-files ":/*.c" ":/*.h") --Werror --dry-run)"
 echo "::endgroup::"
 
 check-eol-dry-run()
