@@ -66,10 +66,9 @@ endif
 ##############################
 
 RNG ?=
-BENCH :=
 CYCLES ?=
 OPT ?= 1
-RETAINED_VARS := RNG BENCH CYCLES OPT
+RETAINED_VARS := RNG CYCLES OPT
 
 BUILD_DIR := test/build
 LIB_DIR := $(BUILD_DIR)/lib
