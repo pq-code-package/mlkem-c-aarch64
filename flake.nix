@@ -62,10 +62,7 @@
             let
               gcc =
                 if pkgs.stdenv.isDarwin
-                then
-                  if pkgs.stdenv.isx86_64
-                  then [ ]
-                  else aarch64-gcc
+                then [ ]
                 else
                   if cross
                   then aarch64-gcc
