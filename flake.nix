@@ -21,14 +21,6 @@
           cbmcpkg = pkgs.callPackage ./cbmc { }; # 6.3.1
 
           linters = builtins.attrValues {
-            astyle = pkgs.astyle.overrideAttrs (old: rec {
-              version = "3.4.13";
-              src = pkgs.fetchurl {
-                url = "mirror://sourceforge/${old.pname}/${old.pname}-${version}.tar.bz2";
-                hash = "sha256-eKYQq9OelOD5E+nuXNoehbtizWM1U97LngDT2SAQGc4=";
-              };
-            });
-
             inherit (pkgs)
               nixpkgs-fmt
               clang-tools
