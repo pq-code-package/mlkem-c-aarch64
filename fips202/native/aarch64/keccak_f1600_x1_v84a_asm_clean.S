@@ -37,7 +37,7 @@
 //
 
 #include "config.h"
-#if defined(MLKEM_USE_AARCH64_ASM)
+#if defined(MLKEM_USE_NATIVE_AARCH64)
 
 // Needed to provide ASM_LOAD directive
 #include "common.i"
@@ -193,21 +193,7 @@ round_constants:
     ld2 {Asi.d, Aso.d}[0], [input_addr], #16
     ld1 {Asu.d}[0], [input_addr], #8
 
-    ld2 {Aba.d, Abe.d}[1], [input_addr], #16
-    ld2 {Abi.d, Abo.d}[1], [input_addr], #16
-    ld2 {Abu.d, Aga.d}[1], [input_addr], #16
-    ld2 {Age.d, Agi.d}[1], [input_addr], #16
-    ld2 {Ago.d, Agu.d}[1], [input_addr], #16
-    ld2 {Aka.d, Ake.d}[1], [input_addr], #16
-    ld2 {Aki.d, Ako.d}[1], [input_addr], #16
-    ld2 {Aku.d, Ama.d}[1], [input_addr], #16
-    ld2 {Ame.d, Ami.d}[1], [input_addr], #16
-    ld2 {Amo.d, Amu.d}[1], [input_addr], #16
-    ld2 {Asa.d, Ase.d}[1], [input_addr], #16
-    ld2 {Asi.d, Aso.d}[1], [input_addr], #16
-    ld1 {Asu.d}[1], [input_addr], #8
-
-    sub input_addr, input_addr, #(25*8*2)
+    sub input_addr, input_addr, #(25*8)
 .endm
 
 .macro store_input
@@ -224,20 +210,6 @@ round_constants:
     st2 {Asa.d, Ase.d}[0], [input_addr], #16
     st2 {Asi.d, Aso.d}[0], [input_addr], #16
     st1 {Asu.d}[0], [input_addr], #8
-
-    st2 {Aba.d, Abe.d}[1], [input_addr], #16
-    st2 {Abi.d, Abo.d}[1], [input_addr], #16
-    st2 {Abu.d, Aga.d}[1], [input_addr], #16
-    st2 {Age.d, Agi.d}[1], [input_addr], #16
-    st2 {Ago.d, Agu.d}[1], [input_addr], #16
-    st2 {Aka.d, Ake.d}[1], [input_addr], #16
-    st2 {Aki.d, Ako.d}[1], [input_addr], #16
-    st2 {Aku.d, Ama.d}[1], [input_addr], #16
-    st2 {Ame.d, Ami.d}[1], [input_addr], #16
-    st2 {Amo.d, Amu.d}[1], [input_addr], #16
-    st2 {Asa.d, Ase.d}[1], [input_addr], #16
-    st2 {Asi.d, Aso.d}[1], [input_addr], #16
-    st1 {Asu.d}[1], [input_addr], #8
 .endm
 
 #define STACK_SIZE (16*4 + 16*6) // VREGS (16*4) + GPRS (TODO: Remove)
@@ -367,11 +339,11 @@ round_constants:
 
 .text
 .align 4
-.global keccak_f1600_x2_v84a_asm_clean
-.global _keccak_f1600_x2_v84a_asm_clean
+.global keccak_f1600_x1_v84a_asm_clean
+.global _keccak_f1600_x1_v84a_asm_clean
 
-keccak_f1600_x2_v84a_asm_clean:
-_keccak_f1600_x2_v84a_asm_clean:
+keccak_f1600_x1_v84a_asm_clean:
+_keccak_f1600_x1_v84a_asm_clean:
     alloc_stack
     save_vregs
     ASM_LOAD(const_addr, round_constants)

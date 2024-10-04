@@ -3,7 +3,7 @@ LDLIBS += -L$(LIB_DIR)
 
 LIBDEPS += $(LIB_DIR)/libfips202.a
 LDLIBS += -lfips202
-CPPFLAGS += -Ifips202
+CPPFLAGS += -Ifips202 -Ifips202/native
 
 ifeq ($(RNG),NISTRNG)
 	LIBDEPS += $(LIB_DIR)/libnistrng.a
@@ -17,8 +17,8 @@ endif
 
 FIPS202_SRCS = $(wildcard fips202/*.c)
 ifeq ($(OPT),1)
-	FIPS202_SRCS += $(wildcard fips202/asm/aarch64/*.S)
-	CPPFLAGS += -DMLKEM_USE_ASM
+	FIPS202_SRCS += $(wildcard fips202/native/aarch64/*.S)
+	CPPFLAGS += -DMLKEM_USE_NATIVE
 endif
 
 $(LIB_DIR)/librng.a: $(call OBJS,$(wildcard randombytes/*.c))

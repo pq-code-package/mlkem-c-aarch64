@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
 SOURCES = $(wildcard mlkem/*.c)
 ifeq ($(OPT),1)
-	SOURCES += $(wildcard mlkem/asm/aarch64/*.S)
-	CPPFLAGS += -DMLKEM_USE_ASM
+	SOURCES += $(wildcard mlkem/native/aarch64/*.S)
+	CPPFLAGS += -DMLKEM_USE_NATIVE
 endif
 
-CPPFLAGS += -Imlkem -Imlkem/sys
+CPPFLAGS += -Imlkem -Imlkem/sys -Imlkem/native
 TESTS = test_kyber bench_kyber bench_components_kyber gen_NISTKAT gen_KAT
 
 MLKEM512_DIR = $(BUILD_DIR)/mlkem512

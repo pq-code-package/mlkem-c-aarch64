@@ -7,7 +7,7 @@
 // https://github.com/neon-ntt/neon-ntt
 
 #include "config.h"
-#if defined(MLKEM_USE_AARCH64_ASM)
+#if defined(MLKEM_USE_NATIVE_AARCH64)
 
 #include "params.h"
 
@@ -1217,4 +1217,4 @@ k4_loop_start:
         ret
 #endif /* KYBER_K == 4 */
 
-#endif /* MLKEM_USE_AARCH64_ASM */
+#endif /* MLKEM_USE_NATIVE_AARCH64 */

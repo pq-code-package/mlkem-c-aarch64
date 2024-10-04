@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
-#ifndef MLKEM_ASM_H
-#define MLKEM_ASM_H
+#ifndef MLKEM_AARCH64_NATIVE_H
+#define MLKEM_AARCH64_NATIVE_H
 
 #include <stdint.h>
 #include "config.h"
 #include "params.h"
 
-#ifdef MLKEM_USE_AARCH64_ASM
+#ifdef MLKEM_USE_NATIVE_AARCH64
+
 void ntt_asm_clean(int16_t *);
 void ntt_asm_opt(int16_t *);
 void intt_asm_clean(int16_t *);
@@ -66,29 +67,5 @@ void polyvec_basemul_acc_montgomery_cached_asm_k4_opt(int16_t *r,
 #define polyvec_basemul_acc_montgomery_cached_asm_opt_name(k) \
   _polyvec_basemul_acc_montgomery_cached_asm_opt_name(k)
 
-#if !defined(MLKEM_USE_NTT_ASM_FORCE)
-
-#if defined(MLKEM_USE_AARCH64_ASM_CLEAN)
-#define ntt_asm ntt_asm_clean
-#define intt_asm intt_asm_clean
-#define poly_reduce_asm poly_reduce_asm_clean
-#define polyvec_basemul_acc_montgomery_cached_asm \
-  polyvec_basemul_acc_montgomery_cached_asm_clean_name(KYBER_K)
-#define poly_mulcache_compute_asm poly_mulcache_compute_asm_clean
-#define poly_tomont_asm poly_tomont_asm_clean
-#else /* MLKEM_USE_AARCH64_ASM_CLEAN */
-#define ntt_asm ntt_asm_opt
-#define intt_asm intt_asm_opt
-#define poly_reduce_asm poly_reduce_asm_opt
-#define polyvec_basemul_acc_montgomery_cached_asm \
-  polyvec_basemul_acc_montgomery_cached_asm_opt_name(KYBER_K)
-#define poly_mulcache_compute_asm poly_mulcache_compute_asm_opt
-#define poly_tomont_asm poly_tomont_asm_opt
-#endif /* !MLKEM_USE_AARCH64_ASM_CLEAN */
-
-#define poly_tobytes_asm poly_tobytes_asm_clean
-#define rej_uniform_asm rej_uniform_asm_clean
-
-#endif /* !MLKEM_USE_NTT_ASM_FORCE */
-#endif /* MLKEM_USE_AARCH64_ASM */
-#endif /* MLKEM_ASM_H */
+#endif /* MLKEM_USE_NATIVE_AARCH64 */
+#endif /* MLKEM_AARCH64_NATIVE_H */

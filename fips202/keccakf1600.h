@@ -3,7 +3,7 @@
 #define KECCAKF1600_H
 
 #include <stdint.h>
-#include "asm/asm.h"
+#include "fips202_native.h"
 
 #define KECCAK_WAY 4
 #define KECCAK_LANES 25

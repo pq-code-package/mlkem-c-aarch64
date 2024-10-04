@@ -11,7 +11,7 @@
 #include "symmetric.h"
 #include "verify.h"
 
-#include "asm/asm.h"
+#include "arith_native.h"
 
 /*************************************************
  * Name:        poly_compress
@@ -197,7 +197,7 @@ void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES]) {
  *              - r: pointer to output byte array
  *                   (of KYBER_POLYBYTES bytes)
  **************************************************/
-#if !defined(MLKEM_USE_AARCH64_ASM)
+#if !defined(MLKEM_USE_NATIVE_POLY_TOBYTES)
 void poly_tobytes(uint8_t r[KYBER_POLYBYTES], const poly *a) {
   unsigned int i;
   uint16_t t0, t1;
@@ -212,11 +212,12 @@ void poly_tobytes(uint8_t r[KYBER_POLYBYTES], const poly *a) {
     r[3 * i + 2] = (t1 >> 4);
   }
 }
-#else  /* MLKEM_USE_AARCH64_ASM */
+#else  /* MLKEM_USE_NATIVE_POLY_TOBYTES */
 void poly_tobytes(uint8_t r[KYBER_POLYBYTES], const poly *a) {
-  poly_tobytes_asm(r, a->coeffs);
+  poly_tobytes_native(r, a);
 }
-#endif /* MLKEM_USE_AARCH64_ASM */
+#endif /* MLKEM_USE_NATIVE_POLY_TOBYTES */
+
 /*************************************************
  * Name:        poly_frombytes
  *
@@ -474,7 +475,7 @@ void poly_basemul_montgomery_cached(poly *r, const poly *a, const poly *b,
  *
  * Arguments:   - poly *r: pointer to input/output polynomial
  **************************************************/
-#if !defined(MLKEM_USE_AARCH64_ASM)
+#if !defined(MLKEM_USE_NATIVE_POLY_TOMONT)
 void poly_tomont(poly *r) {
   unsigned int i;
   const int16_t f = (1ULL << 32) % KYBER_Q;
@@ -482,9 +483,9 @@ void poly_tomont(poly *r) {
     r->coeffs[i] = montgomery_reduce((int32_t)r->coeffs[i] * f);
   }
 }
-#else  /* MLKEM_USE_AARCH64_ASM */
-void poly_tomont(poly *r) { poly_tomont_asm(r->coeffs); }
-#endif /* MLKEM_USE_AARCH64_ASM */
+#else  /* MLKEM_USE_NATIVE_POLY_TOMONT */
+void poly_tomont(poly *r) { poly_tomont_native(r); }
+#endif /* MLKEM_USE_NATIVE_POLY_TOMONT */
 
 /*************************************************
  * Name:        poly_reduce
@@ -494,16 +495,16 @@ void poly_tomont(poly *r) { poly_tomont_asm(r->coeffs); }
  *
  * Arguments:   - poly *r: pointer to input/output polynomial
  **************************************************/
-#if !defined(MLKEM_USE_AARCH64_ASM)
+#if !defined(MLKEM_USE_NATIVE_POLY_REDUCE)
 void poly_reduce(poly *r) {
   unsigned int i;
   for (i = 0; i < KYBER_N; i++) {
     r->coeffs[i] = barrett_reduce(r->coeffs[i]);
   }
 }
-#else  /* MLKEM_USE_AARCH64_ASM */
-void poly_reduce(poly *r) { poly_reduce_asm(r->coeffs); }
-#endif /* MLKEM_USE_AARCH64_ASM */
+#else  /* MLKEM_USE_NATIVE_POLY_REDUCE */
+void poly_reduce(poly *r) { poly_reduce_native(r); }
+#endif /* MLKEM_USE_NATIVE_POLY_REDUCE */
 
 /*************************************************
  * Name:        poly_add
@@ -547,7 +548,7 @@ void poly_sub(poly *r, const poly *a, const poly *b) {
  * Arguments: - poly_mulcache *x: pointer to output cache.
  *            - const poly *a: pointer to input polynomial
  **************************************************/
-#if !defined(MLKEM_USE_AARCH64_ASM)
+#if !defined(MLKEM_USE_NATIVE_POLY_MULCACHE_COMPUTE)
 void poly_mulcache_compute(poly_mulcache *x, const poly *a) {
   unsigned int i;
   for (i = 0; i < KYBER_N / 4; i++) {
@@ -555,8 +556,8 @@ void poly_mulcache_compute(poly_mulcache *x, const poly *a) {
     x->coeffs[2 * i + 1] = fqmul(a->coeffs[4 * i + 3], -zetas[64 + i]);
   }
 }
-#else  /* MLKEM_USE_AARCH64_ASM */
-static const int16_t zetas_mulcache_asm[256] = {
+#else  /* MLKEM_USE_NATIVE_POLY_MULCACHE_COMPUTE */
+static const int16_t zetas_mulcache_native[256] = {
     17,    -17,   -568,  568,  583,   -583,  -680,  680,   1637, -1637, 723,
     -723,  -1041, 1041,  1100, -1100, 1409,  -1409, -667,  667,  -48,   48,
     233,   -233,  756,   -756, -1173, 1173,  -314,  314,   -279, 279,   -1626,
@@ -570,7 +571,7 @@ static const int16_t zetas_mulcache_asm[256] = {
     886,   -886,  -1607, 1607, 1212,  -1212, -1455, 1455,  1029, -1029, -1219,
     1219,  -394,  394,   885,  -885,  -1175, 1175};
 
-static const int16_t zetas_mulcache_twisted_asm[256] = {
+static const int16_t zetas_mulcache_twisted_native[256] = {
     167,    -167,  -5591,  5591,   5739,   -5739,  -6693,  6693,   16113,
     -16113, 7117,  -7117,  -10247, 10247,  10828,  -10828, 13869,  -13869,
     -6565,  6565,  -472,   472,    2293,   -2293,  7441,   -7441,  -11546,
@@ -588,7 +589,7 @@ static const int16_t zetas_mulcache_twisted_asm[256] = {
     -11566, 11566};
 
 void poly_mulcache_compute(poly_mulcache *x, const poly *a) {
-  poly_mulcache_compute_asm(x->coeffs, a->coeffs, zetas_mulcache_asm,
-                            zetas_mulcache_twisted_asm);
+  poly_mulcache_compute_native(x, a, zetas_mulcache_native,
+                               zetas_mulcache_twisted_native);
 }
-#endif /* MLKEM_USE_AARCH64_ASM */
+#endif /* MLKEM_USE_NATIVE_POLY_MULCACHE_COMPUTE */
