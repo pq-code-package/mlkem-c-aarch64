@@ -65,16 +65,13 @@ unsigned int rej_uniform(int16_t *r, unsigned int len, const uint8_t *buf,
  **************************************************/
 unsigned int rej_uniform(int16_t *r, unsigned int len, const uint8_t *buf,
                          unsigned int buflen) {
-  unsigned int ctr, consumed = 0;
+  int ret;
 
   // Sample from large buffer with full lane as much as possible.
-  ctr = rej_uniform_native(r, len, buf, &consumed, buflen);
-  if (ctr < len) {
-    // This function will utilize every last byte of the buffer.
-    ctr += rej_uniform_scalar(r + ctr, len - ctr, buf + consumed,
-                              buflen - consumed);
-  }
+  ret = rej_uniform_native(r, len, buf, buflen);
+  if (ret != -1)
+      return (unsigned) ret;
 
-  return ctr;
+  return rej_uniform_scalar(r, len, buf, buflen);
 }
 #endif /* MLKEM_USE_NATIVE_AARCH64 */

@@ -6,18 +6,15 @@
  * Description: Run rejection sampling on uniform random bytes to generate
  *              uniform random integers mod q
  *
- * Arguments:   - int16_t *r:          pointer to output buffer
- *              - unsigned int len:    requested number of 16-bit integers
- *                                     (uniform mod q)
+ * Arguments:   - int16_t *r:          pointer to output buffer of KYBER_N
+ *                                     16-bit coefficients.
  *              - const uint8_t *buf:  pointer to input buffer
  *                                     (assumed to be uniform random bytes)
- *              - unsigned int *buf_consumed: pointer at which to store the
- *                                            number of bytes processed
- *              - unsigned int buflen: length of input buffer in bytes
+ *              - unsigned int buflen: length of input buffer in bytes.
+ *                                     Must be a multiple of 24.
  *
- * Returns number of sampled 16-bit integers (at most len)
+ * Returns number of sampled 16-bit integers (at most KYBER_N).
  **************************************************/
-
 #include "config.h"
 #include "params.h"
 #if defined(MLKEM_USE_NATIVE_AARCH64)
@@ -303,10 +300,9 @@ bit_table_data:
 
     /* Parameters */
     output                      .req x0
-    len                         .req w1
-    buf                         .req x2
-    buf_consumed_ptr            .req x3
-    buflen                      .req w4
+    buf                         .req x1
+    buflen                      .req w2
+    len                         .req w3
 
     /* Pointers to static data */
     table_idx                   .req x5
@@ -391,20 +387,15 @@ _rej_uniform_asm_clean:
     ASM_LOAD(bit_table, bit_table_data)
     ASM_LOAD(table_idx, table_data)
 
-    ldr         bits_q, [bit_table]
-    movz        tmp, #KYBER_Q
-    dup         kyber_q.8h, tmp
-
-    // We only deal with output buffer length KYBER_N.
-    mov tmp, #KYBER_N
-    cmp len, tmp
-    b.ne reject
+    ldr  bits_q, [bit_table]
+    movz tmp, #KYBER_Q
+    dup  kyber_q.8h, tmp
 
     add output_tmp_base, sp, #STACK_OFFSET_TMP_OUTPUT
     mov output_tmp, output_tmp_base
 
     mov count, #0
-    mov buf_consumed, #0
+    mov len, #KYBER_N
 
     cmp buflen, #48
     b.lo loop48_end
@@ -421,7 +412,6 @@ loop48:
         // We handle 16 such triples a time, and use ld3 for the required
         // de-interleaving of the byte stream.
         sub     buflen, buflen, #48
-        add     buf_consumed, buf_consumed, #48
         ld3     {buf0.16b, buf1.16b, buf2.16b}, [buf], #48
 
         // Unpack 16 triples of bytes into 16 pairs of 16-bit integers,
@@ -534,7 +524,6 @@ loop48_end:
     b.lo memory_copy
 
         sub     buflen, buflen, #24
-        add     buf_consumed, buf_consumed, #24
         ld3     {buf0.8b, buf1.8b, buf2.8b}, [buf], #24
 
         zip1    tmp0.16b, buf0.16b, buf1.16b
@@ -583,8 +572,6 @@ loop48_end:
         add     count, count, ctr1
 
 memory_copy:
-    str buf_consumed, [buf_consumed_ptr]
-
     // min = min(count,len)
     cmp  count, len
     csel count, count, len, lo
@@ -610,9 +597,6 @@ final_copy:
     mov w0, count
     b return
 
-reject:
-    mov x0, #0
-    str w0, [buf_consumed_ptr]
 return:
     pop_stack
     ret
