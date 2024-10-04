@@ -120,7 +120,6 @@ def base_compile(
 
 def base_run(
     bin,
-    force_qemu,
     verbose,
     run_as_root=False,
     exec_wrapper=None,
@@ -128,9 +127,16 @@ def base_run(
 ):
     """Run the binary in all different ways"""
     cmd = [f"./{bin}"]
-    if force_qemu or cross_prefix.strip() != "":
+    if cross_prefix and platform.system() != "Darwin":
         logging.info(f"Emulating {bin} with QEMU")
-        cmd = ["qemu-aarch64"] + cmd
+        if "x86_64" in cross_prefix:
+            cmd = ["qemu-x86_64"] + cmd
+        elif "aarch64" in cross_prefix:
+            cmd = ["qemu-aarch64"] + cmd
+        else:
+            logging.info(
+                f"Emulation for {cross_prefix} on {platform.system()} not supported"
+            )
 
     if run_as_root:
         logging.info(
@@ -182,7 +188,6 @@ def test_schemes(
     actual_proc,
     expect_proc,
     process_result,
-    force_qemu,
     verbose,
     cross_prefix,
     run_as_root=False,
@@ -204,7 +209,6 @@ def test_schemes(
     for scheme in SCHEME:
         result = base_run(
             test.bin_path(scheme),
-            force_qemu,
             verbose,
             run_as_root,
             exec_wrapper,
@@ -250,13 +254,6 @@ def process_bench(fail, scheme, result, expect, actual):
     return summary
 
 
-def validate_force_qemu(ctx, _, v):
-    if platform.system() == "Darwin" and v:
-        config_logger(False)
-        logging.error("qemu-aarch64 is not supported on Darwin")
-        ctx.exit(1)
-
-
 def process_make_envs(cflags, arch_flags):
     return ({"CFLAGS": f"{cflags}"} if cflags is not None else {}) | (
         {"ARCH_FLAGS": f"{arch_flags}"} if arch_flags is not None else {}
@@ -264,17 +261,6 @@ def process_make_envs(cflags, arch_flags):
 
 
 _shared_options = [
-    click.option(
-        "--force-qemu",
-        is_flag=True,
-        show_default=True,
-        default=False,
-        type=bool,
-        hidden=platform.system() == "Darwin",
-        callback=validate_force_qemu,
-        is_eager=True,
-        help="Force to emulate with QEMU (not supported on macOS)",
-    ),
     click.option(
         "-v",
         "--verbose",
@@ -287,11 +273,10 @@ _shared_options = [
     click.option(
         "-cp",
         "--cross-prefix",
-        default="aarch64-unknown-linux-gnu-" if platform.machine() == "x86_64" else " ",
+        default="",
         show_default=True,
-        hidden=platform.machine() != "x86_64",
         nargs=1,
-        help="Cross prefix for compilation on non-aarch64 machines",
+        help="Cross prefix for compilation",
     ),
     click.option(
         "--cflags",
@@ -372,7 +357,7 @@ def add_options(options):
     context_settings={"show_default": True},
 )
 @add_options(_shared_options)
-def func(force_qemu, verbose, cross_prefix, cflags, arch_flags, opt):
+def func(verbose, cross_prefix, cflags, arch_flags, opt):
     config_logger(verbose)
 
     def expect(scheme):
@@ -391,7 +376,6 @@ def func(force_qemu, verbose, cross_prefix, cflags, arch_flags, opt):
         lambda result: str(result, encoding="utf-8"),
         expect,
         process_test,
-        force_qemu,
         verbose,
         cross_prefix,
         extra_make_envs=process_make_envs(cflags, arch_flags),
@@ -404,7 +388,7 @@ def func(force_qemu, verbose, cross_prefix, cflags, arch_flags, opt):
     context_settings={"show_default": True},
 )
 @add_options(_shared_options)
-def nistkat(force_qemu, verbose, cross_prefix, cflags, arch_flags, opt):
+def nistkat(verbose, cross_prefix, cflags, arch_flags, opt):
     config_logger(verbose)
 
     test_schemes(
@@ -412,7 +396,6 @@ def nistkat(force_qemu, verbose, cross_prefix, cflags, arch_flags, opt):
         sha256sum,
         lambda scheme: parse_meta(scheme, "nistkat-sha256"),
         process_test,
-        force_qemu,
         verbose,
         cross_prefix,
         extra_make_envs=process_make_envs(cflags, arch_flags),
@@ -425,7 +408,7 @@ def nistkat(force_qemu, verbose, cross_prefix, cflags, arch_flags, opt):
     context_settings={"show_default": True},
 )
 @add_options(_shared_options)
-def kat(force_qemu, verbose, cross_prefix, cflags, arch_flags, opt):
+def kat(verbose, cross_prefix, cflags, arch_flags, opt):
     config_logger(verbose)
 
     test_schemes(
@@ -433,7 +416,6 @@ def kat(force_qemu, verbose, cross_prefix, cflags, arch_flags, opt):
         sha256sum,
         lambda scheme: parse_meta(scheme, "kat-sha256"),
         process_test,
-        force_qemu,
         verbose,
         cross_prefix,
         extra_make_envs=process_make_envs(cflags, arch_flags),
@@ -448,7 +430,6 @@ def kat(force_qemu, verbose, cross_prefix, cflags, arch_flags, opt):
 @add_options(_shared_options)
 @add_options(_bench_options)
 def bench(
-    force_qemu,
     verbose,
     cycles,
     cross_prefix,
@@ -481,7 +462,6 @@ def bench(
         lambda _: True,
         lambda _: True,
         process_bench,
-        force_qemu,
         verbose,
         cross_prefix,
         run_as_root,
