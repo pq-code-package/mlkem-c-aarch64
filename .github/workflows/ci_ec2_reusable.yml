@@ -95,41 +95,55 @@ jobs:
           ec2-instance-type: ${{ inputs.ec2_instance_type }}
           subnet-id: subnet-07b2729e5e065962f
           security-group-id: sg-0ab2e297196c8c381
-  functest:
-    name: Functional tests ${{ inputs.name }}
+  tests:
+    name: ${{ matrix.tests.name }} ${{ inputs.name }}
     needs: start-ec2-runner
     runs-on: ${{ needs.start-ec2-runner.outputs.label }}
-    if: ${{ inputs.functest }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/functest
-        with:
+    strategy:
+      fail-fast: false
+      matrix:
+        tests:
+        - name: Functional tests
+          action: functest
           nix-shell: ci
-          cflags: ${{ inputs.cflags }}
-          cross-prefix: ${{ inputs.cross-prefix }}
-          opt: ${{ inputs.opt }}
-  lint:
-    name: Linting ${{ inputs.name }}
-    needs: start-ec2-runner
-    runs-on: ${{ needs.start-ec2-runner.outputs.label }}
-    if: ${{ inputs.lint }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/lint
-        with:
+          run: ${{ inputs.functest }}
+        - name: Linting
+          action: lint
           nix-shell: ci-linter
-          cross-prefix: ${{ inputs.cross-prefix }}
-  cbmc:
-    name: CBMC ${{ inputs.name }}
-    needs: start-ec2-runner
-    runs-on: ${{ needs.start-ec2-runner.outputs.label }}
-    if: ${{ inputs.cbmc }}
+          run: ${{ inputs.lint }}
+        - name: CBMC
+          action: cbmc
+          nix-shell: ci-cbmc
+          run: ${{ inputs.cbmc }}
+        exclude:
+          - {tests: {
+              name: Functional tests,
+              action: functest,
+              nix-shell: ci,
+              run: false,
+            }}
+          - {tests: {
+              name: Linting,
+              action: lint,
+              nix-shell: ci-linter,
+              run: false,
+            }}
+          - {tests: {
+              name: CBMC,
+              action: cbmc,
+              nix-shell: ci-cbmc,
+              run: false,
+            }}
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/cbmc
+      - uses: jenseng/dynamic-uses@v1
         with:
-          nix-shell: ci-cbmc
-          cross-prefix: ${{ inputs.cross-prefix }}
+          uses: ./.github/actions/${{ matrix.tests.action }}
+          with: '{
+            nix-shell : "${{ matrix.tests.nix-shell }}",
+            cflags: "${{ inputs.cflags }}",
+            cross-prefix: "${{ inputs.cross-prefix }}",
+            opt: "${{ inputs.opt }}" }'
   stop-ec2-runner:
     name: Stop ${{ inputs.name }} (${{ inputs.ec2_instance_type }})
     permissions:
@@ -137,9 +151,7 @@ jobs:
       id-token: 'write'
     needs:
       - start-ec2-runner
-      - cbmc
-      - lint
-      - functest
+      - tests
     runs-on: ubuntu-latest
     if: ${{ (inputs.always_terminate && always()) || success() }} # required to stop the runner even if the error happened in the previous jobs
     steps:
