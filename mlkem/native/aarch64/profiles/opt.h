@@ -42,7 +42,8 @@ static inline void polyvec_basemul_acc_montgomery_cached_native(
       r->coeffs, a->vec[0].coeffs, b->vec[0].coeffs, b_cache->vec[0].coeffs);
 }
 
-static inline void poly_tobytes_native(uint8_t r[KYBER_POLYBYTES], const poly *a) {
+static inline void poly_tobytes_native(uint8_t r[KYBER_POLYBYTES],
+                                       const poly *a) {
   poly_tobytes_asm_clean(r, a->coeffs);
 }
 
