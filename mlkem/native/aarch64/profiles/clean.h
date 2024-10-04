@@ -53,7 +53,7 @@ static inline int rej_uniform_native(int16_t *r, unsigned int len,
   if (len != KYBER_N || buflen % 24 != 0) {
         return -1;
   }
-  return (int) rej_uniform_asm_clean(r, buf, buflen);
+  return (int)rej_uniform_asm_clean(r, buf, buflen);
 }
 
 #endif /* MLKEM_ARITH_NATIVE_PROFILE_H */

@@ -11,5 +11,9 @@
 #define MLKEM_USE_NATIVE_AARCH64
 #endif /* SYS_AARCH64 */
 
+#if defined(SYS_X86_64)
+#define MLKEM_USE_NATIVE_X86_64
+#endif /* SYS_X86_64 */
+
 #endif /* MLKEM_USE_NATIVE */
 #endif /* CONFIG_H */

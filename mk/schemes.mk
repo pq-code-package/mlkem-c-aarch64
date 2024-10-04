@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 SOURCES = $(wildcard mlkem/*.c)
 ifeq ($(OPT),1)
-	SOURCES += $(wildcard mlkem/native/aarch64/*.S)
+	SOURCES += $(wildcard mlkem/native/aarch64/*.[csS]) $(wildcard mlkem/native/x86_64/*.[csS])
 	CPPFLAGS += -DMLKEM_USE_NATIVE
 endif
 
