@@ -48,10 +48,9 @@ static inline void poly_tobytes_native(uint8_t r[KYBER_POLYBYTES],
 }
 
 static inline int rej_uniform_native(int16_t *r, unsigned int len,
-                                     const uint8_t *buf,
-                                     unsigned int buflen) {
+                                     const uint8_t *buf, unsigned int buflen) {
   if (len != KYBER_N || buflen % 24 != 0) {
-        return -1;
+    return -1;
   }
   return (int)rej_uniform_asm_clean(r, buf, buflen);
 }
