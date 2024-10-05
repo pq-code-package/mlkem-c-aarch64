@@ -52,9 +52,9 @@
 
 #ifdef SYS_X86_64_AVX2
 // For now, there's only one x86_64 profile, which is essentially
-// the AVX2 code from the reference implementation
+// the AVX2 code from the Kyber repository
 // https://github.com/pq-crystals/kyber
-#include "x86_64/profiles/ref.h"
+#include "x86_64/profiles/default.h"
 #endif /* SYS_X86_64 */
 
 #else /* !MLKEM_ARITH_NATIVE_PROFILE && MLKEM_ARITH_NATIVE_MANUAL */
