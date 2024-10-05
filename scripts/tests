@@ -258,8 +258,8 @@ def validate_force_qemu(ctx, _, v):
 
 
 def process_make_envs(cflags, arch_flags):
-    return ({"CFLAGS": f'"{cflags}"'} if cflags is not None else {}) | (
-        {"ARCH_FLAGS": f'"{arch_flags}"'} if arch_flags is not None else {}
+    return ({"CFLAGS": f"{cflags}"} if cflags is not None else {}) | (
+        {"ARCH_FLAGS": f"{arch_flags}"} if arch_flags is not None else {}
     )
 
 

@@ -85,8 +85,19 @@ jobs:
       fail-fast: false
       matrix:
         target:
+          - name: AMD EPYC 4th gen (t3a,+AVX2)
+            ec2_instance_type: t3a.small
+            ec2_ami: ubuntu-latest (custom AMI)
+            ec2_ami_id: ami-0d47e137a1108e078 # x86_64 ubuntu-latest, 32g
+            cbmc: 'false'
+            cflags: -mavx2 -mbmi2 -mpopcnt -maes
           - name: AMD EPYC 4th gen (t3a)
             ec2_instance_type: t3a.small
+            ec2_ami: ubuntu-latest (custom AMI)
+            ec2_ami_id: ami-0d47e137a1108e078 # x86_64 ubuntu-latest, 32g
+            cbmc: 'false'
+          - name: Intel Xeon 4th gen (t3,+AVX2)
+            ec2_instance_type: t3.small
             ec2_ami: ubuntu-latest (custom AMI)
             ec2_ami_id: ami-0d47e137a1108e078 # x86_64 ubuntu-latest, 32g
             cbmc: 'false'
@@ -96,7 +107,6 @@ jobs:
             ec2_ami: ubuntu-latest (custom AMI)
             ec2_ami_id: ami-0d47e137a1108e078 # x86_64 ubuntu-latest, 32g
             cbmc: 'false'
-            cflags: -mavx2 -mbmi2 -mpopcnt -maes
           - name: Graviton3, CBMC (c7g.xlarge)
             ec2_instance_type: c7g.xlarge
             ec2_ami: ubuntu-latest (custom AMI)

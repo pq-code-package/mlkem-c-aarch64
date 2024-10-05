@@ -12,6 +12,7 @@
 #include <immintrin.h>
 #include <stdint.h>
 #include <string.h>
+#include "consts.h"
 #include "params.h"
 
 // #define BMI
