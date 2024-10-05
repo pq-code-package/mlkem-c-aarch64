@@ -96,10 +96,25 @@ static inline void poly_tobytes_native(uint8_t r[KYBER_POLYBYTES],
 #endif
 
 #if defined(MLKEM_USE_NATIVE_REJ_UNIFORM)
-static inline unsigned int rej_uniform_native(int16_t *r, unsigned int len,
-                                              const uint8_t *buf,
-                                              unsigned int *buf_consumed,
-                                              unsigned int buflen);
+/*************************************************
+ * Name:        rej_uniform_native
+ *
+ * Description: Run rejection sampling on uniform random bytes to generate
+ *              uniform random integers mod q
+ *
+ * Arguments:   - int16_t *r:          pointer to output buffer
+ *              - unsigned int len:    requested number of 16-bit integers
+ *                                     (uniform mod q).
+ *              - const uint8_t *buf:  pointer to input buffer
+ *                                     (assumed to be uniform random bytes)
+ *              - unsigned int buflen: length of input buffer in bytes.
+ *
+ * Return -1 if the native implementation does not support the input lengths.
+ * Otherwise, returns non-negative number of sampled 16-bit integers (at most len).
+ **************************************************/
+static inline int rej_uniform_native(int16_t *r, unsigned int len,
+                                     const uint8_t *buf,
+                                     unsigned int buflen);
 #endif
 
 #endif /* MLKEM_USE_NATIVE */

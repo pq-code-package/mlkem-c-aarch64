@@ -47,11 +47,13 @@ static inline void poly_tobytes_native(uint8_t r[KYBER_POLYBYTES],
   poly_tobytes_asm_clean(r, a->coeffs);
 }
 
-static inline unsigned int rej_uniform_native(int16_t *r, unsigned int len,
-                                              const uint8_t *buf,
-                                              unsigned int *buf_consumed,
-                                              unsigned int buflen) {
-  return rej_uniform_asm_clean(r, len, buf, buf_consumed, buflen);
+static inline int rej_uniform_native(int16_t *r, unsigned int len,
+                                     const uint8_t *buf,
+                                     unsigned int buflen) {
+  if (len != KYBER_N || buflen % 24 != 0) {
+        return -1;
+  }
+  return (int) rej_uniform_asm_clean(r, buf, buflen);
 }
 
 #endif /* MLKEM_ARITH_NATIVE_PROFILE_H */
