@@ -21,25 +21,21 @@ jobs:
            arch: 'arm64'
            cross-prefix: ' '
            cflags: '-DFORCE_AARCH64'
-           nix-shell: ci
          - runner: pqcp-arm64
            name: 'ubuntu-latest (aarch64)'
            arch: 'aarch64'
            cross-prefix: ' '
            cflags: '-DFORCE_AARCH64'
-           nix-shell: 'ci'
          - runner: pqcp-x64
            name: 'ubuntu-latest (x86_64, cross)'
            arch: 'x86_64'
            cross-prefix: 'aarch64-unknown-linux-gnu-'
            cflags: '-DFORCE_AARCH64'
-           nix-shell: 'x86_64-linux-cross-ci'
          - runner: pqcp-x64
            name: 'ubuntu-latest (x86_64, native)'
            cflags: "-DFORCE_X86_64  -mavx2 -mbmi2 -mpopcnt -maes"
            arch: 'x86_64'
            cross-prefix: ''
-           nix-shell: 'ci'
         exclude:
          - {external: true,
             target: {
@@ -47,8 +43,23 @@ jobs:
               name: 'ubuntu-latest (aarch64)',
               arch: 'aarch64',
               cross-prefix: ' ',
-              cflags: '-DFORCE_AARCH64',
-              nix-shell: 'ci'
+              cflags: '-DFORCE_AARCH64'
+            }}
+         - {external: true,
+            target: {
+              runner: 'pqcp-x64',
+              name: 'ubuntu-latest (x86_64, cross)',
+              arch: 'x86_64',
+              cross-prefix: 'aarch64-unknown-linux-gnu-',
+              cflags: '-DFORCE_AARCH64'
+            }}
+         - {external: true,
+            target: {
+              runner: 'pqcp-x64',
+              name: 'ubuntu-latest (x86_64, native)',
+              arch: 'x86_64',
+              cross-prefix: '',
+              cflags: ''
             }}
     name: Functional tests (${{ matrix.target.name }})
     runs-on: ${{ matrix.target.runner }}
@@ -57,14 +68,14 @@ jobs:
       - name: functest opt
         uses: ./.github/actions/functest
         with:
-          nix-shell: ${{ matrix.target.nix-shell }}
+          nix-shell: ci
           cflags: ${{ matrix.target.cflags }}
           cross-prefix: ${{ matrix.target.cross-prefix }}
           opt: true
       - name: functest non-opt
         uses: ./.github/actions/functest
         with:
-          nix-shell: ${{ matrix.target.nix-shell }}
+          nix-shell: ci
           cflags: ${{ matrix.target.cflags }}
           cross-prefix: ${{ matrix.target.cross-prefix }}
           opt: false
