@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1728108231685,
+  "lastUpdate": 1728108250386,
   "repoUrl": "https://github.com/pq-code-package/mlkem-c-aarch64",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -21963,6 +21963,75 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 97247,
+            "unit": "cycles"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "beckphan@amazon.co.uk",
+            "name": "Hanno Becker",
+            "username": "hanno-becker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "dfb4e216ef4ff7219bb75873f8c1c1300cc36e3a",
+          "message": "Simplify native interface for rej_uniform (#195)\n\nPreviously, the native interface for rejection sampling was\r\n\r\n```\r\nstatic inline unsigned int rej_uniform_native\r\n    (int16_t *r, unsigned int len,\r\n     const uint8_t *buf,\r\n     unsigned int *buf_consumed,\r\n     unsigned int buflen)\r\n```\r\n\r\nHere, `*buf_consumed` would contain the number of bytes\r\nprocessed from the input buffer, and the return value would\r\nbe the number of valid coefficients sampled.\r\n\r\nThis generality is not needed -- iInstead, there are only two\r\ncases to consider: First, the native call does not support the\r\ninput arguments, in which case no data is being processed, and\r\none should fallback to the generic C implementation. Second, the\r\ncall satisfies the same semantics as the C call, that is, it\r\nreturns the number of sampled coefficients, and guarantees that\r\nthe entire input buffer was processed if that number is smaller\r\nthan `len`.\r\n\r\nThis restricted interface can be more succinctly captured via\r\n\r\n```\r\nstatic inline int rej_uniform_native\r\n    (int16_t *r, unsigned int len,\r\n     const uint8_t *buf, unsigned int buflen)\r\n```\r\n\r\nwhere a return value of -1 captures that the parameters were\r\nunsupported.\r\n\r\nThis commit modifies the native interface accordingly, and adjusts\r\nthe AArch64 implementation: Specifically, the AArch64 ASM implementation\r\nonly supports input buffers of length KYBER_N, which can be quickly\r\ndetected in the recently introduced wrapper round the ASM routine,\r\nrather than in assembly (that wrapper didn't exist when the ASM routine\r\nwas introduced).\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>",
+          "timestamp": "2024-10-05T07:00:47+01:00",
+          "tree_id": "e48e56603eb422cf24edd697c6093f3a92bd1704",
+          "url": "https://github.com/pq-code-package/mlkem-c-aarch64/commit/dfb4e216ef4ff7219bb75873f8c1c1300cc36e3a"
+        },
+        "date": 1728108249186,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ML-KEM-512 keypair",
+            "value": 30349,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 encaps",
+            "value": 40135,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 decaps",
+            "value": 46096,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 keypair",
+            "value": 51346,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 encaps",
+            "value": 60789,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 decaps",
+            "value": 68780,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 keypair",
+            "value": 74894,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 encaps",
+            "value": 86265,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 decaps",
+            "value": 97097,
             "unit": "cycles"
           }
         ]
