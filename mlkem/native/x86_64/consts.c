@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
+// Implementation from Kyber reference repository
+// https://github.com/pq-crystals/kyber/blob/main/avx2/consts.c
+
 #include "config.h"
 
 #if defined(MLKEM_USE_NATIVE_X86_64) && defined(SYS_X86_64_AVX2)

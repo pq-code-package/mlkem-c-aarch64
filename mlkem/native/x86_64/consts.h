@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
+// Implementation from Kyber reference repository
+// https://github.com/pq-crystals/kyber/blob/main/avx2/consts.h
+
 #ifndef CONSTS_H
 #define CONSTS_H
 

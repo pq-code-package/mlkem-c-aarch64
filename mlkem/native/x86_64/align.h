@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
+// Implementation from Kyber reference repository
+// https://github.com/pq-crystals/kyber/blob/main/avx2/align.h
+
 #ifndef ALIGN_H
 #define ALIGN_H
 
