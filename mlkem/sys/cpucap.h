@@ -8,6 +8,13 @@
 #define SYS_AARCH64
 #endif
 
+#if defined(__x86_64__)
+#define SYS_X86_64
+#if defined(__AVX2__)
+#define SYS_X86_64_AVX2
+#endif
+#endif /* __x86_64__ */
+
 /* Check endianness */
 #if defined(__BYTE_ORDER__)
 
@@ -23,6 +30,11 @@
 /* If FORCE_AARCH64 is set, assert that we're indeed on an AArch64 system. */
 #if defined(FORCE_AARCH64) && !defined(SYS_AARCH64)
 #error "FORCE_AARCH64 is set, but we don't seem to be on an AArch64 system."
+#endif
+
+/* If FORCE_X86_64 is set, assert that we're indeed on an AArch64 system. */
+#if defined(FORCE_X86_64) && !defined(SYS_X86_64)
+#error "FORCE_X86_64 is set, but we don't seem to be on an AArch64 system."
 #endif
 
 #endif

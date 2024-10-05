@@ -78,18 +78,22 @@ jobs:
           - name: AMD EPYC 4th gen (c7a)
             ec2_instance_type: c7a.medium
             ec2_ami: ubuntu-latest (x86_64)
+            archflags: -mavx2 -mbmi2 -mpopcnt -maes
             cflags: -DFORCE_X86_64
           - name: Intel Xeon 4th gen (c7i)
             ec2_instance_type: c7i.large
             ec2_ami: ubuntu-latest (x86_64)
+            archflags: -mavx2 -mbmi2 -mpopcnt -maes
             cflags: -DFORCE_X86_64
           - name: AMD EPYC 3rd gen (c6a)
             ec2_instance_type: c7a.medium
             ec2_ami: ubuntu-latest (x86_64)
+            archflags: -mavx2 -mbmi2 -mpopcnt -maes
             cflags: -DFORCE_X86_64
           - name: Intel Xeon 3rd gen (c6i)
             ec2_instance_type: c7i.large
             ec2_ami: ubuntu-latest (x86_64)
+            archflags: -mavx2 -mbmi2 -mpopcnt -maes
             cflags: -DFORCE_X86_64
     uses: ./.github/workflows/bench_ec2_reusable.yml
     if: github.repository_owner == 'pq-code-package' && (github.event.label.name == 'benchmark' || github.ref == 'refs/heads/main')

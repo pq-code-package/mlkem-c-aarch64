@@ -70,7 +70,7 @@ unsigned int rej_uniform(int16_t *r, unsigned int len, const uint8_t *buf,
   // Sample from large buffer with full lane as much as possible.
   ret = rej_uniform_native(r, len, buf, buflen);
   if (ret != -1)
-      return (unsigned) ret;
+    return (unsigned)ret;
 
   return rej_uniform_scalar(r, len, buf, buflen);
 }

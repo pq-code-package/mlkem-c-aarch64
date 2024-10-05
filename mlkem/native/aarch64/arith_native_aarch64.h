@@ -13,8 +13,7 @@ void ntt_asm_opt(int16_t *);
 void intt_asm_clean(int16_t *);
 void intt_asm_opt(int16_t *);
 
-unsigned int rej_uniform_asm_clean(int16_t *r,
-                                   const uint8_t *buf,
+unsigned int rej_uniform_asm_clean(int16_t *r, const uint8_t *buf,
                                    unsigned int buflen);
 
 void poly_reduce_asm_clean(int16_t *);

@@ -50,6 +50,13 @@
 #endif /* !MLKEM_USE_NATIVE_AARCH64_CLEAN */
 #endif /* SYS_AARCH64 */
 
+#ifdef SYS_X86_64_AVX2
+// For now, there's only one x86_64 profile, which is essentially
+// the AVX2 code from the Kyber repository
+// https://github.com/pq-crystals/kyber
+#include "x86_64/profiles/default.h"
+#endif /* SYS_X86_64 */
+
 #else /* !MLKEM_ARITH_NATIVE_PROFILE && MLKEM_ARITH_NATIVE_MANUAL */
 
 /* Option 3: Build your own profile here, or via CFLAGS */
@@ -110,11 +117,11 @@ static inline void poly_tobytes_native(uint8_t r[KYBER_POLYBYTES],
  *              - unsigned int buflen: length of input buffer in bytes.
  *
  * Return -1 if the native implementation does not support the input lengths.
- * Otherwise, returns non-negative number of sampled 16-bit integers (at most len).
+ * Otherwise, returns non-negative number of sampled 16-bit integers (at most
+ *len).
  **************************************************/
 static inline int rej_uniform_native(int16_t *r, unsigned int len,
-                                     const uint8_t *buf,
-                                     unsigned int buflen);
+                                     const uint8_t *buf, unsigned int buflen);
 #endif
 
 #endif /* MLKEM_USE_NATIVE */
