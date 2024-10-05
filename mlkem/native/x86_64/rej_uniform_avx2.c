@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // Implementation from Kyber reference repository
-// https://github.com/pq-crystals/kyber/blob/main/avx2/rejsample.c
+// https://github.com/pq-crystals/kyber/blob/main/avx2
 
 #include "config.h"
 

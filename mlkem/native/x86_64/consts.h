@@ -28,15 +28,6 @@
  *
  * This define helps us get around this
  */
-#ifdef __ASSEMBLER__
-#if defined(__WIN32__) || defined(__APPLE__)
-#define decorate(s) _##s
-#define cdecl2(s) decorate(s)
-#define cdecl(s) cdecl2(KYBER_NAMESPACE(##s))
-#else
-#define cdecl(s) KYBER_NAMESPACE(##s)
-#endif
-#endif
 
 #ifndef __ASSEMBLER__
 #include "align.h"

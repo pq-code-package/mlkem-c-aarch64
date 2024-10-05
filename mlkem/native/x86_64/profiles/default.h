@@ -9,8 +9,12 @@
 
 #include "../../arith_native.h"
 #include "../arith_native_x86_64.h"
+#include "../consts.h"
+
+#include "poly.h"
 
 #define MLKEM_USE_NATIVE_REJ_UNIFORM
+#define MLKEM_USE_NATIVE_NTT
 
 static inline int rej_uniform_native(int16_t *r, unsigned int len,
                                      const uint8_t *buf, unsigned int buflen) {
@@ -20,6 +24,13 @@ static inline int rej_uniform_native(int16_t *r, unsigned int len,
   }
 
   return (int)rej_uniform_avx2(r, buf);
+}
+
+static inline void ntt_native(poly *data) {
+  ntt_avx2((__m256i *)data, qdata.vec);
+  nttpack_avx2((__m256i *)(data->coeffs), qdata.vec);
+  nttpack_avx2((__m256i *)(data->coeffs + KYBER_N / 2), qdata.vec);
+  poly_reduce(data);
 }
 
 #endif /* MLKEM_ARITH_NATIVE_PROFILE_H */
