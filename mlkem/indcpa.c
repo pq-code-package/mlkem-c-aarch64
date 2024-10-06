@@ -249,7 +249,7 @@ void indcpa_keypair_derand(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
                            uint8_t sk[KYBER_INDCPA_SECRETKEYBYTES],
                            const uint8_t coins[KYBER_SYMBYTES]) {
   unsigned int i;
-  uint8_t buf[2 * KYBER_SYMBYTES] ALIGN(16);
+  uint8_t buf[2 * KYBER_SYMBYTES] ALIGN;
   const uint8_t *publicseed = buf;
   const uint8_t *noiseseed = buf + KYBER_SYMBYTES;
   polyvec a[KYBER_K], e, pkpv, skpv;
@@ -316,7 +316,7 @@ void indcpa_enc(uint8_t c[KYBER_INDCPA_BYTES],
                 const uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
                 const uint8_t coins[KYBER_SYMBYTES]) {
   unsigned int i;
-  uint8_t seed[KYBER_SYMBYTES] ALIGN(16);
+  uint8_t seed[KYBER_SYMBYTES] ALIGN;
   polyvec sp, pkpv, ep, at[KYBER_K], b;
   polyvec_mulcache sp_cache;
   poly v, k, epp;

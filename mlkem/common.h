@@ -2,6 +2,7 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#define ALIGN(x) __attribute__((aligned(x)))
+#define DEFAULT_ALIGN 32
+#define ALIGN __attribute__((aligned(DEFAULT_ALIGN)))
 
 #endif
