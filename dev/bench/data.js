@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1728192361523,
+  "lastUpdate": 1728192385286,
   "repoUrl": "https://github.com/pq-code-package/mlkem-c-aarch64",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -30457,6 +30457,75 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 329180,
+            "unit": "cycles"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "beckphan@amazon.co.uk",
+            "name": "Hanno Becker",
+            "username": "hanno-becker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e88ef803d08061b6c6edf3c7aad7a964c64702cb",
+          "message": "Fix `lint` script (#200)\n\n* Fix lint script\r\n\r\nThe `clang-format` step in the `lint` script would correctly fail\r\nupon badly formatting source files, but (a) the error would not be\r\ndisplayed correctly, (b) fail to propagate to the result of  `lint`.\r\n\r\nThis commit fixes this by adjusting the output of the format checker\r\nto match the expectation of `lint`'s internals:\r\n- The output must be to stdout\r\n- The output must consist of lines of the form \"file:line:...\"\r\n  showing every ill-formatted line/file combination once\r\nThe output of `clang-format` does not match this format,\r\nand thusneeds a bit of massaging.\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Format files\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n---------\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>",
+          "timestamp": "2024-10-06T06:22:32+01:00",
+          "tree_id": "30f6b7a68b1d55b106301811d84faf3d676dcbc4",
+          "url": "https://github.com/pq-code-package/mlkem-c-aarch64/commit/e88ef803d08061b6c6edf3c7aad7a964c64702cb"
+        },
+        "date": 1728192384297,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ML-KEM-512 keypair",
+            "value": 99219,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 encaps",
+            "value": 124655,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 decaps",
+            "value": 167086,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 keypair",
+            "value": 158079,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 encaps",
+            "value": 180893,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 decaps",
+            "value": 232291,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 keypair",
+            "value": 235996,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 encaps",
+            "value": 262531,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 decaps",
+            "value": 329070,
             "unit": "cycles"
           }
         ]
