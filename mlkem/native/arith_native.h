@@ -75,22 +75,76 @@
 // implementation is present.
 
 #if defined(MLKEM_USE_NATIVE_NTT)
+/*************************************************
+ * Name:        ntt_native
+ *
+ * Description: Computes negacyclic number-theoretic transform (NTT) of
+ *              a polynomial in place;
+ *              inputs assumed to be in normal order, output in bitreversed
+ *              order
+ *
+ * Arguments:   - poly *p: pointer to in/output polynomial
+ **************************************************/
 static inline void ntt_native(poly *);
-#endif
+#endif /* MLKEM_USE_NATIVE_NTT */
+
 #if defined(MLKEM_USE_NATIVE_INTT)
+/*************************************************
+ * Name:        intt_native
+ *
+ * Description: Computes inverse of negacyclic number-theoretic transform (NTT)
+ *              of a polynomial in place;
+ *              inputs assumed to be in bitreversed order, output in normal
+ *              order.
+ *
+ * Arguments:   - uint16_t *a: pointer to in/output polynomial
+ **************************************************/
 static inline void intt_native(poly *);
-#endif
+#endif /* MLKEM_USE_NATIVE_INTT */
+
 #if defined(MLKEM_USE_NATIVE_POLY_REDUCE)
+/*************************************************
+ * Name:        poly_reduce_native
+ *
+ * Description: Applies modular reduction to all coefficients of a polynomial.
+ *
+ * Arguments:   - poly *r: pointer to input/output polynomial
+ **************************************************/
 static inline void poly_reduce_native(poly *);
-#endif
+#endif /* MLKEM_USE_NATIVE_POLY_REDUCE */
+
 #if defined(MLKEM_USE_NATIVE_POLY_TOMONT)
+/*************************************************
+ * Name:        poly_tomont_native
+ *
+ * Description: Inplace conversion of all coefficients of a polynomial
+ *              from normal domain to Montgomery domain
+ *
+ * Arguments:   - poly *r: pointer to input/output polynomial
+ **************************************************/
 static inline void poly_tomont_native(poly *);
-#endif
+#endif /* MLKEM_USE_NATIVE_POLY_TOMONT */
+
 #if defined(MLKEM_USE_NATIVE_POLY_MULCACHE_COMPUTE)
-static inline void poly_mulcache_compute_native(poly_mulcache *, const poly *,
-                                                const int16_t *,
-                                                const int16_t *);
-#endif
+/*************************************************
+ * Name:        poly_mulcache_compute_native
+ *
+ * Description: Compute multiplication cache for a polynomial.
+ *              The purpose of the multiplication cache is to
+ *              cache repeated computations required during a
+ *              base multiplication of polynomials in NTT form.
+ *              The structure of the multiplication-cache is
+ *              implementation defined.
+ *
+ * Arguments:   INPUT:
+ *              - poly: const pointer to input polynomial.
+ *              OUTPUT
+ *              - cache: pointer to multiplication cache
+ **************************************************/
+static inline void poly_mulcache_compute_native(poly_mulcache *cache,
+                                                const poly *poly);
+#endif /* MLKEM_USE_NATIVE_POLY_MULCACHE_COMPUTE */
+
 #if defined(MLKEM_USE_NATIVE_POLYVEC_BASEMUL_ACC_MONTGOMERY_CACHED)
 static inline void polyvec_basemul_acc_montgomery_cached_native(
     poly *r, const polyvec *a, const polyvec *b,
@@ -98,9 +152,23 @@ static inline void polyvec_basemul_acc_montgomery_cached_native(
 #endif
 
 #if defined(MLKEM_USE_NATIVE_POLY_TOBYTES)
+/*************************************************
+ * Name:        poly_tobytes_native
+ *
+ * Description: Serialization of a polynomial.
+ *              Signed coefficients are converted to
+ *              unsigned form before serialization.
+ *
+ * Arguments:   INPUT:
+ *              - a: const pointer to input polynomial,
+ *                with each coefficient in the range -Q+1 .. Q-1
+ *              OUTPUT
+ *              - r: pointer to output byte array
+ *                   (of KYBER_POLYBYTES bytes)
+ **************************************************/
 static inline void poly_tobytes_native(uint8_t r[KYBER_POLYBYTES],
                                        const poly *a);
-#endif
+#endif /* MLKEM_USE_NATIVE_POLY_TOBYTES */
 
 #if defined(MLKEM_USE_NATIVE_REJ_UNIFORM)
 /*************************************************
@@ -122,7 +190,7 @@ static inline void poly_tobytes_native(uint8_t r[KYBER_POLYBYTES],
  **************************************************/
 static inline int rej_uniform_native(int16_t *r, unsigned int len,
                                      const uint8_t *buf, unsigned int buflen);
-#endif
+#endif /* MLKEM_USE_NATIVE_REJ_UNIFORM */
 
 #endif /* MLKEM_USE_NATIVE */
 #endif /* MLKEM_ARITH_NATIVE_H */
