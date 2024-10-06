@@ -22,7 +22,7 @@ runs:
   steps:
     - name: Setup nix
       uses: ./.github/actions/setup-nix
-      if: ${{ inputs.use-nix == 'true' && env.SHELL == '' }}
+      if: ${{ inputs.use-nix == 'true' && (env.SHELL == '' || env.Nix_SHELL != inputs.nix-shell) }}
       with:
         devShell: ${{ inputs.nix-shell }}
         script: ${{ inputs.script }}
