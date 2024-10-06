@@ -10,61 +10,29 @@
 
 #include "poly.h"
 #include "polyvec.h"
-
-/*
- * MLKEM native arithmetic profile
- *
- * The profile decides which implementation(s) of FIPS202 to use.
- *
- * If you don't change anything, the default profile will be used. This profile
- * picks implementations based on characteristics of your system visible to
- * the compiler.
- *
- * If you want to pick a specific profile for your target, there are three ways
- * to do so, in descending order of convenience to the user:
- * 1. Pick one of the profiles shipped with this repository.
- * 2. Provide your own profile and register it via MLKEM_ARITH_NATIVE_PROFILE
- *    (which must be the profile's path relative to this directoru).
- * 3. Set MLKEM_ARITH_NATIVE_MANUAL and use an adhoc profile specified via
- * CFLAGS.
- */
-
-// Option 2: Manually written profile
-#if defined(MLKEM_ARITH_NATIVE_PROFILE)
-
-#define STRINGIFY_(x) #x
-#define STRINGIFY(x) STRINGIFY_(x)
-#include STRINGIFY(MLKEM_ARITH_NATIVE_PROFILE)
-
-// Option 1: Choose from shipped list of profiles
-#elif !defined(MLKEM_ARITH_NATIVE_MANUAL)
-
-#ifdef SYS_AARCH64
-// For now, we only have clean and opt profiles.
-// In the future, this is likely to branch further depending
-// on the microarchitecture.
-#if defined(MLKEM_USE_NATIVE_AARCH64_CLEAN)
-#include "aarch64/profiles/clean.h"
-#else /* MLKEM_USE_NATIVE_AARCH64_CLEAN */
-#include "aarch64/profiles/opt.h"
-#endif /* !MLKEM_USE_NATIVE_AARCH64_CLEAN */
-#endif /* SYS_AARCH64 */
-
-#ifdef SYS_X86_64_AVX2
-// For now, there's only one x86_64 profile, which is essentially
-// the AVX2 code from the Kyber repository
-// https://github.com/pq-crystals/kyber
-#include "x86_64/profiles/default.h"
-#endif /* SYS_X86_64 */
-
-#else /* !MLKEM_ARITH_NATIVE_PROFILE && MLKEM_ARITH_NATIVE_MANUAL */
-
-/* Option 3: Build your own profile here, or via CFLAGS */
-
-#endif /* !MLKEM_ARITH_NATIVE_PROFILE && !MLKEM_ARITH_NATIVE_MANUAL */
+#include "profile.h"
 
 /*
  * MLKEM native arithmetic interface
+ *
+ * This is the C<->native arithmetic interface used in this repository
+ * to allow for the drop-in of native code for performance critical
+ * components of ML-KEM.
+ *
+ * A _profile_ is a specific implementation of (part of) this interface.
+ * The active profile (if any) is determined in profile.h.
+ *
+ * To add a function to a profile, define MLKEM_USE_NATIVE_XXX and
+ * implement `static inline xxx(...)` in the profile header.
+ *
+ * The only exception is MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER. This option can
+ * be set if there are native implementations for all of NTT, invNTT, and
+ * base multiplication, and allows the native implementation to use a
+ * custom order of polynomial coefficients in NTT domain -- the use of such
+ * custom order is not an implementation-detail since the public matrix
+ * is generated in NTT domain. In this case, a permutation function
+ * poly_permute_bitrev_to_custom() needs to be provided that permutes
+ * polynomials in NTT domain from bitreversed to the custom order.
  */
 
 // Those functions are meant to be trivial wrappers around
@@ -79,23 +47,61 @@
  * Name:        ntt_native
  *
  * Description: Computes negacyclic number-theoretic transform (NTT) of
- *              a polynomial in place;
- *              inputs assumed to be in normal order, output in bitreversed
- *              order
+ *              a polynomial in place.
+ *
+ *              The input polynomial is assumed to be in normal order.
+ *              The output polynomial is in bitreversed order, or of a
+ *              custom order if MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER is set.
+ *              See the documentation of MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER
+ *              for more information.
  *
  * Arguments:   - poly *p: pointer to in/output polynomial
  **************************************************/
 static inline void ntt_native(poly *);
 #endif /* MLKEM_USE_NATIVE_NTT */
 
+#if defined(MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER)
+// This must only be set if NTT, invNTT, basemul, mulcache, and
+// to/from byte stream conversions all have native implementations
+// that are adapted to the custom order.
+#if !defined(MLKEM_USE_NATIVE_NTT) || !defined(MLKEM_USE_NATIVE_INTT) || \
+    !defined(MLKEM_USE_NATIVE_POLY_MULCACHE_COMPUTE) ||                  \
+    !defined(MLKEM_USE_NATIVE_POLYVEC_BASEMUL_ACC_MONTGOMERY_CACHED) ||  \
+    !defined(MLKEM_USE_NATIVE_POLY_TOBYTES) ||                           \
+    !defined(MLKEM_USE_NATIVE_POLY_FROMBYTES)
+#error \
+    "Invalid native profile: MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER can only be \
+set if there are native implementations for NTT, invNTT, mulcache, basemul, \
+and to/from bytes conversions."
+#endif
+
+/*************************************************
+ * Name:        poly_permute_bitrev_to_custom
+ *
+ * Description: When MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER is defined,
+ *              convert a polynomial in NTT domain from bitreversed
+ *              order to the custom order output by the native NTT.
+ *
+ *              This must only be defined if there is native code for
+ *              all of (a) NTT, (b) invNTT, (c) basemul, (d) mulcache.
+ * Arguments:   - poly *p: pointer to in/output polynomial
+ *
+ **************************************************/
+static inline void poly_permute_bitrev_to_custom(poly *);
+#endif /* MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER */
+
 #if defined(MLKEM_USE_NATIVE_INTT)
 /*************************************************
  * Name:        intt_native
  *
  * Description: Computes inverse of negacyclic number-theoretic transform (NTT)
- *              of a polynomial in place;
- *              inputs assumed to be in bitreversed order, output in normal
- *              order.
+ *              of a polynomial in place.
+ *
+ *              The input polynomial is in bitreversed order, or of a
+ *              custom order if MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER is set.
+ *              See the documentation of MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER
+ *              for more information.
+ *              The output polynomial is assumed to be in normal order.
  *
  * Arguments:   - uint16_t *a: pointer to in/output polynomial
  **************************************************/
@@ -129,15 +135,21 @@ static inline void poly_tomont_native(poly *);
 /*************************************************
  * Name:        poly_mulcache_compute_native
  *
- * Description: Compute multiplication cache for a polynomial.
+ * Description: Compute multiplication cache for a polynomial
+ *              in NTT domain.
+ *
  *              The purpose of the multiplication cache is to
  *              cache repeated computations required during a
- *              base multiplication of polynomials in NTT form.
+ *              base multiplication of polynomials in NTT domain.
  *              The structure of the multiplication-cache is
  *              implementation defined.
  *
  * Arguments:   INPUT:
  *              - poly: const pointer to input polynomial.
+ *                  This must be in NTT domain and inin bitreversed order, or of
+ *                  a custom order if MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER is set.
+ *                  See the documentation of MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER
+ *                  for more information.
  *              OUTPUT
  *              - cache: pointer to multiplication cache
  **************************************************/
@@ -146,6 +158,24 @@ static inline void poly_mulcache_compute_native(poly_mulcache *cache,
 #endif /* MLKEM_USE_NATIVE_POLY_MULCACHE_COMPUTE */
 
 #if defined(MLKEM_USE_NATIVE_POLYVEC_BASEMUL_ACC_MONTGOMERY_CACHED)
+/*************************************************
+ * Name:        poly_mulcache_compute_native
+ *
+ * Description: Compute multiplication of polynomials in NTT domain.
+ *
+ * Arguments:   INPUT:
+ *              - a: First polynomial operand.
+ *                 This must be in NTT domain and inin bitreversed order, or of
+ *                 a custom order if MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER is set.
+ *                 See the documentation of MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER
+ *                 for more information.
+ *              - b: Second polynomial operand.
+ *                 As for a.
+ *              - b_cache: Multiplication-cache for b.
+ *              OUTPUT
+ *              - r: Result of the base multiplication. This is again
+ *                   in NTT domain, and of the same order as a and b.
+ **************************************************/
 static inline void polyvec_basemul_acc_montgomery_cached_native(
     poly *r, const polyvec *a, const polyvec *b,
     const polyvec_mulcache *b_cache);

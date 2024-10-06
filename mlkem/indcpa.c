@@ -14,6 +14,8 @@
 #include "rej_uniform.h"
 #include "symmetric.h"
 
+#include "arith_native.h"
+
 /*************************************************
  * Name:        pack_pk
  *
@@ -218,6 +220,16 @@ void gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMBYTES],
       ctr[0] += rej_uniform(vec[0] + ctr[0], KYBER_N - ctr[0], bufx[0], buflen);
     }
   }
+
+#if defined(MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER)
+  // The public matrix is generated in NTT domain. If the native backend
+  // uses a custom order in NTT domain, permute A accordingly.
+  for (i = 0; i < KYBER_K; i++) {
+    for (int j = 0; j < KYBER_K; j++) {
+      poly_permute_bitrev_to_custom(&a[i].vec[j]);
+    }
+  }
+#endif /* MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER */
 }
 
 /*************************************************
