@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1728224994589,
+  "lastUpdate": 1728224999056,
   "repoUrl": "https://github.com/pq-code-package/mlkem-c-aarch64",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -30940,6 +30940,75 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 329070,
+            "unit": "cycles"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "beckphan@amazon.co.uk",
+            "name": "Hanno Becker",
+            "username": "hanno-becker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e27dddbb83cb8d8c79276ffbf49c186d7d381006",
+          "message": "Simplify C<->Native interface for mulcache computation (#204)\n\nContext: The mul[tiplication]cache of a polynomial is an opaque\r\nstructure that implementations can use to cache precomputations\r\nneeded during the repeated base multiplication of a polynomial\r\nin NTT form.\r\n\r\nPreviously, the API for the computation of the mulcache would\r\nexpose two arrays of constants which the AArch64 native implementation\r\nof the mulcache computation need.\r\n\r\nThis commit removes those constants from the native API for the\r\nmulcache computation, since different native implementations are\r\nlikely to require different sets of constants.\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>",
+          "timestamp": "2024-10-06T15:26:45+01:00",
+          "tree_id": "177ded815ff6049fa59902ac109a16910218c9d7",
+          "url": "https://github.com/pq-code-package/mlkem-c-aarch64/commit/e27dddbb83cb8d8c79276ffbf49c186d7d381006"
+        },
+        "date": 1728224997930,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ML-KEM-512 keypair",
+            "value": 99233,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 encaps",
+            "value": 124641,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 decaps",
+            "value": 167100,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 keypair",
+            "value": 159219,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 encaps",
+            "value": 180921,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 decaps",
+            "value": 232292,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 keypair",
+            "value": 236060,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 encaps",
+            "value": 262760,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 decaps",
+            "value": 329383,
             "unit": "cycles"
           }
         ]
