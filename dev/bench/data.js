@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1728281326302,
+  "lastUpdate": 1728281350517,
   "repoUrl": "https://github.com/pq-code-package/mlkem-c-aarch64",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -10665,6 +10665,75 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 197114,
+            "unit": "cycles"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "beckphan@amazon.co.uk",
+            "name": "Hanno Becker",
+            "username": "hanno-becker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "beee53bb26b1ead52ca7f312ba47adac798aa010",
+          "message": "Allow non-standard ordering of polynomials in NTT domain (#206)\n\n* Add poly_frombytes() to C<->native interface\r\n\r\nThis must be re-implemented for native backends using a\r\nnon-standard ordering in NTT domain.\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Allow custom order of polynomials in NTT domain\r\n\r\nThe reference implementation uses the standard bitreversed\r\norder for polynomials in NTT domain. Some optimized native\r\nimplementations, however, may want to use a different order\r\nthat's easier to work with, for NTT, invNTT, and base multiplication.\r\n\r\nWhen such custom order is used, the generation of the public matrix\r\nneeds adjusting, since it is generated directly in NTT domain.\r\n\r\nThis commit extends the native arithmetic interface to include\r\nan option MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER and an associated\r\nfunction poly_permute_bitrev_to_custom(), which can be used to\r\nindicate that the native backend uses a custom order.\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n---------\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>",
+          "timestamp": "2024-10-07T07:05:54+01:00",
+          "tree_id": "1a6dffb5315757bb927c8cd069c580474839a5bc",
+          "url": "https://github.com/pq-code-package/mlkem-c-aarch64/commit/beee53bb26b1ead52ca7f312ba47adac798aa010"
+        },
+        "date": 1728281343191,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ML-KEM-512 keypair",
+            "value": 60073,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 encaps",
+            "value": 75389,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 decaps",
+            "value": 86086,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 keypair",
+            "value": 101832,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 encaps",
+            "value": 120504,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 decaps",
+            "value": 134939,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 keypair",
+            "value": 153866,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 encaps",
+            "value": 176987,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 decaps",
+            "value": 196924,
             "unit": "cycles"
           }
         ]
