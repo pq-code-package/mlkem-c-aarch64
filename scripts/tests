@@ -295,6 +295,13 @@ _shared_options = [
         default=True,
         help="Choose whether to enable assembly optimizations (if present)",
     ),
+    click.option(
+        "--auto/--no-auto",
+        is_flag=True,
+        show_default=True,
+        default=True,
+        help="Allow makefile to auto configure system specific preprocessor",
+    ),
 ]
 
 _bench_options = [
@@ -357,7 +364,7 @@ def add_options(options):
     context_settings={"show_default": True},
 )
 @add_options(_shared_options)
-def func(verbose, cross_prefix, cflags, arch_flags, opt):
+def func(verbose, cross_prefix, cflags, arch_flags, opt, auto):
     config_logger(verbose)
 
     def expect(scheme):
@@ -379,7 +386,7 @@ def func(verbose, cross_prefix, cflags, arch_flags, opt):
         verbose,
         cross_prefix,
         extra_make_envs=process_make_envs(cflags, arch_flags),
-        extra_make_args=[f"OPT={int(opt)}"],
+        extra_make_args=[f"OPT={int(opt)}", f"AUTO={int(auto)}"],
     )
 
 
@@ -388,7 +395,7 @@ def func(verbose, cross_prefix, cflags, arch_flags, opt):
     context_settings={"show_default": True},
 )
 @add_options(_shared_options)
-def nistkat(verbose, cross_prefix, cflags, arch_flags, opt):
+def nistkat(verbose, cross_prefix, cflags, arch_flags, opt, auto):
     config_logger(verbose)
 
     test_schemes(
@@ -399,7 +406,7 @@ def nistkat(verbose, cross_prefix, cflags, arch_flags, opt):
         verbose,
         cross_prefix,
         extra_make_envs=process_make_envs(cflags, arch_flags),
-        extra_make_args=[f"OPT={int(opt)}"],
+        extra_make_args=[f"OPT={int(opt)}", f"AUTO={int(auto)}"],
     )
 
 
@@ -408,7 +415,7 @@ def nistkat(verbose, cross_prefix, cflags, arch_flags, opt):
     context_settings={"show_default": True},
 )
 @add_options(_shared_options)
-def kat(verbose, cross_prefix, cflags, arch_flags, opt):
+def kat(verbose, cross_prefix, cflags, arch_flags, opt, auto):
     config_logger(verbose)
 
     test_schemes(
@@ -419,7 +426,7 @@ def kat(verbose, cross_prefix, cflags, arch_flags, opt):
         verbose,
         cross_prefix,
         extra_make_envs=process_make_envs(cflags, arch_flags),
-        extra_make_args=[f"OPT={int(opt)}"],
+        extra_make_args=[f"OPT={int(opt)}", f"AUTO={int(auto)}"],
     )
 
 
@@ -436,6 +443,7 @@ def bench(
     cflags,
     arch_flags,
     opt,
+    auto,
     output,
     run_as_root,
     exec_wrapper,
@@ -470,6 +478,7 @@ def bench(
         extra_make_args=[
             f"CYCLES={cycles}",
             f"OPT={int(opt)}",
+            f"AUTO={int(auto)}",
         ],
     )
 
