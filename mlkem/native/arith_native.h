@@ -170,6 +170,24 @@ static inline void poly_tobytes_native(uint8_t r[KYBER_POLYBYTES],
                                        const poly *a);
 #endif /* MLKEM_USE_NATIVE_POLY_TOBYTES */
 
+#if defined(MLKEM_USE_NATIVE_POLY_FROMBYTES)
+/*************************************************
+ * Name:        poly_frombytes_native
+ *
+ * Description: Serialization of a polynomial.
+ *              Signed coefficients are converted to
+ *              unsigned form before serialization.
+ *
+ * Arguments:   INPUT:
+ *              - r: pointer to output polynomial in NTT domain
+ *              OUTPUT
+ *              - a: const pointer to input byte aray
+ *                   (of KYBER_POLYBYTES bytes)
+ **************************************************/
+static inline void poly_frombytes_native(poly *a,
+                                         const uint8_t r[KYBER_POLYBYTES]);
+#endif /* MLKEM_USE_NATIVE_POLY_FROMBYTES */
+
 #if defined(MLKEM_USE_NATIVE_REJ_UNIFORM)
 /*************************************************
  * Name:        rej_uniform_native

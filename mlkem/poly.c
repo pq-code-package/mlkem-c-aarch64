@@ -218,6 +218,7 @@ void poly_tobytes(uint8_t r[KYBER_POLYBYTES], const poly *a) {
 }
 #endif /* MLKEM_USE_NATIVE_POLY_TOBYTES */
 
+#if !defined(MLKEM_USE_NATIVE_POLY_FROMBYTES)
 /*************************************************
  * Name:        poly_frombytes
  *
@@ -243,6 +244,11 @@ void poly_frombytes(poly *r, const uint8_t a[KYBER_POLYBYTES]) {
         ((a[3 * i + 1] >> 4) | ((uint16_t)a[3 * i + 2] << 4)) & 0xFFF;
   }
 }
+#else /* MLKEM_USE_NATIVE_POLY_FROMBYTES */
+void poly_frombytes(poly *r, const uint8_t a[KYBER_POLYBYTES]) {
+    poly_frombytes_native(r, a);
+}
+#endif /* MLKEM_USE_NATIVE_POLY_FROMBYTES */
 
 /*************************************************
  * Name:        poly_frommsg
