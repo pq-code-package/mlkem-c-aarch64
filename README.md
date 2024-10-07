@@ -14,7 +14,7 @@ If you need an ML-KEM implementation suitable for embedded systems, see
 ### Goals
 
 **mlkem-native** aims for _assurance_, _ease of use_, and _performance_. In doubt, assurance and ease of
-use take precedence over performance: We only include implementations into **mlkem-c-aarch64** which are manually
+use take precedence over performance: We only include implementations into **mlkem-native** which are manually
 auditable or for which we see a path towards formal verification. All assembly aims to be readable and
 micro-optimization deferred to automated tooling such as
 [SLOTHY](https://slothy-optimizer.github.io/slothy/). Ultimately, **mlkem-native** strives for constant-time
