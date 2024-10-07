@@ -32,9 +32,9 @@
 #error "FORCE_AARCH64 is set, but we don't seem to be on an AArch64 system."
 #endif
 
-/* If FORCE_X86_64 is set, assert that we're indeed on an AArch64 system. */
+/* If FORCE_X86_64 is set, assert that we're indeed on an X86_64 system. */
 #if defined(FORCE_X86_64) && !defined(SYS_X86_64)
-#error "FORCE_X86_64 is set, but we don't seem to be on an AArch64 system."
+#error "FORCE_X86_64 is set, but we don't seem to be on an X86_64 system."
 #endif
 
 #endif
