@@ -42,7 +42,8 @@ runs:
         shell: ${{ env.SHELL }}
         run: |
           echo "::group::func_test"
-          tests func --cross-prefix=${{ inputs.cross-prefix }} --cflags="${{ inputs.cflags }}" --opt=${{inputs.opt}} -v
+          tests func --cross-prefix=${{ inputs.cross-prefix }} --cflags=${{ inputs.cflags }} \
+            $([[ ${{ inputs.opt }} == "false" ]] && echo ""--no-opt"") -v
           echo "::endgroup::"
       - name: Run KAT tests
         if: |
@@ -52,7 +53,8 @@ runs:
         shell: ${{ env.SHELL }}
         run: |
           echo "::group::kat_test"
-          tests kat --cross-prefix=${{ inputs.cross-prefix }} --cflags="${{ inputs.cflags }}" --opt=${{inputs.opt}} -v
+          tests kat --cross-prefix=${{ inputs.cross-prefix }} --cflags=${{ inputs.cflags }} \
+            $([[ ${{ inputs.opt }} == "false" ]] && echo ""--no-opt"") -v
           echo "::endgroup::"
       - name: Run Nistkat tests
         id: nistkat_test
@@ -63,5 +65,6 @@ runs:
         shell: ${{ env.SHELL }}
         run: |
           echo "::group::nistkat_test"
-          tests nistkat --cross-prefix=${{ inputs.cross-prefix }} --cflags="${{ inputs.cflags }}" --opt=${{inputs.opt}} -v
+          tests nistkat --cross-prefix=${{ inputs.cross-prefix }} --cflags=${{ inputs.cflags }} \
+            $([[ ${{ inputs.opt }} == "false" ]] && echo ""--no-opt"") -v
           echo "::endgroup::"
