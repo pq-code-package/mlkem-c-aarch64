@@ -10,9 +10,6 @@ inputs:
   custom_shell:
     description: The shell to use. Only relevant if use-nix is 'false'
     default: "bash"
-  cross-prefix:
-    description: Binary prefix for cross compilation
-    default: ""
 runs:
   using: composite
   steps:
@@ -29,7 +26,6 @@ runs:
               - $(cbmc --version)
               - litani Version $(litani --version)
               - Cadical Version $(cadical --version)
-              - $(${{ inputs.cross_prefix }}gcc --version | grep -m1 "")
               - $(bash --version | grep -m1 "")
             EOF
       - name: Run CBMC proofs
