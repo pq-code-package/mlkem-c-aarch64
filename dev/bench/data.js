@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1728295642943,
+  "lastUpdate": 1728326446043,
   "repoUrl": "https://github.com/pq-code-package/mlkem-c-aarch64",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -16267,6 +16267,73 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 97223,
+            "unit": "cycles"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Hanno Becker",
+            "username": "hanno-becker",
+            "email": "beckphan@amazon.co.uk"
+          },
+          "committer": {
+            "name": "GitHub",
+            "username": "web-flow",
+            "email": "noreply@github.com"
+          },
+          "id": "c4fefa0fb81eb2e92dd90afb23e740d726e675c6",
+          "message": "Add AVX2 [inv]NTT from official Kyber repository (#203)\n\n* Add AVX2 NTT from official Kyber implementation\r\n\r\nThe AVX2 Kyber NTT produces non-reduced outputs in\r\nnon-standard order, for better performance. Neither\r\nis currently supported by the C<->Native interface.\r\n\r\nTo accommodate, we temporarily reduce and reorder the\r\noutput of the AVX2 NTT to match the current C<->Native\r\ninterface. This will likely need changing later.\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Increase default alignment of buffers to 32 bytes\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Add AVX2 invNTT from official Kyber implementation\r\n\r\nAs for the forward NTT, the inverse NTT operates on\r\na non-standard order that currently supported by our\r\nC<->Native interface. To accommodate, we shuffle the\r\ndata in the expected order first before calling the\r\nAVX2 iNTT. This may need revisiting later for better\r\nperformance.\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n---------\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>",
+          "timestamp": "2024-10-07T08:59:33Z",
+          "url": "https://github.com/pq-code-package/mlkem-c-aarch64/commit/c4fefa0fb81eb2e92dd90afb23e740d726e675c6"
+        },
+        "date": 1728326441755,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ML-KEM-512 keypair",
+            "value": 30325,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 encaps",
+            "value": 40106,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 decaps",
+            "value": 46081,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 keypair",
+            "value": 51371,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 encaps",
+            "value": 60794,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 decaps",
+            "value": 68767,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 keypair",
+            "value": 74887,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 encaps",
+            "value": 86478,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 decaps",
+            "value": 97128,
             "unit": "cycles"
           }
         ]
