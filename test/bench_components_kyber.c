@@ -42,10 +42,10 @@ static int cmp_uint64_t(const void *a, const void *b) {
   printf(txt " cycles=%" PRIu64 "\n", (cyc)[NTESTS >> 1] / NITERERATIONS);
 
 static int bench(void) {
-  uint64_t data0[1024] ALIGN(16);
-  uint64_t data1[1024] ALIGN(16);
-  uint64_t data2[1024] ALIGN(16);
-  uint64_t data3[1024] ALIGN(16);
+  uint64_t data0[1024] ALIGN;
+  uint64_t data1[1024] ALIGN;
+  uint64_t data2[1024] ALIGN;
+  uint64_t data3[1024] ALIGN;
   uint64_t cyc[NTESTS];
 
   unsigned int i, j;

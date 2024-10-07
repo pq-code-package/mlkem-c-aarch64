@@ -5,7 +5,7 @@ ifeq ($(OPT),1)
 	CPPFLAGS += -DMLKEM_USE_NATIVE
 endif
 
-CPPFLAGS += -Imlkem -Imlkem/sys -Imlkem/native
+CPPFLAGS += -Imlkem -Imlkem/sys -Imlkem/native -Imlkem/native/aarch64 -Imlkem/native/x86_64
 TESTS = test_kyber bench_kyber bench_components_kyber gen_NISTKAT gen_KAT
 
 MLKEM512_DIR = $(BUILD_DIR)/mlkem512
