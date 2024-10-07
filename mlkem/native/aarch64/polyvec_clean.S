@@ -14,12 +14,6 @@
 // Needed to provide ASM_LOAD directive
 #include "common.i"
 
-.macro barrett_reduce a
-        sqdmulh t0.8h, \a\().8h, consts.h[1]
-        srshr   t0.8h, t0.8h, #11
-        mls     \a\().8h, t0.8h, consts.h[0]
-.endm
-
 // Input:
 // - Vectors al, ah of 32-bit entries
 // Output:
@@ -120,6 +114,11 @@
         res0h   .req v10
         res1h   .req v11
 
+        tmp0 .req v12
+        tmp1 .req v13
+        q_tmp0 .req q12
+        q_tmp1 .req q13
+
         out0 .req v26
         out1 .req v27
 
@@ -167,10 +166,6 @@ k2_loop_start:
         montgomery_reduce_long out0, res0
         montgomery_reduce_long out1, res1
 
-        // CHECK: Is this needed?
-        barrett_reduce out0
-        barrett_reduce out1
-
         st2 {out0.8h, out1.8h}, [out], #32
 
         subs count, count, #1
@@ -214,9 +209,6 @@ k3_loop_start:
 
         montgomery_reduce_long out0, res0
         montgomery_reduce_long out1, res1
-        // CHECK: Is this needed?
-        barrett_reduce out0
-        barrett_reduce out1
 
         st2 {out0.8h, out1.8h}, [out], #32
 
@@ -266,9 +258,6 @@ k4_loop_start:
 
         montgomery_reduce_long out0, res0
         montgomery_reduce_long out1, res1
-        // CHECK: Is this needed?
-        barrett_reduce out0
-        barrett_reduce out1
 
         st2 {out0.8h, out1.8h}, [out], #32
 

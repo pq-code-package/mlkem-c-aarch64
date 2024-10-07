@@ -82,8 +82,6 @@ void poly_ntt(poly *p) {
       }
     }
   }
-
-  poly_reduce(p);
 }
 #else  /* MLKEM_USE_NATIVE_NTT */
 void poly_ntt(poly *p) { ntt_native(p); }
@@ -101,11 +99,16 @@ void poly_ntt(poly *p) { ntt_native(p); }
  **************************************************/
 #if !defined(MLKEM_USE_NATIVE_INTT)
 // REF-CHANGE: Removed indirection poly_invntt_tomont -> invntt()
+// REF-CHANGE: Moved scalar multiplication with f ahead of the core invNTT
 void poly_invntt_tomont(poly *p) {
   unsigned int start, len, j, k;
   int16_t t, zeta;
   const int16_t f = 1441;  // mont^2/128
   int16_t *r = p->coeffs;
+
+  for (j = 0; j < 256; j++) {
+    r[j] = fqmul(r[j], f);
+  }
 
   k = 127;
   for (len = 2; len <= 128; len <<= 1) {
@@ -118,10 +121,6 @@ void poly_invntt_tomont(poly *p) {
         r[j + len] = fqmul(zeta, r[j + len]);
       }
     }
-  }
-
-  for (j = 0; j < 256; j++) {
-    r[j] = fqmul(r[j], f);
   }
 }
 #else  /* MLKEM_USE_NATIVE_INTT */
