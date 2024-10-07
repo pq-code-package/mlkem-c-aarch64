@@ -22,6 +22,8 @@ void ntt_avx2(__m256i *r, const __m256i *qdata);
 void invntt_avx2(__m256i *r, const __m256i *qdata);
 void nttpack_avx2(__m256i *r, const __m256i *qdata);
 void nttunpack_avx2(__m256i *r, const __m256i *qdata);
+void poly_tobytes_avx2(uint8_t *r, const __m256i *a, const __m256i *qdata);
+void poly_frombytes_avx2(__m256i *r, const uint8_t *a, const __m256i *qdata);
 
 #endif /* MLKEM_USE_NATIVE_X86_64 && SYS_X86_64_AVX2 */
 
