@@ -291,6 +291,7 @@ void indcpa_keypair_derand(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
 
   polyvec_add(&pkpv, &pkpv, &e);
   polyvec_reduce(&pkpv);
+  polyvec_reduce(&skpv);
 
   pack_sk(sk, &skpv);
   pack_pk(pk, &pkpv, publicseed);

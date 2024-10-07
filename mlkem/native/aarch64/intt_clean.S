@@ -226,11 +226,40 @@ _intt_asm_clean:
         ASM_LOAD(xtmp, const_addr)
         ld1 {consts.8h}, [xtmp]
 
+        ninv             .req v29
+        ninv_tw          .req v30
+
+        ASM_LOAD(xtmp, ninv_addr)
+        ld1r {ninv.8h}, [xtmp]
+        ASM_LOAD(xtmp, ninv_tw_addr)
+        ld1r {ninv_tw.8h}, [xtmp]
+
+        mov inp, in
+        mov count, #8
+
+scale_start:
+
+        ldr q_data0, [inp, #(16*0)]
+        ldr q_data1, [inp, #(16*1)]
+        ldr q_data2, [inp, #(16*2)]
+        ldr q_data3, [inp, #(16*3)]
+
+        mul_ninv data0, data1, data2, data3, data0, data1, data2, data3
+
+        str q_data0, [inp], #64
+        str q_data1, [inp, #(-64 + 16*1)]
+        str q_data2, [inp, #(-64 + 16*2)]
+        str q_data3, [inp, #(-64 + 16*3)]
+
+        subs count, count, #1
+        cbnz count, scale_start
+
         mov inp, in
         mov count, #8
 
         .p2align 2
 layer4567_start:
+
         ldr q_data0, [inp, #(16*0)]
         ldr q_data1, [inp, #(16*1)]
         ldr q_data2, [inp, #(16*2)]
@@ -274,14 +303,6 @@ layer4567_start:
 
         // ---------------------------------------------------------------------
 
-        ninv             .req v29
-        ninv_tw          .req v30
-
-        ASM_LOAD(xtmp, ninv_addr)
-        ld1r {ninv.8h}, [xtmp]
-        ASM_LOAD(xtmp, ninv_tw_addr)
-        ld1r {ninv_tw.8h}, [xtmp]
-
         mov count, #4
         ASM_LOAD(r_ptr0, roots_l012)
         load_roots_123
@@ -318,11 +339,6 @@ layer123_start:
         str q_data5, [in, #(5*(512/8))]
         str q_data6, [in, #(6*(512/8))]
         str q_data7, [in, #(7*(512/8))]
-
-        // Scale half the coeffs by 1/n; for the other half, the scaling has
-        // been merged into the multiplication with the twiddle factor on the
-        // last layer.
-        mul_ninv data0, data1, data2, data3, data0, data1, data2, data3
 
         str q_data0, [in], #(16)
         str q_data1, [in, #(-16 + 1*(512/8))]

@@ -221,8 +221,6 @@ void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a,
                                    &b_cache->vec[i]);
     poly_add(r, r, &t);
   }
-
-  poly_reduce(r);
 }
 #else  /* !MLKEM_USE_NATIVE_POLYVEC_BASEMUL_ACC_MONTGOMERY_CACHED */
 void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a,
