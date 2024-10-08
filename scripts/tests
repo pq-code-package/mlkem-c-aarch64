@@ -671,7 +671,7 @@ def all(
             stderr=asyncio.subprocess.PIPE,
         )
         if gh_env is not None:
-            print(f"::group::run {compile_mode} {opt_flag} {p.args[1]} test")
+            print(f"::group::run {compile_mode} {opt_flag} {cmd[1]} test")
 
         stdout, stderr = await p.communicate()
         if stdout:

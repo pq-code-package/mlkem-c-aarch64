@@ -13,15 +13,41 @@ inputs:
   cflags:
     description: CFLAGS to pass to compilation
     default: ""
-  cross-prefix:
-    description: Binary prefix for cross compilation
-    default: ""
+  mode:
+    description: For auto-determining the default cross-prefix (e.g. native | cross )
+    default: "native"
   opt:
     description: opt flag to pass to test script
+    default: "true"
+  func:
+    description: Determine whether to run functional test or not
+    default: "true"
+  kat:
+    description: Determine whether to run kat test or not
+    default: "true"
+  nistkat:
+    description: Determine whether to run nistkat test or not
     default: "true"
 runs:
   using: composite
   steps:
+      - name: Preprocess
+        shell: ${{ env.SHELL }}
+        run: |
+          arch=$(uname -m)
+          if [[ ${{ inputs.mode }} == "cross" && $arch == "x86_64" ]]; then
+              cross_prefix="aarch64-unknown-linux-gnu-"
+          elif [[ ${{ inputs.mode }} == "cross" && ($arch == "aarch64" || $arch == "arm64") ]]; then
+              cross_prefix="x86_64-unknown-linux-gnu-"
+          else
+              cross_prefix=""
+          fi
+          echo CROSS_PREFIX="$cross_prefix" >> $GITHUB_ENV
+          echo OPT="${{ inputs.opt == 'true' && 'opt' || 'no-opt' }}" >> $GITHUB_ENV
+
+          echo FUNC="${{ inputs.func == 'true' && 'func' || 'no-func' }}" >> $GITHUB_ENV
+          echo KAT="${{ inputs.kat == 'true' && 'kat' || 'no-kat' }}" >> $GITHUB_ENV
+          echo NISTKAT="${{ inputs.nistkat == 'true' && 'nistkat' || 'no-nistkat' }}" >> $GITHUB_ENV
       - name: Setup nix
         uses: ./.github/actions/setup-shell
         with:
@@ -34,37 +60,19 @@ runs:
               Architecture: $ARCH
               - $(uname -a)
               - $(nix --version)
-              - $(${{ inputs.cross-prefix }}gcc --version | grep -m1 "")
+              - $(${{ env.CROSS_PREFIX }}gcc --version | grep -m1 "")
               - $(bash --version | grep -m1 "")
             EOF
-      - name: Run functional tests
-        id: func_test
+      - name: Compile ${{ inputs.mode }} ${{ env.OPT }} tests (${{ env.FUNC }}, ${{ env.KAT }}, ${{ env.NISTKAT }})
         shell: ${{ env.SHELL }}
         run: |
-          echo "::group::func_test"
-          tests func --cross-prefix=${{ inputs.cross-prefix }} --cflags=${{ inputs.cflags }} \
-            $([[ ${{ inputs.opt }} == "false" ]] && echo ""--no-opt"") -v
-          echo "::endgroup::"
-      - name: Run KAT tests
-        if: |
-          success()
-          || steps.func_test.conclusion == 'failure'
-        id: kat_test
+          tests all  --cross-prefix="${{ env.CROSS_PREFIX }}" --cflags="${{ inputs.cflags }}" --${{ env.OPT }} --${{ env.FUNC }} --${{ env.KAT }} --${{ env.NISTKAT }} --compile --no-run -v
+      - name: Run ${{ inputs.mode }} ${{ env.OPT }} tests (${{ env.FUNC }}, ${{ env.KAT }}, ${{ env.NISTKAT }})
         shell: ${{ env.SHELL }}
         run: |
-          echo "::group::kat_test"
-          tests kat --cross-prefix=${{ inputs.cross-prefix }} --cflags=${{ inputs.cflags }} \
-            $([[ ${{ inputs.opt }} == "false" ]] && echo ""--no-opt"") -v
-          echo "::endgroup::"
-      - name: Run Nistkat tests
-        id: nistkat_test
-        if: |
-          success()
-          || steps.func_test.conclusion == 'failure'
-          || steps.kat_test.conclusion == 'failure'
+          tests all  --cross-prefix="${{ env.CROSS_PREFIX }}" --cflags="${{ inputs.cflags }}" --${{ env.OPT }} --${{ env.FUNC }} --${{ env.KAT }} --${{ env.NISTKAT }} --no-compile --run -v
+      - name: Post ${{ inputs.mode }} Tests
         shell: ${{ env.SHELL }}
+        if: success() || failure()
         run: |
-          echo "::group::nistkat_test"
-          tests nistkat --cross-prefix=${{ inputs.cross-prefix }} --cflags=${{ inputs.cflags }} \
-            $([[ ${{ inputs.opt }} == "false" ]] && echo ""--no-opt"") -v
-          echo "::endgroup::"
+          make clean
