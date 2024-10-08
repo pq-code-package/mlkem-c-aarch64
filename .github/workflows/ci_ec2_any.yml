@@ -24,21 +24,27 @@ on:
       cflags:
         description: Custom CFLAGS for compilation
         default:
-      opt:
-        description: Run with optimized code if enabled
-        type: boolean
-        default: true
-      cross-prefix:
-        description: Cross-compilation binary prefix, if any
-        default: ' '
       always_terminate:
         description: Indicates if instance should always be terminated, even on failure
         type: boolean
         default: true
-      functest:
-        description: Whether to run functional tests
-        type: boolean
-        default: true
+      compile_mode:
+        description: Indicates the desired compilation mode (native or cross compilation), or `all` to perform both types, or `none` to skip compilation and functional testing.
+        type: choice
+        options:
+          - all
+          - native
+          - cross
+          - none
+        default: all
+      opt:
+        description: Indicates to compile and run the opt/non-opt binary or both.
+        type: choice
+        options:
+          - all
+          - opt
+          - non-opt
+        default: all
       cbmc:
         description: Whether to run CBMC proofs
         type: boolean
@@ -53,9 +59,11 @@ jobs:
       ec2_ami: ${{ inputs.ec2_ami }}
       ec2_ami_id: ${{ inputs.ec2_ami_id }}
       cflags: ${{ inputs.cflags }}
-      cross-prefix: ${{ inputs.cross-prefix }}
+      compile_mode: ${{ inputs.compile_mode }}
       opt: ${{ inputs.opt }}
-      functest: ${{ inputs.functest }}
+      functest: ${{ inputs.compile_mode != 'none' }}
+      kattest: ${{ inputs.compile_mode != 'none' }}
+      nistkattest: ${{ inputs.compile_mode != 'none' }}
       lint: true
       cbmc: ${{ inputs.cbmc }}
       always_terminate: ${{ inputs.always_terminate }}
