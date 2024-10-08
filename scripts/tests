@@ -571,6 +571,119 @@ def bench(
                 f.write(json.dumps(v))
 
 
+@click.command(
+    short_help="Run all tests (except benchmark for now)",
+    context_settings={"show_default": True},
+)
+@add_options(_shared_options)
+@add_options(
+    [
+        click.option(
+            "--func/--no-func",
+            is_flag=True,
+            show_default=True,
+            default=True,
+            help="Determine whether to run func test or not",
+        ),
+        click.option(
+            "--kat/--no-kat",
+            is_flag=True,
+            show_default=True,
+            default=True,
+            help="Determine whether to run kat test or not",
+        ),
+        click.option(
+            "--nistkat/--no-nistkat",
+            is_flag=True,
+            show_default=True,
+            default=True,
+            help="Determine whether to run nistkat test or not",
+        ),
+    ]
+)
+def all(
+    verbose,
+    cross_prefix,
+    cflags,
+    arch_flags,
+    opt,
+    auto,
+    compile,
+    run,
+    func,
+    kat,
+    nistkat,
+):
+    opt_flag = "opt" if opt else "no-opt"
+    auto_flag = "auto" if auto else "no-auto"
+    compile_flag = "compile" if compile else "no-compile"
+    run_flag = "run" if run else "no-run"
+    compile_mode = "cross" if cross_prefix else "native"
+
+    def _cmd(cmd):
+        return [
+            "tests",
+            f"{cmd}",
+            f"--cross-prefix={cross_prefix}",
+            *([f"--cflags={cflags}"] if cflags is not None else []),
+            f"--{opt_flag}",
+            f"--{auto_flag}",
+            f"--{compile_flag}",
+            f"--{run_flag}",
+            *(["--verbose"] if verbose else []),
+        ]
+
+    cmds = (
+        ([_cmd("func")] if func else [])
+        + ([_cmd("kat")] if kat else [])
+        + ([_cmd("nistkat")] if nistkat else [])
+    )
+
+    exit_code = 0
+
+    gh_env = os.environ.get("GITHUB_ENV")
+
+    # sequentially compile parallelly run
+    if compile:
+        for c in cmds:
+            if gh_env is not None:
+                print(f"::group::compile {compile_mode} {opt_flag} {c[1]} test")
+            result = subprocess.run(
+                c,
+                encoding="utf-8",
+                capture_output=True,
+                universal_newlines=False,
+            )
+            exit_code = exit_code or result.returncode
+            print(result.stdout)
+            if result.returncode != 0:
+                print(f"{result.stderr}")
+            if gh_env is not None:
+                print(f"::endgroup::")
+
+    else:
+        procs = [
+            subprocess.Popen(
+                p, stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding="utf-8"
+            )
+            for p in cmds
+        ]
+
+        for p in procs:
+            out, err = p.communicate()
+            exit_code = exit_code or p.returncode
+
+            if gh_env is not None:
+                print(f"::group::run {compile_mode} {opt_flag} {p.args[1]} test")
+            print(out)
+            if p.returncode != 0:
+                print(err)
+            if gh_env is not None:
+                print(f"::endgroup::")
+
+    exit(exit_code)
+
+
 @click.group(invoke_without_command=True)
 def cli():
     pass
@@ -580,6 +693,7 @@ cli.add_command(func)
 cli.add_command(nistkat)
 cli.add_command(kat)
 cli.add_command(bench)
+cli.add_command(all)
 
 if __name__ == "__main__":
     cli()
