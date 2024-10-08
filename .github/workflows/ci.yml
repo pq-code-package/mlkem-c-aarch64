@@ -18,67 +18,37 @@ jobs:
         target:
          - runner: macos-latest
            name: 'MacOS'
-           arch: 'arm64'
-           cross-prefix: ' '
-           cflags: '-DFORCE_AARCH64'
          - runner: pqcp-arm64
            name: 'ubuntu-latest (aarch64)'
-           arch: 'aarch64'
-           cross-prefix: ' '
-           cflags: '-DFORCE_AARCH64'
          - runner: pqcp-x64
-           name: 'ubuntu-latest (x86_64, cross)'
-           arch: 'x86_64'
-           cross-prefix: 'aarch64-unknown-linux-gnu-'
-           cflags: '-DFORCE_AARCH64'
-         - runner: pqcp-x64
-           name: 'ubuntu-latest (x86_64, native)'
-           cflags: "-DFORCE_X86_64  -mavx2 -mbmi2 -mpopcnt -maes"
-           arch: 'x86_64'
-           cross-prefix: ''
+           name: 'ubuntu-latest (x86_64)'
         exclude:
-         - {external: true,
-            target: {
-              runner: 'pqcp-arm64',
-              name: 'ubuntu-latest (aarch64)',
-              arch: 'aarch64',
-              cross-prefix: ' ',
-              cflags: '-DFORCE_AARCH64'
-            }}
-         - {external: true,
-            target: {
-              runner: 'pqcp-x64',
-              name: 'ubuntu-latest (x86_64, cross)',
-              arch: 'x86_64',
-              cross-prefix: 'aarch64-unknown-linux-gnu-',
-              cflags: '-DFORCE_AARCH64'
-            }}
-         - {external: true,
-            target: {
-              runner: 'pqcp-x64',
-              name: 'ubuntu-latest (x86_64, native)',
-              arch: 'x86_64',
-              cross-prefix: '',
-              cflags: ''
-            }}
+          - {external: true,
+             target: {
+               runner: pqcp-arm64,
+               name: 'ubuntu-latest (aarch64)',
+             }}
+          - {external: true,
+             target: {
+               runner: pqcp-x64,
+               name: 'ubuntu-latest (x86_64)',
+             }}
     name: Functional tests (${{ matrix.target.name }})
     runs-on: ${{ matrix.target.runner }}
     steps:
       - uses: actions/checkout@v4
-      - name: functest opt
-        uses: ./.github/actions/functest
+      - name: native tests
+        uses: ./.github/actions/multi-functest
         with:
-          nix-shell: ci
-          cflags: ${{ matrix.target.cflags }}
-          cross-prefix: ${{ matrix.target.cross-prefix }}
-          opt: true
-      - name: functest non-opt
-        uses: ./.github/actions/functest
+          compile_mode: native
+      - name: cross tests (opt only)
+        if: ${{ matrix.target.runner == 'pqcp-arm64' && (success() || failure()) }}
+        uses: ./.github/actions/multi-functest
         with:
-          nix-shell: ci
-          cflags: ${{ matrix.target.cflags }}
-          cross-prefix: ${{ matrix.target.cross-prefix }}
-          opt: false
+          compile_mode: cross
+          func: false
+          nistkat: false
+
   lint:
     strategy:
       matrix:
@@ -96,32 +66,29 @@ jobs:
       fail-fast: false
       matrix:
         target:
-          - name: AMD EPYC 4th gen (t3a,+AVX2)
-            ec2_instance_type: t3a.small
-            ec2_ami: ubuntu-latest (custom AMI)
-            ec2_ami_id: ami-0d47e137a1108e078 # x86_64 ubuntu-latest, 32g
-            cbmc: 'false'
-            cflags: -mavx2 -mbmi2 -mpopcnt -maes
           - name: AMD EPYC 4th gen (t3a)
             ec2_instance_type: t3a.small
             ec2_ami: ubuntu-latest (custom AMI)
             ec2_ami_id: ami-0d47e137a1108e078 # x86_64 ubuntu-latest, 32g
+            compile_mode: cross
+            opt: opt
+            kattest: true
             cbmc: 'false'
-          - name: Intel Xeon 4th gen (t3,+AVX2)
-            ec2_instance_type: t3.small
-            ec2_ami: ubuntu-latest (custom AMI)
-            ec2_ami_id: ami-0d47e137a1108e078 # x86_64 ubuntu-latest, 32g
-            cbmc: 'false'
-            cflags: -mavx2 -mbmi2 -mpopcnt -maes
           - name: Intel Xeon 4th gen (t3)
             ec2_instance_type: t3.small
             ec2_ami: ubuntu-latest (custom AMI)
             ec2_ami_id: ami-0d47e137a1108e078 # x86_64 ubuntu-latest, 32g
+            compile_mode: cross
+            opt: non-opt
+            kattest: true
             cbmc: 'false'
           - name: Graviton3, CBMC (c7g.xlarge)
             ec2_instance_type: c7g.xlarge
             ec2_ami: ubuntu-latest (custom AMI)
             ec2_ami_id: ami-08ddb0acd99dc3d33 # aarch64, ubuntu-latest, 64g
+            compile_mode: cross
+            opt: all
+            kattest: false
             cbmc: 'true'
     name: ${{ matrix.target.name }}
     permissions:
@@ -134,5 +101,8 @@ jobs:
       ec2_instance_type: ${{ matrix.target.ec2_instance_type }}
       ec2_ami: ${{ matrix.target.ec2_ami }}
       ec2_ami_id: ${{ matrix.target.ec2_ami_id }}
+      compile_mode: ${{ matrix.target.compile_mode }}
+      opt: ${{ matrix.target.opt }}
+      kattest: ${{ matrix.target.kattest }}
       cbmc: ${{ matrix.target.cbmc == 'true' }}
     secrets: inherit
