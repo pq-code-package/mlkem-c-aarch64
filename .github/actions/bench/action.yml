@@ -61,6 +61,12 @@ runs:
     - name: Run benchmark
       shell: ${{ env.SHELL }}
       run: |
+        catch() {
+          local line_no="$1"
+          echo "::error title=Failed at $line_no: $?"
+        }
+        trap 'catch $LINENO' ERR
+
         tests bench -c ${{ inputs.perf }} --cross-prefix="${{ inputs.cross_prefix }}" \
               --cflags="${{ inputs.cflags }}" --arch-flags="${{ inputs.archflags }}" \
               $([[ ${{ inputs.opt }} == "false" ]] && echo "--no-opt")  \

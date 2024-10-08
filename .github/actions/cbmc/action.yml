@@ -31,6 +31,12 @@ runs:
       - name: Run CBMC proofs
         shell: ${{ env.SHELL }}
         run: |
+          catch() {
+            local line_no="$1"
+            echo "::error title=cbmc failed at $line_no: $?"
+          }
+          trap 'catch $LINENO' ERR
+
           cd cbmc/proofs;
           echo "::group::cbmc"
           KYBER_K=2 ./run-cbmc-proofs.py --summarize;
