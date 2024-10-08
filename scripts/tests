@@ -8,6 +8,7 @@ import subprocess
 import logging
 import click
 import hashlib
+import asyncio
 from functools import reduce
 from enum import Enum
 
@@ -571,6 +572,129 @@ def bench(
                 f.write(json.dumps(v))
 
 
+@click.command(
+    short_help="Run all tests (except benchmark for now)",
+    context_settings={"show_default": True},
+)
+@add_options(_shared_options)
+@add_options(
+    [
+        click.option(
+            "--func/--no-func",
+            is_flag=True,
+            show_default=True,
+            default=True,
+            help="Determine whether to run func test or not",
+        ),
+        click.option(
+            "--kat/--no-kat",
+            is_flag=True,
+            show_default=True,
+            default=True,
+            help="Determine whether to run kat test or not",
+        ),
+        click.option(
+            "--nistkat/--no-nistkat",
+            is_flag=True,
+            show_default=True,
+            default=True,
+            help="Determine whether to run nistkat test or not",
+        ),
+    ]
+)
+def all(
+    verbose,
+    cross_prefix,
+    cflags,
+    arch_flags,
+    opt,
+    auto,
+    compile,
+    run,
+    func,
+    kat,
+    nistkat,
+):
+    opt_flag = "opt" if opt else "no-opt"
+    auto_flag = "auto" if auto else "no-auto"
+    compile_mode = "cross" if cross_prefix else "native"
+
+    def _cmd(cmd, compile_flag, run_flag):
+        return [
+            "tests",
+            f"{cmd}",
+            f"--cross-prefix={cross_prefix}",
+            *([f"--cflags={cflags}"] if cflags is not None else []),
+            f"--{opt_flag}",
+            f"--{auto_flag}",
+            f"--{compile_flag}",
+            f"--{run_flag}",
+            *(["--verbose"] if verbose else []),
+        ]
+
+    def _cmds(compile_flag, run_flag):
+        return (
+            ([_cmd("func", compile_flag, run_flag)] if func else [])
+            + ([_cmd("kat", compile_flag, run_flag)] if kat else [])
+            + ([_cmd("nistkat", compile_flag, run_flag)] if nistkat else [])
+        )
+
+    compile_cmds = [] if not compile else _cmds("compile", "no-run")
+    run_cmds = [] if not run else _cmds("no-compile", "run")
+
+    exit_code = 0
+
+    gh_env = os.environ.get("GITHUB_ENV")
+
+    # sequentially compile
+    for c in compile_cmds:
+        if gh_env is not None:
+            print(f"::group::compile {compile_mode} {opt_flag} {c[1]} test")
+        result = subprocess.run(
+            c,
+            encoding="utf-8",
+            capture_output=True,
+            universal_newlines=False,
+        )
+        exit_code = exit_code or result.returncode
+        print(result.stdout)
+        if result.returncode != 0:
+            print(f"{result.stderr}")
+        if gh_env is not None:
+            print(f"::endgroup::")
+
+    # parallelly run
+    async def run(cmd):
+        p = await asyncio.create_subprocess_shell(
+            " ".join(cmd),
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        if gh_env is not None:
+            print(f"::group::run {compile_mode} {opt_flag} {p.args[1]} test")
+
+        stdout, stderr = await p.communicate()
+        if stdout:
+            print(stdout.decode())
+        if p.returncode != 0 and stderr:
+            print(stderr.decode())
+        if gh_env is not None:
+            print(f"::endgroup::")
+
+        return p.returncode
+
+    async def run_all():
+        ts = []
+        async with asyncio.TaskGroup() as g:
+            for cmd in run_cmds:
+
+                ts.append(g.create_task(run(cmd)))
+        return reduce(lambda acc, c: acc or c, map(lambda t: t.result(), ts), exit_code)
+
+    asyncio.run(run_all())
+    exit(exit_code)
+
+
 @click.group(invoke_without_command=True)
 def cli():
     pass
@@ -580,6 +704,7 @@ cli.add_command(func)
 cli.add_command(nistkat)
 cli.add_command(kat)
 cli.add_command(bench)
+cli.add_command(all)
 
 if __name__ == "__main__":
     cli()
