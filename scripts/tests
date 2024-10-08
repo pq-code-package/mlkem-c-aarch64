@@ -14,9 +14,17 @@ from enum import Enum
 
 def config_logger(verbose):
     if verbose:
-        logging.basicConfig(format="%(levelname)-5s > %(message)s", level=logging.DEBUG)
+        logging.basicConfig(
+            stream=sys.stdout,
+            format="%(levelname)-5s > %(message)s",
+            level=logging.DEBUG,
+        )
     else:
-        logging.basicConfig(format="%(levelname)-5s > %(message)s", level=logging.INFO)
+        logging.basicConfig(
+            stream=sys.stdout,
+            format="%(levelname)-5s > %(message)s",
+            level=logging.INFO,
+        )
 
 
 def sha256sum(result):
@@ -192,20 +200,15 @@ def test_schemes(
     cross_prefix,
     run_as_root=False,
     exec_wrapper=None,
-    extra_make_envs={},
-    extra_make_args=[],
 ):
     """
     :param process_result: process result and return summary
     """
-    logging.info(f"{test.desc()}")
-
     summary_file = os.environ.get("GITHUB_STEP_SUMMARY")
     summary = f"## {test.desc()}\n"
 
     fail = False
     results = {}
-    base_compile(test, verbose, cross_prefix, extra_make_envs, extra_make_args)
     for scheme in SCHEME:
         result = base_run(
             test.bin_path(scheme),
@@ -302,6 +305,20 @@ _shared_options = [
         default=True,
         help="Allow makefile to auto configure system specific preprocessor",
     ),
+    click.option(
+        "--compile/--no-compile",
+        is_flag=True,
+        show_default=True,
+        default=True,
+        help="Determine to compile the binary or not",
+    ),
+    click.option(
+        "--run/--no-run",
+        is_flag=True,
+        show_default=True,
+        default=True,
+        help="Determine to run the compiled binary or not",
+    ),
 ]
 
 _bench_options = [
@@ -364,7 +381,7 @@ def add_options(options):
     context_settings={"show_default": True},
 )
 @add_options(_shared_options)
-def func(verbose, cross_prefix, cflags, arch_flags, opt, auto):
+def func(verbose, cross_prefix, cflags, arch_flags, opt, auto, compile, run):
     config_logger(verbose)
 
     def expect(scheme):
@@ -378,16 +395,26 @@ def func(verbose, cross_prefix, cflags, arch_flags, opt, auto):
             + f"CRYPTO_CIPHERTEXTBYTES: {ct_bytes}\n"
         )
 
-    test_schemes(
-        TEST_TYPES.MLKEM,
-        lambda result: str(result, encoding="utf-8"),
-        expect,
-        process_test,
-        verbose,
-        cross_prefix,
-        extra_make_envs=process_make_envs(cflags, arch_flags),
-        extra_make_args=[f"OPT={int(opt)}", f"AUTO={int(auto)}"],
-    )
+    logging.info(f"{TEST_TYPES.MLKEM.desc()}")
+
+    if compile:
+        base_compile(
+            TEST_TYPES.MLKEM,
+            verbose,
+            cross_prefix,
+            extra_make_envs=process_make_envs(cflags, arch_flags),
+            extra_make_args=[f"OPT={int(opt)}", f"AUTO={int(auto)}"],
+        )
+
+    if run:
+        test_schemes(
+            TEST_TYPES.MLKEM,
+            lambda result: str(result, encoding="utf-8"),
+            expect,
+            process_test,
+            verbose,
+            cross_prefix,
+        )
 
 
 @click.command(
@@ -395,19 +422,29 @@ def func(verbose, cross_prefix, cflags, arch_flags, opt, auto):
     context_settings={"show_default": True},
 )
 @add_options(_shared_options)
-def nistkat(verbose, cross_prefix, cflags, arch_flags, opt, auto):
+def nistkat(verbose, cross_prefix, cflags, arch_flags, opt, auto, compile, run):
     config_logger(verbose)
 
-    test_schemes(
-        TEST_TYPES.NISTKAT,
-        sha256sum,
-        lambda scheme: parse_meta(scheme, "nistkat-sha256"),
-        process_test,
-        verbose,
-        cross_prefix,
-        extra_make_envs=process_make_envs(cflags, arch_flags),
-        extra_make_args=[f"OPT={int(opt)}", f"AUTO={int(auto)}"],
-    )
+    logging.info(f"{TEST_TYPES.NISTKAT.desc()}")
+
+    if compile:
+        base_compile(
+            TEST_TYPES.NISTKAT,
+            verbose,
+            cross_prefix,
+            extra_make_envs=process_make_envs(cflags, arch_flags),
+            extra_make_args=[f"OPT={int(opt)}", f"AUTO={int(auto)}"],
+        )
+
+    if run:
+        test_schemes(
+            TEST_TYPES.NISTKAT,
+            sha256sum,
+            lambda scheme: parse_meta(scheme, "nistkat-sha256"),
+            process_test,
+            verbose,
+            cross_prefix,
+        )
 
 
 @click.command(
@@ -415,19 +452,29 @@ def nistkat(verbose, cross_prefix, cflags, arch_flags, opt, auto):
     context_settings={"show_default": True},
 )
 @add_options(_shared_options)
-def kat(verbose, cross_prefix, cflags, arch_flags, opt, auto):
+def kat(verbose, cross_prefix, cflags, arch_flags, opt, auto, compile, run):
     config_logger(verbose)
 
-    test_schemes(
-        TEST_TYPES.KAT,
-        sha256sum,
-        lambda scheme: parse_meta(scheme, "kat-sha256"),
-        process_test,
-        verbose,
-        cross_prefix,
-        extra_make_envs=process_make_envs(cflags, arch_flags),
-        extra_make_args=[f"OPT={int(opt)}", f"AUTO={int(auto)}"],
-    )
+    logging.info(f"{TEST_TYPES.KAT.desc()}")
+
+    if compile:
+        base_compile(
+            TEST_TYPES.KAT,
+            verbose,
+            cross_prefix,
+            extra_make_envs=process_make_envs(cflags, arch_flags),
+            extra_make_args=[f"OPT={int(opt)}", f"AUTO={int(auto)}"],
+        )
+
+    if run:
+        test_schemes(
+            TEST_TYPES.KAT,
+            sha256sum,
+            lambda scheme: parse_meta(scheme, "kat-sha256"),
+            process_test,
+            verbose,
+            cross_prefix,
+        )
 
 
 @click.command(
@@ -444,6 +491,8 @@ def bench(
     arch_flags,
     opt,
     auto,
+    compile,
+    run,
     output,
     run_as_root,
     exec_wrapper,
@@ -465,51 +514,61 @@ def bench(
         bench_type = TEST_TYPES.BENCH_COMPONENTS
         output = False
 
-    results = test_schemes(
-        bench_type,
-        lambda _: True,
-        lambda _: True,
-        process_bench,
-        verbose,
-        cross_prefix,
-        run_as_root,
-        exec_wrapper,
-        extra_make_envs=process_make_envs(cflags, arch_flags),
-        extra_make_args=[
-            f"CYCLES={cycles}",
-            f"OPT={int(opt)}",
-            f"AUTO={int(auto)}",
-        ],
-    )
+    logging.info(f"{bench_type.desc()}")
 
-    if output is not None and components is False:
-        import json
+    if compile:
+        base_compile(
+            bench_type,
+            verbose,
+            cross_prefix,
+            extra_make_envs=process_make_envs(cflags, arch_flags),
+            extra_make_args=[
+                f"CYCLES={cycles}",
+                f"OPT={int(opt)}",
+                f"AUTO={int(auto)}",
+            ],
+        )
 
-        with open(output, "w") as f:
-            v = []
-            for scheme in results:
-                schemeStr = str(scheme)
-                r = results[scheme]
+    if run:
+        results = test_schemes(
+            bench_type,
+            lambda _: True,
+            lambda _: True,
+            process_bench,
+            verbose,
+            cross_prefix,
+            run_as_root,
+            exec_wrapper,
+        )
 
-                # The first 3 lines of the output are expected to be
-                # keypair cycles=X
-                # encaps cycles=X
-                # decaps cycles=X
+        if output is not None and components is False:
+            import json
 
-                lines = [
-                    line.decode() for line in r.splitlines() if "=" in line.decode()
-                ]
+            with open(output, "w") as f:
+                v = []
+                for scheme in results:
+                    schemeStr = str(scheme)
+                    r = results[scheme]
 
-                d = {k: int(v) for k, v in (l.split("=") for l in lines)}
-                for primitive in ["keypair", "encaps", "decaps"]:
-                    v.append(
-                        {
-                            "name": f"{schemeStr} {primitive}",
-                            "unit": "cycles",
-                            "value": d[f"{primitive} cycles"],
-                        }
-                    )
-            f.write(json.dumps(v))
+                    # The first 3 lines of the output are expected to be
+                    # keypair cycles=X
+                    # encaps cycles=X
+                    # decaps cycles=X
+
+                    lines = [
+                        line.decode() for line in r.splitlines() if "=" in line.decode()
+                    ]
+
+                    d = {k: int(v) for k, v in (l.split("=") for l in lines)}
+                    for primitive in ["keypair", "encaps", "decaps"]:
+                        v.append(
+                            {
+                                "name": f"{schemeStr} {primitive}",
+                                "unit": "cycles",
+                                "value": d[f"{primitive} cycles"],
+                            }
+                        )
+                f.write(json.dumps(v))
 
 
 @click.group(invoke_without_command=True)
