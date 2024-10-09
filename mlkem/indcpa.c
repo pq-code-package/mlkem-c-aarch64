@@ -50,7 +50,11 @@ static void unpack_pk(polyvec *pk, uint8_t seed[KYBER_SYMBYTES],
                       const uint8_t packedpk[KYBER_INDCPA_PUBLICKEYBYTES]) {
   polyvec_frombytes(pk, packedpk);
   memcpy(seed, packedpk + KYBER_POLYVECBYTES, KYBER_SYMBYTES);
-  POLYVEC_BOUND(pk, KYBER_Q);
+
+  // TODO! pk must be subject to a "modulus check" at the top-level
+  // crypto_kem_enc_derand(). Once that's done, the reduction is no
+  // longer necessary here.
+  polyvec_reduce(pk);
 }
 
 /*************************************************
@@ -80,7 +84,7 @@ static void pack_sk(uint8_t r[KYBER_INDCPA_SECRETKEYBYTES], polyvec *sk) {
 static void unpack_sk(polyvec *sk,
                       const uint8_t packedsk[KYBER_INDCPA_SECRETKEYBYTES]) {
   polyvec_frombytes(sk, packedsk);
-  POLYVEC_BOUND(sk, KYBER_Q);
+  polyvec_reduce(sk);
 }
 
 /*************************************************
