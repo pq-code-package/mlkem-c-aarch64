@@ -21,14 +21,6 @@
           cbmcpkg = pkgs.callPackage ./cbmc { }; # 6.3.1
 
           linters = builtins.attrValues {
-            astyle = pkgs.astyle.overrideAttrs (old: rec {
-              version = "3.4.13";
-              src = pkgs.fetchurl {
-                url = "mirror://sourceforge/${old.pname}/${old.pname}-${version}.tar.bz2";
-                hash = "sha256-eKYQq9OelOD5E+nuXNoehbtizWM1U97LngDT2SAQGc4=";
-              };
-            });
-
             inherit (pkgs)
               nixpkgs-fmt
               clang-tools
@@ -38,39 +30,28 @@
               black;
           };
 
-          aarch64-gcc = [
-            (
-              pkgs.pkgsCross.aarch64-multiplatform.buildPackages.gcc13.override {
-                propagateDoc = true;
-                isGNU = true;
-              }
-            )
-            pkgs.pkgsCross.aarch64-multiplatform.glibc
-            pkgs.pkgsCross.aarch64-multiplatform.glibc.static
-          ];
+          glibc-join = p: p.buildPackages.symlinkJoin {
+            name = "glibc-join";
+            paths = [ p.glibc p.glibc.static ];
+          };
 
-          native-gcc = [
-            (pkgs.gcc13.override {
-              propagateDoc = true;
-              isGNU = true;
-            })
-            pkgs.glibc
-            pkgs.glibc.static
-          ];
+          wrap-gcc = p: p.buildPackages.wrapCCWith {
+            cc = p.buildPackages.gcc13.cc;
+            bintools = p.buildPackages.wrapBintoolsWith {
+              bintools = p.buildPackages.binutils-unwrapped;
+              libc = glibc-join p;
+            };
+          };
 
-          core = { cross ? false }:
+          x86_64-gcc = wrap-gcc pkgs.pkgsCross.gnu64;
+          aarch64-gcc = wrap-gcc pkgs.pkgsCross.aarch64-multiplatform;
+
+          core =
             let
               gcc =
                 if pkgs.stdenv.isDarwin
-                then
-                  if pkgs.stdenv.isx86_64
-                  then [ ]
-                  else aarch64-gcc
-                else
-                  if cross
-                  then aarch64-gcc
-                  else native-gcc
-              ;
+                then [ ]
+                else [ x86_64-gcc aarch64-gcc ];
             in
             gcc ++
             builtins.attrValues {
@@ -94,7 +75,7 @@
         in
         {
           devShells.default = wrapShell pkgs.mkShellNoCC {
-            packages = core { } ++ linters ++ cbmcpkg ++
+            packages = core ++ linters ++ cbmcpkg ++
               builtins.attrValues {
                 inherit (pkgs)
                   direnv
@@ -102,25 +83,8 @@
               };
           };
 
-          devShells.x86_64-linux-cross = wrapShell pkgs.mkShellNoCC {
-            packages = core { cross = true; } ++ linters ++ cbmcpkg ++
-              builtins.attrValues {
-                inherit (pkgs)
-                  direnv
-                  nix-direnv;
-              };
-          };
-
-          devShells.ci = wrapShell pkgs.mkShellNoCC { packages = core { }; };
-          devShells.x86_64-linux-cross-ci = wrapShell pkgs.mkShellNoCC {
-            packages = core { cross = true; };
-          };
-
-          devShells.ci-cbmc = wrapShell pkgs.mkShellNoCC { packages = core { } ++ cbmcpkg; };
-          devShells.x86_64-linux-cross-ci-cbmc = wrapShell pkgs.mkShellNoCC {
-            packages = core { cross = true; } ++ cbmcpkg;
-          };
-
+          devShells.ci = wrapShell pkgs.mkShellNoCC { packages = core; };
+          devShells.ci-cbmc = wrapShell pkgs.mkShellNoCC { packages = core ++ cbmcpkg; };
           devShells.ci-linter = wrapShell pkgs.mkShellNoCC { packages = linters; };
         };
       flake = {

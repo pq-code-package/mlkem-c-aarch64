@@ -24,19 +24,25 @@ on:
         type: string
         description: Custom CFLAGS for compilation
         default: ""
-      cross-prefix:
-        type: string
-        description: Cross-compilation binary prefix, if any
-        default: ' '
-      opt:
-        type: boolean
-        description: Runs with optimized code if enabled.
-        default: true
       always_terminate:
         type: boolean
         description: Indicates if instance should always be terminated, even on failure
         default: true
+      compile_mode:
+        type: string
+        description: either all, native, cross or none
+        default: all
+      opt:
+        type: string
+        description: either all, opt or non-opt
+        default: all
       functest:
+        type: boolean
+        default: true
+      kattest:
+        type: boolean
+        default: true
+      nistkattest:
         type: boolean
         default: true
       lint:
@@ -96,54 +102,29 @@ jobs:
           subnet-id: subnet-07b2729e5e065962f
           security-group-id: sg-0ab2e297196c8c381
   tests:
-    name: ${{ matrix.tests.name }} ${{ inputs.name }}
     needs: start-ec2-runner
     runs-on: ${{ needs.start-ec2-runner.outputs.label }}
-    strategy:
-      fail-fast: false
-      matrix:
-        tests:
-        - name: Functional tests
-          action: functest
-          nix-shell: ci
-          run: ${{ inputs.functest }}
-        - name: Linting
-          action: lint
-          nix-shell: ci-linter
-          run: ${{ inputs.lint }}
-        - name: CBMC
-          action: cbmc
-          nix-shell: ci-cbmc
-          run: ${{ inputs.cbmc }}
-        exclude:
-          - {tests: {
-              name: Functional tests,
-              action: functest,
-              nix-shell: ci,
-              run: false,
-            }}
-          - {tests: {
-              name: Linting,
-              action: lint,
-              nix-shell: ci-linter,
-              run: false,
-            }}
-          - {tests: {
-              name: CBMC,
-              action: cbmc,
-              nix-shell: ci-cbmc,
-              run: false,
-            }}
     steps:
       - uses: actions/checkout@v4
-      - uses: jenseng/dynamic-uses@v1
+      - name: Functional Tests
+        uses: ./.github/actions/multi-functest
         with:
-          uses: ./.github/actions/${{ matrix.tests.action }}
-          with: '{
-            nix-shell : "${{ matrix.tests.nix-shell }}",
-            cflags: "${{ inputs.cflags }}",
-            cross-prefix: "${{ inputs.cross-prefix }}",
-            opt: "${{ inputs.opt }}" }'
+          cflags: ${{ inputs.cflags }}
+          compile_mode: ${{ inputs.compile_mode }}
+          opt: ${{ inputs.opt }}
+          func: ${{ inputs.functest }}
+          kat: ${{ inputs.kattest }}
+          nistkat: ${{ inputs.nistkattest }}
+      - name: Linting
+        if: ${{ inputs.lint && (success() || failure()) }}
+        uses: ./.github/actions/lint
+        with:
+          nix-shell: ci-linter
+      - name: CBMC
+        if: ${{ inputs.cbmc && (success() || failure()) }}
+        uses: ./.github/actions/cbmc
+        with:
+          nix-shell: ci-cbmc
   stop-ec2-runner:
     name: Stop ${{ inputs.name }} (${{ inputs.ec2_instance_type }})
     permissions:
