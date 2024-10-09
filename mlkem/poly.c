@@ -431,25 +431,6 @@ void poly_getnoise_eta1122_4x(poly *r0, poly *r1, poly *r2, poly *r3,
 }
 
 /*************************************************
- * Name:        poly_basemul_montgomery
- *
- * Description: Multiplication of two polynomials in NTT domain
- *
- * Arguments:   - poly *r: pointer to output polynomial
- *              - const poly *a: pointer to first input polynomial
- *              - const poly *b: pointer to second input polynomial
- **************************************************/
-void poly_basemul_montgomery(poly *r, const poly *a, const poly *b) {
-  unsigned int i;
-  for (i = 0; i < KYBER_N / 4; i++) {
-    basemul(&r->coeffs[4 * i], &a->coeffs[4 * i], &b->coeffs[4 * i],
-            zetas[64 + i]);
-    basemul(&r->coeffs[4 * i + 2], &a->coeffs[4 * i + 2], &b->coeffs[4 * i + 2],
-            -zetas[64 + i]);
-  }
-}
-
-/*************************************************
  * Name:        poly_basemul_montgomery_cached
  *
  * Description: Multiplication of two polynomials in NTT domain,
