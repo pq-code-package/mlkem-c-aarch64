@@ -215,7 +215,7 @@ void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a,
   unsigned int i;
   poly t;
 
-  poly_basemul_montgomery(r, &a->vec[0], &b->vec[0]);
+  poly_basemul_montgomery_cached(r, &a->vec[0], &b->vec[0], &b_cache->vec[0]);
   for (i = 1; i < KYBER_K; i++) {
     poly_basemul_montgomery_cached(&t, &a->vec[i], &b->vec[i],
                                    &b_cache->vec[i]);
