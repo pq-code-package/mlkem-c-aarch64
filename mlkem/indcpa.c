@@ -350,7 +350,7 @@ void indcpa_enc(uint8_t c[KYBER_INDCPA_BYTES],
     polyvec_basemul_acc_montgomery_cached(&b.vec[i], &at[i], &sp, &sp_cache);
   }
 
-  polyvec_basemul_acc_montgomery(&v, &pkpv, &sp);
+  polyvec_basemul_acc_montgomery_cached(&v, &pkpv, &sp, &sp_cache);
 
   polyvec_invntt_tomont(&b);
   poly_invntt_tomont(&v);

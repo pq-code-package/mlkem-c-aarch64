@@ -209,8 +209,6 @@ void poly_getnoise_eta1122_4x(poly *r0, poly *r1, poly *r2, poly *r3,
                               uint8_t nonce0, uint8_t nonce1, uint8_t nonce2,
                               uint8_t nonce3);
 
-#define poly_basemul_montgomery KYBER_NAMESPACE(poly_basemul_montgomery)
-void poly_basemul_montgomery(poly *r, const poly *a, const poly *b);
 #define poly_basemul_montgomery_cached \
   KYBER_NAMESPACE(poly_basemul_montgomery_cached)
 void poly_basemul_montgomery_cached(poly *r, const poly *a, const poly *b,
