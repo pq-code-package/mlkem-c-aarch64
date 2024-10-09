@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1728326696909,
+  "lastUpdate": 1728452107869,
   "repoUrl": "https://github.com/pq-code-package/mlkem-c-aarch64",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -16468,6 +16468,75 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 97128,
+            "unit": "cycles"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "beckphan@amazon.co.uk",
+            "name": "Hanno Becker",
+            "username": "hanno-becker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "9fd2743f789b7285ab456ddfabd78cbf373a17be",
+          "message": "Add missing use of precomputed mulcache (#209)\n\n* Add missing use of precomputed mulcache\r\n\r\nIn `indcpa_enc()`, a single vector `sp` is subject to multiple\r\nscalar products. For efficiency, a mulcache for `sp` is used for\r\nmost of them. The final scalar product with `sp`, however, is\r\nrecomputing the mulcache instead of using the existing one.\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Add missing use of mulcache in C ref code\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Remove unused functions\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n---------\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>",
+          "timestamp": "2024-10-09T06:33:55+01:00",
+          "tree_id": "775218fc92c219989259e2b407b197d67314ac80",
+          "url": "https://github.com/pq-code-package/mlkem-c-aarch64/commit/9fd2743f789b7285ab456ddfabd78cbf373a17be"
+        },
+        "date": 1728452098613,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ML-KEM-512 keypair",
+            "value": 30360,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 encaps",
+            "value": 39917,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 decaps",
+            "value": 45871,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 keypair",
+            "value": 51311,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 encaps",
+            "value": 60514,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 decaps",
+            "value": 68429,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 keypair",
+            "value": 74880,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 encaps",
+            "value": 86086,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 decaps",
+            "value": 96830,
             "unit": "cycles"
           }
         ]
