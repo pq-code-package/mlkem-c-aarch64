@@ -8,6 +8,11 @@ on:
   pull_request:
     branches: ["main"]
     types: [ "labeled" ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   bench:
     name: ${{ matrix.target.name }}

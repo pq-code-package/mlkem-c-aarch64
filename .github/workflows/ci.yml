@@ -4,10 +4,15 @@ name: CI
 on:
   workflow_dispatch:
   push:
-    branches: ["*"]
+    branches: ["main"]
   pull_request:
     branches: ["main"]
     types: [ "labeled", "synchronize" ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build_kat:
     strategy:
