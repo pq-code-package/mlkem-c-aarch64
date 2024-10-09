@@ -32,16 +32,19 @@ runs:
   using: composite
   steps:
       - name: Preprocess
-        shell: ${{ env.SHELL }}
+        shell: bash
         run: |
           arch=$(uname -m)
-          if [[ ${{ inputs.mode }} == "cross" && $arch == "x86_64" ]]; then
-              cross_prefix="aarch64-unknown-linux-gnu-"
-          elif [[ ${{ inputs.mode }} == "cross" && ($arch == "aarch64" || $arch == "arm64") ]]; then
-              cross_prefix="x86_64-unknown-linux-gnu-"
-          else
-              cross_prefix=""
+          if [[ $arch == "x86_64" ]]; then
+              _cross_prefix="aarch64-unknown-linux-gnu-"
+          elif [[ $arch == "aarch64" ]]; then
+              _cross_prefix="x86_64-unknown-linux-gnu-"
           fi
+
+          if [[ ${{ inputs.mode }} == "cross" ]]; then
+              cross_prefix="$_cross_prefix"
+          fi
+          echo _CROSS_PREFIX="$_cross_prefix" >> $GITHUB_ENV # this is for printing summary only, which doesn't depend on inputs.mode
           echo CROSS_PREFIX="$cross_prefix" >> $GITHUB_ENV
           echo OPT="${{ inputs.opt == 'true' && 'opt' || 'no-opt' }}" >> $GITHUB_ENV
 
@@ -54,15 +57,24 @@ runs:
           nix-shell: ${{ inputs.nix-shell }}
           custom_shell: ${{ inputs.custom_shell }}
           script: |
-            ARCH=$(uname -m)
+            # only summary on the first time
+            if [[ "${{ env.SHELL }}" == '' ]]; then
+              ARCH=$(uname -m)
             cat >> $GITHUB_STEP_SUMMARY <<-EOF
               ## Setup
               Architecture: $ARCH
               - $(uname -a)
               - $(nix --version)
-              - $(${{ env.CROSS_PREFIX }}gcc --version | grep -m1 "")
               - $(bash --version | grep -m1 "")
+              - $(gcc --version | grep -m1 "")
             EOF
+
+              # no cross gcc in darwin
+              if [[ $(uname -s) != "Darwin" ]]; then
+                echo "- $(${{ env._CROSS_PREFIX }}gcc --version | grep -m1 '')" >> $GITHUB_STEP_SUMMARY
+              fi
+            fi
+
       - name: Compile ${{ inputs.mode }} ${{ env.OPT }} tests (${{ env.FUNC }}, ${{ env.KAT }}, ${{ env.NISTKAT }})
         shell: ${{ env.SHELL }}
         run: |

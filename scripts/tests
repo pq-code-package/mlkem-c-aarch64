@@ -10,7 +10,8 @@ import click
 import hashlib
 import asyncio
 from functools import reduce
-from enum import Enum
+from enum import IntEnum
+from typing import Optional
 
 
 def config_logger(verbose):
@@ -34,7 +35,7 @@ def sha256sum(result):
     return m.hexdigest()
 
 
-class TEST_TYPES(Enum):
+class TEST_TYPES(IntEnum):
     MLKEM = 1
     BENCH = 2
     NISTKAT = 3
@@ -74,7 +75,7 @@ class TEST_TYPES(Enum):
         return f"test/build/{scheme.name.lower()}/bin/{self.bin()}{scheme.suffix()}"
 
 
-class SCHEME(Enum):
+class SCHEME(IntEnum):
     MLKEM512 = 1
     MLKEM768 = 2
     MLKEM1024 = 3
@@ -87,6 +88,12 @@ class SCHEME(Enum):
                 return "ML-KEM-768"
             case SCHEME.MLKEM1024:
                 return "ML-KEM-1024"
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        return self + 1
 
     def suffix(self):
         return self.name.removeprefix("MLKEM")
@@ -194,20 +201,13 @@ def parse_meta(scheme, field):
 
 def test_schemes(
     test,
-    actual_proc,
-    expect_proc,
-    process_result,
     verbose,
     cross_prefix,
     run_as_root=False,
     exec_wrapper=None,
+    actual_proc=None,
+    expect_proc=None,
 ):
-    """
-    :param process_result: process result and return summary
-    """
-    summary_file = os.environ.get("GITHUB_STEP_SUMMARY")
-    summary = f"## {test.desc()}\n"
-
     fail = False
     results = {}
     for scheme in SCHEME:
@@ -218,19 +218,23 @@ def test_schemes(
             exec_wrapper,
             cross_prefix,
         )
-        results[scheme] = result
 
-        actual = actual_proc(result)
-        expect = expect_proc(scheme)
-
-        f = actual != expect
-        s = process_result(f, scheme, result, expect, actual)
-        summary += s
-        fail = fail or f
-
-    if summary_file is not None:
-        with open(summary_file, "a") as f:
-            print(summary, file=f)
+        if actual_proc is not None and expect_proc is not None:
+            actual = actual_proc(result)
+            expect = expect_proc(scheme)
+            f = actual != expect
+            fail = fail or f
+            if f:
+                logging.error(
+                    f"{scheme} failed, expecting {expect}, but getting {actual}"
+                )
+            else:
+                logging.info(f"{scheme} passed")
+            results[scheme] = f
+        else:
+            logging.info(f"{scheme}")
+            logging.info(f"\n{result}")
+            results[scheme] = result.decode()
 
     if fail:
         sys.exit(1)
@@ -238,30 +242,82 @@ def test_schemes(
     return results
 
 
-def process_test(fail, scheme, result, expect, actual):
-    if fail:
-        logging.error(f"{scheme} failed, expecting {expect}, but getting {actual}")
-        summary = f":x: {scheme}, expecting {expect}, but getting {actual}\n"
-    else:
-        logging.info(f"{scheme} passed")
-        summary = f":white_check_mark: {scheme}\n"
-
-    return summary
-
-
-def process_bench(fail, scheme, result, expect, actual):
-    logging.info(f"{scheme}")
-    logging.info(f"\n{result.decode()}")
-
-    summary = f"{scheme}\n{result.decode()}\n"
-
-    return summary
-
-
 def process_make_envs(cflags, arch_flags):
     return ({"CFLAGS": f"{cflags}"} if cflags is not None else {}) | (
         {"ARCH_FLAGS": f"{arch_flags}"} if arch_flags is not None else {}
     )
+
+
+def github_summary(title: str, test: TEST_TYPES, results):
+    summary_file = os.environ.get("GITHUB_STEP_SUMMARY")
+
+    res = list(results.values())
+
+    if isinstance(results[SCHEME.MLKEM512], str):
+        summaries = list(
+            map(
+                lambda s: f" {s} |",
+                reduce(
+                    lambda acc, s: [
+                        line1 + " | " + line2 for line1, line2 in zip(acc, s)
+                    ],
+                    [s.splitlines() for s in res],
+                ),
+            )
+        )
+        summaries = [f"| {test.desc()} |" + summaries[0]] + [
+            "| |" + x for x in summaries[1:]
+        ]
+    else:
+        summaries = [
+            reduce(
+                lambda acc, b: f"{acc} " + (":x: |" if b else ":white_check_mark: |"),
+                res,
+                f"| {test.desc()} |",
+            )
+        ]
+
+    def find_last_consecutive_match(l, s):
+        for i, v in enumerate(l[s + 1 :]):
+            if not v.startswith("|") or not v.endswith("|"):
+                return i + 1
+        return len(l)
+
+    def add_summaries(fn, title, summaries):
+        summary_title = "| Tests |"
+        summary_table_format = "| ----- |"
+        for s in SCHEME:
+            summary_title += f" {s} |"
+            summary_table_format += " ----- |"
+
+        with open(fn, "r") as f:
+            pre_summaries = [x for x in f.read().splitlines() if x]
+            if title in pre_summaries:
+                if summary_title not in pre_summaries:
+                    summaries = [summary_title, summary_table_format] + summaries
+                    pre_summaries = (
+                        pre_summaries[: pre_summaries.index(title) + 1]
+                        + summaries
+                        + pre_summaries[pre_summaries.index(title) + 1 :]
+                    )
+                else:
+                    i = find_last_consecutive_match(
+                        pre_summaries, pre_summaries.index(title)
+                    )
+                    pre_summaries = pre_summaries[:i] + summaries + pre_summaries[i:]
+                return ("w", pre_summaries)
+            else:
+                pre_summaries = [
+                    title,
+                    summary_title,
+                    summary_table_format,
+                ] + summaries
+                return ("a", pre_summaries)
+
+    if summary_file is not None:
+        (access_mode, summaries) = add_summaries(summary_file, title, summaries)
+        with open(summary_file, access_mode) as f:
+            print("\n".join(summaries), file=f)
 
 
 _shared_options = [
@@ -408,14 +464,22 @@ def func(verbose, cross_prefix, cflags, arch_flags, opt, auto, compile, run):
         )
 
     if run:
-        test_schemes(
+        results = test_schemes(
             TEST_TYPES.MLKEM,
-            lambda result: str(result, encoding="utf-8"),
-            expect,
-            process_test,
             verbose,
             cross_prefix,
+            actual_proc=lambda result: str(result, encoding="utf-8"),
+            expect_proc=expect,
         )
+
+        title = (
+            "## "
+            + ("Cross" if cross_prefix else "Native")
+            + " "
+            + ("Opt" if opt else "Non-opt")
+            + " Tests"
+        )
+        github_summary(title, TEST_TYPES.MLKEM, results)
 
 
 @click.command(
@@ -438,14 +502,22 @@ def nistkat(verbose, cross_prefix, cflags, arch_flags, opt, auto, compile, run):
         )
 
     if run:
-        test_schemes(
+        results = test_schemes(
             TEST_TYPES.NISTKAT,
-            sha256sum,
-            lambda scheme: parse_meta(scheme, "nistkat-sha256"),
-            process_test,
             verbose,
             cross_prefix,
+            actual_proc=sha256sum,
+            expect_proc=lambda scheme: parse_meta(scheme, "nistkat-sha256"),
         )
+
+        title = (
+            "## "
+            + ("Cross" if cross_prefix else "Native")
+            + " "
+            + ("Opt" if opt else "Non-opt")
+            + " Tests"
+        )
+        github_summary(title, TEST_TYPES.NISTKAT, results)
 
 
 @click.command(
@@ -468,14 +540,22 @@ def kat(verbose, cross_prefix, cflags, arch_flags, opt, auto, compile, run):
         )
 
     if run:
-        test_schemes(
+        results = test_schemes(
             TEST_TYPES.KAT,
-            sha256sum,
-            lambda scheme: parse_meta(scheme, "kat-sha256"),
-            process_test,
             verbose,
             cross_prefix,
+            actual_proc=sha256sum,
+            expect_proc=lambda scheme: parse_meta(scheme, "kat-sha256"),
         )
+
+        title = (
+            "## "
+            + ("Cross" if cross_prefix else "Native")
+            + " "
+            + ("Opt" if opt else "Non-opt")
+            + " Tests"
+        )
+        github_summary(title, TEST_TYPES.KAT, results)
 
 
 @click.command(
@@ -533,14 +613,20 @@ def bench(
     if run:
         results = test_schemes(
             bench_type,
-            lambda _: True,
-            lambda _: True,
-            process_bench,
             verbose,
             cross_prefix,
             run_as_root,
             exec_wrapper,
         )
+
+        title = (
+            "## "
+            + ("Cross" if cross_prefix else "Native")
+            + " "
+            + ("Opt" if opt else "Non-opt")
+            + " Tests"
+        )
+        github_summary(title, bench_type, results)
 
         if output is not None and components is False:
             import json
