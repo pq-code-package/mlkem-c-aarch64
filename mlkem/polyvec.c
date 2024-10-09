@@ -6,6 +6,8 @@
 #include "ntt.h"
 #include "params.h"
 #include "poly.h"
+
+#include "debug/debug.h"
 /*************************************************
  * Name:        polyvec_compress
  *
@@ -204,14 +206,27 @@ void polyvec_invntt_tomont(polyvec *r) {
  * Description: Multiply elements of a and b in NTT domain, accumulate into r,
  *              and multiply by 2^-16.
  *
+ *              Bounds:
+ *              - a is assumed to be coefficient-wise < q in absolute value.
+ *              - b is assumed to be the output of a forward NTT and
+ *                thus coefficient-wise bound by NTT_BOUND
+ *              - b_cache is assumed to be coefficient-wise bound by
+ *                MULCACHE_BOUND
+ *              - Return value bound by BASEMUL_BOUND. Values:
+ *                - C: 19974
+ *                - ASM: 14981
+ *
  * Arguments: - poly *r: pointer to output polynomial
  *            - const polyvec *a: pointer to first input vector of polynomials
  *            - const polyvec *b: pointer to second input vector of polynomials
+ *            - const polyvec_mulcache *b_cache: mulcache for b
  **************************************************/
 #if !defined(MLKEM_USE_NATIVE_POLYVEC_BASEMUL_ACC_MONTGOMERY_CACHED)
 void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a,
                                            const polyvec *b,
                                            const polyvec_mulcache *b_cache) {
+  POLYVEC_BOUND(a, KYBER_Q);
+
   unsigned int i;
   poly t;
 
@@ -220,12 +235,16 @@ void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a,
     poly_basemul_montgomery_cached(&t, &a->vec[i], &b->vec[i],
                                    &b_cache->vec[i]);
     poly_add(r, r, &t);
+    // abs bounds: < (i+1) * 3/2 * q
   }
+
+  // abs bounds: < KYBER_K * 3/2 * q <= 4 * 3/2 * q = 19974
 }
 #else  /* !MLKEM_USE_NATIVE_POLYVEC_BASEMUL_ACC_MONTGOMERY_CACHED */
 void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a,
                                            const polyvec *b,
                                            const polyvec_mulcache *b_cache) {
+  POLYVEC_BOUND(a, KYBER_Q);
   polyvec_basemul_acc_montgomery_cached_native(r, a, b, b_cache);
 }
 #endif /* MLKEM_USE_NATIVE_POLYVEC_BASEMUL_ACC_MONTGOMERY_CACHED */

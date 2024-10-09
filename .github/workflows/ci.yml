@@ -28,6 +28,12 @@ jobs:
            cross-prefix: ' '
            cflags: '-DFORCE_AARCH64'
            nix-shell: 'ci'
+         - runner: pqcp-arm64
+           name: 'ubuntu-latest (aarch64, +debug)'
+           arch: 'aarch64'
+           cross-prefix: ' '
+           cflags: '-DFORCE_AARCH64 -DMLKEM_DEBUG'
+           nix-shell: 'ci'
          - runner: pqcp-x64
            name: 'ubuntu-latest (x86_64, cross)'
            arch: 'x86_64'

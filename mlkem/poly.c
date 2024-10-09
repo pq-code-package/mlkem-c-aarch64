@@ -12,6 +12,7 @@
 #include "verify.h"
 
 #include "arith_native.h"
+#include "debug/debug.h"
 
 /*************************************************
  * Name:        poly_compress
@@ -271,6 +272,8 @@ void poly_frommsg(poly *r, const uint8_t msg[KYBER_INDCPA_MSGBYTES]) {
       cmov_int16(r->coeffs + 8 * i + j, ((KYBER_Q + 1) / 2), (msg[i] >> j) & 1);
     }
   }
+
+  POLY_BOUND_MSG(r, KYBER_Q, "poly_frommsg output");
 }
 
 /*************************************************
@@ -332,6 +335,11 @@ void poly_getnoise_eta1_4x(poly *r0, poly *r1, poly *r2, poly *r3,
   poly_cbd_eta1(r1, buf[1]);
   poly_cbd_eta1(r2, buf[2]);
   poly_cbd_eta1(r3, buf[3]);
+
+  POLY_BOUND_MSG(r0, KYBER_ETA1 + 1, "poly_getnoise_eta1_4x output 0");
+  POLY_BOUND_MSG(r1, KYBER_ETA1 + 1, "poly_getnoise_eta1_4x output 1");
+  POLY_BOUND_MSG(r2, KYBER_ETA1 + 1, "poly_getnoise_eta1_4x output 2");
+  POLY_BOUND_MSG(r3, KYBER_ETA1 + 1, "poly_getnoise_eta1_4x output 3");
 }
 
 /*************************************************
@@ -351,6 +359,8 @@ void poly_getnoise_eta2(poly *r, const uint8_t seed[KYBER_SYMBYTES],
   uint8_t buf[KYBER_ETA2 * KYBER_N / 4] ALIGN;
   prf(buf, sizeof(buf), seed, nonce);
   poly_cbd_eta2(r, buf);
+
+  POLY_BOUND_MSG(r, KYBER_ETA1 + 1, "poly_getnoise_eta2 output");
 }
 
 /*************************************************
@@ -384,6 +394,11 @@ void poly_getnoise_eta2_4x(poly *r0, poly *r1, poly *r2, poly *r3,
   poly_cbd_eta2(r1, buf[1]);
   poly_cbd_eta2(r2, buf[2]);
   poly_cbd_eta2(r3, buf[3]);
+
+  POLY_BOUND_MSG(r0, KYBER_ETA2 + 1, "poly_getnoise_eta2_4x output 0");
+  POLY_BOUND_MSG(r1, KYBER_ETA2 + 1, "poly_getnoise_eta2_4x output 1");
+  POLY_BOUND_MSG(r2, KYBER_ETA2 + 1, "poly_getnoise_eta2_4x output 2");
+  POLY_BOUND_MSG(r3, KYBER_ETA2 + 1, "poly_getnoise_eta2_4x output 3");
 }
 
 /*************************************************
@@ -428,6 +443,11 @@ void poly_getnoise_eta1122_4x(poly *r0, poly *r1, poly *r2, poly *r3,
   poly_cbd_eta1(r1, buf1[1]);
   poly_cbd_eta2(r2, buf2[0]);
   poly_cbd_eta2(r3, buf2[1]);
+
+  POLY_BOUND_MSG(r0, KYBER_ETA1 + 1, "poly_getnoise_eta1122_4x output 0");
+  POLY_BOUND_MSG(r1, KYBER_ETA1 + 1, "poly_getnoise_eta1122_4x output 1");
+  POLY_BOUND_MSG(r2, KYBER_ETA2 + 1, "poly_getnoise_eta1122_4x output 2");
+  POLY_BOUND_MSG(r3, KYBER_ETA2 + 1, "poly_getnoise_eta1122_4x output 3");
 }
 
 /*************************************************
@@ -435,6 +455,14 @@ void poly_getnoise_eta1122_4x(poly *r0, poly *r1, poly *r2, poly *r3,
  *
  * Description: Multiplication of two polynomials in NTT domain,
  *              using mulcache for second operand.
+ *
+ *              Bounds:
+ *              - a is assumed to be coefficient-wise < q in absolute value.
+ *              - b is assumed to be the output of a forward NTT and
+ *                thus coefficient-wise bound by C
+ *              - b_cache is assumed to be coefficient-wise bound by D.
+ *
+ *              The result is coefficient-wise bound by 3/2 q in absolute value.
  *
  * Arguments:   - poly *r: pointer to output polynomial
  *              - const poly *a: pointer to first input polynomial
@@ -460,12 +488,14 @@ void poly_basemul_montgomery_cached(poly *r, const poly *a, const poly *b,
  * Description: Inplace conversion of all coefficients of a polynomial
  *              from normal domain to Montgomery domain
  *
+ *              Bounds: Output < q in absolute value.
+ *
  * Arguments:   - poly *r: pointer to input/output polynomial
  **************************************************/
 #if !defined(MLKEM_USE_NATIVE_POLY_TOMONT)
 void poly_tomont(poly *r) {
   unsigned int i;
-  const int16_t f = (1ULL << 32) % KYBER_Q;
+  const int16_t f = (1ULL << 32) % KYBER_Q;  // 1353
   for (i = 0; i < KYBER_N; i++) {
     r->coeffs[i] = montgomery_reduce((int32_t)r->coeffs[i] * f);
   }

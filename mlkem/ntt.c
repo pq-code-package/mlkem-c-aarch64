@@ -5,6 +5,7 @@
 #include "reduce.h"
 
 #include "arith_native.h"
+#include "debug/debug.h"
 
 /* Code to generate zetas and zetas_inv used in the number-theoretic transform:
 
@@ -57,9 +58,20 @@ const int16_t zetas[128] = {
  * Name:        poly_ntt
  *
  * Description: Computes negacyclic number-theoretic transform (NTT) of
- *              a polynomial in place;
- *              inputs assumed to be in normal order, output in bitreversed
- *order
+ *              a polynomial in place.
+ *
+ *              The input is assumed to be in normal order and
+ *              coefficient-wise bound by KYBER_Q in absolute value.
+ *
+ *              The output polynomail is in bitreversed order, and
+ *              coefficient-wise bound by NTT_BOUND in absolute value.
+ *
+ *              Values of NTT_BOUND:
+ *              - C: 16546
+ *              - AArch64: 18295
+ *
+ *              (NOTE: Sometimes the input to the NTT is actually smaller,
+ *               which gives better bounds.)
  *
  * Arguments:   - poly *p: pointer to in/output polynomial
  **************************************************/
@@ -72,6 +84,18 @@ void poly_ntt(poly *p) {
   int16_t *r = p->coeffs;
 
   k = 1;
+
+  // Bounds reasoning:
+  // - There are 7 layers
+  // - When passing from layer N to layer N+1, each layer-N value
+  //   is modified through the addition/subtraction of a Montgomery
+  //   product of a twiddle of absolute value < q/2 and a layer-N value.
+  // - Recalling that |fqmul(a,t)| < q * (0.0254*C + 1/2) for
+  //   |a| < C*q and |t|<q/2, we see that the coefficients of layer N
+  //   (starting with layer 0 = input data) are bound by q * f^N(1), where
+  //   f(C) = 1/2 + 1.0254*C.
+  //   For N=7, we get the bound of f^7(1) * q = 16546.
+
   for (len = 128; len >= 2; len >>= 1) {
     for (start = 0; start < 256; start = j + len) {
       zeta = zetas[k++];
@@ -93,7 +117,16 @@ void poly_ntt(poly *p) { ntt_native(p); }
  * Description: Computes inverse of negacyclic number-theoretic transform (NTT)
  *              of a polynomial in place;
  *              inputs assumed to be in bitreversed order, output in normal
- *order
+ *              order
+ *
+ *              The input is assumed to be in bitreversed order.
+ *
+ *              The output polynomail is in normal order, and
+ *              coefficient-wise bound by INVNTT_BOUND in absolute value.
+ *
+ *              Values of INVNTT_BOUND:
+ *              - C: 3/4 q
+ *              - AArch64: 8*q
  *
  * Arguments:   - uint16_t *a: pointer to in/output polynomial
  **************************************************/
@@ -110,21 +143,28 @@ void poly_invntt_tomont(poly *p) {
     r[j] = fqmul(r[j], f);
   }
 
+  POLY_BOUND(p, (3 * KYBER_Q) / 4);
+
   k = 127;
   for (len = 2; len <= 128; len <<= 1) {
     for (start = 0; start < 256; start = j + len) {
       zeta = zetas[k--];
       for (j = start; j < start + len; j++) {
         t = r[j];
-        r[j] = barrett_reduce(t + r[j + len]);
+        r[j] = barrett_reduce(t + r[j + len]);  // abs < q/2
         r[j + len] = r[j + len] - t;
-        r[j + len] = fqmul(zeta, r[j + len]);
+        r[j + len] = fqmul(zeta, r[j + len]);  // abs < 3/4 q
       }
     }
   }
+
+  POLY_BOUND_MSG(p, INVNTT_BOUND, "ref intt output");
 }
 #else  /* MLKEM_USE_NATIVE_INTT */
-void poly_invntt_tomont(poly *p) { intt_native(p); }
+void poly_invntt_tomont(poly *p) {
+  intt_native(p);
+  POLY_BOUND_MSG(p, INVNTT_BOUND, "native intt output");
+}
 #endif /* MLKEM_USE_NATIVE_INTT */
 
 /*************************************************
@@ -133,6 +173,10 @@ void poly_invntt_tomont(poly *p) { intt_native(p); }
  * Description: Multiplication of polynomials in Zq[X]/(X^2-zeta)
  *              used for multiplication of elements in Rq in NTT domain
  *
+ *              Bounds:
+ *              - a is assumed to be < q in absolute value.
+ *              - Return value < 3/2 q in absolute value
+ *
  * Arguments:   - int16_t r[2]: pointer to the output polynomial
  *              - const int16_t a[2]: pointer to the first factor
  *              - const int16_t b[2]: pointer to the second factor
@@ -140,11 +184,19 @@ void poly_invntt_tomont(poly *p) { intt_native(p); }
  **************************************************/
 void basemul_cached(int16_t r[2], const int16_t a[2], const int16_t b[2],
                     int16_t b_cached) {
+  BOUND(a, 2, KYBER_Q, "basemul input bound");
+
   int32_t t0, t1;
+
   t0 = (int32_t)a[1] * b_cached;
   t0 += (int32_t)a[0] * b[0];
   t1 = (int32_t)a[0] * b[1];
   t1 += (int32_t)a[1] * b[0];
+
+  // |ti| < 2 * q * 2^15
   r[0] = montgomery_reduce(t0);
   r[1] = montgomery_reduce(t1);
+
+  // |r[i]| < 3/2 q
+  BOUND(r, 2, 3 * KYBER_Q / 2, "basemul output bound");
 }
