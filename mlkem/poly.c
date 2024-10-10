@@ -504,8 +504,8 @@ void poly_tomont(poly *r) {
 }
 #else  /* MLKEM_USE_NATIVE_POLY_TOMONT */
 void poly_tomont(poly *r) {
-    poly_tomont_native(r);
-    POLY_BOUND(r, KYBER_Q);
+  poly_tomont_native(r);
+  POLY_BOUND(r, KYBER_Q);
 }
 #endif /* MLKEM_USE_NATIVE_POLY_TOMONT */
 
