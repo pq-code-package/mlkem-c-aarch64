@@ -499,9 +499,14 @@ void poly_tomont(poly *r) {
   for (i = 0; i < KYBER_N; i++) {
     r->coeffs[i] = montgomery_reduce((int32_t)r->coeffs[i] * f);
   }
+
+  POLY_BOUND(r, KYBER_Q);
 }
 #else  /* MLKEM_USE_NATIVE_POLY_TOMONT */
-void poly_tomont(poly *r) { poly_tomont_native(r); }
+void poly_tomont(poly *r) {
+    poly_tomont_native(r);
+    POLY_BOUND(r, KYBER_Q);
+}
 #endif /* MLKEM_USE_NATIVE_POLY_TOMONT */
 
 /*************************************************
