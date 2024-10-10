@@ -254,6 +254,9 @@ void gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMBYTES],
  *              - const uint8_t *coins: pointer to input randomness
  *                             (of length KYBER_SYMBYTES bytes)
  **************************************************/
+
+STATIC_ASSERT(NTT_BOUND + KYBER_Q < INT16_MAX, indcpa_enc_bound_0)
+
 void indcpa_keypair_derand(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
                            uint8_t sk[KYBER_INDCPA_SECRETKEYBYTES],
                            const uint8_t coins[KYBER_SYMBYTES]) {
@@ -298,7 +301,7 @@ void indcpa_keypair_derand(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
     poly_tomont(&pkpv.vec[i]);
   }
 
-  // Bounds: |pkpv| < q, |e| < NTT_BOUND
+  // Arithmetic cannot overflow, see static assertion at the top
   polyvec_add(&pkpv, &pkpv, &e);
   polyvec_reduce(&pkpv);
   polyvec_reduce(&skpv);

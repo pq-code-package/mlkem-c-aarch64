@@ -21,6 +21,7 @@
 #define MLKEM_USE_NATIVE_REJ_UNIFORM
 
 #define INVNTT_BOUND 8 * KYBER_Q
+#define NTT_BOUND    6 * KYBER_Q
 
 static inline void ntt_native(poly *data) { ntt_asm_opt(data->coeffs); }
 
