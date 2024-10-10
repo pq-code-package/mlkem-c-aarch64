@@ -33,7 +33,7 @@
 // In: |src| < q * C
 // Out: |dst| < q * (0.0508 * C + 1/2)
 //
-// See test/test_bounds.py for more details.
+// See mlken/reduce.c and test/test_bounds.py for more details.
 .macro mulmodq dst, src, const, idx0, idx1
         // Signed barrett multiplication using
         // round-to-nearest-even-integer approximation.
@@ -222,8 +222,8 @@ _ntt_asm_clean:
         //   product of a twiddle of absolute value < q/2 and a layer-N value.
         // - Recalling that |fqmul(a,t)| < q * (0.0254*C + 1/2) for
         //   |a| < C*q and |t|<q/2, we see that the coefficients of layer N
-        //   (starting with layer 0 = input data) are bound by q * f^N(1), where
-        //   f(C) = 1/2 + 1.0508*C.
+        //   (starting with layer 0 = input data) are bound by
+        //   q * f^N(1) = q * f(f(...(f(1))...)), where f(C) = 1/2 + 1.0508*C.
         //   For N=7, we get the bound of f^7(1) * q < 18295.
         //
         // See test/test_bounds.py for more details.

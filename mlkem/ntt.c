@@ -63,7 +63,7 @@ const int16_t zetas[128] = {
  *              The input is assumed to be in normal order and
  *              coefficient-wise bound by KYBER_Q in absolute value.
  *
- *              The output polynomail is in bitreversed order, and
+ *              The output polynomial is in bitreversed order, and
  *              coefficient-wise bound by NTT_BOUND in absolute value.
  *
  *              Values of NTT_BOUND:
@@ -121,7 +121,7 @@ void poly_ntt(poly *p) { ntt_native(p); }
  *
  *              The input is assumed to be in bitreversed order.
  *
- *              The output polynomail is in normal order, and
+ *              The output polynomial is in normal order, and
  *              coefficient-wise bound by INVNTT_BOUND in absolute value.
  *
  *              Values of INVNTT_BOUND:
