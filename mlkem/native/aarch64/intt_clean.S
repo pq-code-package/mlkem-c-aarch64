@@ -302,7 +302,8 @@ layer4567_start:
         gs_butterfly data2, data3, root0, 4, 5
         // Max bound: 8q
 
-        // TODO! Do we really need all those reductions?
+        // Not all of those reductions are needed, but the bounds tracking
+        // is easier if we uniformly reduce at this point.
         barrett_reduce data0
         barrett_reduce data2
         barrett_reduce data1
