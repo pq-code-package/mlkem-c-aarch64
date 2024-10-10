@@ -32,6 +32,8 @@
 // Bounds:
 // In: |src| < q * C
 // Out: |dst| < q * (0.0508 * C + 1/2)
+//
+// See test/test_bounds.py for more details.
 .macro mulmodq dst, src, const, idx0, idx1
         // Signed barrett multiplication using
         // round-to-nearest-even-integer approximation.
@@ -223,6 +225,8 @@ _ntt_asm_clean:
         //   (starting with layer 0 = input data) are bound by q * f^N(1), where
         //   f(C) = 1/2 + 1.0508*C.
         //   For N=7, we get the bound of f^7(1) * q < 18295.
+        //
+        // See test/test_bounds.py for more details.
 
 layer123_start:
 
