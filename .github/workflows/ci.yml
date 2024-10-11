@@ -42,10 +42,18 @@ jobs:
     runs-on: ${{ matrix.target.runner }}
     steps:
       - uses: actions/checkout@v4
-      - name: native tests
+      - name: native build
         uses: ./.github/actions/multi-functest
         with:
           compile_mode: native
+          func: false
+          nistkat: false
+          kat: falst
+      - name: native tests (+debug)
+        uses: ./.github/actions/multi-functest
+        with:
+          compile_mode: native
+          cflags: "-DMLKEM_DEBUG"
       - name: cross tests (opt only)
         if: ${{ matrix.target.runner == 'pqcp-arm64' && (success() || failure()) }}
         uses: ./.github/actions/multi-functest
