@@ -74,7 +74,7 @@ const int16_t zetas[128] = {
 #if !defined(MLKEM_USE_NATIVE_NTT)
 
 // Check that the specific bound for the reference NTT implies
-// the bound requires by the C<->Native interface.
+// the bound required by the C<->Native interface.
 #define NTT_BOUND_REF (5 * KYBER_Q)
 STATIC_ASSERT(NTT_BOUND_REF <= NTT_BOUND, ntt_ref_bound)
 
