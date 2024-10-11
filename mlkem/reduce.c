@@ -13,7 +13,7 @@
  *
  * Returns:     integer congruent to a * R^-1 modulo q
  *
- *              Bounds: If |a| < q * C, then the return value
+ *              Bounds: For any C such that |a| < q * C, the return value
  *              has absolute value < q (C/2^16 + 1/2).
  *
  *              Notable special cases:
@@ -32,13 +32,13 @@ int16_t montgomery_reduce(int32_t a) {
 
   // Bounds on paper
   //
-  // - Case |a| < q * C
+  // - Case |a| < q * C, for some C
   //
   // |t| <= |a|/2^16 + |t|*q/2^16
   //      < q * C / 2^16 + q/2
   //      = q (C/2^16 + 1/2)
   //
-  // - Case |a| < (q/2) * C * q
+  // - Case |a| < (q/2) * C * q, for some C
   //
   // Replace C -> C * q in the above and estimate
   // q / 2^17 < 0.0254.

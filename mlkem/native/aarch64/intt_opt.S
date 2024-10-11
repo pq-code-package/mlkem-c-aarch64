@@ -29,6 +29,10 @@
 // Needed to provide ASM_LOAD directive
 #include "common.i"
 
+// Bounds:
+// If C is chosen so that |src| < q * C, then |dst| < q * (0.0508 * C + 1/2)
+//
+// See mlken/reduce.c and test/test_bounds.py for more details.
 .macro mulmodq dst, src, const, idx0, idx1
         sqrdmulh t2.8h,      \src\().8h, \const\().h[\idx1\()]
         mul      \dst\().8h, \src\().8h, \const\().h[\idx0\()]

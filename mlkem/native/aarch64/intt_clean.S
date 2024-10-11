@@ -30,8 +30,9 @@
 #include "common.i"
 
 // Bounds:
-// In: |src| < q * C
-// Out: |dst| < q * (0.0508 * C + 1/2)
+// If C is chosen so that |src| < q * C, then |dst| < q * (0.0508 * C + 1/2)
+//
+// See mlken/reduce.c and test/test_bounds.py for more details.
 .macro mulmodq dst, src, const, idx0, idx1
         // Signed barrett multiplication using
         // round-to-nearest-even-integer approximation.

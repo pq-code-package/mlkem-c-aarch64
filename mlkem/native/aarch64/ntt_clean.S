@@ -30,8 +30,7 @@
 #include "common.i"
 
 // Bounds:
-// In: |src| < q * C
-// Out: |dst| < q * (0.0508 * C + 1/2)
+// If C is chosen so that |src| < q * C, then |dst| < q * (0.0508 * C + 1/2)
 //
 // See mlken/reduce.c and test/test_bounds.py for more details.
 .macro mulmodq dst, src, const, idx0, idx1
@@ -218,13 +217,13 @@ _ntt_asm_clean:
         // Bounds reasoning:
         // - There are 7 layers
         // - When passing from layer N to layer N+1, each layer-N value
-        //   is modified through the addition/subtraction of a Montgomery
-        //   product of a twiddle of absolute value < q/2 and a layer-N value.
-        // - Recalling that |fqmul(a,t)| < q * (0.0254*C + 1/2) for
-        //   |a| < C*q and |t|<q/2, we see that the coefficients of layer N
-        //   (starting with layer 0 = input data) are bound by
-        //   q * f^N(1) = q * f(f(...(f(1))...)), where f(C) = 1/2 + 1.0508*C.
-        //   For N=7, we get the bound of f^7(1) * q < 18295.
+        // is modified through the addition/subtraction of a Montgomery
+        // product of a twiddle of absolute value < q/2 and a layer-N value.
+        // - Recalling that for C such that |a| < C * q and |t|<q/2, we have
+        // |fqmul(a,t)| < q * (0.0254*C + 1/2), we see that the coefficients
+        // of layer N (starting with layer 0 = input data) are bound by q * f^N(1),
+        // where f(C) = 1/2 + 1.0508*C.
+        // For N=7, we get the bound of f^7(1) * q < 18295.
         //
         // See test/test_bounds.py for more details.
 
