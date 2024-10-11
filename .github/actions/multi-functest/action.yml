@@ -1,0 +1,81 @@
+# SPDX-License-Identifier: Apache-2.0
+
+name: Multiple Functional tests
+description: Run functional tests for MLKEM-C_AArch64
+
+inputs:
+  nix-shell:
+    description: Run in the specified Nix environment if exists
+    default: "ci"
+  custom_shell:
+    description: The shell to use. Only relevant if no nix-shell specified
+    default: "bash"
+  cflags:
+    description: CFLAGS to pass to compilation
+    default: ""
+  compile_mode:
+    description: all | native | cross
+    default: "native"
+  opt:
+    description: all | opt | non-opt
+    default: "all"
+  func:
+    description: Determine whether to run functional test or not
+    default: "true"
+  kat:
+    description: Determine whether to run kat test or not
+    default: "true"
+  nistkat:
+    description: Determine whether to run nistkat test or not
+    default: "true"
+runs:
+  using: composite
+  steps:
+      - name: Native Opt Tests
+        if: ${{ (inputs.compile_mode == 'all' || inputs.compile_mode == 'native') && (inputs.opt == 'all' || inputs.opt == 'opt') }}
+        uses: ./.github/actions/functest
+        with:
+          nix-shell: ${{ inputs.nix-shell }}
+          custom_shell: ${{ inputs.custom_shell }}
+          cflags: ${{ inputs.cflags }}
+          mode: native
+          opt: true
+          func: ${{ inputs.func }}
+          kat: ${{ inputs.kat }}
+          nistkat: ${{ inputs.nistkat }}
+      - name: Native Non-opt Tests
+        if: ${{ (inputs.compile_mode == 'all' || inputs.compile_mode == 'native') && (inputs.opt == 'all' || inputs.opt == 'non-opt') && (success() || failure()) }}
+        uses: ./.github/actions/functest
+        with:
+          nix-shell: ${{ inputs.nix-shell }}
+          custom_shell: ${{ inputs.custom_shell }}
+          cflags: ${{ inputs.cflags }}
+          mode: native
+          opt: false
+          func: ${{ inputs.func }}
+          kat: ${{ inputs.kat }}
+          nistkat: ${{ inputs.nistkat }}
+      - name: Cross Opt Tests
+        if: ${{ (inputs.compile_mode == 'all' || inputs.compile_mode == 'cross') && (inputs.opt == 'all' || inputs.opt == 'opt') && (success() || failure()) }}
+        uses: ./.github/actions/functest
+        with:
+          nix-shell: ${{ inputs.nix-shell }}
+          custom_shell: ${{ inputs.custom_shell }}
+          cflags: ${{ inputs.cflags }}
+          mode: cross
+          opt: true
+          func: ${{ inputs.func }}
+          kat: ${{ inputs.kat }}
+          nistkat: ${{ inputs.nistkat }}
+      - name: Cross Non-opt Tests
+        if: ${{ (inputs.compile_mode == 'all' || inputs.compile_mode == 'cross') && (inputs.opt == 'all' || inputs.opt == 'non-opt') && (success() || failure()) }}
+        uses: ./.github/actions/functest
+        with:
+          nix-shell: ${{ inputs.nix-shell }}
+          custom_shell: ${{ inputs.custom_shell }}
+          cflags: ${{ inputs.cflags }}
+          mode: cross
+          opt: false
+          func: ${{ inputs.func }}
+          kat: ${{ inputs.kat }}
+          nistkat: ${{ inputs.nistkat }}
