@@ -567,6 +567,9 @@ void poly_sub(poly *r, const poly *a, const poly *b) {
  *              base multiplications of polynomials
  *              in NTT domain.
  *
+ *              The coefficients in the mulcache must be
+ *              bound by KYBER_Q in absolute value.
+ *
  * Arguments: - poly_mulcache *x: pointer to output cache.
  *            - const poly *a: pointer to input polynomial
  **************************************************/
@@ -577,9 +580,12 @@ void poly_mulcache_compute(poly_mulcache *x, const poly *a) {
     x->coeffs[2 * i + 0] = fqmul(a->coeffs[4 * i + 1], zetas[64 + i]);
     x->coeffs[2 * i + 1] = fqmul(a->coeffs[4 * i + 3], -zetas[64 + i]);
   }
+
+  POLY_BOUND(x, KYBER_Q);
 }
 #else  /* MLKEM_USE_NATIVE_POLY_MULCACHE_COMPUTE */
 void poly_mulcache_compute(poly_mulcache *x, const poly *a) {
   poly_mulcache_compute_native(x, a);
+  POLY_BOUND(x, KYBER_Q);
 }
 #endif /* MLKEM_USE_NATIVE_POLY_MULCACHE_COMPUTE */
