@@ -277,7 +277,7 @@ class State(object):
             )
             sys.exit(1)
 
-        return result.stdout
+        return result.stdout.decode()
 
     def run_schemes(
         self,
@@ -311,7 +311,7 @@ class State(object):
             else:
                 logging.info(f"{scheme}")
                 logging.info(f"\n{result}")
-                results[scheme] = result.decode()
+                results[scheme] = result
 
         if fail:
             sys.exit(1)
@@ -620,9 +620,7 @@ def bench(
                 # encaps cycles=X
                 # decaps cycles=X
 
-                lines = [
-                    line.decode() for line in r.splitlines() if "=" in line.decode()
-                ]
+                lines = [line for line in r.splitlines() if "=" in line]
 
                 d = {k: int(v) for k, v in (l.split("=") for l in lines)}
                 for primitive in ["keypair", "encaps", "decaps"]:
