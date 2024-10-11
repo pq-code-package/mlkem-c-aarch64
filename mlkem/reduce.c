@@ -28,8 +28,6 @@
  *                < q (C/2^16 + 1/2).
  **************************************************/
 int16_t montgomery_reduce(int32_t a) {
-  int16_t t;
-
   // Bounds on paper
   //
   // - Case |a| < q * C, for some C
@@ -43,7 +41,16 @@ int16_t montgomery_reduce(int32_t a) {
   // Replace C -> C * q in the above and estimate
   // q / 2^17 < 0.0254.
 
-  t = (int16_t)a * QINV;
+  uint16_t u;
+  int16_t t;
+  // Compute a*q^{-1} mod 2^16 in unsigned representatives
+  u = (uint16_t)a * QINV;
+  // Lift to signed canonical representative mod 2^16.
+  // PORTABILITY: This relies on uint16_t -> int16_t
+  // being implemented as the inverse of int16_t -> uint16_t,
+  // which is not mandated by the standard.
+  t = (int16_t)u;
+  // By construction, the LHS is divisible by 2^16
   t = (a - (int32_t)t * KYBER_Q) >> 16;
   return t;
 }
