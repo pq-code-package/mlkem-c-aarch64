@@ -42,21 +42,22 @@ void mlkem_debug_print_error(const char *file, int line, const char *msg);
                              (len), -((abs_bound)-1), ((abs_bound)-1));   \
   } while (0)
 
-/* Check absolute bounds on coefficients in polynomial
- * ptr: poly* pointer to polynomial to check
+/* Check absolute bounds on coefficients in polynomial or mulcache
+ * ptr: poly* or poly_mulcache* pointer to polynomial (cache) to check
  * abs_bound: Exclusive upper bound on absolute value to check
  * msg: Message to print on failure */
-#define POLY_BOUND_MSG(ptr, abs_bound, msg) \
-  BOUND((ptr)->coeffs, (KYBER_N), (abs_bound), msg)
+#define POLY_BOUND_MSG(ptr, abs_bound, msg)                                    \
+  BOUND((ptr)->coeffs, (sizeof((ptr)->coeffs) / sizeof(int16_t)), (abs_bound), \
+        msg)
 
 /* Check absolute bounds on coefficients in polynomial
- * ptr: poly* pointer to polynomial to check
+ * ptr: poly* of poly_mulcache* pointer to polynomial (cache) to check
  * abs_bound: Exclusive upper bound on absolute value to check */
 #define POLY_BOUND(ptr, abs_bound) \
   POLY_BOUND_MSG((ptr), (abs_bound), "poly bound for " #ptr)
 
 /* Check absolute bounds on coefficients in vector of polynomials
- * ptr: polyvec* pointer to vector of polynomials to check
+ * ptr: polyvec* or polyvec_mulcache* pointer to vector of polynomials to check
  * abs_bound: Exclusive upper bound on absolute value to check */
 #define POLYVEC_BOUND(ptr, abs_bound)                                    \
   do {                                                                   \
