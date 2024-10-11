@@ -29,10 +29,18 @@
 // Needed to provide ASM_LOAD directive
 #include "common.i"
 
+// Bounds:
+// In: |src| < q * C
+// Out: |dst| < q * (0.0508 * C + 1/2)
 .macro mulmodq dst, src, const, idx0, idx1
-        sqrdmulh t2.8h,   \src\().8h, \const\().h[\idx1]
-        mul      \dst\().8h, \src\().8h, \const\().h[\idx0]
-        mls      \dst\().8h, t2.8h,   consts.h[0]
+        // Signed barrett multiplication using
+        // round-to-nearest-even-integer approximation.
+        // Following https://eprint.iacr.org/2021/986.pdf, this
+        // is functionally the same as a signed Montgomery multiplication
+        // with a suitable constant of absolute value < q.
+        sqrdmulh t2.8h,      \src\().8h, \const\().h[\idx1\()]
+        mul      \dst\().8h, \src\().8h, \const\().h[\idx0\()]
+        mls      \dst\().8h, t2.8h,      consts.h[0]
 .endm
 
 .macro mulmod dst, src, const, const_twisted
@@ -204,6 +212,18 @@ _ntt_asm_clean:
         load_roots_123
 
         .p2align 2
+
+        // Bounds reasoning:
+        // - There are 7 layers
+        // - When passing from layer N to layer N+1, each layer-N value
+        //   is modified through the addition/subtraction of a Montgomery
+        //   product of a twiddle of absolute value < q/2 and a layer-N value.
+        // - Recalling that |fqmul(a,t)| < q * (0.0254*C + 1/2) for
+        //   |a| < C*q and |t|<q/2, we see that the coefficients of layer N
+        //   (starting with layer 0 = input data) are bound by q * f^N(1), where
+        //   f(C) = 1/2 + 1.0508*C.
+        //   For N=7, we get the bound of f^7(1) * q < 18295.
+
 layer123_start:
 
         ldr q_data0, [in, #0]
@@ -267,11 +287,6 @@ layer4567_start:
         ct_butterfly_v data1, data3, root0, root0_tw
         ct_butterfly_v data0, data1, root1, root1_tw
         ct_butterfly_v data2, data3, root2, root2_tw
-
-        barrett_reduce data0
-        barrett_reduce data1
-        barrett_reduce data2
-        barrett_reduce data3
 
         st4 {data0.4S, data1.4S, data2.4S, data3.4S}, [in], #64
 

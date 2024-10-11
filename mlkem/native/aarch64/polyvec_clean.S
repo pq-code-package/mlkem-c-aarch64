@@ -27,6 +27,10 @@
 .endm
 
 // Computes products (a0*b0 + a0*b0t, a0*b1 + a1*b0) in 32-bit.
+//
+// Bounds:
+// - Assume |a| < q, |b|, |bt| < NTT_BOUND
+// - Result: < 2*q*NTT_BOUND
 .macro pmull d, a, b
         smull  \d\()0l.4s, \a\()0.4h, \b\()0.4h
         smull2 \d\()0h.4s, \a\()0.8h, \b\()0.8h
@@ -243,6 +247,14 @@ _polyvec_basemul_acc_montgomery_cached_asm_k4_clean:
         add a3_ptr, a0_ptr, #(3 * 512)
         add b3_ptr, b0_ptr, #(3 * 512)
         add b3_cache_ptr, b0_cache_ptr, #(3 * 512/2)
+
+        // Bounds:
+        //
+        // Each pmull is bound by 2*q*2^15, so the final value
+        // before Montgomery reduction is bound by q*2^18 ~ 2^29.7
+        //
+        // The Montgomery reduction is thus bound by
+        // q * (2^18/2^16 + 1/2) = 4.5 q < 14981
 
         mov count, #(KYBER_N / 16)
 k4_loop_start:

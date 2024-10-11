@@ -17,6 +17,8 @@
 #define MLKEM_USE_NATIVE_NTT
 #define MLKEM_USE_NATIVE_INTT
 
+#define INVNTT_BOUND INT16_MAX  // TODO!!!
+
 static inline int rej_uniform_native(int16_t *r, unsigned int len,
                                      const uint8_t *buf, unsigned int buflen) {
   // AVX2 implementation assumes specific buffer lengths
