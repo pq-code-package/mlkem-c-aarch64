@@ -211,10 +211,7 @@ void polyvec_invntt_tomont(polyvec *r) {
  *              - b is assumed to be the output of a forward NTT and
  *                thus coefficient-wise bound by NTT_BOUND
  *              - b_cache is assumed to be coefficient-wise bound by
- *                MULCACHE_BOUND
- *              - Return value bound by BASEMUL_BOUND. Values:
- *                - C: 19974
- *                - ASM: 14981
+ *                KYBER_Q.
  *
  * Arguments: - poly *r: pointer to output polynomial
  *            - const polyvec *a: pointer to first input vector of polynomials
@@ -226,6 +223,8 @@ void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a,
                                            const polyvec *b,
                                            const polyvec_mulcache *b_cache) {
   POLYVEC_BOUND(a, KYBER_Q);
+  POLYVEC_BOUND(b, NTT_BOUND);
+  POLYVEC_BOUND(b_cache, KYBER_Q);
 
   unsigned int i;
   poly t;
@@ -245,6 +244,8 @@ void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a,
                                            const polyvec *b,
                                            const polyvec_mulcache *b_cache) {
   POLYVEC_BOUND(a, KYBER_Q);
+  POLYVEC_BOUND(b, NTT_BOUND);
+  POLYVEC_BOUND(b_cache, KYBER_Q);
   polyvec_basemul_acc_montgomery_cached_native(r, a, b, b_cache);
 }
 #endif /* MLKEM_USE_NATIVE_POLYVEC_BASEMUL_ACC_MONTGOMERY_CACHED */
