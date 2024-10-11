@@ -17,6 +17,9 @@
 #define MLKEM_USE_NATIVE_NTT
 #define MLKEM_USE_NATIVE_INTT
 
+#define INVNTT_BOUND_NATIVE (KYBER_Q + 1)  // poly_reduce() is in [0,..,KYBER_Q]
+#define NTT_BOUND_NATIVE (KYBER_Q + 1)     // poly_reduce() is in [0,..,KYBER_Q]
+
 static inline int rej_uniform_native(int16_t *r, unsigned int len,
                                      const uint8_t *buf, unsigned int buflen) {
   // AVX2 implementation assumes specific buffer lengths
@@ -31,12 +34,18 @@ static inline void ntt_native(poly *data) {
   ntt_avx2((__m256i *)data, qdata.vec);
   nttpack_avx2((__m256i *)(data->coeffs), qdata.vec);
   nttpack_avx2((__m256i *)(data->coeffs + KYBER_N / 2), qdata.vec);
+
+  // TODO! Remove this after working out the bounds for
+  // the output of the AVX2 NTT
   poly_reduce(data);
 }
 
 static inline void intt_native(poly *data) {
   nttunpack_avx2((__m256i *)(data->coeffs), qdata.vec);
   invntt_avx2((__m256i *)data, qdata.vec);
+
+  // TODO! Remove this after working out the bounds for
+  // the output of the AVX2 invNTT
   poly_reduce(data);
 }
 

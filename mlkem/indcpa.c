@@ -15,6 +15,7 @@
 #include "symmetric.h"
 
 #include "arith_native.h"
+#include "debug/debug.h"
 
 /*************************************************
  * Name:        pack_pk
@@ -29,6 +30,7 @@
  **************************************************/
 static void pack_pk(uint8_t r[KYBER_INDCPA_PUBLICKEYBYTES], polyvec *pk,
                     const uint8_t seed[KYBER_SYMBYTES]) {
+  POLYVEC_BOUND(pk, KYBER_Q);
   polyvec_tobytes(r, pk);
   memcpy(r + KYBER_POLYVECBYTES, seed, KYBER_SYMBYTES);
 }
@@ -48,6 +50,11 @@ static void unpack_pk(polyvec *pk, uint8_t seed[KYBER_SYMBYTES],
                       const uint8_t packedpk[KYBER_INDCPA_PUBLICKEYBYTES]) {
   polyvec_frombytes(pk, packedpk);
   memcpy(seed, packedpk + KYBER_POLYVECBYTES, KYBER_SYMBYTES);
+
+  // TODO! pk must be subject to a "modulus check" at the top-level
+  // crypto_kem_enc_derand(). Once that's done, the reduction is no
+  // longer necessary here.
+  polyvec_reduce(pk);
 }
 
 /*************************************************
@@ -60,6 +67,7 @@ static void unpack_pk(polyvec *pk, uint8_t seed[KYBER_SYMBYTES],
  *key)
  **************************************************/
 static void pack_sk(uint8_t r[KYBER_INDCPA_SECRETKEYBYTES], polyvec *sk) {
+  POLYVEC_BOUND(sk, KYBER_Q);
   polyvec_tobytes(r, sk);
 }
 
@@ -76,6 +84,7 @@ static void pack_sk(uint8_t r[KYBER_INDCPA_SECRETKEYBYTES], polyvec *sk) {
 static void unpack_sk(polyvec *sk,
                       const uint8_t packedsk[KYBER_INDCPA_SECRETKEYBYTES]) {
   polyvec_frombytes(sk, packedsk);
+  polyvec_reduce(sk);
 }
 
 /*************************************************
@@ -245,6 +254,9 @@ void gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMBYTES],
  *              - const uint8_t *coins: pointer to input randomness
  *                             (of length KYBER_SYMBYTES bytes)
  **************************************************/
+
+STATIC_ASSERT(NTT_BOUND + KYBER_Q < INT16_MAX, indcpa_enc_bound_0)
+
 void indcpa_keypair_derand(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
                            uint8_t sk[KYBER_INDCPA_SECRETKEYBYTES],
                            const uint8_t coins[KYBER_SYMBYTES]) {
@@ -289,8 +301,10 @@ void indcpa_keypair_derand(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
     poly_tomont(&pkpv.vec[i]);
   }
 
+  // Arithmetic cannot overflow, see static assertion at the top
   polyvec_add(&pkpv, &pkpv, &e);
   polyvec_reduce(&pkpv);
+  polyvec_reduce(&skpv);
 
   pack_sk(sk, &skpv);
   pack_pk(pk, &pkpv, publicseed);
@@ -311,6 +325,12 @@ void indcpa_keypair_derand(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
  *              - const uint8_t *coins: pointer to input random coins used as
  *seed (of length KYBER_SYMBYTES) to deterministically generate all randomness
  **************************************************/
+
+// Check that the arithmetic in indcpa_enc() does not overflow
+STATIC_ASSERT(INVNTT_BOUND + KYBER_ETA1 < INT16_MAX, indcpa_enc_bound_0)
+STATIC_ASSERT(INVNTT_BOUND + KYBER_ETA2 + KYBER_Q < INT16_MAX,
+              indcpa_enc_bound_1)
+
 void indcpa_enc(uint8_t c[KYBER_INDCPA_BYTES],
                 const uint8_t m[KYBER_INDCPA_MSGBYTES],
                 const uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
@@ -355,6 +375,7 @@ void indcpa_enc(uint8_t c[KYBER_INDCPA_BYTES],
   polyvec_invntt_tomont(&b);
   poly_invntt_tomont(&v);
 
+  // Arithmetic cannot overflow, see static assertion at the top
   polyvec_add(&b, &b, &ep);
   poly_add(&v, &v, &epp);
   poly_add(&v, &v, &k);
@@ -377,6 +398,10 @@ void indcpa_enc(uint8_t c[KYBER_INDCPA_BYTES],
  *              - const uint8_t *sk: pointer to input secret key
  *                                   (of length KYBER_INDCPA_SECRETKEYBYTES)
  **************************************************/
+
+// Check that the arithmetic in indcpa_dec() does not overflow
+STATIC_ASSERT(INVNTT_BOUND + KYBER_Q < INT16_MAX, indcpa_dec_bound_0)
+
 void indcpa_dec(uint8_t m[KYBER_INDCPA_MSGBYTES],
                 const uint8_t c[KYBER_INDCPA_BYTES],
                 const uint8_t sk[KYBER_INDCPA_SECRETKEYBYTES]) {
@@ -390,6 +415,7 @@ void indcpa_dec(uint8_t m[KYBER_INDCPA_MSGBYTES],
   polyvec_basemul_acc_montgomery(&mp, &skpv, &b);
   poly_invntt_tomont(&mp);
 
+  // Arithmetic cannot overflow, see static assertion at the top
   poly_sub(&mp, &v, &mp);
   poly_reduce(&mp);
 

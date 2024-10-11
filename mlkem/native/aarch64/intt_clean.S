@@ -29,7 +29,16 @@
 // Needed to provide ASM_LOAD directive
 #include "common.i"
 
+// Bounds:
+// If C is chosen so that |src| < q * C, then |dst| < q * (0.0508 * C + 1/2)
+//
+// See mlken/reduce.c and test/test_bounds.py for more details.
 .macro mulmodq dst, src, const, idx0, idx1
+        // Signed barrett multiplication using
+        // round-to-nearest-even-integer approximation.
+        // Following https://eprint.iacr.org/2021/986.pdf, this
+        // is functionally the same as a signed Montgomery multiplication
+        // with a suitable constant of absolute value < q.
         sqrdmulh t2.8h,      \src\().8h, \const\().h[\idx1\()]
         mul      \dst\().8h, \src\().8h, \const\().h[\idx0\()]
         mls      \dst\().8h, t2.8h,      consts.h[0]
@@ -226,11 +235,41 @@ _intt_asm_clean:
         ASM_LOAD(xtmp, const_addr)
         ld1 {consts.8h}, [xtmp]
 
+        ninv             .req v29
+        ninv_tw          .req v30
+
+        ASM_LOAD(xtmp, ninv_addr)
+        ld1r {ninv.8h}, [xtmp]
+        ASM_LOAD(xtmp, ninv_tw_addr)
+        ld1r {ninv_tw.8h}, [xtmp]
+
+        mov inp, in
+        mov count, #8
+
+scale_start:
+
+        ldr q_data0, [inp, #(16*0)]
+        ldr q_data1, [inp, #(16*1)]
+        ldr q_data2, [inp, #(16*2)]
+        ldr q_data3, [inp, #(16*3)]
+
+        mul_ninv data0, data1, data2, data3, data0, data1, data2, data3
+        // Bounds: Absolute value < q
+
+        str q_data0, [inp], #64
+        str q_data1, [inp, #(-64 + 16*1)]
+        str q_data2, [inp, #(-64 + 16*2)]
+        str q_data3, [inp, #(-64 + 16*3)]
+
+        subs count, count, #1
+        cbnz count, scale_start
+
         mov inp, in
         mov count, #8
 
         .p2align 2
 layer4567_start:
+
         ldr q_data0, [inp, #(16*0)]
         ldr q_data1, [inp, #(16*1)]
         ldr q_data2, [inp, #(16*2)]
@@ -243,9 +282,17 @@ layer4567_start:
         // Layer 7
         gs_butterfly_v data0, data1, root1, root1_tw
         gs_butterfly_v data2, data3, root2, root2_tw
+        // Bounds:
+        // data0, data2: < 2q
+        // data1, data3: < q
+
         // Layer 6
         gs_butterfly_v data0, data2, root0, root0_tw
         gs_butterfly_v data1, data3, root0, root0_tw
+        // Bounds:
+        // data0: < 4q
+        // data1: < 2q
+        // data2, data3: < q
 
         transpose4 data
 
@@ -254,15 +301,21 @@ layer4567_start:
         // Layer 5
         gs_butterfly data0, data1, root0, 2, 3
         gs_butterfly data2, data3, root0, 4, 5
+        // Max bound: 8q
 
+        // Not all of those reductions are needed, but the bounds tracking
+        // is easier if we uniformly reduce at this point.
         barrett_reduce data0
         barrett_reduce data2
         barrett_reduce data1
         barrett_reduce data3
 
+        // Bounds: q/2
+
         // Layer 4
         gs_butterfly data0, data2, root0, 0, 1
         gs_butterfly data1, data3, root0, 0, 1
+        // Bounds: < q
 
         str q_data0, [inp], #(64)
         str q_data1, [inp, #(-64 + 16*1)]
@@ -273,14 +326,6 @@ layer4567_start:
         cbnz count, layer4567_start
 
         // ---------------------------------------------------------------------
-
-        ninv             .req v29
-        ninv_tw          .req v30
-
-        ASM_LOAD(xtmp, ninv_addr)
-        ld1r {ninv.8h}, [xtmp]
-        ASM_LOAD(xtmp, ninv_tw_addr)
-        ld1r {ninv_tw.8h}, [xtmp]
 
         mov count, #4
         ASM_LOAD(r_ptr0, roots_l012)
@@ -314,15 +359,12 @@ layer123_start:
         gs_butterfly data2, data6, root0, 0, 1
         gs_butterfly data3, data7, root0, 0, 1
 
+        // Bounds: < 8q
+
         str q_data4, [in, #(4*(512/8))]
         str q_data5, [in, #(5*(512/8))]
         str q_data6, [in, #(6*(512/8))]
         str q_data7, [in, #(7*(512/8))]
-
-        // Scale half the coeffs by 1/n; for the other half, the scaling has
-        // been merged into the multiplication with the twiddle factor on the
-        // last layer.
-        mul_ninv data0, data1, data2, data3, data0, data1, data2, data3
 
         str q_data0, [in], #(16)
         str q_data1, [in, #(-16 + 1*(512/8))]
