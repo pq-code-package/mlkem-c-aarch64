@@ -81,6 +81,8 @@ STATIC_ASSERT(NTT_BOUND_REF <= NTT_BOUND, ntt_ref_bound)
 // REF-CHANGE: Removed indirection poly_ntt -> ntt()
 // and integrated polynomial reduction into the NTT.
 void poly_ntt(poly *p) {
+  POLY_BOUND_MSG(p, KYBER_Q, "ref ntt input");
+
   unsigned int len, start, j, k;
   int16_t t, zeta;
   int16_t *r = p->coeffs;
@@ -121,6 +123,7 @@ void poly_ntt(poly *p) {
 STATIC_ASSERT(NTT_BOUND_NATIVE <= NTT_BOUND, invntt_bound)
 
 void poly_ntt(poly *p) {
+  POLY_BOUND_MSG(p, KYBER_Q, "native ntt input");
   ntt_native(p);
   POLY_BOUND_MSG(p, NTT_BOUND_NATIVE, "native ntt output");
 }
