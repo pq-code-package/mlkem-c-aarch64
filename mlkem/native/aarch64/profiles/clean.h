@@ -20,11 +20,10 @@
 #define MLKEM_USE_NATIVE_POLY_TOBYTES
 #define MLKEM_USE_NATIVE_REJ_UNIFORM
 
-#define INVNTT_BOUND 8 * KYBER_Q
-#define NTT_BOUND 6 * KYBER_Q
-
+#define NTT_BOUND_NATIVE (6 * KYBER_Q)
 static inline void ntt_native(poly *data) { ntt_asm_clean(data->coeffs); }
 
+#define INVNTT_BOUND_NATIVE (8 * KYBER_Q)
 static inline void intt_native(poly *data) { intt_asm_clean(data->coeffs); }
 
 static inline void poly_reduce_native(poly *data) {

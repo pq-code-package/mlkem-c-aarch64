@@ -142,7 +142,7 @@ def funciter(f,n,x):
         return x
     return funciter(f, n-1, f(x))
 
-def ntt_layer_bound_growth(C, factor):
+def ntt_layer_bound_growth(factor):
     """If the inputs to a CT-based layer of the NTT are bound by C*Q,
     the outputs are bound by C'*Q, where C' is the return value of this
     function."""
@@ -150,12 +150,12 @@ def ntt_layer_bound_growth(C, factor):
     # Each coefficient is replaced by a +- t*b where a,b are input coefficients,
     # t is a suitable twiddle, and * is Barrett multiplication. a is thus bound
     # by C*q, while t*b is bound by 0.0508*C + 1/2 (see above).
-    return C + factor * C + 1/2
+    return (lambda C: C + factor * C + 1/2)
 
 def ntt_layer_bound(factor, layers=7, initial=Q):
     """Returns a bound on the absolute value of coefficients after a fixed number
     of layers, assuming an initial absolute bound `initial`."""
-    return funciter(ntt_layer_bound_growth(, layers, initial/Q) * Q
+    return funciter(ntt_layer_bound_growth(factor),layers, initial/Q)
 
 barmul_ntt_layer_bound = ntt_layer_bound(0.0508)
 montmul_ntt_layer_bound = ntt_layer_bound(0.0204)

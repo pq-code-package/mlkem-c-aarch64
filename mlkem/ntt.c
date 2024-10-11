@@ -66,16 +66,18 @@ const int16_t zetas[128] = {
  *              The output polynomial is in bitreversed order, and
  *              coefficient-wise bound by NTT_BOUND in absolute value.
  *
- *              Values of NTT_BOUND:
- *              - C: 16546
- *              - AArch64: 18295
- *
  *              (NOTE: Sometimes the input to the NTT is actually smaller,
  *               which gives better bounds.)
  *
  * Arguments:   - poly *p: pointer to in/output polynomial
  **************************************************/
 #if !defined(MLKEM_USE_NATIVE_NTT)
+
+// Check that the specific bound for the reference NTT implies
+// the bound requires by the C<->Native interface.
+#define NTT_BOUND_REF (5 * KYBER_Q)
+STATIC_ASSERT(NTT_BOUND_REF <= NTT_BOUND, ntt_ref_bound)
+
 // REF-CHANGE: Removed indirection poly_ntt -> ntt()
 // and integrated polynomial reduction into the NTT.
 void poly_ntt(poly *p) {
@@ -94,7 +96,10 @@ void poly_ntt(poly *p) {
   //   |a| < C*q and |t|<q/2, we see that the coefficients of layer N
   //   (starting with layer 0 = input data) are bound by q * f^N(1), where
   //   f(C) = 1/2 + 1.0254*C.
-  //   For N=7, we get the bound of f^7(1) * q = 16546.
+  //   For N=7, we get the absolute bound by C*q where C = f^7(1) < 5.
+  //
+  // NB: For the contractual bound of 8*q, it's enough to know that
+  // we always have |fqmul(a,t)| < q.
 
   for (len = 128; len >= 2; len >>= 1) {
     for (start = 0; start < 256; start = j + len) {
@@ -106,9 +111,19 @@ void poly_ntt(poly *p) {
       }
     }
   }
+
+  // Check the stronger bound
+  POLY_BOUND_MSG(p, NTT_BOUND_REF, "ref ntt output");
 }
 #else  /* MLKEM_USE_NATIVE_NTT */
-void poly_ntt(poly *p) { ntt_native(p); }
+
+// Check that bound for native NTT implies contractual bound
+STATIC_ASSERT(NTT_BOUND_NATIVE <= NTT_BOUND, invntt_bound)
+
+void poly_ntt(poly *p) {
+  ntt_native(p);
+  POLY_BOUND_MSG(p, NTT_BOUND_NATIVE, "native ntt output");
+}
 #endif /* MLKEM_USE_NATIVE_NTT */
 
 /*************************************************
@@ -119,18 +134,20 @@ void poly_ntt(poly *p) { ntt_native(p); }
  *              inputs assumed to be in bitreversed order, output in normal
  *              order
  *
- *              The input is assumed to be in bitreversed order.
+ *              The input is assumed to be in bitreversed order, and can
+ *              have arbitrary coefficients in int16_t.
  *
  *              The output polynomial is in normal order, and
  *              coefficient-wise bound by INVNTT_BOUND in absolute value.
  *
- *              Values of INVNTT_BOUND:
- *              - C: 3/4 q
- *              - AArch64: 8*q
- *
  * Arguments:   - uint16_t *a: pointer to in/output polynomial
  **************************************************/
 #if !defined(MLKEM_USE_NATIVE_INTT)
+
+// Check that bound for reference invNTT implies contractual bound
+#define INVNTT_BOUND_REF (3 * KYBER_Q / 4)
+STATIC_ASSERT(INVNTT_BOUND_REF <= INVNTT_BOUND, invntt_bound)
+
 // REF-CHANGE: Removed indirection poly_invntt_tomont -> invntt()
 // REF-CHANGE: Moved scalar multiplication with f ahead of the core invNTT
 void poly_invntt_tomont(poly *p) {
@@ -158,12 +175,16 @@ void poly_invntt_tomont(poly *p) {
     }
   }
 
-  POLY_BOUND_MSG(p, INVNTT_BOUND, "ref intt output");
+  POLY_BOUND_MSG(p, INVNTT_BOUND_REF, "ref intt output");
 }
 #else  /* MLKEM_USE_NATIVE_INTT */
+
+// Check that bound for native invNTT implies contractual bound
+STATIC_ASSERT(INVNTT_BOUND_NATIVE <= INVNTT_BOUND, invntt_bound)
+
 void poly_invntt_tomont(poly *p) {
   intt_native(p);
-  POLY_BOUND_MSG(p, INVNTT_BOUND, "native intt output");
+  POLY_BOUND_MSG(p, INVNTT_BOUND_NATIVE, "native intt output");
 }
 #endif /* MLKEM_USE_NATIVE_INTT */
 
