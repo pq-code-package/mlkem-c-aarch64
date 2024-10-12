@@ -297,7 +297,7 @@ class State(object):
             )
 
             if actual_proc is not None and expect_proc is not None:
-                actual = actual_proc(result)
+                actual = actual_proc(result.encode())
                 expect = expect_proc(scheme)
                 f = actual != expect
                 fail = fail or f
