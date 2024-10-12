@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1728713221196,
+  "lastUpdate": 1728713323996,
   "repoUrl": "https://github.com/pq-code-package/mlkem-c-aarch64",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -24439,6 +24439,75 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 96933,
+            "unit": "cycles"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "beckphan@amazon.co.uk",
+            "name": "Hanno Becker",
+            "username": "hanno-becker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "3edc9e7bee62b3b792394b8c6a70fc60387d3138",
+          "message": "Modify semantics of `poly_reduce()` to require unsigned canonical output (#215)\n\n* Debug: Add macro checking of unsigned upper bound in int16_t arrays\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Change semantics of poly_reduce() to unsigned canonical output\r\n\r\nPreviously, the post-condition for `poly_reduce()` was that its\r\noutput coefficients are _signed_ canonical, an unsuitable choice\r\nin two ways:\r\n\r\n- `poly_reduce()` is only used in the context of (de)serialization,\r\n  where we're dealing with _unsigned_ canonical data. This mean that\r\n  even though we were calling `poly_reduce()` ahead of `poly_tobytes()`,\r\n  the latter did still need to do a conditional addition.\r\n- The AVX2 implenentation of `poly_reduce()` does not produce signed\r\n  canonical representatives, but 'almost' unsigned canonical ones in\r\n  [0,1,...,KYBER_Q] (inclusive upper bound!) that are then subject to\r\n  a conditional _subtraction_ during deserialization.\r\n\r\nThis commit is an attempt to clear up the situation by requiring\r\nthat `poly_reduce()` produce _unsigned canonical_ representatives,\r\nand adjusting the C and native AArch64 implementations as well as the\r\nserialization routines accordingly.\r\n\r\nThis paves the way for the integration of AVX2 assembly for poly_reduce().\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Adjust CBMC precondition for proof of poly_compress()\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Document semantic change of poly_reduce() compared to ref impl'n\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Add AVX2 version for poly_reduce()\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Unify semantics of bounds in debug bound checking functions\r\n\r\nThe C functions were using inclusive bounds while the macros were\r\nusing exclusive bounds, which was a bit confusing. Now everything\r\nis phrased in terms of exclusive bounds.\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n---------\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>",
+          "timestamp": "2024-10-12T14:01:30+08:00",
+          "tree_id": "8e7937db6e9a062964ffdff79bfdc4a549e5afbe",
+          "url": "https://github.com/pq-code-package/mlkem-c-aarch64/commit/3edc9e7bee62b3b792394b8c6a70fc60387d3138"
+        },
+        "date": 1728713322765,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ML-KEM-512 keypair",
+            "value": 29779,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 encaps",
+            "value": 37243,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 decaps",
+            "value": 43279,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 keypair",
+            "value": 50269,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 encaps",
+            "value": 57644,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 decaps",
+            "value": 65650,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 keypair",
+            "value": 73740,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 encaps",
+            "value": 83842,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 decaps",
+            "value": 94779,
             "unit": "cycles"
           }
         ]
