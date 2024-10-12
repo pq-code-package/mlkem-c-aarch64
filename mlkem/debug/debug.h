@@ -25,8 +25,8 @@
  **************************************************/
 void mlkem_debug_check_bounds(const char *file, int line,
                               const char *description, const int16_t *ptr,
-                              unsigned len, int16_t lower_bound_inclusive,
-                              int16_t upper_bound_inclusive);
+                              unsigned len, int lower_bound_inclusive,
+                              int upper_bound_inclusive);
 
 /* Print error message to stderr alongside file and line information */
 void mlkem_debug_print_error(const char *file, int line, const char *msg);
@@ -41,7 +41,7 @@ void mlkem_debug_print_error(const char *file, int line, const char *msg);
 #define UBOUND(ptr, len, high_bound, msg)                                 \
   do {                                                                    \
     mlkem_debug_check_bounds(__FILE__, __LINE__, (msg), (int16_t *)(ptr), \
-                             (len), 0, ((high_bound)-1));                 \
+                             (len), -1, ((high_bound)));                  \
   } while (0)
 
 /* Check absolute bounds in array of int16_t's
@@ -52,7 +52,7 @@ void mlkem_debug_print_error(const char *file, int line, const char *msg);
 #define BOUND(ptr, len, abs_bound, msg)                                   \
   do {                                                                    \
     mlkem_debug_check_bounds(__FILE__, __LINE__, (msg), (int16_t *)(ptr), \
-                             (len), -((abs_bound)-1), ((abs_bound)-1));   \
+                             (len), -(abs_bound), (abs_bound));           \
   } while (0)
 
 /* Check absolute bounds on coefficients in polynomial or mulcache
