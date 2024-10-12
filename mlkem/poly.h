@@ -58,9 +58,8 @@ static inline uint16_t scalar_signed_to_unsigned_q_16(int16_t c)
 void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
     REQUIRES(r != NULL && IS_FRESH(r, KYBER_POLYCOMPRESSEDBYTES))
         REQUIRES(a != NULL && IS_FRESH(a, sizeof(poly)))
-            REQUIRES(ARRAY_IN_BOUNDS(int, k, 0, (KYBER_N - 1), a->coeffs,
-                                     -(KYBER_Q - 1), (KYBER_Q - 1)))
-                ASSIGNS(OBJECT_WHOLE(r));
+            REQUIRES(ARRAY_IN_BOUNDS(int, k, 0, (KYBER_N - 1), a->coeffs, 0,
+                                     (KYBER_Q - 1))) ASSIGNS(OBJECT_WHOLE(r));
 
 /************************************************************
  * Name: scalar_compress_q_16
