@@ -63,7 +63,6 @@ static inline void poly_reduce_native(poly *data) {
 static inline void poly_mulcache_compute_native(poly_mulcache *x,
                                                 const poly *y) {
   // AVX2 backend does not use mulcache
-  ((void)x);
   ((void)y);
 
   // TODO! The mulcache is subject to the absolute bound < q
