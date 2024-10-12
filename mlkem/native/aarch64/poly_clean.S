@@ -12,6 +12,12 @@
         mls     \a\().8h, t0.8h, consts.h[0]
 .endm
 
+.macro scalar_signed_to_unsigned a
+        sshr mask.8h, \a\().8h, #15
+        and mask.16b, modulus.16b, mask.16b
+        add \a\().8h, \a\().8h, mask.8h
+.endm
+
 .macro mulmod dst, src, const, const_twisted
         sqrdmulh tmp0.8h,    \src\().8h, \const_twisted\().8h
         mul      \dst\().8h, \src\().8h, \const\().8h
@@ -39,11 +45,14 @@ const_addr:
         ptr    .req x0
         count  .req x1
         xtmp   .req x2
+        wmodulus .req w3
 
         q_data .req q0
         data   .req v0
         t0     .req v1
         consts .req v2
+        mask    .req v3
+        modulus .req v4
 
 poly_reduce_asm_clean:
 _poly_reduce_asm_clean:
@@ -51,22 +60,29 @@ _poly_reduce_asm_clean:
         ASM_LOAD(xtmp, const_addr)
         ld1 {consts.8h}, [xtmp]
 
+        mov wmodulus, #3329
+        dup modulus.8h, wmodulus
+
         mov count, #8
 loop_start:
         ldr q_data, [ptr], #64
         barrett_reduce data
+        scalar_signed_to_unsigned data
         str q_data, [ptr, #-64]
 
         ldr q_data, [ptr, #-48]
         barrett_reduce data
+        scalar_signed_to_unsigned data
         str q_data, [ptr, #-48]
 
         ldr q_data, [ptr, #-32]
         barrett_reduce data
+        scalar_signed_to_unsigned data
         str q_data, [ptr, #-32]
 
         ldr q_data, [ptr, #-16]
         barrett_reduce data
+        scalar_signed_to_unsigned data
         str q_data, [ptr, #-16]
 
         subs count, count, #1
@@ -81,6 +97,9 @@ loop_start:
         .unreq data
         .unreq t0
         .unreq consts
+        .unreq mask
+        .unreq wmodulus
+        .unreq modulus
 
 /********************************************
  *          poly_mulcache_compute()         *
@@ -165,36 +184,18 @@ mulcache_compute_loop_start:
         out1  .req v3
         out2  .req v4
 
-        wmodulus .req w3
-
-        mask    .req v5
         tmp     .req v5
-        modulus .req v6
 
         dst   .req x0
         src   .req x1
         count .req x2
 
-.macro scalar_signed_to_unsigned a
-        sshr mask.8h, \a\().8h, #15
-        and mask.16b, modulus.16b, mask.16b
-        add \a\().8h, \a\().8h, mask.8h
-.endm
-
 poly_tobytes_asm_clean:
 _poly_tobytes_asm_clean:
-
-        mov wmodulus, #3329
-        dup modulus.8h, wmodulus
 
         mov count, #16
 poly_tobytes_asm_clean_asm_loop_start:
         ld2 {data0.8h, data1.8h}, [src], #32
-
-        // t0 = scalar_signed_to_unsigned_q_16(a->coeffs[2 * i]);
-        scalar_signed_to_unsigned data0
-        // t1 = scalar_signed_to_unsigned_q_16(a->coeffs[2 * i + 1]);
-        scalar_signed_to_unsigned data1
 
         // r[3 * i + 0] = (t0 >> 0);
         xtn out0.8b, data0.8h
@@ -219,10 +220,7 @@ poly_tobytes_asm_clean_asm_loop_start:
         .unreq out0
         .unreq out1
         .unreq out2
-        .unreq wmodulus
-        .unreq mask
         .unreq tmp
-        .unreq modulus
         .unreq dst
         .unreq src
         .unreq count
