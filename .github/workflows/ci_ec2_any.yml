@@ -24,10 +24,10 @@ on:
       cflags:
         description: Custom CFLAGS for compilation
         default:
-      always_terminate:
-        description: Indicates if instance should always be terminated, even on failure
+      verbose:
+        description: Determine for the log verbosity
         type: boolean
-        default: true
+        default: false
       compile_mode:
         description: Indicates the desired compilation mode (native or cross compilation), or `all` to perform both types, or `none` to skip compilation and functional testing.
         type: choice
@@ -66,5 +66,5 @@ jobs:
       nistkattest: ${{ inputs.compile_mode != 'none' }}
       lint: true
       cbmc: ${{ inputs.cbmc }}
-      always_terminate: ${{ inputs.always_terminate }}
+      verbose: ${{ inputs.verbose }}
     secrets: inherit

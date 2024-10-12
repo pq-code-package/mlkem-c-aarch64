@@ -13,6 +13,9 @@ inputs:
   cache:
     description: Determine whether to enable nix cache
     default: 'true'
+  verbose:
+    description: Determine wether to suppress nix log or not
+    default: 'false'
 
 runs:
   using: composite
@@ -59,7 +62,8 @@ runs:
       shell: bash -leo pipefail {0}
       run: |
         echo NIX_SHELL="${{ inputs.devShell }}" >> $GITHUB_ENV
-        echo SHELL="$(which nix) develop --quiet .#${{ inputs.devShell }} -c bash -e {0}" >> $GITHUB_ENV
+        nix_extra_flags="${{ inputs.verbose == 'false' && '--quiet' || '' }}"
+        echo SHELL="$(which nix) develop $nix_extra_flags .#${{ inputs.devShell }} -c bash -e {0}" >> $GITHUB_ENV
     - name: Prepare nix dev shell
       shell: ${{ env.SHELL }}
       run: |
