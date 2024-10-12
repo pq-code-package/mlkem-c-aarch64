@@ -11,10 +11,11 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event.action != 'labeled' }}
 
 jobs:
   build_kat:
+    name: Functional tests (${{ matrix.target.name }})
     strategy:
       fail-fast: false
       matrix:
@@ -38,7 +39,7 @@ jobs:
                runner: pqcp-x64,
                name: 'ubuntu-latest (x86_64)',
              }}
-    name: Functional tests (${{ matrix.target.name }})
+    if: ${{ github.event.action != 'labeled' || github.event.label.name == 'ci' }}
     runs-on: ${{ matrix.target.runner }}
     steps:
       - uses: actions/checkout@v4
@@ -67,6 +68,7 @@ jobs:
       matrix:
         system: [ubuntu-latest]
     name: Linting
+    if: ${{ github.event.action != 'labeled' || github.event.label.name == 'ci' }}
     runs-on: ${{ matrix.system }}
     steps:
       - uses: actions/checkout@v4
