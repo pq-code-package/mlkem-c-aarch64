@@ -520,6 +520,11 @@ void poly_tomont(poly *r) {
  *
  * Arguments:   - poly *r: pointer to input/output polynomial
  **************************************************/
+// REF-CHANGE: The semantics of poly_reduce() is different in
+//             the reference implementation, which requires
+//             signed canonical output data. Unsigned canonical
+//             outputs are better suited to the only remaining
+//             use of poly_reduce() in the context of (de)serialization.
 #if !defined(MLKEM_USE_NATIVE_POLY_REDUCE)
 void poly_reduce(poly *r) {
   unsigned int i;
