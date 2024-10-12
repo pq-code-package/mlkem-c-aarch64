@@ -7,17 +7,16 @@ static char debug_buf[256];
 
 void mlkem_debug_check_bounds(const char *file, int line,
                               const char *description, const int16_t *ptr,
-                              unsigned len, int16_t lower_bound_inclusive,
-                              int16_t upper_bound_inclusive) {
+                              unsigned len, int lower_bound_exclusive,
+                              int upper_bound_exclusive) {
   int err = 0;
   unsigned i;
   for (i = 0; i < len; i++) {
     int16_t val = ptr[i];
-    if (val < lower_bound_inclusive || val > upper_bound_inclusive) {
+    if (!(val > lower_bound_exclusive && val < upper_bound_exclusive)) {
       snprintf(debug_buf, sizeof(debug_buf),
                "%s, index %u, value %d out of bounds (%d,%d)", description, i,
-               (int)val, (int)lower_bound_inclusive,
-               (int)upper_bound_inclusive);
+               (int)val, lower_bound_exclusive, upper_bound_exclusive);
       mlkem_debug_print_error(file, line, debug_buf);
       err = 1;
     }

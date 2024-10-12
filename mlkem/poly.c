@@ -22,8 +22,11 @@
  * Arguments:   - uint8_t *r: pointer to output byte array
  *                            (of length KYBER_POLYCOMPRESSEDBYTES)
  *              - const poly *a: pointer to input polynomial
+ *                  Coefficients must be unsigned canonical,
+ *                  i.e. in [0,1,..,KYBER_Q-1].
  **************************************************/
 void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a) {
+  POLY_UBOUND(a, KYBER_Q);
   uint8_t t[8] = {0};
 
   const int num_blocks = KYBER_N / 8;
@@ -46,12 +49,8 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a) {
         // clang-format on
         {
           // map to positive standard representatives
-          // REF-CHANGE: Hoist signed-to-unsigned conversion into separate
-          // function
-          int32_t u;
-          u = (int32_t)scalar_signed_to_unsigned_q_16(a->coeffs[8 * i + j]);
-          // REF-CHANGE: Hoist scalar compression into separate function
-          t[j] = scalar_compress_q_16(u);
+          // REF-CHANGE: Precondition change, we assume unsigned canonical data
+          t[j] = scalar_compress_q_16(a->coeffs[8 * i + j]);
         }
 
       // REF-CHANGE: Use array indexing into
@@ -80,12 +79,8 @@ void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a) {
         // clang-format on
         {
           // map to positive standard representatives
-          // REF-CHANGE: Hoist signed-to-unsigned conversion into separate
-          // function
-          int32_t u =
-              (int32_t)scalar_signed_to_unsigned_q_16(a->coeffs[8 * i + j]);
-          // REF-CHANGE: Hoist scalar compression into separate function
-          t[j] = scalar_compress_q_32(u);
+          // REF-CHANGE: Precondition change, we assume unsigned canonical data
+          t[j] = scalar_compress_q_32(a->coeffs[8 * i + j]);
         }
 
       // REF-CHANGE: Explicitly truncate to avoid warning about
@@ -182,6 +177,8 @@ void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES]) {
 #else
 #error "KYBER_POLYCOMPRESSEDBYTES needs to be in {128, 160}"
 #endif
+
+  POLY_UBOUND(r, KYBER_Q);
 }
 
 /*************************************************
@@ -193,21 +190,21 @@ void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES]) {
  *
  * Arguments:   INPUT:
  *              - a: const pointer to input polynomial,
- *                with each coefficient in the range -Q+1 .. Q-1
+ *                with each coefficient in the range [0,1,..,Q-1]
  *              OUTPUT
  *              - r: pointer to output byte array
  *                   (of KYBER_POLYBYTES bytes)
  **************************************************/
 #if !defined(MLKEM_USE_NATIVE_POLY_TOBYTES)
 void poly_tobytes(uint8_t r[KYBER_POLYBYTES], const poly *a) {
+  POLY_UBOUND(a, KYBER_Q);
   unsigned int i;
   uint16_t t0, t1;
 
   for (i = 0; i < KYBER_N / 2; i++) {
-    // map to positive standard representatives
-    // REF-CHANGE: Hoist signed-to-unsigned conversion into separate function
-    t0 = scalar_signed_to_unsigned_q_16(a->coeffs[2 * i]);
-    t1 = scalar_signed_to_unsigned_q_16(a->coeffs[2 * i + 1]);
+    t0 = a->coeffs[2 * i];
+    t1 = a->coeffs[2 * i + 1];
+    // REF-CHANGE: Precondition change, we assume unsigned canonical data
     r[3 * i + 0] = (t0 >> 0);
     r[3 * i + 1] = (t0 >> 8) | (t1 << 4);
     r[3 * i + 2] = (t1 >> 4);
@@ -215,6 +212,7 @@ void poly_tobytes(uint8_t r[KYBER_POLYBYTES], const poly *a) {
 }
 #else  /* MLKEM_USE_NATIVE_POLY_TOBYTES */
 void poly_tobytes(uint8_t r[KYBER_POLYBYTES], const poly *a) {
+  POLY_UBOUND(a, KYBER_Q);
   poly_tobytes_native(r, a);
 }
 #endif /* MLKEM_USE_NATIVE_POLY_TOBYTES */
@@ -283,8 +281,11 @@ void poly_frommsg(poly *r, const uint8_t msg[KYBER_INDCPA_MSGBYTES]) {
  *
  * Arguments:   - uint8_t *msg: pointer to output message
  *              - const poly *a: pointer to input polynomial
+ *                  Coefficients must be unsigned canonical
  **************************************************/
 void poly_tomsg(uint8_t msg[KYBER_INDCPA_MSGBYTES], const poly *a) {
+  POLY_UBOUND(a, KYBER_Q);
+
   unsigned int i, j;
   uint32_t t;
 
@@ -512,20 +513,35 @@ void poly_tomont(poly *r) {
 /*************************************************
  * Name:        poly_reduce
  *
- * Description: Applies Barrett reduction to all coefficients of a polynomial
- *              for details of the Barrett reduction see comments in reduce.c
+ * Description: Converts polynomial to _unsigned canonical_ representatives.
+ *
+ *              The input coefficients can be arbitrary integers in int16_t.
+ *              The output coefficients are in [0,1,...,KYBER_Q-1].
  *
  * Arguments:   - poly *r: pointer to input/output polynomial
  **************************************************/
+// REF-CHANGE: The semantics of poly_reduce() is different in
+//             the reference implementation, which requires
+//             signed canonical output data. Unsigned canonical
+//             outputs are better suited to the only remaining
+//             use of poly_reduce() in the context of (de)serialization.
 #if !defined(MLKEM_USE_NATIVE_POLY_REDUCE)
 void poly_reduce(poly *r) {
   unsigned int i;
   for (i = 0; i < KYBER_N; i++) {
-    r->coeffs[i] = barrett_reduce(r->coeffs[i]);
+    // Barrett reduction, giving signed canonical representative
+    int16_t t = barrett_reduce(r->coeffs[i]);
+    // Conditional addition to get unsigned canonical representative
+    r->coeffs[i] = scalar_signed_to_unsigned_q_16(t);
   }
+
+  POLY_UBOUND(r, KYBER_Q);
 }
 #else  /* MLKEM_USE_NATIVE_POLY_REDUCE */
-void poly_reduce(poly *r) { poly_reduce_native(r); }
+void poly_reduce(poly *r) {
+  poly_reduce_native(r);
+  POLY_UBOUND(r, KYBER_Q);
+}
 #endif /* MLKEM_USE_NATIVE_POLY_REDUCE */
 
 /*************************************************

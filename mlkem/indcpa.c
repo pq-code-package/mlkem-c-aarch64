@@ -379,6 +379,7 @@ void indcpa_enc(uint8_t c[KYBER_INDCPA_BYTES],
   polyvec_add(&b, &b, &ep);
   poly_add(&v, &v, &epp);
   poly_add(&v, &v, &k);
+
   polyvec_reduce(&b);
   poly_reduce(&v);
 

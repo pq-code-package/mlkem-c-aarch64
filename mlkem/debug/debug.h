@@ -25,11 +25,24 @@
  **************************************************/
 void mlkem_debug_check_bounds(const char *file, int line,
                               const char *description, const int16_t *ptr,
-                              unsigned len, int16_t lower_bound_inclusive,
-                              int16_t upper_bound_inclusive);
+                              unsigned len, int lower_bound_inclusive,
+                              int upper_bound_inclusive);
 
 /* Print error message to stderr alongside file and line information */
 void mlkem_debug_print_error(const char *file, int line, const char *msg);
+
+/* Check that all coefficients in array of int16_t's are non-negative
+ * and below an exclusive upper bound.
+ *
+ * ptr: Base of array, expression of type int16_t*
+ * len: Number of int16_t in array
+ * high_bound: Exclusive upper bound on absolute value to check
+ * msg: Message to print on failure */
+#define UBOUND(ptr, len, high_bound, msg)                                 \
+  do {                                                                    \
+    mlkem_debug_check_bounds(__FILE__, __LINE__, (msg), (int16_t *)(ptr), \
+                             (len), -1, ((high_bound)));                  \
+  } while (0)
 
 /* Check absolute bounds in array of int16_t's
  * ptr: Base of array, expression of type int16_t*
@@ -39,7 +52,7 @@ void mlkem_debug_print_error(const char *file, int line, const char *msg);
 #define BOUND(ptr, len, abs_bound, msg)                                   \
   do {                                                                    \
     mlkem_debug_check_bounds(__FILE__, __LINE__, (msg), (int16_t *)(ptr), \
-                             (len), -((abs_bound)-1), ((abs_bound)-1));   \
+                             (len), -(abs_bound), (abs_bound));           \
   } while (0)
 
 /* Check absolute bounds on coefficients in polynomial or mulcache
@@ -50,11 +63,26 @@ void mlkem_debug_print_error(const char *file, int line, const char *msg);
   BOUND((ptr)->coeffs, (sizeof((ptr)->coeffs) / sizeof(int16_t)), (abs_bound), \
         msg)
 
+/* Check unsigned bounds on coefficients in polynomial or mulcache
+ * ptr: poly* or poly_mulcache* pointer to polynomial (cache) to check
+ * ubound: Exclusive upper bound on value to check. Inclusive lower bound is 0.
+ * msg: Message to print on failure */
+#define POLY_UBOUND_MSG(ptr, ubound, msg)                                    \
+  UBOUND((ptr)->coeffs, (sizeof((ptr)->coeffs) / sizeof(int16_t)), (ubound), \
+         msg)
+
 /* Check absolute bounds on coefficients in polynomial
  * ptr: poly* of poly_mulcache* pointer to polynomial (cache) to check
  * abs_bound: Exclusive upper bound on absolute value to check */
 #define POLY_BOUND(ptr, abs_bound) \
-  POLY_BOUND_MSG((ptr), (abs_bound), "poly bound for " #ptr)
+  POLY_BOUND_MSG((ptr), (abs_bound), "poly absolute bound for " #ptr)
+
+/* Check unsigned bounds on coefficients in polynomial
+ * ptr: poly* of poly_mulcache* pointer to polynomial (cache) to check
+ * ubound: Exclusive upper bound on value to check. Inclusive lower bound is 0.
+ */
+#define POLY_UBOUND(ptr, ubound) \
+  POLY_UBOUND_MSG((ptr), (ubound), "poly unsigned bound for " #ptr)
 
 /* Check absolute bounds on coefficients in vector of polynomials
  * ptr: polyvec* or polyvec_mulcache* pointer to vector of polynomials to check
@@ -64,7 +92,19 @@ void mlkem_debug_print_error(const char *file, int line, const char *msg);
     for (unsigned _debug_polyvec_bound_idx = 0;                          \
          _debug_polyvec_bound_idx < KYBER_K; _debug_polyvec_bound_idx++) \
       POLY_BOUND_MSG(&(ptr)->vec[_debug_polyvec_bound_idx], (abs_bound), \
-                     "polyvec bound for " #ptr ".vec[i]");               \
+                     "polyvec absolute bound for " #ptr ".vec[i]");      \
+  } while (0)
+
+/* Check unsigned bounds on coefficients in vector of polynomials
+ * ptr: polyvec* or polyvec_mulcache* pointer to vector of polynomials to check
+ * ubound: Exclusive upper bound on value to check. Inclusive lower bound is 0.
+ */
+#define POLYVEC_UBOUND(ptr, ubound)                                      \
+  do {                                                                   \
+    for (unsigned _debug_polyvec_bound_idx = 0;                          \
+         _debug_polyvec_bound_idx < KYBER_K; _debug_polyvec_bound_idx++) \
+      POLY_UBOUND_MSG(&(ptr)->vec[_debug_polyvec_bound_idx], (ubound),   \
+                      "polyvec unsigned bound for " #ptr ".vec[i]");     \
   } while (0)
 
 // Following AWS-LC to define a C99-compliant static assert
@@ -97,6 +137,18 @@ void mlkem_debug_print_error(const char *file, int line, const char *msg);
   } while (0)
 #define POLY_BOUND_MSG(...) \
   do {                      \
+  } while (0)
+#define UBOUND(...) \
+  do {              \
+  } while (0)
+#define POLY_UBOUND(...) \
+  do {                   \
+  } while (0)
+#define POLYVEC_UBOUND(...) \
+  do {                      \
+  } while (0)
+#define POLY_UBOUND_MSG(...) \
+  do {                       \
   } while (0)
 #define STATIC_ASSERT(...)
 

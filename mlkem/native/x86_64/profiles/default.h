@@ -16,6 +16,7 @@
 #define MLKEM_USE_NATIVE_REJ_UNIFORM
 #define MLKEM_USE_NATIVE_NTT
 #define MLKEM_USE_NATIVE_INTT
+#define MLKEM_USE_NATIVE_POLY_REDUCE
 
 #define INVNTT_BOUND_NATIVE (KYBER_Q + 1)  // poly_reduce() is in [0,..,KYBER_Q]
 #define NTT_BOUND_NATIVE (KYBER_Q + 1)     // poly_reduce() is in [0,..,KYBER_Q]
@@ -47,6 +48,10 @@ static inline void intt_native(poly *data) {
   // TODO! Remove this after working out the bounds for
   // the output of the AVX2 invNTT
   poly_reduce(data);
+}
+
+static inline void poly_reduce_native(poly *data) {
+  reduce_avx2((__m256i *)data->coeffs, qdata.vec);
 }
 
 #endif /* MLKEM_ARITH_NATIVE_PROFILE_H */
