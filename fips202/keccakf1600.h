@@ -15,7 +15,7 @@
 //
 // The struct is only exposed here to allow its construction on the stack.
 //
-typedef uint64_t keccakx4_state[KECCAK_WAY * KECCAK_LANES];
+typedef uint64_t keccakx4_state[KECCAK_WAY * KECCAK_LANES] ALIGN;
 
 void KeccakF1600_StateExtractBytes(uint64_t *state, unsigned char *data,
                                    unsigned int offset, unsigned int length);
