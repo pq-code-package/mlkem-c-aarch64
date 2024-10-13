@@ -42,6 +42,10 @@
 // #include "aarch64/profiles/cortex_a55.h"
 #endif
 
+#if defined(SYS_X86_64) && defined(SYS_X86_64_AVX2)
+#include "x86_64/profiles/xkcp.h"
+#endif
+
 #else /* !FIPS202_NATIVE_PROFILE && FIPS202_NATIVE_MANUAL */
 
 /* Option 3: Build your own profile here, or via CFLAGS */

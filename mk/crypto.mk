@@ -17,7 +17,7 @@ endif
 
 FIPS202_SRCS = $(wildcard fips202/*.c)
 ifeq ($(OPT),1)
-	FIPS202_SRCS += $(wildcard fips202/native/aarch64/*.S)
+	FIPS202_SRCS += $(wildcard fips202/native/aarch64/*.S) $(wildcard fips202/native/x86_64/xkcp/*.c)
 	CPPFLAGS += -DMLKEM_USE_NATIVE
 endif
 
