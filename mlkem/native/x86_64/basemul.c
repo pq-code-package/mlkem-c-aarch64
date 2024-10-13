@@ -11,15 +11,8 @@
 
 static void poly_basemul_montgomery_avx2(poly *r, const poly *a,
                                          const poly *b) {
-  poly tmp0 = *a, tmp1 = *b;
-  // TODO! This needs to be removed once all AVX2 assembly is integrated
-  // and adjusted to the custom coefficient order in NTT domain
-  nttunpack_avx2((__m256i *)tmp0.coeffs, qdata.vec);
-  nttunpack_avx2((__m256i *)tmp1.coeffs, qdata.vec);
-  basemul_avx2((__m256i *)r->coeffs, (const __m256i *)tmp0.coeffs,
-               (const __m256i *)tmp1.coeffs, qdata.vec);
-  nttpack_avx2((__m256i *)(r->coeffs), qdata.vec);
-  nttpack_avx2((__m256i *)(r->coeffs + KYBER_N / 2), qdata.vec);
+  basemul_avx2((__m256i *)r->coeffs, (const __m256i *)a->coeffs,
+               (const __m256i *)b->coeffs, qdata.vec);
 }
 
 void polyvec_basemul_acc_montgomery_cached_avx2(
