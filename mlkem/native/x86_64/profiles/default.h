@@ -21,6 +21,7 @@
 #define MLKEM_USE_NATIVE_NTT
 #define MLKEM_USE_NATIVE_INTT
 #define MLKEM_USE_NATIVE_POLY_REDUCE
+#define MLKEM_USE_NATIVE_POLY_TOMONT
 #define MLKEM_USE_NATIVE_POLYVEC_BASEMUL_ACC_MONTGOMERY_CACHED
 #define MLKEM_USE_NATIVE_POLY_MULCACHE_COMPUTE
 #define MLKEM_USE_NATIVE_POLY_TOBYTES
@@ -55,6 +56,10 @@ static inline void intt_native(poly *data) {
 
 static inline void poly_reduce_native(poly *data) {
   reduce_avx2((__m256i *)data->coeffs, qdata.vec);
+}
+
+static inline void poly_tomont_native(poly *data) {
+  tomont_avx2((__m256i *)data->coeffs, qdata.vec);
 }
 
 static inline void poly_mulcache_compute_native(poly_mulcache *x,
