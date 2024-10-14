@@ -9,11 +9,31 @@
 #include "randombytes.h"
 
 #define NWARMUP 50
-#define NITERERATIONS 300
-#define NTESTS 200
+#define NITERATIONS 300
+#define NTESTS 500
 
 static int cmp_uint64_t(const void *a, const void *b) {
   return (int)((*((const uint64_t *)a)) - (*((const uint64_t *)b)));
+}
+
+static void print_median(const char *txt, uint64_t cyc[NTESTS]) {
+  printf("%10s cycles = %" PRIu64 "\n", txt, cyc[NTESTS >> 1] / NITERATIONS);
+}
+
+static int percentiles[] = {1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 99};
+
+static void print_percentile_legend(void) {
+  printf("%21s", "percentile");
+  for (unsigned i = 0; i < sizeof(percentiles) / sizeof(percentiles[0]); i++)
+    printf("%7d", percentiles[i]);
+  printf("\n");
+}
+
+static void print_percentiles(const char *txt, uint64_t cyc[NTESTS]) {
+  printf("%10s percentiles:", txt);
+  for (unsigned i = 0; i < sizeof(percentiles) / sizeof(percentiles[0]); i++)
+    printf("%7" PRIu64, (cyc)[NTESTS * percentiles[i] / 100] / NITERATIONS);
+  printf("\n");
 }
 
 static int bench(void) {
@@ -39,7 +59,7 @@ static int bench(void) {
     }
 
     t0 = get_cyclecounter();
-    for (j = 0; j < NITERERATIONS; j++) {
+    for (j = 0; j < NITERATIONS; j++) {
       crypto_kem_keypair_derand(pk, sk, kg_rand);
     }
     t1 = get_cyclecounter();
@@ -51,7 +71,7 @@ static int bench(void) {
       crypto_kem_enc_derand(ct, key_a, pk, enc_rand);
     }
     t0 = get_cyclecounter();
-    for (j = 0; j < NITERERATIONS; j++) {
+    for (j = 0; j < NITERATIONS; j++) {
       crypto_kem_enc_derand(ct, key_a, pk, enc_rand);
     }
     t1 = get_cyclecounter();
@@ -62,7 +82,7 @@ static int bench(void) {
       crypto_kem_dec(key_b, ct, sk);
     }
     t0 = get_cyclecounter();
-    for (j = 0; j < NITERERATIONS; j++) {
+    for (j = 0; j < NITERATIONS; j++) {
       crypto_kem_dec(key_b, ct, sk);
     }
     t1 = get_cyclecounter();
@@ -79,12 +99,17 @@ static int bench(void) {
   qsort(cycles_enc, NTESTS, sizeof(uint64_t), cmp_uint64_t);
   qsort(cycles_dec, NTESTS, sizeof(uint64_t), cmp_uint64_t);
 
-  printf("keypair cycles=%" PRIu64 "\n",
-         cycles_kg[NTESTS >> 1] / NITERERATIONS);
-  printf("encaps cycles=%" PRIu64 "\n",
-         cycles_enc[NTESTS >> 1] / NITERERATIONS);
-  printf("decaps cycles=%" PRIu64 "\n",
-         cycles_dec[NTESTS >> 1] / NITERERATIONS);
+  print_median("keypair", cycles_kg);
+  print_median("encaps", cycles_enc);
+  print_median("decaps", cycles_dec);
+
+  printf("\n");
+
+  print_percentile_legend();
+
+  print_percentiles("keypair", cycles_kg);
+  print_percentiles("encaps", cycles_enc);
+  print_percentiles("decaps", cycles_dec);
 
   return 0;
 }
@@ -93,10 +118,6 @@ int main(void) {
   enable_cyclecounter();
   bench();
   disable_cyclecounter();
-
-  printf("CRYPTO_SECRETKEYBYTES:  %d\n", CRYPTO_SECRETKEYBYTES);
-  printf("CRYPTO_PUBLICKEYBYTES:  %d\n", CRYPTO_PUBLICKEYBYTES);
-  printf("CRYPTO_CIPHERTEXTBYTES: %d\n", CRYPTO_CIPHERTEXTBYTES);
 
   return 0;
 }

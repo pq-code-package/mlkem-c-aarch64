@@ -69,4 +69,50 @@ add		$256,%rdi
 call		reduce128_avx2
 ret
 
+
+tomont128_avx2:
+#load
+vmovdqa		(%rdi),%ymm3
+vmovdqa		32(%rdi),%ymm4
+vmovdqa		64(%rdi),%ymm5
+vmovdqa		96(%rdi),%ymm6
+vmovdqa		128(%rdi),%ymm7
+vmovdqa		160(%rdi),%ymm8
+vmovdqa		192(%rdi),%ymm9
+vmovdqa		224(%rdi),%ymm10
+
+fqmulprecomp	1,2,3,11
+fqmulprecomp	1,2,4,12
+fqmulprecomp	1,2,5,13
+fqmulprecomp	1,2,6,14
+fqmulprecomp	1,2,7,15
+fqmulprecomp	1,2,8,11
+fqmulprecomp	1,2,9,12
+fqmulprecomp	1,2,10,13
+
+#store
+vmovdqa		%ymm3,(%rdi)
+vmovdqa		%ymm4,32(%rdi)
+vmovdqa		%ymm5,64(%rdi)
+vmovdqa		%ymm6,96(%rdi)
+vmovdqa		%ymm7,128(%rdi)
+vmovdqa		%ymm8,160(%rdi)
+vmovdqa		%ymm9,192(%rdi)
+vmovdqa		%ymm10,224(%rdi)
+
+ret
+
+.global tomont_avx2
+.global _tomont_avx2
+tomont_avx2:
+_tomont_avx2:
+#consts
+vmovdqa		_16XQ*2(%rsi),%ymm0
+vmovdqa		_16XMONTSQLO*2(%rsi),%ymm1
+vmovdqa		_16XMONTSQHI*2(%rsi),%ymm2
+call		tomont128_avx2
+add		$256,%rdi
+call		tomont128_avx2
+ret
+
 #endif /* MLKEM_USE_NATIVE_X86_64 && SYS_X86_64_AVX2 */

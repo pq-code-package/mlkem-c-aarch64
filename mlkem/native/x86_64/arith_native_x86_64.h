@@ -31,6 +31,7 @@ void polyvec_basemul_acc_montgomery_cached_avx2(
     const polyvec_mulcache *b_cache);
 void ntttobytes_avx2(uint8_t *r, const __m256i *a, const __m256i *qdata);
 void nttfrombytes_avx2(__m256i *r, const uint8_t *a, const __m256i *qdata);
+void tomont_avx2(__m256i *r, const __m256i *qdata);
 
 #endif /* MLKEM_USE_NATIVE_X86_64 && SYS_X86_64_AVX2 */
 

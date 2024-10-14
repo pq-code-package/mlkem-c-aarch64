@@ -626,7 +626,7 @@ def bench(
 
                 lines = [line for line in r.splitlines() if "=" in line]
 
-                d = {k: int(v) for k, v in (l.split("=") for l in lines)}
+                d = {k.strip(): int(v) for k, v in (l.split("=") for l in lines)}
                 for primitive in ["keypair", "encaps", "decaps"]:
                     v.append(
                         {

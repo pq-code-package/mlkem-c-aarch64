@@ -21,13 +21,16 @@
 #define MLKEM_USE_NATIVE_NTT
 #define MLKEM_USE_NATIVE_INTT
 #define MLKEM_USE_NATIVE_POLY_REDUCE
+#define MLKEM_USE_NATIVE_POLY_TOMONT
 #define MLKEM_USE_NATIVE_POLYVEC_BASEMUL_ACC_MONTGOMERY_CACHED
 #define MLKEM_USE_NATIVE_POLY_MULCACHE_COMPUTE
 #define MLKEM_USE_NATIVE_POLY_TOBYTES
 #define MLKEM_USE_NATIVE_POLY_FROMBYTES
 
-#define INVNTT_BOUND_NATIVE (KYBER_Q + 1)  // poly_reduce() is in [0,..,KYBER_Q]
-#define NTT_BOUND_NATIVE (KYBER_Q + 1)     // poly_reduce() is in [0,..,KYBER_Q]
+#define INVNTT_BOUND_NATIVE \
+  (14870 + 1)  // Bound from the official Kyber repository
+#define NTT_BOUND_NATIVE \
+  (16118 + 1)  // Bound from the official Kyber repository
 
 static inline void poly_permute_bitrev_to_custom(poly *data) {
   nttunpack_avx2((__m256i *)(data->coeffs), qdata.vec);
@@ -45,20 +48,18 @@ static inline int rej_uniform_native(int16_t *r, unsigned int len,
 
 static inline void ntt_native(poly *data) {
   ntt_avx2((__m256i *)data, qdata.vec);
-  // TODO! Remove this after working out the bounds for
-  // the output of the AVX2 NTT
-  poly_reduce(data);
 }
 
 static inline void intt_native(poly *data) {
   invntt_avx2((__m256i *)data, qdata.vec);
-  // TODO! Remove this after working out the bounds for
-  // the output of the AVX2 invNTT
-  poly_reduce(data);
 }
 
 static inline void poly_reduce_native(poly *data) {
   reduce_avx2((__m256i *)data->coeffs, qdata.vec);
+}
+
+static inline void poly_tomont_native(poly *data) {
+  tomont_avx2((__m256i *)data->coeffs, qdata.vec);
 }
 
 static inline void poly_mulcache_compute_native(poly_mulcache *x,
