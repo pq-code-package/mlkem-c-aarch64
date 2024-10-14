@@ -11,7 +11,7 @@ import hashlib
 import asyncio
 from functools import reduce
 from enum import IntEnum
-from typing import Optional
+from typing import Optional, Callable, TypedDict
 
 
 def config_logger(verbose):
@@ -29,7 +29,7 @@ def config_logger(verbose):
         )
 
 
-def sha256sum(result):
+def sha256sum(result: bytes) -> str:
     m = hashlib.sha256()
     m.update(result)
     return m.hexdigest()
@@ -99,7 +99,7 @@ class SCHEME(IntEnum):
         return self.name.removeprefix("MLKEM")
 
 
-def parse_meta(scheme, field):
+def parse_meta(scheme: SCHEME, field: str) -> str:
     result = subprocess.run(
         [
             "yq",
@@ -117,7 +117,7 @@ def parse_meta(scheme, field):
     return result.stdout.strip()
 
 
-def github_summary(title: str, test: TEST_TYPES, results):
+def github_summary(title: str, test: TEST_TYPES, results: TypedDict):
     summary_file = os.environ.get("GITHUB_STEP_SUMMARY")
 
     res = list(results.values())
@@ -203,7 +203,7 @@ class State(object):
 
     def compile_schemes(
         self,
-        test,
+        test_type: TEST_TYPES,
         extra_make_envs={},
         extra_make_args=[],
     ):
@@ -215,11 +215,11 @@ class State(object):
                 s += f"{k}={v} "
             return s
 
-        logging.debug(f"Compiling {test}...")
+        logging.debug(f"Compiling {test_type}...")
         args = [
             "make",
             f"CROSS_PREFIX={self.cross_prefix}",
-            f"{test}",
+            f"{test_type}",
         ] + extra_make_args
 
         logging.info(dict2str(extra_make_envs) + " ".join(args))
@@ -236,11 +236,15 @@ class State(object):
 
     def run_scheme(
         self,
-        bin,
+        bin: str,
         run_as_root=False,
         exec_wrapper=None,
-    ):
+    ) -> bytes:
         """Run the binary in all different ways"""
+        if not os.path.isfile(bin):
+            logging.error(f"{bin} does not exists")
+            sys.exit(1)
+
         cmd = [f"./{bin}"]
         if self.cross_prefix and platform.system() != "Darwin":
             logging.info(f"Emulating {bin} with QEMU")
@@ -277,27 +281,27 @@ class State(object):
             )
             sys.exit(1)
 
-        return result.stdout.decode()
+        return result.stdout
 
     def run_schemes(
         self,
-        test,
+        test_type: TEST_TYPES,
         run_as_root=False,
         exec_wrapper=None,
-        actual_proc=None,
-        expect_proc=None,
-    ):
+        actual_proc: Callable[[bytes], str] = None,
+        expect_proc: Callable[[SCHEME], str] = None,
+    ) -> TypedDict:
         fail = False
         results = {}
         for scheme in SCHEME:
             result = self.run_scheme(
-                test.bin_path(scheme),
+                test_type.bin_path(scheme),
                 run_as_root,
                 exec_wrapper,
             )
 
             if actual_proc is not None and expect_proc is not None:
-                actual = actual_proc(result.encode())
+                actual = actual_proc(result)
                 expect = expect_proc(scheme)
                 f = actual != expect
                 fail = fail or f
@@ -310,8 +314,8 @@ class State(object):
                 results[scheme] = f
             else:
                 logging.info(f"{scheme}")
-                logging.info(f"\n{result}")
-                results[scheme] = result
+                logging.info(f"\n{result.decode()}")
+                results[scheme] = result.decode()
 
         if fail:
             sys.exit(1)
@@ -320,17 +324,17 @@ class State(object):
 
     def test(
         self,
-        test: TEST_TYPES,
+        test_type: TEST_TYPES,
         extra_make_envs={},
         extra_make_args=[],
-        actual_proc=None,
-        expect_proc=None,
-        run_as_root=False,
-        exec_wrapper=None,
+        actual_proc: Callable[[bytes], str] = None,
+        expect_proc: Callable[[SCHEME], str] = None,
+        run_as_root: bool = False,
+        exec_wrapper: str = None,
     ):
         config_logger(self.verbose)
 
-        logging.info(f"{test.desc()}")
+        logging.info(f"{test_type.desc()}")
 
         make_envs = (
             {"CFLAGS": f"{self.cflags}"} if self.cflags is not None else {}
@@ -341,7 +345,7 @@ class State(object):
 
         if self.compile:
             self.compile_schemes(
-                test,
+                test_type,
                 make_envs,
                 extra_make_args
                 + list(
@@ -353,7 +357,7 @@ class State(object):
         results = None
         if self.run:
             results = self.run_schemes(
-                test,
+                test_type,
                 run_as_root,
                 exec_wrapper,
                 actual_proc,
@@ -367,7 +371,7 @@ class State(object):
                 + ("Opt" if self.opt else "Non-opt")
                 + " Tests"
             )
-            github_summary(title, test, results)
+            github_summary(title, test_type, results)
 
         return results
 
@@ -522,7 +526,7 @@ def cli():
 @add_options(_shared_options)
 @click.make_pass_decorator(State, ensure=True)
 def func(state: State):
-    def expect(scheme):
+    def expect(scheme: SCHEME) -> str:
         sk_bytes = parse_meta(scheme, "length-secret-key")
         pk_bytes = parse_meta(scheme, "length-public-key")
         ct_bytes = parse_meta(scheme, "length-ciphertext")
@@ -577,10 +581,10 @@ def kat(state: State):
 @click.make_pass_decorator(State, ensure=True)
 def bench(
     state: State,
-    cycles,
+    cycles: str,
     output,
-    run_as_root,
-    exec_wrapper,
+    run_as_root: bool,
+    exec_wrapper: str,
     mac_taskpolicy,
     components,
 ):
@@ -667,15 +671,15 @@ def bench(
 @click.make_pass_decorator(State, ensure=True)
 def all(
     state: State,
-    func,
-    kat,
-    nistkat,
+    func: bool,
+    kat: bool,
+    nistkat: bool,
 ):
     opt_flag = "opt" if state.opt else "no-opt"
     auto_flag = "auto" if state.auto else "no-auto"
     compile_mode = "cross" if state.cross_prefix else "native"
 
-    def _cmd(cmd, compile_flag, run_flag):
+    def _cmd(cmd: str, compile_flag: str, run_flag: str) -> [str]:
         return [
             "tests",
             f"{cmd}",
@@ -688,24 +692,24 @@ def all(
             *(["--verbose"] if state.verbose else []),
         ]
 
-    def _cmds(compile_flag, run_flag):
-        return (
-            ([_cmd("func", compile_flag, run_flag)] if func else [])
-            + ([_cmd("kat", compile_flag, run_flag)] if kat else [])
-            + ([_cmd("nistkat", compile_flag, run_flag)] if nistkat else [])
-        )
+    def _cmds(compile_flag: str, run_flag: str) -> TypedDict:
+        return {
+            **({"func": _cmd("func", compile_flag, run_flag)} if func else {}),
+            **({"kat": _cmd("kat", compile_flag, run_flag)} if kat else {}),
+            **({"nistkat": _cmd("nistkat", compile_flag, run_flag)} if nistkat else {}),
+        }
 
-    compile_cmds = [] if not state.compile else _cmds("compile", "no-run")
-    run_cmds = [] if not state.run else _cmds("no-compile", "run")
+    compile_cmds = {} if not state.compile else _cmds("compile", "no-run")
+    run_cmds = {} if not state.run else _cmds("no-compile", "run")
 
     exit_code = 0
 
     gh_env = os.environ.get("GITHUB_ENV")
 
     # sequentially compile
-    for c in compile_cmds:
+    for k, c in compile_cmds.items():
         if gh_env is not None:
-            print(f"::group::compile {compile_mode} {opt_flag} {c[1]} test")
+            print(f"::group::compile {compile_mode} {opt_flag} {k} test")
         result = subprocess.run(
             c,
             encoding="utf-8",
@@ -716,20 +720,22 @@ def all(
         print(result.stdout)
         if result.returncode != 0:
             print(f"{result.stderr}")
+            run_cmds.pop(k, None)
         if gh_env is not None:
             print(f"::endgroup::")
 
     # parallelly run
-    async def run(cmd):
+    async def run(k: str, cmd: str):
         p = await asyncio.create_subprocess_shell(
             " ".join(cmd),
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
-        if gh_env is not None:
-            print(f"::group::run {compile_mode} {opt_flag} {cmd[1]} test")
 
         stdout, stderr = await p.communicate()
+        if gh_env is not None:
+            print(f"::group::run {compile_mode} {opt_flag} {k} test")
+
         if stdout:
             print(stdout.decode())
         if p.returncode != 0 and stderr:
@@ -742,12 +748,11 @@ def all(
     async def run_all():
         ts = []
         async with asyncio.TaskGroup() as g:
-            for cmd in run_cmds:
-
-                ts.append(g.create_task(run(cmd)))
+            for k, cmd in run_cmds.items():
+                ts.append(g.create_task(run(k, cmd)))
         return reduce(lambda acc, c: acc or c, map(lambda t: t.result(), ts), exit_code)
 
-    asyncio.run(run_all())
+    exit_code = asyncio.run(run_all())
     exit(exit_code)
 
 

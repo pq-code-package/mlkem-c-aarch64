@@ -10,6 +10,9 @@ inputs:
   nix-cache:
     description: Determine whether to enable nix cache
     default: "false"
+  nix-verbose:
+    description: Determine wether to suppress nix log or not
+    default: 'false'
   custom_shell:
     description: The shell to use. Only relevant if no nix-shell specified
     default: "bash"
@@ -24,6 +27,7 @@ runs:
           nix-shell: ${{ inputs.nix-shell }}
           custom_shell: ${{ inputs.custom_shell }}
           nix-cache: ${{ inputs.nix-cache }}
+          nix-verbose: ${{ inputs.nix-verbose }}
           script: |
             cat >> $GITHUB_STEP_SUMMARY << EOF
               ## Setup

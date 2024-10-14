@@ -7,6 +7,12 @@ inputs:
   nix-shell:
     description: Run in the specified Nix environment if exists
     default: "ci"
+  nix-cache:
+    description: Determine whether to enable nix cache
+    default: 'true'
+  nix-verbose:
+    description: Determine wether to suppress nix log or not
+    default: 'false'
   custom_shell:
     description: The shell to use. Only relevant if no nix-shell specified
     default: "bash"
@@ -55,6 +61,8 @@ runs:
         uses: ./.github/actions/setup-shell
         with:
           nix-shell: ${{ inputs.nix-shell }}
+          nix-cache: ${{ inputs.nix-cache }}
+          nix-verbose: ${{ inputs.nix-verbose }}
           custom_shell: ${{ inputs.custom_shell }}
           script: |
             # only summary on the first time

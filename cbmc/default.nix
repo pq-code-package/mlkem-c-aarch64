@@ -4,6 +4,7 @@
 , callPackage
 , z3_4_12
 , bitwuzla
+, ninja
 }:
 builtins.attrValues {
   cbmc = cbmc.overrideAttrs (old: rec {
@@ -22,6 +23,7 @@ builtins.attrValues {
   cbmc-viewer = callPackage ./cbmc-viewer.nix { }; # 3.9
 
   inherit
+    ninja# 1.11.1
     z3_4_12# 4.12.5
     bitwuzla; # 0.4.0
 }

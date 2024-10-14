@@ -36,10 +36,10 @@ on:
         type: boolean
         description: Indicates if results should be pushed to github pages
         default: false
-      always_terminate:
+      verbose:
+        description: Determine for the log verbosity
         type: boolean
-        description: Indicates if instance should always be terminated, even on failure
-        default: true
+        default: false
       bench_extra_args:
         type: string
         description: Additional command line to be appended to `bench` script
@@ -106,7 +106,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/bench
         with:
-          nix-shell: bench
+          nix-shell: ci
+          nix-cache: false
+          nix-verbose: ${{ inputs.verbose }}
           name: ${{ inputs.name }}
           cflags: ${{ inputs.cflags }}
           archflags: ${{ inputs.archflags }}
@@ -125,7 +127,7 @@ jobs:
       - start-ec2-runner
       - bench # required to wait when the main job is done
     runs-on: ubuntu-latest
-    if: ${{ (inputs.always_terminate && always()) || success() }} # required to stop the runner even if the error happened in the previous jobs
+    if: ${{ always() }} # required to stop the runner even if the error happened in the previous jobs
     steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
