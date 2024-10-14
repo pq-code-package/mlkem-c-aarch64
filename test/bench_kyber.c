@@ -10,7 +10,7 @@
 
 #define NWARMUP 50
 #define NITERATIONS 300
-#define NTESTS 200
+#define NTESTS 500
 
 static int cmp_uint64_t(const void *a, const void *b) {
   return (int)((*((const uint64_t *)a)) - (*((const uint64_t *)b)));
