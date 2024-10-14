@@ -198,17 +198,34 @@ void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES]) {
 #if !defined(MLKEM_USE_NATIVE_POLY_TOBYTES)
 void poly_tobytes(uint8_t r[KYBER_POLYBYTES], const poly *a) {
   POLY_UBOUND(a, KYBER_Q);
-  unsigned int i;
-  uint16_t t0, t1;
 
-  for (i = 0; i < KYBER_N / 2; i++) {
-    t0 = a->coeffs[2 * i];
-    t1 = a->coeffs[2 * i + 1];
-    // REF-CHANGE: Precondition change, we assume unsigned canonical data
-    r[3 * i + 0] = (t0 >> 0);
-    r[3 * i + 1] = (t0 >> 8) | (t1 << 4);
-    r[3 * i + 2] = (t1 >> 4);
-  }
+  for (unsigned int i = 0; i < KYBER_N / 2; i++)
+      // clang-format off
+  ASSIGNS(i, OBJECT_WHOLE(r))
+  INVARIANT(i >= 0)
+  INVARIANT(i <= KYBER_N / 2)
+  DECREASES(KYBER_N / 2 - i)
+    // clang-format on
+    {
+      const uint16_t t0 = a->coeffs[2 * i];
+      const uint16_t t1 = a->coeffs[2 * i + 1];
+      // REF-CHANGE: Precondition change, we assume unsigned canonical data
+
+      // t0 and t1 are both < KYBER_Q, so contain at most 12 bits each of
+      // significant data, so these can be packed into 24 bits or exactly
+      // 3 bytes, as follows.
+
+      // Least significant bits 0 - 7 of t0.
+      r[3 * i + 0] = (uint8_t)(t0 & 0xFF);
+
+      // Most significant bits 8 - 11 of t0 become the least significant
+      // nibble of the second byte. The least significant 4 bits
+      // of t1 become the upper nibble of the second byte.
+      r[3 * i + 1] = (uint8_t)(((t0 >> 8) & 0x0F) | ((t1 << 4) & 0xF0));
+
+      // Bits 4 - 11 of t1 become the third byte.
+      r[3 * i + 2] = (uint8_t)((t1 >> 4) & 0xFF);
+    }
 }
 #else  /* MLKEM_USE_NATIVE_POLY_TOBYTES */
 void poly_tobytes(uint8_t r[KYBER_POLYBYTES], const poly *a) {
