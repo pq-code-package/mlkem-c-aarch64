@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1728880296035,
+  "lastUpdate": 1728889170463,
   "repoUrl": "https://github.com/pq-code-package/mlkem-c-aarch64",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -17917,6 +17917,75 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 94737,
+            "unit": "cycles"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "15379156+potsrevennil@users.noreply.github.com",
+            "name": "Lim, Thing-han",
+            "username": "potsrevennil"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b9ba5adb414be5690fdfb9686874bd728132a8f6",
+          "message": "Pin clang-tools version in nix flake (#228)\n\nSigned-off-by: Thing-han, Lim <15379156+potsrevennil@users.noreply.github.com>",
+          "timestamp": "2024-10-14T07:49:23+01:00",
+          "tree_id": "cdb90bb149cfcf9ed2160a3b464059f448be5077",
+          "url": "https://github.com/pq-code-package/mlkem-c-aarch64/commit/b9ba5adb414be5690fdfb9686874bd728132a8f6"
+        },
+        "date": 1728889165765,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ML-KEM-512 keypair",
+            "value": 29731,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 encaps",
+            "value": 37193,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 decaps",
+            "value": 43304,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 keypair",
+            "value": 50244,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 encaps",
+            "value": 57622,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 decaps",
+            "value": 65653,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 keypair",
+            "value": 73805,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 encaps",
+            "value": 83976,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 decaps",
+            "value": 94761,
             "unit": "cycles"
           }
         ]
