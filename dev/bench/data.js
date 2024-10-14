@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1728896628783,
+  "lastUpdate": 1728896694058,
   "repoUrl": "https://github.com/pq-code-package/mlkem-c-aarch64",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -37268,6 +37268,75 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 81804,
+            "unit": "cycles"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "beckphan@amazon.co.uk",
+            "name": "Hanno Becker",
+            "username": "hanno-becker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "0f80896e27105b0ed45d4460f59b5eb2a05261a2",
+          "message": "Smaller performance improvements of AVX2 backend (#221)\n\n* Remove modular reduction after AVX2 invNTT and NTT\r\n\r\nPreviously, the AVX2 NTT and invNTT assembly was suffixed\r\nby a call to `poly_reduce()` to ensure polynomial coefficients\r\nsufficiently small that the subsequent arithmetic would not\r\noverflow.\r\n\r\nIf we trust the bounds for the output of the NTT and invNTT provided\r\nby the Kyber repository, those reductions are not necessary: The bounds\r\nare already below the contractual bounds for the C<->native interface\r\non the basis of which correctness of the remaining code can be argued.\r\n\r\nThis commit therefore removes the reductions after the AVX2 NTT and invNTT.\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Add AVX2 implementation of `poly_tomont()`\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* bench_kyber: Print percentiles in addition to median\r\n\r\nThis commit modifies bench_kyber to not only print the median\r\nexecution time of keygen,encaps and decaps, but also some\r\npercentiles. This provides a measure for the stability of the\r\nperformance measurements.\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Bump the number of iterations and tests in bench binary\r\n\r\nEvery data point is the average of X consecutive runs of\r\nthe test functions, and we acquire Y data points. This\r\ncommit bumps Y from 200 to 500.\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Add AVX2 version of poly_add()\r\n\r\nThis commit modifies the x86_64 native backend to use AVX2 intrinsics\r\nfor the accumulation of data during the computation of a vector-vector\r\nproduct.\r\n\r\nAs with the rest of the x86_64 backend, the implementation is taken from\r\nhttps://github.com/pq-crystals/kyber/blob/main/avx2.\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n---------\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>",
+          "timestamp": "2024-10-14T10:00:54+01:00",
+          "tree_id": "d1e6df2be6cd76b07204db18828f11a58b5ca87a",
+          "url": "https://github.com/pq-code-package/mlkem-c-aarch64/commit/0f80896e27105b0ed45d4460f59b5eb2a05261a2"
+        },
+        "date": 1728896692506,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ML-KEM-512 keypair",
+            "value": 26265,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 encaps",
+            "value": 33029,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 decaps",
+            "value": 36056,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 keypair",
+            "value": 45954,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 encaps",
+            "value": 50985,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 decaps",
+            "value": 54788,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 keypair",
+            "value": 64983,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 encaps",
+            "value": 73254,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 decaps",
+            "value": 78209,
             "unit": "cycles"
           }
         ]
