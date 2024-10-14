@@ -11,36 +11,9 @@
 
 #if defined(MLKEM_USE_NATIVE_X86_64) && defined(SYS_X86_64_AVX2)
 
-#include <string.h>
-
-static void keccakx4_zip(uint64_t *state) {
-  uint64_t tmp[4 * 25] ALIGN;
-  for (unsigned i = 0; i < 4; i++)
-    for (unsigned j = 0; j < 25; j++) {
-      tmp[4 * j + i] = state[25 * i + j];
-    }
-
-  memcpy(state, tmp, sizeof(tmp));
-}
-
-static void keccakx4_unzip(uint64_t *state) {
-  uint64_t tmp[4 * 25] ALIGN;
-  for (unsigned i = 0; i < 4; i++)
-    for (unsigned j = 0; j < 25; j++) {
-      tmp[25 * i + j] = state[4 * j + i];
-    }
-
-  memcpy(state, tmp, sizeof(tmp));
-}
-
 #define MLKEM_USE_FIPS202_X4_NATIVE
 static inline void keccak_f1600_x4_native(uint64_t *state) {
-  // TODO: The de-interleaving should be implemented in ASM/intrinsics
-  // or be hoisted into the XKCP code itself. As it stands, it's pretty
-  // inefficient
-  keccakx4_zip(state);
   KeccakP1600times4_PermuteAll_24rounds(state);
-  keccakx4_unzip(state);
 }
 
 #endif /* MLKEM_USE_NATIVE_X86_64 && SYS_X86_64_AVX2 */

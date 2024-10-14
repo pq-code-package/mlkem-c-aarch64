@@ -15,6 +15,12 @@ and related or neighboring rights to the source code in this file.
 http://creativecommons.org/publicdomain/zero/1.0/
 */
 
+/*
+ * Changes for MLKEM-C-AArch64:
+ * - copyFromState and copyToState operate on uninterleaved
+ *   Keccak states in memory.
+ */
+
 #include "config.h"
 #if defined(MLKEM_USE_NATIVE_X86_64) && defined(SYS_X86_64_AVX2)
 
@@ -743,59 +749,78 @@ static ALIGN(KeccakP1600times4_statesAlignment) const UINT64
         0x000000000000800aULL, 0x800000008000000aULL, 0x8000000080008081ULL,
         0x8000000000008080ULL, 0x0000000080000001ULL, 0x8000000080008008ULL};
 
-#define copyFromState(X, state) \
-  X##ba = LOAD256(state[0]);    \
-  X##be = LOAD256(state[1]);    \
-  X##bi = LOAD256(state[2]);    \
-  X##bo = LOAD256(state[3]);    \
-  X##bu = LOAD256(state[4]);    \
-  X##ga = LOAD256(state[5]);    \
-  X##ge = LOAD256(state[6]);    \
-  X##gi = LOAD256(state[7]);    \
-  X##go = LOAD256(state[8]);    \
-  X##gu = LOAD256(state[9]);    \
-  X##ka = LOAD256(state[10]);   \
-  X##ke = LOAD256(state[11]);   \
-  X##ki = LOAD256(state[12]);   \
-  X##ko = LOAD256(state[13]);   \
-  X##ku = LOAD256(state[14]);   \
-  X##ma = LOAD256(state[15]);   \
-  X##me = LOAD256(state[16]);   \
-  X##mi = LOAD256(state[17]);   \
-  X##mo = LOAD256(state[18]);   \
-  X##mu = LOAD256(state[19]);   \
-  X##sa = LOAD256(state[20]);   \
-  X##se = LOAD256(state[21]);   \
-  X##si = LOAD256(state[22]);   \
-  X##so = LOAD256(state[23]);   \
-  X##su = LOAD256(state[24]);
+#include <stdint.h>
 
-#define copyToState(state, X) \
-  STORE256(state[0], X##ba);  \
-  STORE256(state[1], X##be);  \
-  STORE256(state[2], X##bi);  \
-  STORE256(state[3], X##bo);  \
-  STORE256(state[4], X##bu);  \
-  STORE256(state[5], X##ga);  \
-  STORE256(state[6], X##ge);  \
-  STORE256(state[7], X##gi);  \
-  STORE256(state[8], X##go);  \
-  STORE256(state[9], X##gu);  \
-  STORE256(state[10], X##ka); \
-  STORE256(state[11], X##ke); \
-  STORE256(state[12], X##ki); \
-  STORE256(state[13], X##ko); \
-  STORE256(state[14], X##ku); \
-  STORE256(state[15], X##ma); \
-  STORE256(state[16], X##me); \
-  STORE256(state[17], X##mi); \
-  STORE256(state[18], X##mo); \
-  STORE256(state[19], X##mu); \
-  STORE256(state[20], X##sa); \
-  STORE256(state[21], X##se); \
-  STORE256(state[22], X##si); \
-  STORE256(state[23], X##so); \
-  STORE256(state[24], X##su);
+#define copyFromState(X, state)                                             \
+  do {                                                                      \
+    const uint64_t *state64 = (const uint64_t *)(state);                    \
+    __m256i _idx =                                                          \
+        _mm256_set_epi64x((long long)&state64[75], (long long)&state64[50], \
+                          (long long)&state64[25], (long long)&state64[0]); \
+    X##ba = _mm256_i64gather_epi64((long long *)(0 * 8), _idx, 1);          \
+    X##be = _mm256_i64gather_epi64((long long *)(1 * 8), _idx, 1);          \
+    X##bi = _mm256_i64gather_epi64((long long *)(2 * 8), _idx, 1);          \
+    X##bo = _mm256_i64gather_epi64((long long *)(3 * 8), _idx, 1);          \
+    X##bu = _mm256_i64gather_epi64((long long *)(4 * 8), _idx, 1);          \
+    X##ga = _mm256_i64gather_epi64((long long *)(5 * 8), _idx, 1);          \
+    X##ge = _mm256_i64gather_epi64((long long *)(6 * 8), _idx, 1);          \
+    X##gi = _mm256_i64gather_epi64((long long *)(7 * 8), _idx, 1);          \
+    X##go = _mm256_i64gather_epi64((long long *)(8 * 8), _idx, 1);          \
+    X##gu = _mm256_i64gather_epi64((long long *)(9 * 8), _idx, 1);          \
+    X##ka = _mm256_i64gather_epi64((long long *)(10 * 8), _idx, 1);         \
+    X##ke = _mm256_i64gather_epi64((long long *)(11 * 8), _idx, 1);         \
+    X##ki = _mm256_i64gather_epi64((long long *)(12 * 8), _idx, 1);         \
+    X##ko = _mm256_i64gather_epi64((long long *)(13 * 8), _idx, 1);         \
+    X##ku = _mm256_i64gather_epi64((long long *)(14 * 8), _idx, 1);         \
+    X##ma = _mm256_i64gather_epi64((long long *)(15 * 8), _idx, 1);         \
+    X##me = _mm256_i64gather_epi64((long long *)(16 * 8), _idx, 1);         \
+    X##mi = _mm256_i64gather_epi64((long long *)(17 * 8), _idx, 1);         \
+    X##mo = _mm256_i64gather_epi64((long long *)(18 * 8), _idx, 1);         \
+    X##mu = _mm256_i64gather_epi64((long long *)(19 * 8), _idx, 1);         \
+    X##sa = _mm256_i64gather_epi64((long long *)(20 * 8), _idx, 1);         \
+    X##se = _mm256_i64gather_epi64((long long *)(21 * 8), _idx, 1);         \
+    X##si = _mm256_i64gather_epi64((long long *)(22 * 8), _idx, 1);         \
+    X##so = _mm256_i64gather_epi64((long long *)(23 * 8), _idx, 1);         \
+    X##su = _mm256_i64gather_epi64((long long *)(24 * 8), _idx, 1);         \
+  } while (0);
+
+#define SCATTER_STORE256(state, idx, v)                        \
+  do {                                                         \
+    const uint64_t *state64 = (const uint64_t *)(state);       \
+    __m128d t = _mm_castsi128_pd(_mm256_castsi256_si128((v))); \
+    _mm_storel_pd((double *)&state64[0 + (idx)], t);           \
+    _mm_storeh_pd((double *)&state64[25 + (idx)], t);          \
+    t = _mm_castsi128_pd(_mm256_extracti128_si256((v), 1));    \
+    _mm_storel_pd((double *)&state64[50 + (idx)], t);          \
+    _mm_storeh_pd((double *)&state64[75 + (idx)], t);          \
+  } while (0)
+
+#define copyToState(state, X)         \
+  SCATTER_STORE256(state, 0, X##ba);  \
+  SCATTER_STORE256(state, 1, X##be);  \
+  SCATTER_STORE256(state, 2, X##bi);  \
+  SCATTER_STORE256(state, 3, X##bo);  \
+  SCATTER_STORE256(state, 4, X##bu);  \
+  SCATTER_STORE256(state, 5, X##ga);  \
+  SCATTER_STORE256(state, 6, X##ge);  \
+  SCATTER_STORE256(state, 7, X##gi);  \
+  SCATTER_STORE256(state, 8, X##go);  \
+  SCATTER_STORE256(state, 9, X##gu);  \
+  SCATTER_STORE256(state, 10, X##ka); \
+  SCATTER_STORE256(state, 11, X##ke); \
+  SCATTER_STORE256(state, 12, X##ki); \
+  SCATTER_STORE256(state, 13, X##ko); \
+  SCATTER_STORE256(state, 14, X##ku); \
+  SCATTER_STORE256(state, 15, X##ma); \
+  SCATTER_STORE256(state, 16, X##me); \
+  SCATTER_STORE256(state, 17, X##mi); \
+  SCATTER_STORE256(state, 18, X##mo); \
+  SCATTER_STORE256(state, 19, X##mu); \
+  SCATTER_STORE256(state, 20, X##sa); \
+  SCATTER_STORE256(state, 21, X##se); \
+  SCATTER_STORE256(state, 22, X##si); \
+  SCATTER_STORE256(state, 23, X##so); \
+  SCATTER_STORE256(state, 24, X##su);
 
 #define copyStateVariables(X, Y) \
   X##ba = Y##ba;                 \
