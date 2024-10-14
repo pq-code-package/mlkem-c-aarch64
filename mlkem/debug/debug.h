@@ -3,6 +3,7 @@
 #define MLKEM_DEBUG_H
 
 #if defined(MLKEM_DEBUG)
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 

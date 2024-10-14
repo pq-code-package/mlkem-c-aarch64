@@ -22,9 +22,18 @@
  * SOFTWARE.
  *
  */
+
+#if defined(__linux__)
+#if !defined(_GNU_SOURCE)
+/* Ensure that syscall() is declared even when compiling with -std=c99 */
+#define _GNU_SOURCE
+#endif
+#endif
+
 #include "hal.h"
 
 #if defined(PMU_CYCLES)
+
 void enable_cyclecounter(void) {
   uint64_t tmp;
   __asm __volatile(
@@ -56,11 +65,11 @@ uint64_t get_cyclecounter(void) {
 
 #include <asm/unistd.h>
 #include <linux/perf_event.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/ioctl.h>
+#include <sys/syscall.h>
 #include <unistd.h>
 
 static int perf_fd = 0;

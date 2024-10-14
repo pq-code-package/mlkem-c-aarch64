@@ -1,4 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
+
+#if defined(__linux__)
+#if !defined(_GNU_SOURCE)
+/* Ensure that syscall() is declared even when compiling with -std=c99 */
+#define _GNU_SOURCE
+#endif
+#endif
+
 #include "randombytes.h"
 #include <stddef.h>
 #include <stdint.h>
@@ -10,13 +18,8 @@
 #else
 #include <errno.h>
 #include <fcntl.h>
-#ifdef __linux__
-#define _GNU_SOURCE
 #include <sys/syscall.h>
 #include <unistd.h>
-#else
-#include <unistd.h>
-#endif
 #endif
 
 #ifdef _WIN32
