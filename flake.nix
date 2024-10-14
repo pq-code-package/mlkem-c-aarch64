@@ -21,12 +21,9 @@
           cbmcpkg = pkgs.callPackage ./cbmc { }; # 6.3.1
 
           linters = builtins.attrValues {
-            clang-tools = pkgs.clang-tools.override {
-              clang-unwrapped = pkgs.llvmPackages_17.clang-unwrapped;
-            };
-
             inherit (pkgs)
               nixpkgs-fmt
+              clang-tools
               shfmt;
 
             inherit (pkgs.python3Packages)
