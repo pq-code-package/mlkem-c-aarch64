@@ -46,12 +46,19 @@
           x86_64-gcc = wrap-gcc pkgs.pkgsCross.gnu64;
           aarch64-gcc = wrap-gcc pkgs.pkgsCross.aarch64-multiplatform;
 
-          core =
+          # cross is for determining whether to install the cross toolchain or not
+          core = { cross ? true }:
             let
               gcc =
                 if pkgs.stdenv.isDarwin
                 then [ ]
-                else [ aarch64-gcc x86_64-gcc ];
+                else
+                  if cross
+                  then [ aarch64-gcc x86_64-gcc ]
+                  else
+                    if pkgs.stdenv.isAarch64
+                    then [ aarch64-gcc ]
+                    else [ x86_64-gcc ];
             in
             gcc ++
             builtins.attrValues {
@@ -73,7 +80,7 @@
         in
         {
           devShells.default = wrapShell pkgs.mkShellNoCC {
-            packages = core ++ linters ++ cbmcpkg ++
+            packages = core { } ++ linters ++ cbmcpkg ++
               builtins.attrValues {
                 inherit (pkgs)
                   direnv
@@ -81,8 +88,9 @@
               };
           };
 
-          devShells.ci = wrapShell pkgs.mkShellNoCC { packages = core; };
-          devShells.ci-cbmc = wrapShell pkgs.mkShellNoCC { packages = core ++ cbmcpkg; };
+          devShells.bench = wrapShell pkgs.mkShellNoCC { packages = core { cross = false; }; };
+          devShells.ci = wrapShell pkgs.mkShellNoCC { packages = core { }; };
+          devShells.ci-cbmc = wrapShell pkgs.mkShellNoCC { packages = core { cross = false; } ++ cbmcpkg; };
           devShells.ci-linter = wrapShell pkgs.mkShellNoCC { packages = linters; };
         };
       flake = {
