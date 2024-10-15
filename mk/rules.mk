@@ -1,5 +1,15 @@
 # SPDX-License-Identifier: Apache-2.0
-$(BUILD_DIR)/%: $(LINKDEPS) $(CONFIG)
+$(BUILD_DIR)/mlkem512/bin/%: $(LINKDEPS) $(CONFIG)
+	$(Q)echo "  LD      $@"
+	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
+	$(LD) $(CFLAGS) -o $@ $(filter %.o,$^) $(LDLIBS)
+
+$(BUILD_DIR)/mlkem768/bin/%: $(LINKDEPS) $(CONFIG)
+	$(Q)echo "  LD      $@"
+	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
+	$(LD) $(CFLAGS) -o $@ $(filter %.o,$^) $(LDLIBS)
+
+$(BUILD_DIR)/mlkem1024/bin/%: $(LINKDEPS) $(CONFIG)
 	$(Q)echo "  LD      $@"
 	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
 	$(LD) $(CFLAGS) -o $@ $(filter %.o,$^) $(LDLIBS)
@@ -12,6 +22,7 @@ $(LIB_DIR)/%.a: $(CONFIG)
 
 $(BUILD_DIR)/%.c.o: %.c $(CONFIG)
 	$(Q)echo "  CC      $@"
+	$(Q)echo "  CC      $(CFLAGS)"
 	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
 	$(Q)$(CC) -c -o $@ $(CFLAGS) $<
 
