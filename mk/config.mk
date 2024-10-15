@@ -8,9 +8,19 @@ SRCDIR := $(CURDIR)
 # GCC config #
 ##############
 CROSS_PREFIX ?=
+
+ifeq ($(CC),)
 CC := $(CROSS_PREFIX)gcc
+endif
+
+ifeq ($(CPP),)
 CPP := $(CROSS_PREFIX)cpp
+endif
+
+ifeq ($(AR),)
 AR := $(CROSS_PREFIX)ar
+endif
+
 LD := $(CC)
 OBJCOPY := $(CROSS_PREFIX)objcopy
 SIZE := $(CROSS_PREFIX)size
