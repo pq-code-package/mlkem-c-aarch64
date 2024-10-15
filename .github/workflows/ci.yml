@@ -14,7 +14,39 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  quickcheck:
+    strategy:
+      fail-fast: false
+      matrix:
+        external:
+         - ${{ github.repository_owner != 'pq-code-package' }}
+        target:
+         - runner: pqcp-arm64
+           name: 'aarch64'
+         - runner: pqcp-x64
+           name: 'x86_64'
+        exclude:
+          - {external: true,
+             target: {
+               runner: pqcp-arm64,
+               name: 'aarch64'
+             }}
+          - {external: true,
+             target: {
+               runner: pqcp-x64,
+               name: 'x86_64'
+             }}
+    name: Quickcheck (${{ matrix.target.name }})
+    runs-on: ${{ matrix.target.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: quickcheck
+        run: |
+          OPT=0 make quickcheck >/dev/null
+          make clean            >/dev/null
+          OPT=1 make quickcheck >/dev/null
   build_kat:
+    needs: quickcheck
     strategy:
       fail-fast: false
       matrix:
@@ -75,6 +107,7 @@ jobs:
           nix-shell: ci-linter
           cross-prefix: "aarch64-unknown-linux-gnu-"
   ec2_all:
+    needs: quickcheck
     strategy:
       fail-fast: false
       matrix:
