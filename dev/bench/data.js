@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1728969466017,
+  "lastUpdate": 1728969569488,
   "repoUrl": "https://github.com/pq-code-package/mlkem-c-aarch64",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -6502,6 +6502,75 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 162987,
+            "unit": "cycles"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "beckphan@amazon.co.uk",
+            "name": "Hanno Becker",
+            "username": "hanno-becker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e8d3246ff1f01a5eaacd23fa5873dbd0a7c58c64",
+          "message": "Absorb zip/unzip of Keccak-x4 state into AVX2 native implementation (#236)\n\nThe FIPS202 C<->native interface operates on de-interleaved batched Keccak\r\nstates. That is, the Keccak-x4 state is the concatenation, not the\r\ninterleaving, of four individual Keccak states.\r\n\r\nIn contrast, SIMD implementations of batched Keccak naturally operate on\r\ninterleaved states. This is in particular true for the AVX2 implementation\r\nfrom XKCP which we are presently using. To remedy, the native interface\r\nimplementation conjugates the XKCP core with zipping/unzipping functions\r\nfor the (de)interleaving of Keccak states.\r\n\r\nThis commit slightly improves performance by absorbing the zip/unzip of\r\nKeccak-x4 states into the XKCP implementation of Keccak-x4. Specifically,\r\nthe initial memory->register loads are replace by gather loads, and the\r\nfinal register->memory stores are replaced by gather stores. Note that\r\nwhile AVX2 has a gather load, it does not have a gather store (that's\r\nintroduced in AVX512), so one has to manually transpose the data.\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>",
+          "timestamp": "2024-10-15T13:12:13+08:00",
+          "tree_id": "94aef3bba6dad050361647b81060633323818386",
+          "url": "https://github.com/pq-code-package/mlkem-c-aarch64/commit/e8d3246ff1f01a5eaacd23fa5873dbd0a7c58c64"
+        },
+        "date": 1728969559484,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ML-KEM-512 keypair",
+            "value": 52549,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 encaps",
+            "value": 60985,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 decaps",
+            "value": 69405,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 keypair",
+            "value": 89417,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 encaps",
+            "value": 99798,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 decaps",
+            "value": 110983,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 keypair",
+            "value": 134169,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 encaps",
+            "value": 147387,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 decaps",
+            "value": 163330,
             "unit": "cycles"
           }
         ]
