@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1728988873858,
+  "lastUpdate": 1728988882656,
   "repoUrl": "https://github.com/pq-code-package/mlkem-c-aarch64",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -37406,6 +37406,75 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 57558,
+            "unit": "cycles"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "15379156+potsrevennil@users.noreply.github.com",
+            "name": "Lim, Thing-han",
+            "username": "potsrevennil"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c39168b4bb1ab16e60217ba7d2d06a87ca422c35",
+          "message": "Allow makefile to be compatible with make 3.8 (#241)\n\nMake 3.8.1 has more restricted support for target pattern matching. By making the make rules more explicit, we ensure compatibility with different make versions and avoid ambiguity.\r\n\r\nSigned-off-by: Thing-han, Lim <15379156+potsrevennil@users.noreply.github.com>",
+          "timestamp": "2024-10-15T11:38:01+01:00",
+          "tree_id": "c1d38d9472f4d45bd2bb0163376b18a7942bb657",
+          "url": "https://github.com/pq-code-package/mlkem-c-aarch64/commit/c39168b4bb1ab16e60217ba7d2d06a87ca422c35"
+        },
+        "date": 1728988880800,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ML-KEM-512 keypair",
+            "value": 18718,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 encaps",
+            "value": 23561,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 decaps",
+            "value": 26704,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 keypair",
+            "value": 31569,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 encaps",
+            "value": 35381,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 decaps",
+            "value": 39701,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 keypair",
+            "value": 45685,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 encaps",
+            "value": 51610,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 decaps",
+            "value": 57556,
             "unit": "cycles"
           }
         ]
