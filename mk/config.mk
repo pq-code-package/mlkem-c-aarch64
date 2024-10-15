@@ -30,6 +30,7 @@ CFLAGS += \
 	-Wno-unknown-pragmas \
 	-O3 \
 	-fomit-frame-pointer \
+        -std=c99 \
 	-pedantic \
 	-MMD \
 	$(CPPFLAGS)
