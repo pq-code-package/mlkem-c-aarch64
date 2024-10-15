@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1728974248149,
+  "lastUpdate": 1728974266413,
   "repoUrl": "https://github.com/pq-code-package/mlkem-c-aarch64",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -35129,6 +35129,75 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 61722,
+            "unit": "cycles"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "beckphan@amazon.co.uk",
+            "name": "Hanno Becker",
+            "username": "hanno-becker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "94c022c0452b232554631b2a11997b0db3e34ca8",
+          "message": "Add 'out of the box' make to CI (#237)\n\n* Modify default target of Makefile to build all tests\r\n\r\nInvoking `make` without target selects the first target in the Makefile,\r\nwhich in our case is `config.mk`, which is not what the curious\r\nwould expect when trying out `make`.\r\n\r\nThis commit adds two new phony targets to the Makefile:\r\n- buildall: Building all functionality and KAT tests\r\n- quickechk: Building and running all functionality and KAT tests\r\n\r\nMoreover, the default target set to `buildall`.\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n* Add 'out of the box `make`' test to CI, guarding other jobs\r\n\r\nThis commit adds another job to the CI workflow which runs\r\nout of the box `make quickcheck` on MacOS, aarch64-ubuntu\r\nand x86_64-ubuntu. Except for linting, which is always run,\r\nother jobs are only run if this succeeds.\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>\r\n\r\n---------\r\n\r\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>",
+          "timestamp": "2024-10-15T14:34:13+08:00",
+          "tree_id": "0c7e69f184ab7b2bd3fdde4a753d27fceef76b04",
+          "url": "https://github.com/pq-code-package/mlkem-c-aarch64/commit/94c022c0452b232554631b2a11997b0db3e34ca8"
+        },
+        "date": 1728974264297,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ML-KEM-512 keypair",
+            "value": 19441,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 encaps",
+            "value": 24788,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 decaps",
+            "value": 28422,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 keypair",
+            "value": 33156,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 encaps",
+            "value": 37499,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 decaps",
+            "value": 42164,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 keypair",
+            "value": 47922,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 encaps",
+            "value": 55076,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 decaps",
+            "value": 61723,
             "unit": "cycles"
           }
         ]
