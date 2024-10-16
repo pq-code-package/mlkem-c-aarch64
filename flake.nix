@@ -69,10 +69,10 @@
             gcc ++
             builtins.attrValues {
               inherit (pkgs)
-                yq
                 qemu; # 8.2.4
 
               inherit (pkgs.python3Packages)
+                yq
                 python
                 click;
             };
@@ -94,9 +94,10 @@
               };
           };
 
-          devShells.bench = wrapShell pkgs.mkShellNoCC { packages = core { cross = false; }; };
-          devShells.ci = wrapShell pkgs.mkShellNoCC { packages = core { }; };
+          devShells.ci = wrapShell pkgs.mkShellNoCC { packages = core { cross = false; }; };
+          devShells.ci-cross = wrapShell pkgs.mkShellNoCC { packages = core { }; };
           devShells.ci-cbmc = wrapShell pkgs.mkShellNoCC { packages = core { cross = false; } ++ cbmcpkg; };
+          devShells.ci-cbmc-cross = wrapShell pkgs.mkShellNoCC { packages = core { } ++ cbmcpkg; };
           devShells.ci-linter = wrapShell pkgs.mkShellNoCC { packages = linters; };
         };
       flake = {

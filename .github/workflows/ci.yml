@@ -90,6 +90,7 @@ jobs:
         if: ${{ matrix.target.runner == 'pqcp-arm64' && (success() || failure()) }}
         uses: ./.github/actions/multi-functest
         with:
+          nix-shell: ci-cross
           compile_mode: cross
           func: false
           nistkat: false
