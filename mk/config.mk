@@ -35,7 +35,11 @@ CFLAGS += \
 	-Wno-unknown-pragmas \
 	-O3 \
 	-fomit-frame-pointer \
-        -std=c99 \
+	-Wredundant-decls \
+	-Wimplicit-int-conversion \
+	-Wsign-conversion \
+	-Wshorten-64-to-32 \
+	-std=c99 \
 	-pedantic \
 	-MMD \
 	$(CPPFLAGS)
