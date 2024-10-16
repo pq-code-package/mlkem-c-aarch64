@@ -59,7 +59,7 @@ void nist_kat_init(
     const unsigned char
         personalization_string[AES256_KEYBYTES + AES_BLOCKBYTES],
     int security_strength) {
-  int len = AES256_KEYBYTES + AES_BLOCKBYTES;
+  size_t len = AES256_KEYBYTES + AES_BLOCKBYTES;
   uint8_t seed_material[len];
   (void)security_strength;
 
