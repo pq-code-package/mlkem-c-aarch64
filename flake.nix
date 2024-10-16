@@ -21,9 +21,12 @@
           cbmcpkg = pkgs.callPackage ./cbmc { }; # 6.3.1
 
           linters = builtins.attrValues {
+            clang-tools = pkgs.clang-tools.overrideAttrs {
+              unwrapped = pkgs.llvmPackages_17.clang-unwrapped;
+            };
+
             inherit (pkgs)
               nixpkgs-fmt
-              clang-tools
               shfmt;
 
             inherit (pkgs.python3Packages)
@@ -88,7 +91,7 @@
               };
           };
 
-          devShells.bench = wrapShell pkgs.mkShellNoCC { packages = core { cross = false; }; };
+          devShells.ci-native = wrapShell pkgs.mkShellNoCC { packages = core { cross = false; }; };
           devShells.ci = wrapShell pkgs.mkShellNoCC { packages = core { }; };
           devShells.ci-cbmc = wrapShell pkgs.mkShellNoCC { packages = core { cross = false; } ++ cbmcpkg; };
           devShells.ci-linter = wrapShell pkgs.mkShellNoCC { packages = linters; };

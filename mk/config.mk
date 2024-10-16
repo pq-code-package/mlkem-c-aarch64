@@ -63,6 +63,11 @@ ifeq ($(CYCLES),M1)
 	CFLAGS += -DM1_CYCLES
 endif
 
+OPT ?= 1
+ifeq ($(OPT),1)
+	CPPFLAGS += -DMLKEM_USE_NATIVE
+endif
+
 ##############################
 # Include retained variables #
 ##############################
@@ -70,8 +75,7 @@ endif
 AUTO ?= 1
 RNG ?=
 CYCLES ?=
-OPT ?= 1
-RETAINED_VARS := RNG CYCLES OPT AUTO
+RETAINED_VARS := RNG CYCLES OPT AUTO CROSS_PREFIX
 
 ifeq ($(AUTO),1)
 include mk/auto.mk

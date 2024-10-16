@@ -5,6 +5,7 @@
 , z3_4_12
 , bitwuzla
 , ninja
+, cadical
 }:
 builtins.attrValues {
   cbmc = cbmc.overrideAttrs (old: rec {
@@ -25,5 +26,6 @@ builtins.attrValues {
   inherit
     ninja# 1.11.1
     z3_4_12# 4.12.5
+    cadical#1.9.5
     bitwuzla; # 0.4.0
 }

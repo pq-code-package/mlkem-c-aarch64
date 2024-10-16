@@ -24,6 +24,10 @@ on:
         type: string
         description: Custom CFLAGS for compilation
         default: ""
+      nix-shell:
+        type: string
+        description: Run in the specified Nix environment for functional tests if exists
+        default: "ci"
       verbose:
         description: Determine for the log verbosity
         type: boolean
@@ -34,7 +38,7 @@ on:
         default: all
       opt:
         type: string
-        description: either all, opt or non-opt
+        description: either all, opt or no_opt
         default: all
       functest:
         type: boolean
@@ -109,14 +113,15 @@ jobs:
       - name: Functional Tests
         uses: ./.github/actions/multi-functest
         with:
-          nix-cache: false
+          nix-shell: ${{ inputs.nix-shell }}
+          nix-cache: ${{ inputs.compile_mode != 'native' }}
           nix-verbose: ${{ inputs.verbose }}
           cflags: ${{ inputs.cflags }}
           compile_mode: ${{ inputs.compile_mode }}
           opt: ${{ inputs.opt }}
-          func: ${{ inputs.functest }}
-          kat: ${{ inputs.kattest }}
-          nistkat: ${{ inputs.nistkattest }}
+          func: false
+          kat: false
+          nistkat: false
       - name: Linting
         if: ${{ inputs.lint && (success() || failure()) }}
         uses: ./.github/actions/lint

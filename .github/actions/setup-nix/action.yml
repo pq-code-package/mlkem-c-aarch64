@@ -50,20 +50,22 @@ runs:
         --extra-conf "experimental-features = nix-command flakes"
 
         . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
-    - name: Post-check nix
-      continue-on-error: true
-      shell: bash -leo pipefail {0}
-      run: |
-        nix config check
     - uses: DeterminateSystems/magic-nix-cache-action@v8
-      if: ${{ env.NIX_SHELL == '' && inputs.cache == 'true' }}
+      if: ${{ inputs.cache == 'true' }}
       continue-on-error: true
     - name: Set Shell
       shell: bash -leo pipefail {0}
       run: |
+        echo "::group::nix config check"
+        nix config check
+        nix config show
+        if [[ ${{ inputs.cache }} == 'true' ]]; then
+          nix show-config --extra-substituters 'http://127.0.0.1:37515?trusted=1&compression=zstd&parallel-compression=true&priority=1'
+        fi
         echo NIX_SHELL="${{ inputs.devShell }}" >> $GITHUB_ENV
         nix_extra_flags="${{ inputs.verbose == 'false' && '--quiet' || '' }}"
         echo SHELL="$(which nix) develop $nix_extra_flags .#${{ inputs.devShell }} -c bash -e {0}" >> $GITHUB_ENV
+        echo "::endgroup::"
     - name: Prepare nix dev shell
       shell: ${{ env.SHELL }}
       run: |

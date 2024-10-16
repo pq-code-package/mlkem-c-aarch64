@@ -77,13 +77,17 @@ jobs:
       - name: native build
         uses: ./.github/actions/multi-functest
         with:
+          nix-shell: ci-native
+          nix-cache: false
           compile_mode: native
           func: false
           nistkat: false
-          kat: falst
+          kat: false
       - name: native tests (+debug)
         uses: ./.github/actions/multi-functest
         with:
+          nix-shell: ci-native
+          nix-cache: false
           compile_mode: native
           cflags: "-DMLKEM_DEBUG"
       - name: cross tests (opt only)
@@ -91,8 +95,10 @@ jobs:
         uses: ./.github/actions/multi-functest
         with:
           compile_mode: cross
+          nix-verbose: true
           func: false
           nistkat: false
+          kat: false
 
   lint:
     strategy:
@@ -105,7 +111,6 @@ jobs:
       - uses: ./.github/actions/lint
         with:
           nix-shell: ci-linter
-          cross-prefix: "aarch64-unknown-linux-gnu-"
   ec2_all:
     needs: quickcheck
     strategy:
@@ -116,6 +121,7 @@ jobs:
             ec2_instance_type: t3a.small
             ec2_ami: ubuntu-latest (custom AMI)
             ec2_ami_id: ami-0d47e137a1108e078 # x86_64 ubuntu-latest, 32g
+            nix-shell: ci
             compile_mode: cross
             opt: opt
             kattest: true
@@ -124,14 +130,16 @@ jobs:
             ec2_instance_type: t3.small
             ec2_ami: ubuntu-latest (custom AMI)
             ec2_ami_id: ami-0d47e137a1108e078 # x86_64 ubuntu-latest, 32g
+            nix-shell: ci
             compile_mode: cross
-            opt: non-opt
+            opt: no_opt
             kattest: true
             cbmc: 'false'
           - name: Graviton3, CBMC (c7g.xlarge)
             ec2_instance_type: c7g.xlarge
             ec2_ami: ubuntu-latest (custom AMI)
             ec2_ami_id: ami-08ddb0acd99dc3d33 # aarch64, ubuntu-latest, 64g
+            nix-shell: ci
             compile_mode: cross
             opt: all
             kattest: false
@@ -147,6 +155,8 @@ jobs:
       ec2_instance_type: ${{ matrix.target.ec2_instance_type }}
       ec2_ami: ${{ matrix.target.ec2_ami }}
       ec2_ami_id: ${{ matrix.target.ec2_ami_id }}
+      nix-shell: ${{ matrix.target.nix-shell }}
+      verbose: true
       compile_mode: ${{ matrix.target.compile_mode }}
       opt: ${{ matrix.target.opt }}
       kattest: ${{ matrix.target.kattest }}

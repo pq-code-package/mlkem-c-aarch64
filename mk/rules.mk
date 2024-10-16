@@ -31,32 +31,32 @@ $(BUILD_DIR)/%.S.o: %.S $(CONFIG)
 	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
 	$(Q)$(CC) -c -o $@ $(CFLAGS) $<
 
-$(BUILD_DIR)/mlkem512/%.c.o: %.c $(CONFIG)
+$(MLKEM512_BUILD_DIR)/%.c.o: %.c $(CONFIG)
 	$(Q)echo "  CC      $@"
 	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
 	$(Q)$(CC) -c -o $@ $(CFLAGS) $<
 
-$(BUILD_DIR)/mlkem512/%.S.o: %.S $(CONFIG)
+$(MLKEM512_BUILD_DIR)/%.S.o: %.S $(CONFIG)
 	$(Q)echo "  AS      $@"
 	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
 	$(Q)$(CC) -c -o $@ $(CFLAGS) $<
 
-$(BUILD_DIR)/mlkem768/%.c.o: %.c $(CONFIG)
+$(MLKEM768_BUILD_DIR)/%.c.o: %.c $(CONFIG)
 	$(Q)echo "  CC      $@"
 	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
 	$(Q)$(CC) -c -o $@ $(CFLAGS) $<
 
-$(BUILD_DIR)/mlkem768/%.S.o: %.S $(CONFIG)
+$(MLKEM768_BUILD_DIR)/%.S.o: %.S $(CONFIG)
 	$(Q)echo "  AS      $@"
 	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
 	$(Q)$(CC) -c -o $@ $(CFLAGS) $<
 
-$(BUILD_DIR)/mlkem1024/%.c.o: %.c $(CONFIG)
+$(MLKEM1024_BUILD_DIR)/%.c.o: %.c $(CONFIG)
 	$(Q)echo "  CC      $@"
 	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
 	$(Q)$(CC) -c -o $@ $(CFLAGS) $<
 
-$(BUILD_DIR)/mlkem1024/%.S.o: %.S $(CONFIG)
+$(MLKEM1024_BUILD_DIR)/%.S.o: %.S $(CONFIG)
 	$(Q)echo "  AS      $@"
 	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
 	$(Q)$(CC) -c -o $@ $(CFLAGS) $<

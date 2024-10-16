@@ -35,6 +35,30 @@ def sha256sum(result: bytes) -> str:
     return m.hexdigest()
 
 
+class SCHEME(IntEnum):
+    MLKEM512 = 1
+    MLKEM768 = 2
+    MLKEM1024 = 3
+
+    def __str__(self):
+        match self:
+            case SCHEME.MLKEM512:
+                return "ML-KEM-512"
+            case SCHEME.MLKEM768:
+                return "ML-KEM-768"
+            case SCHEME.MLKEM1024:
+                return "ML-KEM-1024"
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        return self + 1
+
+    def suffix(self):
+        return self.name.removeprefix("MLKEM")
+
+
 class TEST_TYPES(IntEnum):
     MLKEM = 1
     BENCH = 2
@@ -71,32 +95,8 @@ class TEST_TYPES(IntEnum):
             case TEST_TYPES.KAT:
                 return "gen_KAT"
 
-    def bin_path(self, scheme):
-        return f"test/build/{scheme.name.lower()}/bin/{self.bin()}{scheme.suffix()}"
-
-
-class SCHEME(IntEnum):
-    MLKEM512 = 1
-    MLKEM768 = 2
-    MLKEM1024 = 3
-
-    def __str__(self):
-        match self:
-            case SCHEME.MLKEM512:
-                return "ML-KEM-512"
-            case SCHEME.MLKEM768:
-                return "ML-KEM-768"
-            case SCHEME.MLKEM1024:
-                return "ML-KEM-1024"
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        return self + 1
-
-    def suffix(self):
-        return self.name.removeprefix("MLKEM")
+    def bin_path(self, scheme: SCHEME, opt: bool):
+        return f'test/build/{scheme.name.lower()}/bin/{self.bin()}{scheme.suffix()}_{"opt" if opt else "ref" }'
 
 
 def parse_meta(scheme: SCHEME, field: str) -> str:
@@ -196,7 +196,6 @@ class State(object):
         self.cross_prefix = ""
         self.cflags = ""
         self.arch_flags = ""
-        self.opt = True
         self.auto = True
         self.compile = True
         self.run = True
@@ -286,6 +285,7 @@ class State(object):
     def run_schemes(
         self,
         test_type: TEST_TYPES,
+        opt: bool,
         run_as_root=False,
         exec_wrapper=None,
         actual_proc: Callable[[bytes], str] = None,
@@ -295,7 +295,7 @@ class State(object):
         results = {}
         for scheme in SCHEME:
             result = self.run_scheme(
-                test_type.bin_path(scheme),
+                test_type.bin_path(scheme, opt),
                 run_as_root,
                 exec_wrapper,
             )
@@ -325,6 +325,7 @@ class State(object):
     def test(
         self,
         test_type: TEST_TYPES,
+        opt: bool,
         extra_make_envs={},
         extra_make_args=[],
         actual_proc: Callable[[bytes], str] = None,
@@ -334,7 +335,9 @@ class State(object):
     ):
         config_logger(self.verbose)
 
-        logging.info(f"{test_type.desc()}")
+        logging.info(
+            f'{test_type.desc()} ({"cross" if self.cross_prefix else "native"}, {"opt" if opt else "no_opt"})'
+        )
 
         make_envs = (
             {"CFLAGS": f"{self.cflags}"} if self.cflags is not None else {}
@@ -349,7 +352,7 @@ class State(object):
                 make_envs,
                 extra_make_args
                 + list(
-                    set([f"OPT={int(self.opt)}", f"AUTO={int(self.auto)}"])
+                    set([f"OPT={int(opt)}", f"AUTO={int(self.auto)}"])
                     - set(extra_make_args)
                 ),
             )
@@ -358,6 +361,7 @@ class State(object):
         if self.run:
             results = self.run_schemes(
                 test_type,
+                opt,
                 run_as_root,
                 exec_wrapper,
                 actual_proc,
@@ -368,7 +372,7 @@ class State(object):
                 "## "
                 + ("Cross" if self.cross_prefix else "Native")
                 + " "
-                + ("Opt" if self.opt else "Non-opt")
+                + ("Opt" if opt else "Non-opt")
                 + " Tests"
             )
             github_summary(title, test_type, results)
@@ -422,15 +426,6 @@ _shared_options = [
         callback=__callback("arch_flags"),
     ),
     click.option(
-        "--opt/--no-opt",
-        expose_value=False,
-        is_flag=True,
-        show_default=True,
-        default=True,
-        help="Choose whether to enable assembly optimizations (if present)",
-        callback=__callback("opt"),
-    ),
-    click.option(
         "--auto/--no-auto",
         expose_value=False,
         is_flag=True,
@@ -458,6 +453,14 @@ _shared_options = [
         callback=__callback("run"),
     ),
 ]
+
+_opt_option = click.option(
+    "--opt/--no-opt",
+    is_flag=True,
+    show_default=True,
+    default=True,
+    help="Choose whether to enable assembly optimizations (if present)",
+)
 
 _bench_options = [
     click.option(
@@ -525,7 +528,8 @@ def cli():
 )
 @add_options(_shared_options)
 @click.make_pass_decorator(State, ensure=True)
-def func(state: State):
+@_opt_option
+def func(state: State, opt: bool):
     def expect(scheme: SCHEME) -> str:
         sk_bytes = parse_meta(scheme, "length-secret-key")
         pk_bytes = parse_meta(scheme, "length-public-key")
@@ -539,6 +543,7 @@ def func(state: State):
 
     state.test(
         TEST_TYPES.MLKEM,
+        opt,
         actual_proc=lambda result: str(result, encoding="utf-8"),
         expect_proc=expect,
     )
@@ -550,9 +555,11 @@ def func(state: State):
 )
 @add_options(_shared_options)
 @click.make_pass_decorator(State, ensure=True)
-def nistkat(state: State):
+@_opt_option
+def nistkat(state: State, opt: bool):
     state.test(
         TEST_TYPES.NISTKAT,
+        opt,
         actual_proc=sha256sum,
         expect_proc=lambda scheme: parse_meta(scheme, "nistkat-sha256"),
     )
@@ -564,9 +571,11 @@ def nistkat(state: State):
 )
 @add_options(_shared_options)
 @click.make_pass_decorator(State, ensure=True)
-def kat(state: State):
+@_opt_option
+def kat(state: State, opt: bool):
     state.test(
         TEST_TYPES.KAT,
+        opt,
         actual_proc=sha256sum,
         expect_proc=lambda scheme: parse_meta(scheme, "kat-sha256"),
     )
@@ -579,8 +588,10 @@ def kat(state: State):
 @add_options(_shared_options)
 @add_options(_bench_options)
 @click.make_pass_decorator(State, ensure=True)
+@_opt_option
 def bench(
     state: State,
+    opt: bool,
     cycles: str,
     output,
     run_as_root: bool,
@@ -605,6 +616,7 @@ def bench(
 
     results = state.test(
         bench_type,
+        opt,
         extra_make_args=[f"CYCLES={cycles}"],
         run_as_root=run_as_root,
         exec_wrapper=exec_wrapper,
@@ -646,6 +658,14 @@ def bench(
 @add_options(
     [
         click.option(
+            "--opt",
+            nargs=1,
+            type=click.Choice(["ALL", "OPT", "NO_OPT"], case_sensitive=False),
+            show_default=True,
+            default="ALL",
+            help="Determine whether to compile/run the opt/no_opt binary or both",
+        ),
+        click.option(
             "--func/--no-func",
             is_flag=True,
             show_default=True,
@@ -671,15 +691,15 @@ def bench(
 @click.make_pass_decorator(State, ensure=True)
 def all(
     state: State,
+    opt: str,
     func: bool,
     kat: bool,
     nistkat: bool,
 ):
-    opt_flag = "opt" if state.opt else "no-opt"
     auto_flag = "auto" if state.auto else "no-auto"
     compile_mode = "cross" if state.cross_prefix else "native"
 
-    def _cmd(cmd: str, compile_flag: str, run_flag: str) -> [str]:
+    def _cmd(cmd: str, opt_flag: str, compile_flag: str, run_flag: str) -> [str]:
         return [
             "tests",
             f"{cmd}",
@@ -692,11 +712,41 @@ def all(
             *(["--verbose"] if state.verbose else []),
         ]
 
+    def __cmds(opt_flag: str, compile_flag: str, run_flag: str) -> TypedDict:
+        return {
+            **(
+                {("func", opt_flag): _cmd("func", opt_flag, compile_flag, run_flag)}
+                if func
+                else {}
+            ),
+            **(
+                {("kat", opt_flag): _cmd("kat", opt_flag, compile_flag, run_flag)}
+                if kat
+                else {}
+            ),
+            **(
+                {
+                    ("nistkat", opt_flag): _cmd(
+                        "nistkat", opt_flag, compile_flag, run_flag
+                    )
+                }
+                if nistkat
+                else {}
+            ),
+        }
+
     def _cmds(compile_flag: str, run_flag: str) -> TypedDict:
         return {
-            **({"func": _cmd("func", compile_flag, run_flag)} if func else {}),
-            **({"kat": _cmd("kat", compile_flag, run_flag)} if kat else {}),
-            **({"nistkat": _cmd("nistkat", compile_flag, run_flag)} if nistkat else {}),
+            **(
+                __cmds("opt", compile_flag, run_flag)
+                if (opt.upper() == "ALL" or opt.upper() == "OPT")
+                else {}
+            ),
+            **(
+                __cmds("no-opt", compile_flag, run_flag)
+                if (opt.upper() == "ALL" or opt.upper() == "NO_OPT")
+                else {}
+            ),
         }
 
     compile_cmds = {} if not state.compile else _cmds("compile", "no-run")
@@ -709,7 +759,7 @@ def all(
     # sequentially compile
     for k, c in compile_cmds.items():
         if gh_env is not None:
-            print(f"::group::compile {compile_mode} {opt_flag} {k} test")
+            print(f"::group::compile {compile_mode} {k[1]} {k[0]} test")
         result = subprocess.run(
             c,
             encoding="utf-8",
@@ -722,10 +772,11 @@ def all(
             print(f"{result.stderr}")
             run_cmds.pop(k, None)
         if gh_env is not None:
-            print(f"::endgroup::")
+            print(f"::endgroup::", flush=True)
+        sys.stdout.flush()
 
     # parallelly run
-    async def run(k: str, cmd: str):
+    async def run(k: (str, str), cmd: str):
         p = await asyncio.create_subprocess_shell(
             " ".join(cmd),
             stdout=asyncio.subprocess.PIPE,
@@ -734,7 +785,7 @@ def all(
 
         stdout, stderr = await p.communicate()
         if gh_env is not None:
-            print(f"::group::run {compile_mode} {opt_flag} {k} test")
+            print(f"::group::run {compile_mode} {k[1]} {k[0]} test")
 
         if stdout:
             print(stdout.decode())
@@ -742,6 +793,7 @@ def all(
             print(stderr.decode())
         if gh_env is not None:
             print(f"::endgroup::")
+        sys.stdout.flush()
 
         return p.returncode
 
