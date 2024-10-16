@@ -3,6 +3,35 @@
 #include <stdint.h>
 #include "params.h"
 
+// QINV == -3327 converted to uint16_t == -3327 + 65536 == 62209
+static const uint32_t QINV = 62209;  // q^-1 mod 2^16
+
+/*************************************************
+ * Name:        cast_uint16_to_int16
+ *
+ * Description: Cast uint16 value to int16
+ *
+ * Returns:
+ *   input x in     0 .. 32767: returns value unchanged
+ *   input x in 32768 .. 65535: returns (x - 65536)
+ **************************************************/
+#ifdef CBMC
+#pragma CPROVER check push
+#pragma CPROVER check disable "conversion"
+#endif
+static inline int16_t cast_uint16_to_int16(uint16_t x) {
+  // PORTABILITY: This relies on uint16_t -> int16_t
+  // being implemented as the inverse of int16_t -> uint16_t,
+  // which is implementation-defined (C99 6.3.1.3 (3))
+  //
+  // CBMC (correctly) fails to prove this conversion is OK,
+  // so we have to suppress that check here
+  return (int16_t)x;
+}
+#ifdef CBMC
+#pragma CPROVER check pop
+#endif
+
 /*************************************************
  * Name:        montgomery_reduce
  *
@@ -41,36 +70,50 @@ int16_t montgomery_reduce(int32_t a) {
   // Replace C -> C * q in the above and estimate
   // q / 2^17 < 0.0254.
 
-  uint16_t u;
-  int16_t t;
-  // Compute a*q^{-1} mod 2^16 in unsigned representatives
-  u = (uint16_t)a * QINV;
+  //  Compute a*q^{-1} mod 2^16 in unsigned representatives
+  const uint16_t a_reduced = a & UINT16_MAX;
+  const uint16_t a_inverted = (a_reduced * QINV) & UINT16_MAX;
+
   // Lift to signed canonical representative mod 2^16.
-  // PORTABILITY: This relies on uint16_t -> int16_t
-  // being implemented as the inverse of int16_t -> uint16_t,
-  // which is not mandated by the standard.
-  t = (int16_t)u;
-  // By construction, the LHS is divisible by 2^16
-  t = (a - (int32_t)t * KYBER_Q) >> 16;
-  return t;
+  const int16_t t = cast_uint16_to_int16(a_inverted);
+
+  int32_t r = a - ((int32_t)t * KYBER_Q);
+
+  // PORTABILITY: Right-shift on a signed integer is, strictly-speaking,
+  // implementation-defined for negative left argument. Here,
+  // we assume it's sign-preserving "arithmetic" shift right. (C99 6.5.7 (5))
+  r = r >> 16;
+
+  return (int16_t)r;
 }
+
+// To divide by KYBER_Q using Barrett multiplication, the "magic number"
+// multiplier is round_to_nearest(2**26/KYBER_Q)
+#define BPOWER 26
+static const int32_t barrett_multiplier =
+    ((1 << BPOWER) + KYBER_Q / 2) / KYBER_Q;
 
 /*************************************************
  * Name:        barrett_reduce
  *
  * Description: Barrett reduction; given a 16-bit integer a, computes
  *              centered representative congruent to a mod q in
- *{-(q-1)/2,...,(q-1)/2}
+ *              {-(q-1)/2,...,(q-1)/2}
  *
  * Arguments:   - int16_t a: input integer to be reduced
  *
  * Returns:     integer in {-(q-1)/2,...,(q-1)/2} congruent to a modulo q.
  **************************************************/
 int16_t barrett_reduce(int16_t a) {
-  int16_t t;
-  const int16_t v = ((1 << 26) + KYBER_Q / 2) / KYBER_Q;
+  // Compute round_to_nearest(a/KYBER_Q) using the multiplier
+  // above and shift by BPOWER places.
+  //
+  // PORTABILITY: Right-shift on a signed integer is, strictly-speaking,
+  // implementation-defined for negative left argument. Here,
+  // we assume it's sign-preserving "arithmetic" shift right. (C99 6.5.7 (5))
+  const int32_t t = (barrett_multiplier * a + (1 << (BPOWER - 1))) >> BPOWER;
 
-  t = ((int32_t)v * a + (1 << 25)) >> 26;
-  t *= KYBER_Q;
-  return a - t;
+  // t is in -10 .. +10, so we need 32-bit math to
+  // evaluate t * KYBER_Q and the subsequent subtraction
+  return (int16_t)(a - t * KYBER_Q);
 }
