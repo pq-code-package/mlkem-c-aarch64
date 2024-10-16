@@ -36,13 +36,16 @@ CFLAGS += \
 	-O3 \
 	-fomit-frame-pointer \
 	-Wredundant-decls \
-	-Wimplicit-int-conversion \
 	-Wsign-conversion \
-	-Wshorten-64-to-32 \
 	-std=c99 \
 	-pedantic \
 	-MMD \
 	$(CPPFLAGS)
+
+# Check if the compiler is Clang
+ifneq (,$(findstring clang,$(CC)))
+    CFLAGS += -Wimplicit-int-conversion -Wshorten-64-to-32
+endif
 
 LINKDEPS += $(LIBDEPS)
 
