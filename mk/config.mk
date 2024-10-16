@@ -28,7 +28,6 @@ CFLAGS += \
 	-Wall \
 	-Wextra \
 	-Wpedantic \
-	-Werror \
 	-Wmissing-prototypes \
 	-Wshadow \
 	-Wpointer-arith \
