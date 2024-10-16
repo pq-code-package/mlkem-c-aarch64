@@ -202,8 +202,7 @@ void poly_tobytes(uint8_t r[KYBER_POLYBYTES], const poly *a) {
   for (unsigned int i = 0; i < KYBER_N / 2; i++)
       // clang-format off
   ASSIGNS(i, OBJECT_WHOLE(r))
-  INVARIANT(i >= 0)
-  INVARIANT(i <= KYBER_N / 2)
+  INVARIANT(i >= 0 && i <= KYBER_N / 2)
   DECREASES(KYBER_N / 2 - i)
     // clang-format on
     {
@@ -221,10 +220,10 @@ void poly_tobytes(uint8_t r[KYBER_POLYBYTES], const poly *a) {
       // Most significant bits 8 - 11 of t0 become the least significant
       // nibble of the second byte. The least significant 4 bits
       // of t1 become the upper nibble of the second byte.
-      r[3 * i + 1] = (uint8_t)(((t0 >> 8) & 0x0F) | ((t1 << 4) & 0xF0));
+      r[3 * i + 1] = (uint8_t)((t0 >> 8) | ((t1 << 4) & 0xF0));
 
       // Bits 4 - 11 of t1 become the third byte.
-      r[3 * i + 2] = (uint8_t)((t1 >> 4) & 0xFF);
+      r[3 * i + 2] = (uint8_t)(t1 >> 4);
     }
 }
 #else  /* MLKEM_USE_NATIVE_POLY_TOBYTES */
