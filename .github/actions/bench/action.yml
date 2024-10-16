@@ -52,6 +52,7 @@ runs:
         nix-shell: ${{ inputs.nix-shell }}
         nix-cache: ${{ inputs.nix-cache }}
         nix-verbose: ${{ inputs.nix-verbose }}
+        gh_token: ${{ inputs.gh_token }}
         custom_shell: ${{ inputs.custom_shell }}
         script: |
           ARCH=$(uname -m)

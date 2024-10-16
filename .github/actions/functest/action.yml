@@ -16,6 +16,9 @@ inputs:
   custom_shell:
     description: The shell to use. Only relevant if no nix-shell specified
     default: "bash"
+  gh_token:
+    description: Github access token to use
+    required: true
   cflags:
     description: CFLAGS to pass to compilation
     default: ""
@@ -66,6 +69,7 @@ runs:
           nix-shell: ${{ inputs.nix-shell }}
           nix-cache: ${{ inputs.nix-cache }}
           nix-verbose: ${{ inputs.nix-verbose }}
+          gh_token: ${{ inputs.gh_token }}
           custom_shell: ${{ inputs.custom_shell }}
           script: |
             # only summary on the first time

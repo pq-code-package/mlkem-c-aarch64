@@ -117,6 +117,7 @@ jobs:
           nix-shell: ${{ steps.preprocess.outputs.nix-shell }}
           nix-cache: ${{ inputs.cbmc || inputs.compile_mode == 'cross' }}
           nix-verbose: ${{ inputs.verbose }}
+          gh_token: ${{ secrets.AWS_GITHUB_TOKEN }}
           cflags: ${{ inputs.cflags }}
           compile_mode: ${{ inputs.compile_mode }}
           opt: ${{ inputs.opt }}
@@ -129,12 +130,14 @@ jobs:
         with:
           nix-shell: ci-linter
           nix-verbose: ${{ inputs.verbose }}
+          gh_token: ${{ secrets.AWS_GITHUB_TOKEN }}
       - name: CBMC
         if: ${{ inputs.cbmc && (success() || failure()) }}
         uses: ./.github/actions/cbmc
         with:
           nix-shell: ${{ steps.preprocess.outputs.nix-shell }}
           nix-verbose: ${{ inputs.verbose }}
+          gh_token: ${{ secrets.AWS_GITHUB_TOKEN }}
   stop-ec2-runner:
     name: Stop ${{ inputs.name }} (${{ inputs.ec2_instance_type }})
     permissions:

@@ -19,6 +19,9 @@ inputs:
   cross-prefix:
     description: Binary prefix for cross compilation
     default: ""
+  gh_token:
+    description: Github access token to use
+    required: true
 runs:
   using: composite
   steps:
@@ -28,6 +31,7 @@ runs:
           custom_shell: ${{ inputs.custom_shell }}
           nix-cache: ${{ inputs.nix-cache }}
           nix-verbose: ${{ inputs.nix-verbose }}
+          gh_token: ${{ inputs.gh_token }}
           script: |
             cat >> $GITHUB_STEP_SUMMARY << EOF
               ## Setup

@@ -77,13 +77,15 @@ jobs:
       - name: native build
         uses: ./.github/actions/multi-functest
         with:
-          compile_mode: native
+          gh_token: ${{ secrets.GITHUB_TOKEN }}
+          compile_mode: nativ
           func: false
           nistkat: false
           kat: falst
       - name: native tests (+debug)
         uses: ./.github/actions/multi-functest
         with:
+          gh_token: ${{ secrets.GITHUB_TOKEN }}
           compile_mode: native
           cflags: "-DMLKEM_DEBUG"
       - name: cross tests (opt only)
@@ -92,6 +94,7 @@ jobs:
         with:
           nix-shell: ci-cross
           nix-cache: true
+          gh_token: ${{ secrets.GITHUB_TOKEN }}
           compile_mode: cross
           func: false
           nistkat: false
@@ -107,7 +110,9 @@ jobs:
       - uses: ./.github/actions/lint
         with:
           nix-shell: ci-linter
+          gh_token: ${{ secrets.GITHUB_TOKEN }}
           cross-prefix: "aarch64-unknown-linux-gnu-"
+
   ec2_all:
     needs: quickcheck
     strategy:

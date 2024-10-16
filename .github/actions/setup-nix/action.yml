@@ -23,6 +23,9 @@ inputs:
     description: Determine whether to purge cache with primary key or not
     required: false
     default: 'true'
+  gh_token:
+    description: Github access token to use
+    required: true
 
 runs:
   using: composite
@@ -55,6 +58,8 @@ runs:
     - name: Install Nix
       shell: bash
       if: ${{ steps.nix-pre-check.outputs.installed == 'false' }}
+      env:
+        GH_TOKEN: ${{ inputs.gh_token }}
       run: |
         echo "::group::Nix installation"
         mkdir -p ~/.config/nix
@@ -78,7 +83,7 @@ runs:
 
         if [[ ! -z $GH_TOKEN ]]; then
            mkdir -p ~/.config/nix
-           echo "access-tokens = github.com=$GH_TOKEN" > ~/.config/nix/nix.conf
+           echo "access-tokens = github.com=$GH_TOKEN" >> ~/.config/nix/nix.conf
         fi
 
         if command -v gh >/dev/null 2>&1; then
@@ -136,6 +141,7 @@ runs:
         purge-prefixes: cache-${{ steps.nix-post-check.outputs.cache_prefix }}
         purge-created: 0
         purge-primary-key: ${{ inputs.purge_cache == 'true' && 'always' || 'never' }}
+        token: ${{ inputs.gh_token }}
     - name: Set Shell
       shell: bash -lo pipefail {0}
       run: |

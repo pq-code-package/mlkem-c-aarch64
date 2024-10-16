@@ -16,6 +16,9 @@ inputs:
   nix-verbose:
     description: Determine wether to suppress nix log or not
     default: 'false'
+  gh_token:
+    description: Github access token to use
+    required: true
   cflags:
     description: CFLAGS to pass to compilation
     default: ""
@@ -44,6 +47,7 @@ runs:
           nix-shell: ${{ inputs.nix-shell }}
           nix-cache: ${{ inputs.nix-cache }}
           nix-verbose: ${{ inputs.nix-verbose }}
+          gh_token: ${{ inputs.gh_token }}
           custom_shell: ${{ inputs.custom_shell }}
           cflags: ${{ inputs.cflags }}
           mode: native
@@ -57,6 +61,8 @@ runs:
         with:
           nix-shell: ${{ inputs.nix-shell }}
           nix-cache: ${{ inputs.nix-cache }}
+          nix-verbose: ${{ inputs.nix-verbose }}
+          gh_token: ${{ inputs.gh_token }}
           custom_shell: ${{ inputs.custom_shell }}
           cflags: ${{ inputs.cflags }}
           mode: native
@@ -69,6 +75,9 @@ runs:
         uses: ./.github/actions/functest
         with:
           nix-shell: ${{ inputs.nix-shell }}
+          nix-cache: ${{ inputs.nix-cache }}
+          nix-verbose: ${{ inputs.nix-verbose }}
+          gh_token: ${{ inputs.gh_token }}
           custom_shell: ${{ inputs.custom_shell }}
           cflags: ${{ inputs.cflags }}
           mode: cross
@@ -81,6 +90,9 @@ runs:
         uses: ./.github/actions/functest
         with:
           nix-shell: ${{ inputs.nix-shell }}
+          nix-cache: ${{ inputs.nix-cache }}
+          nix-verbose: ${{ inputs.nix-verbose }}
+          gh_token: ${{ inputs.gh_token }}
           custom_shell: ${{ inputs.custom_shell }}
           cflags: ${{ inputs.cflags }}
           mode: cross
