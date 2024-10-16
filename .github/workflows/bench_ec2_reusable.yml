@@ -111,7 +111,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/bench
         with:
-          nix-cache: false
           nix-verbose: ${{ inputs.verbose }}
           name: ${{ inputs.name }}
           cflags: ${{ inputs.cflags }}

@@ -12,10 +12,17 @@ inputs:
     required: true
   cache:
     description: Determine whether to enable nix cache
-    default: 'true'
+    default: 'false'
   verbose:
     description: Determine wether to suppress nix log or not
     default: 'false'
+  cache_prefix:
+    description: Fixed prefix of ID of Github cache entries that should be removed.
+    required: false
+  purge_cache:
+    description: Determine whether to purge cache with primary key or not
+    required: false
+    default: 'true'
 
 runs:
   using: composite
@@ -69,6 +76,26 @@ runs:
         EOF
         fi
 
+        if [[ ! -z $GH_TOKEN ]]; then
+           mkdir -p ~/.config/nix
+           echo "access-tokens = github.com=$GH_TOKEN" > ~/.config/nix/nix.conf
+        fi
+
+        if command -v gh >/dev/null 2>&1; then
+          limit=$(gh api rate_limit --jq '.rate.remaining')
+          reset=$(gh api rate_limit --jq '.rate.reset')
+          now=$(date +%s)
+          if [[ $limit < 10 ]]; then
+            wait=$(( reset - now ))
+            echo "Rate limit remaining is $limit less then 10, waiting for $wait secs to retry"
+            sleep $wait
+          else
+            echo "Rate limit remaining is $limit greater than 10, no need to wait"
+          fi
+        else
+            echo "GitHub CLI is not installed."
+        fi
+
         if [[ $NIX_INSTALL_MODE == 'multi' ]]; then
           . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
         else
@@ -78,19 +105,49 @@ runs:
         nix profile install nixpkgs/nixos-24.05#sqlite
         echo "::endgroup::"
     - name: Post-check nix
+      id: nix-post-check
       continue-on-error: true
       shell: bash -lo pipefail {0}
       run: |
+        echo "::group::nix config"
+        if [[ -z "${{ inputs.cache_prefix }}" ]]; then
+          cache_prefix="${{ runner.os }}-${{ runner.arch }}-${{ inputs.devShell }}"
+        else
+          cache_prefix="${{ inputs.cache_prefix }}"
+        fi
+        if [[ ! -z $NIX_INSTALL_MODE ]]; then
+          cache_prefix="$cache_prefix-$NIX_INSTALL_MODE"
+        fi
+
+        echo "cache_prefix=$cache_prefix" >> $GITHUB_OUTPUT
+
         nix config check
-    - uses: DeterminateSystems/magic-nix-cache-action@v8
-      if: ${{ env.NIX_SHELL == '' && inputs.cache == 'true' }}
+        nix config show
+        echo "::endgroup::"
+    - uses: nix-community/cache-nix-action@v5
+      id: cache
+      if: ${{ env.NIX_CACHE_ENABLED != 1 && inputs.cache == 'true' }}
       continue-on-error: true
+      with:
+        primary-key: ${{ steps.nix-post-check.outputs.cache_prefix }}-${{ hashFiles('**/*.nix') }}
+        restore-prefixes-first-match: ${{ steps.nix-post-check.outputs.cache_prefix }}
+        gc-max-store-size-linux: 536870912
+        purge: ${{ inputs.purge_cache == 'true' }}
+        purge-prefixes: cache-${{ steps.nix-post-check.outputs.cache_prefix }}
+        purge-created: 0
+        purge-primary-key: ${{ inputs.purge_cache == 'true' && 'always' || 'never' }}
     - name: Set Shell
       shell: bash -lo pipefail {0}
       run: |
+        echo "::group::set nix shell"
+        if [[ "${{ steps.cache.outputs.hit-primary-key }}" == "true" ]]; then
+          echo NIX_CACHE_ENABLED=1 >> $GITHUB_ENV
+        fi
+
         echo NIX_SHELL="${{ inputs.devShell }}" >> $GITHUB_ENV
         nix_extra_flags="${{ inputs.verbose == 'false' && '--quiet' || '' }}"
         echo SHELL="$(which nix) develop $nix_extra_flags .#${{ inputs.devShell }} -c bash -e {0}" >> $GITHUB_ENV
+        echo "::endgroup::"
     - name: Prepare nix dev shell
       shell: ${{ env.SHELL }}
       run: |

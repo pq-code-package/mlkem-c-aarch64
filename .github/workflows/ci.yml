@@ -91,6 +91,7 @@ jobs:
         uses: ./.github/actions/multi-functest
         with:
           nix-shell: ci-cross
+          nix-cache: true
           compile_mode: cross
           func: false
           nistkat: false
