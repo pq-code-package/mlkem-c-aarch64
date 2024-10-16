@@ -20,8 +20,14 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Nix install mode
+      shell: bash
+      run: |
+        if [[ ${{ runner.os }} != 'Linux' || $USER == 'root' ]]; then
+          echo "NIX_INSTALL_MODE=multi" >> $GITHUB_ENV
+        fi
     - name: Pre-check nix
-      id: pre-check-nix
+      id: nix-pre-check
       if: ${{ env.NIX_SHELL == '' }}
       shell: bash -lo pipefail {0}
       run: |
@@ -29,37 +35,58 @@ runs:
           local exit_code="$?"
           local line_no="$1"
           echo "Nix check failed at $line_no: $exit_code"
-          echo "install-nix=true" >> $GITHUB_OUTPUT
+          echo "installed=false" >> $GITHUB_OUTPUT
           exit 0
         }
 
         trap 'suppress $LINENO' ERR
 
-        . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
         nix --version
         nix config show | grep -E "^trusted-users = .*$USER"
         nix config show | grep -E "^experimental-features = .*flakes"
         nix config show | grep -E "^experimental-features = .*nix-command"
-
-    - name: Install nix
-      if: steps.pre-check-nix.outputs.install-nix
-      shell: bash -leo pipefail {0}
+    - name: Install Nix
+      shell: bash
+      if: ${{ steps.nix-pre-check.outputs.installed == 'false' }}
       run: |
-        curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install --no-confirm \
-        --extra-conf "trusted-users = root ${USER:-}" \
-        --extra-conf "experimental-features = nix-command flakes"
+        echo "::group::Nix installation"
+        mkdir -p ~/.config/nix
 
-        . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+        if [[ $NIX_INSTALL_MODE == 'multi' ]]; then
+          curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install \
+          --no-confirm \
+          --extra-conf "trusted-users = ${USER:-}" \
+          --extra-conf "experimental-features = nix-command flakes"
+        else
+          sh <(curl -L https://nixos.org/nix/install) --no-daemon
+
+        cat >> ~/.config/nix/nix.conf << EOF
+          trusted-users = ${USER:-}
+          experimental-features = nix-command flakes
+          substituters = https://cache.nixos.org/
+          trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=
+          max-jobs = auto
+        EOF
+        fi
+
+        if [[ $NIX_INSTALL_MODE == 'multi' ]]; then
+          . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+        else
+          . ~/.nix-profile/etc/profile.d/nix.sh
+        fi
+        echo "$(dirname $(which nix))" >> $GITHUB_PATH
+        nix profile install nixpkgs/nixos-24.05#sqlite
+        echo "::endgroup::"
     - name: Post-check nix
       continue-on-error: true
-      shell: bash -leo pipefail {0}
+      shell: bash -lo pipefail {0}
       run: |
         nix config check
     - uses: DeterminateSystems/magic-nix-cache-action@v8
       if: ${{ env.NIX_SHELL == '' && inputs.cache == 'true' }}
       continue-on-error: true
     - name: Set Shell
-      shell: bash -leo pipefail {0}
+      shell: bash -lo pipefail {0}
       run: |
         echo NIX_SHELL="${{ inputs.devShell }}" >> $GITHUB_ENV
         nix_extra_flags="${{ inputs.verbose == 'false' && '--quiet' || '' }}"
