@@ -41,19 +41,22 @@ runs:
         shell: bash
         run: |
           arch=$(uname -m)
-          if [[ $arch == "x86_64" ]]; then
+          _cross_prefix=
+          if [[ ${{ inputs.mode }} == "cross" && $arch == "x86_64" ]]; then
               _cross_prefix="aarch64-unknown-linux-gnu-"
-          elif [[ $arch == "aarch64" ]]; then
+          elif [[ ${{ inputs.mode }} == "cross" && $arch == "aarch64" ]]; then
               _cross_prefix="x86_64-unknown-linux-gnu-"
           fi
 
-          if [[ ${{ inputs.mode }} == "cross" ]]; then
-              cross_prefix="$_cross_prefix"
+          _cc=$CC
+          if [[ $_cc == "" ]]; then
+             _cc=gcc
           fi
-          echo _CROSS_PREFIX="$_cross_prefix" >> $GITHUB_ENV # this is for printing summary only, which doesn't depend on inputs.mode
-          echo CROSS_PREFIX="$cross_prefix" >> $GITHUB_ENV
-          echo OPT="${{ inputs.opt == 'true' && 'opt' || 'no-opt' }}" >> $GITHUB_ENV
 
+          echo _CROSS_PREFIX="$_cross_prefix" >> $GITHUB_ENV
+          echo _CC="$_cc" >> $GITHUB_ENV
+
+          echo OPT="${{ inputs.opt == 'true' && 'opt' || 'no-opt' }}" >> $GITHUB_ENV
           echo FUNC="${{ inputs.func == 'true' && 'func' || 'no-func' }}" >> $GITHUB_ENV
           echo KAT="${{ inputs.kat == 'true' && 'kat' || 'no-kat' }}" >> $GITHUB_ENV
           echo NISTKAT="${{ inputs.nistkat == 'true' && 'nistkat' || 'no-nistkat' }}" >> $GITHUB_ENV
@@ -74,23 +77,18 @@ runs:
               - $(uname -a)
               - $(nix --version)
               - $(bash --version | grep -m1 "")
-              - $(gcc --version | grep -m1 "")
+              - $(${_CROSS_PREFIX}${_CC} --version | grep -m1 "")
             EOF
-
-              # no cross gcc in darwin
-              if [[ $(uname -s) != "Darwin" ]]; then
-                echo "- $(${{ env._CROSS_PREFIX }}gcc --version | grep -m1 '')" >> $GITHUB_STEP_SUMMARY
-              fi
             fi
 
       - name: Compile ${{ inputs.mode }} ${{ env.OPT }} tests (${{ env.FUNC }}, ${{ env.KAT }}, ${{ env.NISTKAT }})
         shell: ${{ env.SHELL }}
         run: |
-          tests all  --cross-prefix="${{ env.CROSS_PREFIX }}" --cflags="${{ inputs.cflags }}" --${{ env.OPT }} --${{ env.FUNC }} --${{ env.KAT }} --${{ env.NISTKAT }} --compile --no-run -v
+          tests all  --cross-prefix="${{ env._CROSS_PREFIX }}" --cflags="${{ inputs.cflags }}" --${{ env.OPT }} --${{ env.FUNC }} --${{ env.KAT }} --${{ env.NISTKAT }} --compile --no-run -v
       - name: Run ${{ inputs.mode }} ${{ env.OPT }} tests (${{ env.FUNC }}, ${{ env.KAT }}, ${{ env.NISTKAT }})
         shell: ${{ env.SHELL }}
         run: |
-          tests all  --cross-prefix="${{ env.CROSS_PREFIX }}" --cflags="${{ inputs.cflags }}" --${{ env.OPT }} --${{ env.FUNC }} --${{ env.KAT }} --${{ env.NISTKAT }} --no-compile --run -v
+          tests all  --cross-prefix="${{ env._CROSS_PREFIX }}" --cflags="${{ inputs.cflags }}" --${{ env.OPT }} --${{ env.FUNC }} --${{ env.KAT }} --${{ env.NISTKAT }} --no-compile --run -v
       - name: Post ${{ inputs.mode }} Tests
         shell: ${{ env.SHELL }}
         if: success() || failure()

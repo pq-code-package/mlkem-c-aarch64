@@ -22,7 +22,7 @@ $(LIB_DIR)/%.a: $(CONFIG)
 
 $(BUILD_DIR)/%.c.o: %.c $(CONFIG)
 	$(Q)echo "  CC      $@"
-	$(Q)echo "  CC      $(CFLAGS)"
+	$(Q)echo "  $(CC) -c -o $@ $(CFLAGS) $<"
 	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
 	$(Q)$(CC) -c -o $@ $(CFLAGS) $<
 
