@@ -32,10 +32,10 @@ static unsigned int rej_uniform_scalar(int16_t *r, unsigned int len,
     pos += 3;
 
     if (val0 < KYBER_Q) {
-      r[ctr++] = val0;
+      r[ctr++] = (int16_t)val0;
     }
     if (ctr < len && val1 < KYBER_Q) {
-      r[ctr++] = val1;
+      r[ctr++] = (int16_t)val1;
     }
   }
   return ctr;

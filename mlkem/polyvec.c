@@ -8,6 +8,12 @@
 #include "poly.h"
 
 #include "debug/debug.h"
+
+static inline uint16_t signed_to_unsigned(int16_t a) {
+  uint16_t t = (uint16_t)(a + ((a >> 15) & KYBER_Q));
+  return t;
+}
+
 /*************************************************
  * Name:        polyvec_compress
  *
@@ -27,8 +33,7 @@ void polyvec_compress(uint8_t r[KYBER_POLYVECCOMPRESSEDBYTES],
   for (i = 0; i < KYBER_K; i++) {
     for (j = 0; j < KYBER_N / 8; j++) {
       for (k = 0; k < 8; k++) {
-        t[k] = a->vec[i].coeffs[8 * j + k];
-        t[k] += ((int16_t)t[k] >> 15) & KYBER_Q;
+        t[k] = signed_to_unsigned(a->vec[i].coeffs[8 * j + k]);
         /*      t[k]  = ((((uint32_t)t[k] << 11) + KYBER_Q/2)/KYBER_Q) & 0x7ff;
          */
         d0 = t[k];
@@ -58,8 +63,7 @@ void polyvec_compress(uint8_t r[KYBER_POLYVECCOMPRESSEDBYTES],
   for (i = 0; i < KYBER_K; i++) {
     for (j = 0; j < KYBER_N / 4; j++) {
       for (k = 0; k < 4; k++) {
-        t[k] = a->vec[i].coeffs[4 * j + k];
-        t[k] += ((int16_t)t[k] >> 15) & KYBER_Q;
+        t[k] = signed_to_unsigned(a->vec[i].coeffs[4 * j + k]);
         /*      t[k]  = ((((uint32_t)t[k] << 10) + KYBER_Q/2)/ KYBER_Q) & 0x3ff;
          */
         d0 = t[k];
