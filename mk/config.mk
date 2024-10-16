@@ -7,11 +7,16 @@ SRCDIR := $(CURDIR)
 ##############
 # GCC config #
 ##############
+
 CROSS_PREFIX ?=
-CC := $(CROSS_PREFIX)gcc
-CPP := $(CROSS_PREFIX)cpp
-AR := $(CROSS_PREFIX)ar
-LD := $(CC)
+CC  ?= gcc
+CPP ?= cpp
+AR  ?= ar
+
+CC  := $(CROSS_PREFIX)$(CC)
+CPP := $(CROSS_PREFIX)$(CPP)
+AR  := $(CROSS_PREFIX)$(AR)
+LD  := $(CC)
 OBJCOPY := $(CROSS_PREFIX)objcopy
 SIZE := $(CROSS_PREFIX)size
 

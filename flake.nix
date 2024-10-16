@@ -54,7 +54,10 @@
                 then [ ]
                 else
                   if cross
-                  then [ aarch64-gcc x86_64-gcc ]
+                  then
+                    if pkgs.stdenv.isAarch64
+                    then [ x86_64-gcc aarch64-gcc ]
+                    else [ aarch64-gcc x86_64-gcc ]
                   else
                     if pkgs.stdenv.isAarch64
                     then [ aarch64-gcc ]
