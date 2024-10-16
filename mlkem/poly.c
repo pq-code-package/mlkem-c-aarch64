@@ -548,7 +548,7 @@ void poly_reduce(poly *r) {
     // Barrett reduction, giving signed canonical representative
     int16_t t = barrett_reduce(r->coeffs[i]);
     // Conditional addition to get unsigned canonical representative
-    r->coeffs[i] = scalar_signed_to_unsigned_q_16(t);
+    r->coeffs[i] = (int16_t) scalar_signed_to_unsigned_q_16(t);
   }
 
   POLY_UBOUND(r, KYBER_Q);
