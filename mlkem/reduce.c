@@ -87,6 +87,12 @@ int16_t montgomery_reduce(int32_t a) {
   return (int16_t)r;
 }
 
+// To divide by KYBER_Q using Barrett multiplication, the "magic number"
+// multiplier is round_to_nearest(2**26/KYBER_Q)
+#define BPOWER 26
+static const int32_t barrett_multiplier =
+    ((1 << BPOWER) + KYBER_Q / 2) / KYBER_Q;
+
 /*************************************************
  * Name:        barrett_reduce
  *
@@ -99,20 +105,15 @@ int16_t montgomery_reduce(int32_t a) {
  * Returns:     integer in {-(q-1)/2,...,(q-1)/2} congruent to a modulo q.
  **************************************************/
 int16_t barrett_reduce(int16_t a) {
-  int16_t t;
-  const int16_t v = ((1 << 26) + KYBER_Q / 2) / KYBER_Q;
+  // Compute round_to_nearest(a/KYBER_Q) using the multiplier
+  // above and shift by BPOWER places.
+  //
+  // PORTABILITY: Right-shift on a signed integer is, strictly-speaking,
+  // implementation-defined for negative left argument. Here,
+  // we assume it's sign-preserving "arithmetic" shift right. (C99 6.5.7 (5))
+  const int32_t t = (barrett_multiplier * a + (1 << (BPOWER - 1))) >> BPOWER;
 
-  t = ((int32_t)v * a + (1 << 25)) >> 26;
-
-  // CBMC is over-zealous in checking integer conversions, even
-  // if they are well-defined, so we disable this check here.
-#ifdef CBMC
-#pragma CPROVER check push
-#pragma CPROVER check disable "conversion"
-#endif
-  t *= KYBER_Q;
-  return a - t;
-#ifdef CBMC
-#pragma CPROVER check pop
-#endif
+  // t is in -10 .. +10, so we need 32-bit math to
+  // evaluate t * KYBER_Q and the subsequent subtraction
+  return (int16_t)(a - t * KYBER_Q);
 }
