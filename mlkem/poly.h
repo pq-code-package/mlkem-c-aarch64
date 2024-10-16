@@ -179,7 +179,12 @@ void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES])
                                         (KYBER_Q - 1)));
 
 #define poly_tobytes KYBER_NAMESPACE(poly_tobytes)
-void poly_tobytes(uint8_t r[KYBER_POLYBYTES], const poly *a);
+void poly_tobytes(uint8_t r[KYBER_POLYBYTES], const poly *a)
+    REQUIRES(a != NULL && IS_FRESH(a, sizeof(poly)))
+        REQUIRES(ARRAY_IN_BOUNDS(int, k, 0, (KYBER_N - 1), a->coeffs, 0,
+                                 (KYBER_Q - 1))) ASSIGNS(OBJECT_WHOLE(r));
+
+
 #define poly_frombytes KYBER_NAMESPACE(poly_frombytes)
 void poly_frombytes(poly *r, const uint8_t a[KYBER_POLYBYTES]);
 
