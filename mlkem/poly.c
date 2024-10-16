@@ -215,15 +215,15 @@ void poly_tobytes(uint8_t r[KYBER_POLYBYTES], const poly *a) {
       // 3 bytes, as follows.
 
       // Least significant bits 0 - 7 of t0.
-      r[3 * i + 0] = (uint8_t)(t0 & 0xFF);
+      r[3 * i + 0] = t0 & 0xFF;
 
       // Most significant bits 8 - 11 of t0 become the least significant
       // nibble of the second byte. The least significant 4 bits
       // of t1 become the upper nibble of the second byte.
-      r[3 * i + 1] = (uint8_t)((t0 >> 8) | ((t1 << 4) & 0xF0));
+      r[3 * i + 1] = (t0 >> 8) | ((t1 << 4) & 0xF0);
 
       // Bits 4 - 11 of t1 become the third byte.
-      r[3 * i + 2] = (uint8_t)(t1 >> 4);
+      r[3 * i + 2] = t1 >> 4;
     }
 }
 #else  /* MLKEM_USE_NATIVE_POLY_TOBYTES */
