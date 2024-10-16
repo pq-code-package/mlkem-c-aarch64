@@ -21,13 +21,15 @@ void polyvec_compress(uint8_t r[KYBER_POLYVECCOMPRESSEDBYTES],
                       const polyvec *a) {
   unsigned int i, j, k;
   uint64_t d0;
-
+  int16_t tmp;
 #if (KYBER_POLYVECCOMPRESSEDBYTES == (KYBER_K * 352))
   uint16_t t[8];
   for (i = 0; i < KYBER_K; i++) {
     for (j = 0; j < KYBER_N / 8; j++) {
       for (k = 0; k < 8; k++) {
-        t[k] = scalar_signed_to_unsigned_q_16(a->vec[i].coeffs[8 * j + k]);
+        // t[k] = scalar_signed_to_unsigned_q_16(a->vec[i].coeffs[8 * j + k]);
+        tmp = a->vec[i].coeffs[8 * j + k];
+        t[k] = (uint16_t)(tmp + ((tmp >> 15) & KYBER_Q));
         /*      t[k]  = ((((uint32_t)t[k] << 11) + KYBER_Q/2)/KYBER_Q) & 0x7ff;
          */
         d0 = t[k];
@@ -57,7 +59,9 @@ void polyvec_compress(uint8_t r[KYBER_POLYVECCOMPRESSEDBYTES],
   for (i = 0; i < KYBER_K; i++) {
     for (j = 0; j < KYBER_N / 4; j++) {
       for (k = 0; k < 4; k++) {
-        t[k] = scalar_signed_to_unsigned_q_16(a->vec[i].coeffs[4 * j + k]);
+        // t[k] = scalar_signed_to_unsigned_q_16(a->vec[i].coeffs[4 * j + k]);
+        tmp = a->vec[i].coeffs[4 * j + k];
+        t[k] = (uint16_t)(tmp + ((tmp >> 15) & KYBER_Q));
         /*      t[k]  = ((((uint32_t)t[k] << 10) + KYBER_Q/2)/ KYBER_Q) & 0x3ff;
          */
         d0 = t[k];
