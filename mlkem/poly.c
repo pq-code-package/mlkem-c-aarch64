@@ -206,8 +206,8 @@ void poly_tobytes(uint8_t r[KYBER_POLYBYTES], const poly *a) {
   DECREASES(KYBER_N / 2 - i)
     // clang-format on
     {
-      const uint16_t t0 = a->coeffs[2 * i];
-      const uint16_t t1 = a->coeffs[2 * i + 1];
+      const uint16_t t0 = (uint16_t)a->coeffs[2 * i];
+      const uint16_t t1 = (uint16_t)a->coeffs[2 * i + 1];
       // REF-CHANGE: Precondition change, we assume unsigned canonical data
 
       // t0 and t1 are both < KYBER_Q, so contain at most 12 bits each of

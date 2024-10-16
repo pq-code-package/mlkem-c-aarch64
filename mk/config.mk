@@ -34,7 +34,6 @@ CFLAGS += \
 	-Wno-unknown-pragmas \
 	-O3 \
 	-fomit-frame-pointer \
-	-Wredundant-decls \
 	-Wsign-conversion \
 	-std=c99 \
 	-pedantic \
