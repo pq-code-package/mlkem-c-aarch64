@@ -7,7 +7,7 @@ buildall:
 	$(Q)$(MAKE) mlkem
 	$(Q)$(MAKE) nistkat
 	$(Q)$(MAKE) kat
-	$(Q)echo "  ALL GOOD!"
+	$(Q)echo "  Everything builds fine!"
 
 include mk/config.mk
 -include mk/$(MAKECMDGOALS).mk
@@ -16,19 +16,16 @@ include mk/schemes.mk
 include mk/rules.mk
 
 quickcheck:
+        # Check that everything builds
 	$(Q)$(MAKE) mlkem
+	$(Q)$(MAKE) nistkat
+	$(Q)$(MAKE) kat
+	$(Q)echo "  Everything builds fine!"
+        # Run basic functionality checks
 	$(MLKEM512_DIR)/bin/test_kyber512
 	$(MLKEM768_DIR)/bin/test_kyber768
 	$(MLKEM1024_DIR)/bin/test_kyber1024
-	$(Q)$(MAKE) nistkat
-	$(MLKEM512_DIR)/bin/gen_NISTKAT512
-	$(MLKEM768_DIR)/bin/gen_NISTKAT768
-	$(MLKEM1024_DIR)/bin/gen_NISTKAT1024
-	$(Q)$(MAKE) kat
-	$(MLKEM512_DIR)/bin/gen_KAT512
-	$(MLKEM768_DIR)/bin/gen_KAT768
-	$(MLKEM1024_DIR)/bin/gen_KAT1024
-	$(Q)echo "  ALL GOOD!"
+	$(Q)echo "  Functionality tests passed!"
 
 mlkem: \
   $(MLKEM512_DIR)/bin/test_kyber512 \
