@@ -29,7 +29,6 @@ CFLAGS += \
 	-Wextra \
 	-Wpedantic \
 	-Werror \
-        -std=c99 \
 	-Wmissing-prototypes \
 	-Wshadow \
 	-Wpointer-arith \
