@@ -1,3 +1,5 @@
+[//]: # (SPDX-License-Identifier: CC-BY-4.0)
+
 # CBMC Proof Guide and Cookbook for MLKEM-C
 
 This doc acts as a guide to developing proofs of C code using CBMC. It concentrates
@@ -387,5 +389,3 @@ yields
 | poly_tobytes | Success |
 
 ```
-
-
