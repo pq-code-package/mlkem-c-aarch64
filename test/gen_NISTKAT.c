@@ -40,12 +40,12 @@ int main(void) {
   uint8_t shared_secret_d[CRYPTO_BYTES] ALIGN;
   int rc;
 
-  int count = 0;
+  size_t count = 0;
 
   fprintf(fh, "# %s\n\n", CRYPTO_ALGNAME);
 
   do {
-    fprintf(fh, "count = %d\n", count);
+    fprintf(fh, "count = %zu\n", count);
     randombytes_nth(seed, count, 48);
     fprintBstr(fh, "seed = ", seed, 48);
 

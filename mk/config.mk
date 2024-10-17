@@ -28,7 +28,6 @@ CFLAGS += \
 	-Wall \
 	-Wextra \
 	-Wpedantic \
-	-Werror \
 	-Wmissing-prototypes \
 	-Wshadow \
 	-Wpointer-arith \
@@ -36,10 +35,16 @@ CFLAGS += \
         -Wno-unused-command-line-argument \
 	-O3 \
 	-fomit-frame-pointer \
-        -std=c99 \
+	-Wsign-conversion \
+	-std=c99 \
 	-pedantic \
 	-MMD \
 	$(CPPFLAGS)
+
+# Check if the compiler is Clang
+ifneq (,$(findstring clang,$(CC)))
+    CFLAGS += -Wimplicit-int-conversion -Wshorten-64-to-32
+endif
 
 LINKDEPS += $(LIBDEPS)
 
