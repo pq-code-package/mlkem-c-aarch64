@@ -8,6 +8,7 @@ import subprocess
 import logging
 import click
 import hashlib
+import yaml
 import asyncio
 from functools import reduce
 from enum import IntEnum
@@ -100,21 +101,9 @@ class SCHEME(IntEnum):
 
 
 def parse_meta(scheme: SCHEME, field: str) -> str:
-    result = subprocess.run(
-        [
-            "yq",
-            "-r",
-            "--arg",
-            "scheme",
-            str(scheme),
-            f'.implementations.[] | select(.name == $scheme) | ."{field}"',
-            "./META.yml",
-        ],
-        capture_output=True,
-        encoding="utf-8",
-        universal_newlines=False,
-    )
-    return result.stdout.strip()
+    with open("META.yml", "r") as f:
+        meta = yaml.safe_load(f)
+    return meta["implementations"][int(scheme) - 1][field]
 
 
 def github_summary(title: str, test: TEST_TYPES, results: TypedDict):
