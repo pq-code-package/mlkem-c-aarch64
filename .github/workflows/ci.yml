@@ -23,18 +23,13 @@ jobs:
         target:
          - runner: pqcp-arm64
            name: 'aarch64'
-         - runner: pqcp-x64
+         - runner: ubuntu-latest
            name: 'x86_64'
         exclude:
           - {external: true,
              target: {
                runner: pqcp-arm64,
                name: 'aarch64'
-             }}
-          - {external: true,
-             target: {
-               runner: pqcp-x64,
-               name: 'x86_64'
              }}
     name: Quickcheck (${{ matrix.target.name }})
     runs-on: ${{ matrix.target.runner }}
@@ -81,20 +76,26 @@ jobs:
       - name: native build
         uses: ./.github/actions/multi-functest
         with:
-          compile_mode: native
+          gh_token: ${{ secrets.GITHUB_TOKEN }}
+          compile_mode: nativ
           func: false
           nistkat: false
-          kat: falst
+          kat: false
       - name: native tests (+debug)
         uses: ./.github/actions/multi-functest
         with:
+          gh_token: ${{ secrets.GITHUB_TOKEN }}
           compile_mode: native
           cflags: "-DMLKEM_DEBUG"
       - name: cross tests (opt only)
-        if: ${{ matrix.target.runner == 'pqcp-arm64' && (success() || failure()) }}
         uses: ./.github/actions/multi-functest
+        if: ${{ matrix.target.runner != 'macos-latest' && (success() || failure()) }}
         with:
+          nix-shell: ci-cross
+          nix-cache: true
+          gh_token: ${{ secrets.GITHUB_TOKEN }}
           compile_mode: cross
+          opt: opt
           func: false
           nistkat: false
 
@@ -109,7 +110,9 @@ jobs:
       - uses: ./.github/actions/lint
         with:
           nix-shell: ci-linter
+          gh_token: ${{ secrets.GITHUB_TOKEN }}
           cross-prefix: "aarch64-unknown-linux-gnu-"
+
   ec2_all:
     needs: quickcheck
     strategy:
@@ -153,6 +156,7 @@ jobs:
       ec2_ami_id: ${{ matrix.target.ec2_ami_id }}
       compile_mode: ${{ matrix.target.compile_mode }}
       opt: ${{ matrix.target.opt }}
-      kattest: ${{ matrix.target.kattest }}
+      lint: false
       cbmc: ${{ matrix.target.cbmc == 'true' }}
+      verbose: true
     secrets: inherit
