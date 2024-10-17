@@ -19,7 +19,7 @@ runs:
     - name: Install base packages
       shell: bash
       run: |
-        sudo apt-get install python3-venv python3-pip make -y
+        sudo apt-get install python3-venv python3-pip make jq -y
     - name: Install additional packages
       if: ${{ inputs.packages != ''}}
       shell: bash

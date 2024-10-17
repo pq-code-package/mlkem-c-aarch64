@@ -40,11 +40,15 @@ jobs:
     runs-on: ${{ matrix.target.runner }}
     steps:
       - uses: actions/checkout@v4
-      - name: quickcheck
+      - name: make quickcheck
         run: |
           OPT=0 make quickcheck >/dev/null
           make clean            >/dev/null
           OPT=1 make quickcheck >/dev/null
+      - uses: ./.github/actions/setup-ubuntu
+      - name: tests func
+        run: |
+          ./scripts/tests func
   build_kat:
     needs: quickcheck
     strategy:
