@@ -69,12 +69,12 @@ runs:
     - name: Run benchmark
       shell: ${{ env.SHELL }}
       run: |
-        tests bench -c ${{ inputs.perf }} --cross-prefix="${{ inputs.cross_prefix }}" \
+        ./scripts/tests bench -c ${{ inputs.perf }} --cross-prefix="${{ inputs.cross_prefix }}" \
               --cflags="${{ inputs.cflags }}" --arch-flags="${{ inputs.archflags }}" \
               $([[ ${{ inputs.opt }} == "false" ]] && echo "--no-opt")  \
               -v --output=output.json ${{ inputs.bench_extra_args }}
 
-        tests bench --components -c ${{ inputs.perf }} --cross-prefix="${{ inputs.cross_prefix }}" \
+        ./scripts/tests bench --components -c ${{ inputs.perf }} --cross-prefix="${{ inputs.cross_prefix }}" \
               --cflags="${{ inputs.cflags }}" --arch-flags="${{ inputs.archflags }}" \
               $([[ ${{ inputs.opt }} == "false" ]] && echo "--no-opt")  \
               -v --output=output.json ${{ inputs.bench_extra_args }}

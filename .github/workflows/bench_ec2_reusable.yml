@@ -44,9 +44,13 @@ on:
         type: string
         description: Additional command line to be appended to `bench` script
         default: ''
-      cross_prefix:
+      compiler:
         type: string
-        description: "Binary prefix for cross-compilation builds"
+        description: Compiler to use. When unset, default nix shell is used.
+        default: ''
+      additional_packages:
+        type: string
+        description: Additional packages to install when custom compiler is used.
         default: ''
 env:
   AWS_ROLE: arn:aws:iam::559050233797:role/mlkem-c-aarch64-gh-action
@@ -98,10 +102,11 @@ jobs:
           ec2-instance-type: ${{ inputs.ec2_instance_type }}
           subnet-id: subnet-07b2729e5e065962f
           security-group-id: sg-0ab2e297196c8c381
-  bench:
-    name: Bench ${{ inputs.name }}
+  bench_nix:
+    name: Bench (nix)
     runs-on: ${{ needs.start-ec2-runner.outputs.label }}
     needs: start-ec2-runner # required to start the main job when the runner is ready
+    if: ${{ inputs.compiler == '' }}
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/bench
@@ -117,7 +122,33 @@ jobs:
           store_results: ${{ inputs.store_results }}
           bench_extra_args: ${{ inputs.bench_extra_args }}
           gh_token: ${{ secrets.AWS_GITHUB_TOKEN }}
-          cross_prefix: ${{ inputs.cross_prefix }}
+  bench_custom:
+    name: Bench (custom compiler)
+    runs-on: ${{ needs.start-ec2-runner.outputs.label }}
+    needs: start-ec2-runner # required to start the main job when the runner is ready
+    if: ${{ inputs.compiler != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-ubuntu
+        with:
+          packages: ${{ inputs.additional_packages }}
+      - name: Set compiler
+        run: |
+          echo "CC=${{ inputs.compiler }}" >> "$GITHUB_ENV"
+      - uses: ./.github/actions/bench
+        with:
+          nix-shell: ''
+          custom-shell: 'bash'
+          nix-cache: false
+          nix-verbose: ${{ inputs.verbose }}
+          name: ${{ inputs.name }} (${{ inputs.compiler }})
+          cflags: ${{ inputs.cflags }}
+          archflags: ${{ inputs.archflags }}
+          opt: ${{ inputs.opt }}
+          perf: PERF
+          store_results: ${{ inputs.store_results }}
+          bench_extra_args: ${{ inputs.bench_extra_args }}
+          gh_token: ${{ secrets.AWS_GITHUB_TOKEN }}
   stop-ec2-runner:
     name: Stop ${{ inputs.name }} (${{ inputs.ec2_instance_type }})
     permissions:
@@ -125,7 +156,8 @@ jobs:
       id-token: 'write'
     needs:
       - start-ec2-runner
-      - bench # required to wait when the main job is done
+      - bench_nix # required to wait when the main job is done
+      - bench_custom # required to wait when the main job is done
     runs-on: ubuntu-latest
     if: ${{ always() }} # required to stop the runner even if the error happened in the previous jobs
     steps:

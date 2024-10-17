@@ -4,11 +4,8 @@ name: Set Shell
 description: Setup nix or custom shell for workflows
 
 inputs:
-  use-nix:
-    description: Indicate whether to use nix or not
-    default: 'true'
   nix-shell:
-    description: Run in the specified Nix environment if exists
+    description: Run in the specified Nix environment if exists. If empty, custom shell will be used instead of nix.
     default: 'ci'
   nix-cache:
     description: Determine whether to enable nix cache
@@ -28,7 +25,7 @@ runs:
   steps:
     - name: Setup nix
       uses: ./.github/actions/setup-nix
-      if: ${{ inputs.use-nix == 'true' && (env.SHELL == '' || env.Nix_SHELL != inputs.nix-shell) }}
+      if: ${{ inputs.nix-shell != '' }}
       with:
         devShell: ${{ inputs.nix-shell }}
         verbose: ${{ inputs.nix-verbose }}
@@ -36,7 +33,7 @@ runs:
         script: ${{ inputs.script }}
     - name: Set custom shell
       shell: bash
-      if: ${{ inputs.use-nix != 'true' && env.SHELL == '' }}
+      if: ${{ inputs.nix-shell == '' }}
       run: |
           echo SHELL="${{ inputs.custom_shell }}" >> $GITHUB_ENV
 
