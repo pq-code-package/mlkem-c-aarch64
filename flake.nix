@@ -70,6 +70,7 @@
                 qemu; # 8.2.4
 
               inherit (pkgs.python3Packages)
+                pyyaml
                 python
                 click;
             };
