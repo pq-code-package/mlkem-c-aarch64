@@ -106,6 +106,13 @@ jobs:
     runs-on: ${{ needs.start-ec2-runner.outputs.label }}
     steps:
       - uses: actions/checkout@v4
+      - name: Linting
+        if: ${{ inputs.lint }}
+        uses: ./.github/actions/lint
+        with:
+          nix-shell: ci-linter
+          gh_token: ${{ secrets.AWS_GITHUB_TOKEN }}
+          nix-verbose: ${{ inputs.verbose }}
       - name: Preprocess
         id: preprocess
         shell: bash
@@ -123,12 +130,6 @@ jobs:
           func: ${{ inputs.functest }}
           kat: ${{ inputs.kattest }}
           nistkat: ${{ inputs.nistkattest }}
-      - name: Linting
-        if: ${{ inputs.lint && (success() || failure()) }}
-        uses: ./.github/actions/lint
-        with:
-          nix-shell: ci-linter
-          nix-verbose: ${{ inputs.verbose }}
       - name: CBMC
         if: ${{ inputs.cbmc && (success() || failure()) }}
         uses: ./.github/actions/cbmc
