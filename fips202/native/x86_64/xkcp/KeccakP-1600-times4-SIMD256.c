@@ -46,7 +46,7 @@ typedef __m128i V128;
 typedef __m256i V256;
 
 #define laneIndex(instanceIndex, lanePosition) \
-  ((lanePosition) * 4 + (instanceIndex))
+  ((lanePosition)*4 + (instanceIndex))
 
 #if defined(KeccakP1600times4_useAVX2)
 #define ANDnu256(a, b) _mm256_andnot_si256(a, b)

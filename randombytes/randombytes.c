@@ -39,7 +39,7 @@ void randombytes(uint8_t *out, size_t outlen) {
     }
 
     out += len;
-    outlen -= len;
+    outlen -= (size_t)len;
   }
 
   if (!CryptReleaseContext(ctx, 0)) {
@@ -59,7 +59,7 @@ void randombytes(uint8_t *out, size_t outlen) {
     }
 
     out += ret;
-    outlen -= ret;
+    outlen -= (size_t)ret;
   }
 }
 #else
@@ -85,7 +85,7 @@ void randombytes(uint8_t *out, size_t outlen) {
     }
 
     out += ret;
-    outlen -= ret;
+    outlen -= (size_t)ret;
   }
 }
 #endif

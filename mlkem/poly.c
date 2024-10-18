@@ -206,8 +206,8 @@ void poly_tobytes(uint8_t r[KYBER_POLYBYTES], const poly *a) {
   DECREASES(KYBER_N / 2 - i)
     // clang-format on
     {
-      const uint16_t t0 = a->coeffs[2 * i];
-      const uint16_t t1 = a->coeffs[2 * i + 1];
+      const uint16_t t0 = (uint16_t)a->coeffs[2 * i];
+      const uint16_t t1 = (uint16_t)a->coeffs[2 * i + 1];
       // REF-CHANGE: Precondition change, we assume unsigned canonical data
 
       // t0 and t1 are both < KYBER_Q, so contain at most 12 bits each of
@@ -308,7 +308,7 @@ void poly_tomsg(uint8_t msg[KYBER_INDCPA_MSGBYTES], const poly *a) {
   for (i = 0; i < KYBER_N / 8; i++) {
     msg[i] = 0;
     for (j = 0; j < 8; j++) {
-      t = a->coeffs[8 * i + j];
+      t = (uint32_t)a->coeffs[8 * i + j];
       // t += ((int16_t)t >> 15) & KYBER_Q;
       // t  = (((t << 1) + KYBER_Q/2)/KYBER_Q) & 1;
       t <<= 1;
@@ -548,7 +548,7 @@ void poly_reduce(poly *r) {
     // Barrett reduction, giving signed canonical representative
     int16_t t = barrett_reduce(r->coeffs[i]);
     // Conditional addition to get unsigned canonical representative
-    r->coeffs[i] = scalar_signed_to_unsigned_q_16(t);
+    r->coeffs[i] = (int16_t)scalar_signed_to_unsigned_q_16(t);
   }
 
   POLY_UBOUND(r, KYBER_Q);
