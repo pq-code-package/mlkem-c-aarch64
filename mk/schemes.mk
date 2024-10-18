@@ -6,7 +6,7 @@ ifeq ($(OPT),1)
 endif
 
 CPPFLAGS += -Imlkem -Imlkem/sys -Imlkem/native -Imlkem/native/aarch64 -Imlkem/native/x86_64
-TESTS = test_kyber bench_kyber bench_components_kyber gen_NISTKAT gen_KAT
+TESTS = test_kyber acvp_kyber bench_kyber bench_components_kyber gen_NISTKAT gen_KAT
 
 MLKEM512_DIR = $(BUILD_DIR)/mlkem512
 MLKEM768_DIR = $(BUILD_DIR)/mlkem768

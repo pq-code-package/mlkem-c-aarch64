@@ -37,6 +37,11 @@ bench: \
 	$(MLKEM768_DIR)/bin/bench_kyber768 \
 	$(MLKEM1024_DIR)/bin/bench_kyber1024
 
+acvp: \
+	$(MLKEM512_DIR)/bin/acvp_kyber512 \
+	$(MLKEM768_DIR)/bin/acvp_kyber768 \
+	$(MLKEM1024_DIR)/bin/acvp_kyber1024
+
 bench_components: \
 	$(MLKEM512_DIR)/bin/bench_components_kyber512 \
 	$(MLKEM768_DIR)/bin/bench_components_kyber768 \
