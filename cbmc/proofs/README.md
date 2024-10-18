@@ -27,7 +27,7 @@ If `GITHUB_STEP_SUMMARY` is set, the proof summary will be appended to it.
 
 # Covered functions
 
-Each proved function has a eponymous sub-directory of its own. The shell command
+Each proved function has an eponymous sub-directory of its own. The shell command
 
 ```
 find . -name cbmc-proof.txt
