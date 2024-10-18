@@ -7,6 +7,8 @@ buildall:
 	$(Q)$(MAKE) mlkem
 	$(Q)$(MAKE) nistkat
 	$(Q)$(MAKE) kat
+	$(Q)$(MAKE) acvp
+
 	$(Q)echo "  Everything builds fine!"
 
 include mk/config.mk
@@ -20,12 +22,15 @@ quickcheck:
 	$(Q)$(MAKE) mlkem
 	$(Q)$(MAKE) nistkat
 	$(Q)$(MAKE) kat
+	$(Q)$(MAKE) acvp
+
 	$(Q)echo "  Everything builds fine!"
         # Run basic functionality checks
 	$(MLKEM512_DIR)/bin/test_kyber512
 	$(MLKEM768_DIR)/bin/test_kyber768
 	$(MLKEM1024_DIR)/bin/test_kyber1024
-	$(Q)echo "  Functionality tests passed!"
+	python3 ./test/acvp_client.py
+	$(Q)echo "  Functionality and ACVP tests passed!"
 
 mlkem: \
   $(MLKEM512_DIR)/bin/test_kyber512 \
