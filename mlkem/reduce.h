@@ -11,13 +11,17 @@
 
 #define montgomery_reduce KYBER_NAMESPACE(montgomery_reduce)
 int16_t montgomery_reduce(int32_t a)
-    REQUIRES(a >= INT32_MIN + (32768 * KYBER_Q))
-        REQUIRES(a <= INT32_MAX - (32768 * KYBER_Q))
-            ENSURES(RETURN_VALUE >= INT16_MIN && RETURN_VALUE <= INT16_MAX);
+    // clang-format off
+REQUIRES(a >= INT32_MIN + (32768 * KYBER_Q))
+REQUIRES(a <= INT32_MAX - (32768 * KYBER_Q))
+ENSURES(RETURN_VALUE >= INT16_MIN && RETURN_VALUE <= INT16_MAX);
+// clang-format on
 
 #define barrett_reduce KYBER_NAMESPACE(barrett_reduce)
 int16_t barrett_reduce(int16_t a)
-    ENSURES(RETURN_VALUE >= -HALF_Q && RETURN_VALUE <= HALF_Q);
+    // clang-format off
+ENSURES(RETURN_VALUE >= -HALF_Q && RETURN_VALUE <= HALF_Q);
+// clang-format on
 
 /*************************************************
  * Name:        fqmul
