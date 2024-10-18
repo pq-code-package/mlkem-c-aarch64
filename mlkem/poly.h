@@ -34,32 +34,46 @@ typedef struct {
   KYBER_NAMESPACE(scalar_signed_to_unsigned_q_16)
 
 static inline uint32_t scalar_compress_q_16(int32_t u)
-    REQUIRES(0 <= u && u <= (KYBER_Q - 1)) ENSURES(RETURN_VALUE < 16)
-        ENSURES(RETURN_VALUE ==
-                (((uint32_t)u * 16 + KYBER_Q / 2) / KYBER_Q) % 16);
+    // clang-format off
+REQUIRES(0 <= u && u <= (KYBER_Q - 1))
+ENSURES(RETURN_VALUE < 16)
+ENSURES(RETURN_VALUE == (((uint32_t)u * 16 + KYBER_Q / 2) / KYBER_Q) % 16);
+// clang-format on
 
 static inline uint32_t scalar_decompress_q_16(uint32_t u)
-    REQUIRES(0 <= u && u < 16) ENSURES(RETURN_VALUE <= (KYBER_Q - 1));
+    // clang-format off
+REQUIRES(0 <= u && u < 16)
+ENSURES(RETURN_VALUE <= (KYBER_Q - 1));
+// clang-format on
 
 static inline uint32_t scalar_compress_q_32(int32_t u)
-    REQUIRES(0 <= u && u <= (KYBER_Q - 1)) ENSURES(RETURN_VALUE < 32)
-        ENSURES(RETURN_VALUE ==
-                (((uint32_t)u * 32 + KYBER_Q / 2) / KYBER_Q) % 32);
+    // clang-format off
+REQUIRES(0 <= u && u <= (KYBER_Q - 1))
+ENSURES(RETURN_VALUE < 32)
+ENSURES(RETURN_VALUE == (((uint32_t)u * 32 + KYBER_Q / 2) / KYBER_Q) % 32);
+// clang-format on
 
 static inline uint32_t scalar_decompress_q_32(uint32_t u)
-    REQUIRES(0 <= u && u < 32) ENSURES(RETURN_VALUE <= (KYBER_Q - 1));
+    // clang-format off
+REQUIRES(0 <= u && u < 32)
+ENSURES(RETURN_VALUE <= (KYBER_Q - 1));
+// clang-format on
 
 static inline uint16_t scalar_signed_to_unsigned_q_16(int16_t c)
-    REQUIRES(c >= -(KYBER_Q - 1) && c <= (KYBER_Q - 1))
-        ENSURES(RETURN_VALUE >= 0 && RETURN_VALUE <= (KYBER_Q - 1))
-            ENSURES(RETURN_VALUE == (int32_t)c + (((int32_t)c < 0) * KYBER_Q));
+    // clang-format off
+REQUIRES(c >= -(KYBER_Q - 1) && c <= (KYBER_Q - 1))
+ENSURES(RETURN_VALUE >= 0 && RETURN_VALUE <= (KYBER_Q - 1))
+ENSURES(RETURN_VALUE == (int32_t)c + (((int32_t)c < 0) * KYBER_Q));
+// clang-format on
 
 #define poly_compress KYBER_NAMESPACE(poly_compress)
 void poly_compress(uint8_t r[KYBER_POLYCOMPRESSEDBYTES], const poly *a)
-    REQUIRES(r != NULL && IS_FRESH(r, KYBER_POLYCOMPRESSEDBYTES))
-        REQUIRES(a != NULL && IS_FRESH(a, sizeof(poly)))
-            REQUIRES(ARRAY_IN_BOUNDS(int, k, 0, (KYBER_N - 1), a->coeffs, 0,
-                                     (KYBER_Q - 1))) ASSIGNS(OBJECT_WHOLE(r));
+    // clang-format off
+REQUIRES(r != NULL && IS_FRESH(r, KYBER_POLYCOMPRESSEDBYTES))
+REQUIRES(a != NULL && IS_FRESH(a, sizeof(poly)))
+REQUIRES(ARRAY_IN_BOUNDS(int, k, 0, (KYBER_N - 1), a->coeffs, 0, (KYBER_Q - 1)))
+ASSIGNS(OBJECT_WHOLE(r));
+// clang-format on
 
 /************************************************************
  * Name: scalar_compress_q_16
@@ -172,17 +186,20 @@ static inline uint16_t scalar_signed_to_unsigned_q_16(int16_t c) {
 
 #define poly_decompress KYBER_NAMESPACE(poly_decompress)
 void poly_decompress(poly *r, const uint8_t a[KYBER_POLYCOMPRESSEDBYTES])
-    REQUIRES(a != NULL && IS_FRESH(a, KYBER_POLYCOMPRESSEDBYTES))
-        REQUIRES(r != NULL && IS_FRESH(r, sizeof(poly)))
-            ASSIGNS(OBJECT_WHOLE(r))
-                ENSURES(ARRAY_IN_BOUNDS(int, k, 0, (KYBER_N - 1), r->coeffs, 0,
-                                        (KYBER_Q - 1)));
+    // clang-format off
+REQUIRES(a != NULL && IS_FRESH(a, KYBER_POLYCOMPRESSEDBYTES))
+REQUIRES(r != NULL && IS_FRESH(r, sizeof(poly)))
+ASSIGNS(OBJECT_WHOLE(r))
+ENSURES(ARRAY_IN_BOUNDS(int, k, 0, (KYBER_N - 1), r->coeffs, 0, (KYBER_Q - 1)));
+// clang-format on
 
 #define poly_tobytes KYBER_NAMESPACE(poly_tobytes)
 void poly_tobytes(uint8_t r[KYBER_POLYBYTES], const poly *a)
-    REQUIRES(a != NULL && IS_FRESH(a, sizeof(poly)))
-        REQUIRES(ARRAY_IN_BOUNDS(int, k, 0, (KYBER_N - 1), a->coeffs, 0,
-                                 (KYBER_Q - 1))) ASSIGNS(OBJECT_WHOLE(r));
+    // clang-format off
+REQUIRES(a != NULL && IS_FRESH(a, sizeof(poly)))
+REQUIRES(ARRAY_IN_BOUNDS(int, k, 0, (KYBER_N - 1), a->coeffs, 0, (KYBER_Q - 1)))
+ASSIGNS(OBJECT_WHOLE(r));
+// clang-format on
 
 
 #define poly_frombytes KYBER_NAMESPACE(poly_frombytes)
