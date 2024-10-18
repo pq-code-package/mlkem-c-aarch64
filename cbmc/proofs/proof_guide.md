@@ -35,7 +35,7 @@ CBMC requires basic assigns, loop-invariant, and decreases contracts _in exactly
 
 ```
 for (int i = 0; i < C; i++)
-// clang-format off
+    // clang-format off
 ASSIGNS(i) // plus whatever else S does
 INVARIANT(i >= 0)
 INVARIANT(i <= C)
@@ -54,8 +54,10 @@ A common pattern - doing something to every element of an array. An example woul
 
 ```
 void zero_array_ts (uint8_t *dst, int len)
+    // clang-format off
 REQUIRES(IS_FRESH(dst, len))
 ASSIGNS(OBJECT_WHOLE(dst));
+// clang-format on
 ```
 
 The body:
@@ -86,9 +88,11 @@ The function specification is extended:
 
 ```
 void zero_array_correct (uint8_t *dst, int len)
+    // clang-format off
 REQUIRES(IS_FRESH(dst, len))
 ASSIGNS(OBJECT_WHOLE(dst))
 ENSURES(FORALL { int k; (0 <= k && k < len) ==> dst[k] == 0 });
+// clang-format on
 ```
 
 Note the required order of the contracts is always REQUIRES, ASSIGNS, ENSURES.
@@ -99,7 +103,7 @@ The body is the same, but with a stronger loop invariant. The invariant says tha
 void zero_array_correct (uint8_t *dst, int len)
 {
     for (int i = 0; i < len; i++)
-    // clang-format off
+        // clang-format off
     ASSIGNS(i, OBJECT_WHOLE(dst))
     INVARIANT(i >= 0 && i <= len)
     INVARIANT(FORALL { int j; (0 <= j && j <= i - 1) ==> dst[j] == 0 } )
@@ -237,9 +241,11 @@ Check for any BOUND macros in the body that give range constraints on the parmet
 The order of the top-level contracts for a function is always:
 ```
 t1 XXX(params...)
+    // clang-format off
 REQUIRES()
 ASSIGNS()
 ENSURES();
+// clang-format on
 ```
 with a final semi-colon on the end of the last one.
 
@@ -317,9 +323,11 @@ We can use the macros in `cbmc.h` to help, thus:
 
 ```
 void poly_tobytes(uint8_t r[KYBER_POLYBYTES], const poly *a)
+     // clang-format off
 REQUIRES(a != NULL && IS_FRESH(a, sizeof(poly)))
 REQUIRES(ARRAY_IN_BOUNDS(int, k, 0, (KYBER_N - 1), a->coeffs, 0, (KYBER_Q - 1)))
 ASSIGNS(OBJECT_WHOLE(r));
+// clang-format on
 ```
 
 ### Interior contracts and loop invariants
