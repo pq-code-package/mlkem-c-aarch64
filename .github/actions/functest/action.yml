@@ -51,14 +51,7 @@ runs:
               _cross_prefix="x86_64-unknown-linux-gnu-"
           fi
 
-          _cc=$CC
-          if [[ $_cc == "" ]]; then
-             _cc=gcc
-          fi
-
           echo _CROSS_PREFIX="$_cross_prefix" >> $GITHUB_ENV
-          echo _CC="$_cc" >> $GITHUB_ENV
-
           echo OPT="${{ inputs.opt == 'true' && 'opt' || 'no-opt' }}" >> $GITHUB_ENV
           echo FUNC="${{ inputs.func == 'true' && 'func' || 'no-func' }}" >> $GITHUB_ENV
           echo KAT="${{ inputs.kat == 'true' && 'kat' || 'no-kat' }}" >> $GITHUB_ENV
@@ -71,25 +64,26 @@ runs:
           nix-verbose: ${{ inputs.nix-verbose }}
           gh_token: ${{ inputs.gh_token }}
           custom_shell: ${{ inputs.custom_shell }}
-          script: |
-            ARCH=$(uname -m)
-            echo <<-EOF
-              ## Setup
-              Architecture: $ARCH
-              - $(uname -a)
-              - $(nix --version)
-              - $(bash --version | grep -m1 "")
-              - $(${_CROSS_PREFIX}${_CC} --version | grep -m1 "")
-            EOF
-            cat >> $GITHUB_STEP_SUMMARY <<-EOF
-              ## Setup
-              Architecture: $ARCH
-              - $(uname -a)
-              - $(nix --version)
-              - $(bash --version | grep -m1 "")
-              - $(${_CROSS_PREFIX}${_CC} --version | grep -m1 "")
-            EOF
-
+      - name: System info
+        shell: ${{ env.SHELL }}
+        run: |
+          ARCH=$(uname -m)
+          echo <<-EOF
+            ## Setup
+            Architecture: $ARCH
+            - $(uname -a)
+            - $(nix --version)
+            - $(bash --version | grep -m1 "")
+            - $(${_CROSS_PREFIX}${CC} --version | grep -m1 "")
+          EOF
+          cat >> $GITHUB_STEP_SUMMARY <<-EOF
+            ## Setup
+            Architecture: $ARCH
+            - $(uname -a)
+            - $(nix --version)
+            - $(bash --version | grep -m1 "")
+            - $(${_CROSS_PREFIX}${CC} --version | grep -m1 "")
+          EOF
       - name: Compile ${{ inputs.mode }} ${{ env.OPT }} tests (${{ env.FUNC }}, ${{ env.KAT }}, ${{ env.NISTKAT }})
         shell: ${{ env.SHELL }}
         run: |
