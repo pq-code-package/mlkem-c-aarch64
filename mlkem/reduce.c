@@ -77,7 +77,7 @@ int16_t montgomery_reduce(int32_t a) {
   // Lift to signed canonical representative mod 2^16.
   const int16_t t = cast_uint16_to_int16(a_inverted);
 
-  int32_t r = a - ((int32_t)t * KYBER_Q);
+  int32_t r = a - ((int32_t)t * MLKEM_Q);
 
   // PORTABILITY: Right-shift on a signed integer is, strictly-speaking,
   // implementation-defined for negative left argument. Here,
@@ -87,11 +87,11 @@ int16_t montgomery_reduce(int32_t a) {
   return (int16_t)r;
 }
 
-// To divide by KYBER_Q using Barrett multiplication, the "magic number"
-// multiplier is round_to_nearest(2**26/KYBER_Q)
+// To divide by MLKEM_Q using Barrett multiplication, the "magic number"
+// multiplier is round_to_nearest(2**26/MLKEM_Q)
 #define BPOWER 26
 static const int32_t barrett_multiplier =
-    ((1 << BPOWER) + KYBER_Q / 2) / KYBER_Q;
+    ((1 << BPOWER) + MLKEM_Q / 2) / MLKEM_Q;
 
 /*************************************************
  * Name:        barrett_reduce
@@ -105,7 +105,7 @@ static const int32_t barrett_multiplier =
  * Returns:     integer in {-(q-1)/2,...,(q-1)/2} congruent to a modulo q.
  **************************************************/
 int16_t barrett_reduce(int16_t a) {
-  // Compute round_to_nearest(a/KYBER_Q) using the multiplier
+  // Compute round_to_nearest(a/MLKEM_Q) using the multiplier
   // above and shift by BPOWER places.
   //
   // PORTABILITY: Right-shift on a signed integer is, strictly-speaking,
@@ -114,6 +114,6 @@ int16_t barrett_reduce(int16_t a) {
   const int32_t t = (barrett_multiplier * a + (1 << (BPOWER - 1))) >> BPOWER;
 
   // t is in -10 .. +10, so we need 32-bit math to
-  // evaluate t * KYBER_Q and the subsequent subtraction
-  return (int16_t)(a - t * KYBER_Q);
+  // evaluate t * MLKEM_Q and the subsequent subtraction
+  return (int16_t)(a - t * MLKEM_Q);
 }

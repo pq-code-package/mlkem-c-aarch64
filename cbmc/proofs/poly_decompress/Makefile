@@ -19,13 +19,13 @@ PROOF_SOURCES += $(PROOFDIR)/$(HARNESS_FILE).c
 PROJECT_SOURCES += $(SRCDIR)/mlkem/poly.c
 PROJECT_SOURCES += $(SRCDIR)/mlkem/verify.c
 
-CHECK_FUNCTION_CONTRACTS=$(KYBER_NAMESPACE)poly_decompress
+CHECK_FUNCTION_CONTRACTS=$(MLKEM_NAMESPACE)poly_decompress
 
 # For K = 2 or 3, the code calls scalar_decompress_q_16, so
-ifeq ($(KYBER_K),4)
-USE_FUNCTION_CONTRACTS = $(KYBER_NAMESPACE)scalar_decompress_q_32
+ifeq ($(MLKEM_K),4)
+USE_FUNCTION_CONTRACTS = $(MLKEM_NAMESPACE)scalar_decompress_q_32
 else
-USE_FUNCTION_CONTRACTS = $(KYBER_NAMESPACE)scalar_decompress_q_16
+USE_FUNCTION_CONTRACTS = $(MLKEM_NAMESPACE)scalar_decompress_q_16
 endif
 
 APPLY_LOOP_CONTRACTS=on
@@ -35,7 +35,7 @@ USE_DYNAMIC_FRAMES=1
 EXTERNAL_SAT_SOLVER=
 CBMCFLAGS=--bitwuzla
 
-FUNCTION_NAME = $(KYBER_NAMESPACE)poly_decompress
+FUNCTION_NAME = $(MLKEM_NAMESPACE)poly_decompress
 
 # If this proof is found to consume huge amounts of RAM, you can set the
 # EXPENSIVE variable. With new enough versions of the proof tools, this will

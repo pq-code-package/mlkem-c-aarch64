@@ -24,7 +24,7 @@ static void shake256_absorb(shake256incctx *state, const uint8_t *input,
 }
 
 int main(void) {
-  uint8_t coins[3 * KYBER_SYMBYTES] ALIGN;
+  uint8_t coins[3 * MLKEM_SYMBYTES] ALIGN;
   uint8_t pk[CRYPTO_PUBLICKEYBYTES] ALIGN;
   uint8_t sk[CRYPTO_SECRETKEYBYTES] ALIGN;
   uint8_t ct[CRYPTO_CIPHERTEXTBYTES] ALIGN;
@@ -48,7 +48,7 @@ int main(void) {
     print_hex("pk", pk, sizeof(pk));
     print_hex("sk", sk, sizeof(sk));
 
-    crypto_kem_enc_derand(ct, ss1, pk, coins + 2 * KYBER_SYMBYTES);
+    crypto_kem_enc_derand(ct, ss1, pk, coins + 2 * MLKEM_SYMBYTES);
     print_hex("ct", ct, sizeof(ct));
 
     crypto_kem_dec(ss2, ct, sk);

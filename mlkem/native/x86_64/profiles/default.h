@@ -39,7 +39,7 @@ static inline void poly_permute_bitrev_to_custom(poly *data) {
 static inline int rej_uniform_native(int16_t *r, unsigned int len,
                                      const uint8_t *buf, unsigned int buflen) {
   // AVX2 implementation assumes specific buffer lengths
-  if (len != KYBER_N || buflen != REJ_UNIFORM_AVX_BUFLEN) {
+  if (len != MLKEM_N || buflen != REJ_UNIFORM_AVX_BUFLEN) {
     return -1;
   }
 
@@ -79,13 +79,13 @@ static inline void polyvec_basemul_acc_montgomery_cached_native(
   polyvec_basemul_acc_montgomery_cached_avx2(r, a, b, b_cache);
 }
 
-static inline void poly_tobytes_native(uint8_t r[KYBER_POLYBYTES],
+static inline void poly_tobytes_native(uint8_t r[MLKEM_POLYBYTES],
                                        const poly *a) {
   ntttobytes_avx2(r, (const __m256i *)a->coeffs, qdata.vec);
 }
 
 static inline void poly_frombytes_native(poly *r,
-                                         const uint8_t a[KYBER_POLYBYTES]) {
+                                         const uint8_t a[MLKEM_POLYBYTES]) {
   nttfrombytes_avx2((__m256i *)r->coeffs, a, qdata.vec);
 }
 

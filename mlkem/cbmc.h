@@ -92,11 +92,11 @@
 // range value_lb .. value_ub (inclusive)"
 //
 // Example:
-//  ARRAY_IN_BOUNDS(unsigned, k, 0, KYBER_N-1, a->coeffs, -(KYBER_Q - 1),
-//  KYBER_Q - 1)
+//  ARRAY_IN_BOUNDS(unsigned, k, 0, MLKEM_N-1, a->coeffs, -(MLKEM_Q - 1),
+//  MLKEM_Q - 1)
 // expands to
-//  __CPROVER_forall { unsigned k; (0 <= k && k <= KYBER_N-1) ==> ( (-(KYBER_Q -
-//  1) <= a->coeffs[k]) && (a->coeffs[k] <= (KYBER_Q - 1))) }
+//  __CPROVER_forall { unsigned k; (0 <= k && k <= MLKEM_N-1) ==> ( (-(MLKEM_Q -
+//  1) <= a->coeffs[k]) && (a->coeffs[k] <= (MLKEM_Q - 1))) }
 
 // Prevent clang-format from corrupting CBMC's special ==> operator
 // clang-format off

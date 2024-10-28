@@ -19,7 +19,7 @@ To run all proofs, print a summary at the end and reflect overall
 success/failure in the error code, use
 
 ```
-KYBER_K={2,3,4} run-cbmc-proofs.py --summarize
+MLKEM_K={2,3,4} run-cbmc-proofs.py --summarize
 ```
 
 If `GITHUB_STEP_SUMMARY` is set, the proof summary will be appended to it.

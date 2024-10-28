@@ -139,7 +139,7 @@ const_addr:
         .short 0
         .short 0
 
-#if KYBER_K == 2
+#if MLKEM_K == 2
 
 .global polyvec_basemul_acc_montgomery_cached_asm_k2_clean
 .global _polyvec_basemul_acc_montgomery_cached_asm_k2_clean
@@ -159,7 +159,7 @@ _polyvec_basemul_acc_montgomery_cached_asm_k2_clean:
         add b1_ptr, b0_ptr, #(1 * 512)
         add b1_cache_ptr, b0_cache_ptr, #(1 * 512/2)
 
-        mov count, #(KYBER_N / 16)
+        mov count, #(MLKEM_N / 16)
 k2_loop_start:
 
         load_polys aa, bb, a0_ptr, b0_ptr, b0_cache_ptr
@@ -177,9 +177,9 @@ k2_loop_start:
 
         pop_stack
         ret
-#endif /* KYBER_K == 2 */
+#endif /* MLKEM_K == 2 */
 
-#if KYBER_K == 3
+#if MLKEM_K == 3
 .global polyvec_basemul_acc_montgomery_cached_asm_k3_clean
 .global _polyvec_basemul_acc_montgomery_cached_asm_k3_clean
 
@@ -201,7 +201,7 @@ _polyvec_basemul_acc_montgomery_cached_asm_k3_clean:
         add b2_ptr, b0_ptr, #(2 * 512)
         add b2_cache_ptr, b0_cache_ptr, #(2 * 512/2)
 
-        mov count, #(KYBER_N / 16)
+        mov count, #(MLKEM_N / 16)
 k3_loop_start:
 
         load_polys aa, bb, a0_ptr, b0_ptr, b0_cache_ptr
@@ -221,9 +221,9 @@ k3_loop_start:
 
         pop_stack
         ret
-#endif /* KYBER_K == 3 */
+#endif /* MLKEM_K == 3 */
 
-#if KYBER_K == 4
+#if MLKEM_K == 4
 .global polyvec_basemul_acc_montgomery_cached_asm_k4_clean
 .global _polyvec_basemul_acc_montgomery_cached_asm_k4_clean
 
@@ -256,7 +256,7 @@ _polyvec_basemul_acc_montgomery_cached_asm_k4_clean:
         // The Montgomery reduction is thus bound by
         // q * (2^18/2^16 + 1/2) = 4.5 q < 14981
 
-        mov count, #(KYBER_N / 16)
+        mov count, #(MLKEM_N / 16)
 k4_loop_start:
 
         load_polys aa, bb, a0_ptr, b0_ptr, b0_cache_ptr
@@ -278,6 +278,6 @@ k4_loop_start:
 
         pop_stack
         ret
-#endif /* KYBER_K == 4 */
+#endif /* MLKEM_K == 4 */
 
 #endif /* MLKEM_USE_NATIVE_AARCH64 */

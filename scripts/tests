@@ -62,11 +62,11 @@ class TEST_TYPES(IntEnum):
     def bin(self):
         match self:
             case TEST_TYPES.MLKEM:
-                return "test_kyber"
+                return "test_mlkem"
             case TEST_TYPES.BENCH:
-                return "bench_kyber"
+                return "bench_mlkem"
             case TEST_TYPES.BENCH_COMPONENTS:
-                return "bench_components_kyber"
+                return "bench_components_mlkem"
             case TEST_TYPES.NISTKAT:
                 return "gen_NISTKAT"
             case TEST_TYPES.KAT:

@@ -9,7 +9,7 @@
 
 /* Code to generate zetas and zetas_inv used in the number-theoretic transform:
 
-#define KYBER_ROOT_OF_UNITY 17
+#define MLKEM_ROOT_OF_UNITY 17
 
 static const uint8_t tree[128] = {
   0, 64, 32, 96, 16, 80, 48, 112, 8, 72, 40, 104, 24, 88, 56, 120,
@@ -28,14 +28,14 @@ void init_ntt() {
 
   tmp[0] = MONT;
   for(i=1;i<128;i++)
-    tmp[i] = fqmul(tmp[i-1],MONT*KYBER_ROOT_OF_UNITY % KYBER_Q);
+    tmp[i] = fqmul(tmp[i-1],MONT*MLKEM_ROOT_OF_UNITY % MLKEM_Q);
 
   for(i=0;i<128;i++) {
     zetas[i] = tmp[tree[i]];
-    if(zetas[i] > KYBER_Q/2)
-      zetas[i] -= KYBER_Q;
-    if(zetas[i] < -KYBER_Q/2)
-      zetas[i] += KYBER_Q;
+    if(zetas[i] > MLKEM_Q/2)
+      zetas[i] -= MLKEM_Q;
+    if(zetas[i] < -MLKEM_Q/2)
+      zetas[i] += MLKEM_Q;
   }
 }
 */
@@ -61,7 +61,7 @@ const int16_t zetas[128] = {
  *              a polynomial in place.
  *
  *              The input is assumed to be in normal order and
- *              coefficient-wise bound by KYBER_Q in absolute value.
+ *              coefficient-wise bound by MLKEM_Q in absolute value.
  *
  *              The output polynomial is in bitreversed order, and
  *              coefficient-wise bound by NTT_BOUND in absolute value.
@@ -75,13 +75,13 @@ const int16_t zetas[128] = {
 
 // Check that the specific bound for the reference NTT implies
 // the bound required by the C<->Native interface.
-#define NTT_BOUND_REF (5 * KYBER_Q)
+#define NTT_BOUND_REF (5 * MLKEM_Q)
 STATIC_ASSERT(NTT_BOUND_REF <= NTT_BOUND, ntt_ref_bound)
 
 // REF-CHANGE: Removed indirection poly_ntt -> ntt()
 // and integrated polynomial reduction into the NTT.
 void poly_ntt(poly *p) {
-  POLY_BOUND_MSG(p, KYBER_Q, "ref ntt input");
+  POLY_BOUND_MSG(p, MLKEM_Q, "ref ntt input");
 
   unsigned int len, start, j, k;
   int16_t t, zeta;
@@ -123,7 +123,7 @@ void poly_ntt(poly *p) {
 STATIC_ASSERT(NTT_BOUND_NATIVE <= NTT_BOUND, invntt_bound)
 
 void poly_ntt(poly *p) {
-  POLY_BOUND_MSG(p, KYBER_Q, "native ntt input");
+  POLY_BOUND_MSG(p, MLKEM_Q, "native ntt input");
   ntt_native(p);
   POLY_BOUND_MSG(p, NTT_BOUND_NATIVE, "native ntt output");
 }
@@ -148,7 +148,7 @@ void poly_ntt(poly *p) {
 #if !defined(MLKEM_USE_NATIVE_INTT)
 
 // Check that bound for reference invNTT implies contractual bound
-#define INVNTT_BOUND_REF (3 * KYBER_Q / 4)
+#define INVNTT_BOUND_REF (3 * MLKEM_Q / 4)
 STATIC_ASSERT(INVNTT_BOUND_REF <= INVNTT_BOUND, invntt_bound)
 
 // REF-CHANGE: Removed indirection poly_invntt_tomont -> invntt()
@@ -163,7 +163,7 @@ void poly_invntt_tomont(poly *p) {
     r[j] = fqmul(r[j], f);
   }
 
-  POLY_BOUND(p, (3 * KYBER_Q) / 4);
+  POLY_BOUND(p, (3 * MLKEM_Q) / 4);
 
   k = 127;
   for (len = 2; len <= 128; len <<= 1) {
@@ -208,7 +208,7 @@ void poly_invntt_tomont(poly *p) {
  **************************************************/
 void basemul_cached(int16_t r[2], const int16_t a[2], const int16_t b[2],
                     int16_t b_cached) {
-  BOUND(a, 2, KYBER_Q, "basemul input bound");
+  BOUND(a, 2, MLKEM_Q, "basemul input bound");
 
   int32_t t0, t1;
 
@@ -222,5 +222,5 @@ void basemul_cached(int16_t r[2], const int16_t a[2], const int16_t b[2],
   r[1] = montgomery_reduce(t1);
 
   // |r[i]| < 3/2 q
-  BOUND(r, 2, 3 * KYBER_Q / 2, "basemul output bound");
+  BOUND(r, 2, 3 * MLKEM_Q / 2, "basemul output bound");
 }

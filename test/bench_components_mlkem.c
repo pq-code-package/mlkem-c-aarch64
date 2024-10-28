@@ -54,10 +54,10 @@ static int bench(void) {
   BENCH("keccak-f1600-x1", KeccakF1600_StatePermute(data0));
   BENCH("keccak-f1600-x4", KeccakF1600x4_StatePermute(data0));
   BENCH("rej_uniform (bulk)",
-        rej_uniform((int16_t *)data0, KYBER_N, (const uint8_t *)data1,
+        rej_uniform((int16_t *)data0, MLKEM_N, (const uint8_t *)data1,
                     3 * SHAKE128_RATE));
   BENCH("rej_uniform (residue)",
-        rej_uniform((int16_t *)data0, KYBER_N / 2, (const uint8_t *)data1,
+        rej_uniform((int16_t *)data0, MLKEM_N / 2, (const uint8_t *)data1,
                     1 * SHAKE128_RATE));
 
 #if defined(MLKEM_USE_NATIVE_AARCH64)
@@ -71,7 +71,7 @@ static int bench(void) {
         poly_mulcache_compute_asm_clean((int16_t *)data0, (int16_t *)data1,
                                         (int16_t *)data2, (int16_t *)data3));
   BENCH("poly-basemul-acc-montgomery-clean",
-        polyvec_basemul_acc_montgomery_cached_asm_clean_name(KYBER_K)(
+        polyvec_basemul_acc_montgomery_cached_asm_clean_name(MLKEM_K)(
             (int16_t *)data0, (int16_t *)data1, (int16_t *)data2,
             (int16_t *)data3));
 
@@ -83,7 +83,7 @@ static int bench(void) {
         poly_mulcache_compute_asm_opt((int16_t *)data0, (int16_t *)data1,
                                       (int16_t *)data2, (int16_t *)data3));
   BENCH("poly-basemul-acc-montgomery-opt",
-        polyvec_basemul_acc_montgomery_cached_asm_opt_name(KYBER_K)(
+        polyvec_basemul_acc_montgomery_cached_asm_opt_name(MLKEM_K)(
             (int16_t *)data0, (int16_t *)data1, (int16_t *)data2,
             (int16_t *)data3));
 #endif

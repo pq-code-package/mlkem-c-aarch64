@@ -5,7 +5,7 @@
 # Processes 'internalProjection.json' files from
 # https://github.com/usnistgov/ACVP-Server/blob/master/gen-val/json-files
 #
-# Invokes `acvp_kyber{lvl}` under the hood.
+# Invokes `acvp_mlkem{lvl}` under the hood.
 
 import json
 import subprocess
@@ -29,7 +29,7 @@ def get_acvp_binary(tg):
     }
     level = parameterSetToLevel[tg["parameterSet"]]
     basedir = f"./test/build/mlkem{level}/bin"
-    acvp_bin = f"acvp_kyber{level}"
+    acvp_bin = f"acvp_mlkem{level}"
     return f"{basedir}/{acvp_bin}"
 
 def run_encapDecap_test(tg, tc):

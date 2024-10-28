@@ -14,7 +14,7 @@
 #include <stdint.h>
 
 #define REJ_UNIFORM_AVX_NBLOCKS \
-  ((12 * KYBER_N / 8 * (1 << 12) / KYBER_Q + SHAKE128_RATE) / SHAKE128_RATE)
+  ((12 * MLKEM_N / 8 * (1 << 12) / MLKEM_Q + SHAKE128_RATE) / SHAKE128_RATE)
 #define REJ_UNIFORM_AVX_BUFLEN (REJ_UNIFORM_AVX_NBLOCKS * SHAKE128_RATE)
 
 // TODO: Document buffer constraints

@@ -21,7 +21,7 @@ static void poly_add_avx2(poly *r, const poly *a, const poly *b) {
   unsigned int i;
   __m256i f0, f1;
 
-  for (i = 0; i < KYBER_N; i += 16) {
+  for (i = 0; i < MLKEM_N; i += 16) {
     f0 = _mm256_load_si256((const __m256i *)&a->coeffs[i]);
     f1 = _mm256_load_si256((const __m256i *)&b->coeffs[i]);
     f0 = _mm256_add_epi16(f0, f1);
@@ -40,7 +40,7 @@ void polyvec_basemul_acc_montgomery_cached_avx2(
   poly t;
 
   poly_basemul_montgomery_avx2(r, &a->vec[0], &b->vec[0]);
-  for (i = 1; i < KYBER_K; i++) {
+  for (i = 1; i < MLKEM_K; i++) {
     poly_basemul_montgomery_avx2(&t, &a->vec[i], &b->vec[i]);
     poly_add_avx2(r, r, &t);
   }

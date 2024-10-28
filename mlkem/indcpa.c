@@ -28,11 +28,11 @@
  *              polyvec *pk: pointer to the input public-key polyvec
  *              const uint8_t *seed: pointer to the input public seed
  **************************************************/
-static void pack_pk(uint8_t r[KYBER_INDCPA_PUBLICKEYBYTES], polyvec *pk,
-                    const uint8_t seed[KYBER_SYMBYTES]) {
-  POLYVEC_BOUND(pk, KYBER_Q);
+static void pack_pk(uint8_t r[MLKEM_INDCPA_PUBLICKEYBYTES], polyvec *pk,
+                    const uint8_t seed[MLKEM_SYMBYTES]) {
+  POLYVEC_BOUND(pk, MLKEM_Q);
   polyvec_tobytes(r, pk);
-  memcpy(r + KYBER_POLYVECBYTES, seed, KYBER_SYMBYTES);
+  memcpy(r + MLKEM_POLYVECBYTES, seed, MLKEM_SYMBYTES);
 }
 
 /*************************************************
@@ -46,10 +46,10 @@ static void pack_pk(uint8_t r[KYBER_INDCPA_PUBLICKEYBYTES], polyvec *pk,
  *              - const uint8_t *packedpk: pointer to input serialized public
  *key
  **************************************************/
-static void unpack_pk(polyvec *pk, uint8_t seed[KYBER_SYMBYTES],
-                      const uint8_t packedpk[KYBER_INDCPA_PUBLICKEYBYTES]) {
+static void unpack_pk(polyvec *pk, uint8_t seed[MLKEM_SYMBYTES],
+                      const uint8_t packedpk[MLKEM_INDCPA_PUBLICKEYBYTES]) {
   polyvec_frombytes(pk, packedpk);
-  memcpy(seed, packedpk + KYBER_POLYVECBYTES, KYBER_SYMBYTES);
+  memcpy(seed, packedpk + MLKEM_POLYVECBYTES, MLKEM_SYMBYTES);
 
   // TODO! pk must be subject to a "modulus check" at the top-level
   // crypto_kem_enc_derand(). Once that's done, the reduction is no
@@ -66,8 +66,8 @@ static void unpack_pk(polyvec *pk, uint8_t seed[KYBER_SYMBYTES],
  *              - polyvec *sk: pointer to input vector of polynomials (secret
  *key)
  **************************************************/
-static void pack_sk(uint8_t r[KYBER_INDCPA_SECRETKEYBYTES], polyvec *sk) {
-  POLYVEC_BOUND(sk, KYBER_Q);
+static void pack_sk(uint8_t r[MLKEM_INDCPA_SECRETKEYBYTES], polyvec *sk) {
+  POLYVEC_BOUND(sk, MLKEM_Q);
   polyvec_tobytes(r, sk);
 }
 
@@ -82,7 +82,7 @@ static void pack_sk(uint8_t r[KYBER_INDCPA_SECRETKEYBYTES], polyvec *sk) {
  *key
  **************************************************/
 static void unpack_sk(polyvec *sk,
-                      const uint8_t packedsk[KYBER_INDCPA_SECRETKEYBYTES]) {
+                      const uint8_t packedsk[MLKEM_INDCPA_SECRETKEYBYTES]) {
   polyvec_frombytes(sk, packedsk);
   polyvec_reduce(sk);
 }
@@ -98,10 +98,10 @@ static void unpack_sk(polyvec *sk,
  *              poly *pk: pointer to the input vector of polynomials b
  *              poly *v: pointer to the input polynomial v
  **************************************************/
-static void pack_ciphertext(uint8_t r[KYBER_INDCPA_BYTES], polyvec *b,
+static void pack_ciphertext(uint8_t r[MLKEM_INDCPA_BYTES], polyvec *b,
                             poly *v) {
   polyvec_compress(r, b);
-  poly_compress(r + KYBER_POLYVECCOMPRESSEDBYTES, v);
+  poly_compress(r + MLKEM_POLYVECCOMPRESSEDBYTES, v);
 }
 
 /*************************************************
@@ -115,9 +115,9 @@ static void pack_ciphertext(uint8_t r[KYBER_INDCPA_BYTES], polyvec *b,
  *              - const uint8_t *c: pointer to the input serialized ciphertext
  **************************************************/
 static void unpack_ciphertext(polyvec *b, poly *v,
-                              const uint8_t c[KYBER_INDCPA_BYTES]) {
+                              const uint8_t c[MLKEM_INDCPA_BYTES]) {
   polyvec_decompress(b, c);
-  poly_decompress(v, c + KYBER_POLYVECCOMPRESSEDBYTES);
+  poly_decompress(v, c + MLKEM_POLYVECCOMPRESSEDBYTES);
 }
 
 #define gen_a(A, B) gen_matrix(A, B, 0)
@@ -136,9 +136,9 @@ static void unpack_ciphertext(polyvec *b, poly *v,
  *              - int transposed: boolean deciding whether A or A^T is generated
  **************************************************/
 #define GEN_MATRIX_NBLOCKS \
-  ((12 * KYBER_N / 8 * (1 << 12) / KYBER_Q + SHAKE128_RATE) / SHAKE128_RATE)
+  ((12 * MLKEM_N / 8 * (1 << 12) / MLKEM_Q + SHAKE128_RATE) / SHAKE128_RATE)
 // Not static for benchmarking
-void gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMBYTES],
+void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES],
                 int transposed) {
   unsigned int ctr[KECCAK_WAY], i;
   unsigned int buflen;
@@ -147,94 +147,94 @@ void gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMBYTES],
 
   keccakx4_state statex;
   // The input data to each Keccak lane.
-  // Original size; KYBER_SYMBYTES + 2, we add padding to make align load/store.
-  uint8_t seedxy[KECCAK_WAY][KYBER_SYMBYTES + 16];
+  // Original size; MLKEM_SYMBYTES + 2, we add padding to make align load/store.
+  uint8_t seedxy[KECCAK_WAY][MLKEM_SYMBYTES + 16];
   for (unsigned j = 0; j < KECCAK_WAY; j++) {
-    memcpy(seedxy[j], seed, KYBER_SYMBYTES);
+    memcpy(seedxy[j], seed, MLKEM_SYMBYTES);
   }
 
   // TODO: All loops in this function should be unrolled for decent
   // performance.
   //
-  // Either add suitable pragmas, or split gen_matrix according to KYBER_K
+  // Either add suitable pragmas, or split gen_matrix according to MLKEM_K
   // and unroll by hand.
 
-  for (i = 0; i < (KYBER_K * KYBER_K / KECCAK_WAY) * KECCAK_WAY;
+  for (i = 0; i < (MLKEM_K * MLKEM_K / KECCAK_WAY) * KECCAK_WAY;
        i += KECCAK_WAY) {
     uint8_t x, y;
 
     for (unsigned int j = 0; j < KECCAK_WAY; j++) {
-      x = (i + j) / KYBER_K;
-      y = (i + j) % KYBER_K;
+      x = (i + j) / MLKEM_K;
+      y = (i + j) % MLKEM_K;
       if (transposed) {
-        seedxy[j][KYBER_SYMBYTES + 0] = x;
-        seedxy[j][KYBER_SYMBYTES + 1] = y;
+        seedxy[j][MLKEM_SYMBYTES + 0] = x;
+        seedxy[j][MLKEM_SYMBYTES + 1] = y;
       } else {
-        seedxy[j][KYBER_SYMBYTES + 0] = y;
-        seedxy[j][KYBER_SYMBYTES + 1] = x;
+        seedxy[j][MLKEM_SYMBYTES + 0] = y;
+        seedxy[j][MLKEM_SYMBYTES + 1] = x;
       }
     }
 
     shake128x4_absorb(&statex, seedxy[0], seedxy[1], seedxy[2], seedxy[3],
-                      KYBER_SYMBYTES + 2);
+                      MLKEM_SYMBYTES + 2);
     shake128x4_squeezeblocks(bufx[0], bufx[1], bufx[2], bufx[3],
                              GEN_MATRIX_NBLOCKS, &statex);
 
     for (unsigned int j = 0; j < KECCAK_WAY; j++) {
-      x = (i + j) / KYBER_K;
-      y = (i + j) % KYBER_K;
+      x = (i + j) / MLKEM_K;
+      y = (i + j) % MLKEM_K;
       vec[j] = a[x].vec[y].coeffs;
       buflen = GEN_MATRIX_NBLOCKS * SHAKE128_RATE;
-      ctr[j] = rej_uniform(vec[j], KYBER_N, bufx[j], buflen);
+      ctr[j] = rej_uniform(vec[j], MLKEM_N, bufx[j], buflen);
     }
 
-    while (ctr[0] < KYBER_N || ctr[1] < KYBER_N || ctr[2] < KYBER_N ||
-           ctr[3] < KYBER_N) {
+    while (ctr[0] < MLKEM_N || ctr[1] < MLKEM_N || ctr[2] < MLKEM_N ||
+           ctr[3] < MLKEM_N) {
       shake128x4_squeezeblocks(bufx[0], bufx[1], bufx[2], bufx[3], 1, &statex);
       buflen = SHAKE128_RATE;
 
       for (unsigned j = 0; j < KECCAK_WAY; j++) {
         ctr[j] +=
-            rej_uniform(vec[j] + ctr[j], KYBER_N - ctr[j], bufx[j], buflen);
+            rej_uniform(vec[j] + ctr[j], MLKEM_N - ctr[j], bufx[j], buflen);
       }
     }
   }
 
   // For left over vector, we use single keccak.
-  for (; i < KYBER_K * KYBER_K; i++) {
+  for (; i < MLKEM_K * MLKEM_K; i++) {
     shake128ctx state;
     uint8_t x, y;
 
-    x = i / KYBER_K;
-    y = i % KYBER_K;
+    x = i / MLKEM_K;
+    y = i % MLKEM_K;
     vec[0] = a[x].vec[y].coeffs;
 
     if (transposed) {
-      seedxy[0][KYBER_SYMBYTES + 0] = x;
-      seedxy[0][KYBER_SYMBYTES + 1] = y;
-      shake128_absorb(&state, seedxy[0], KYBER_SYMBYTES + 2);
+      seedxy[0][MLKEM_SYMBYTES + 0] = x;
+      seedxy[0][MLKEM_SYMBYTES + 1] = y;
+      shake128_absorb(&state, seedxy[0], MLKEM_SYMBYTES + 2);
     } else {
-      seedxy[0][KYBER_SYMBYTES + 0] = y;
-      seedxy[0][KYBER_SYMBYTES + 1] = x;
-      shake128_absorb(&state, seedxy[0], KYBER_SYMBYTES + 2);
+      seedxy[0][MLKEM_SYMBYTES + 0] = y;
+      seedxy[0][MLKEM_SYMBYTES + 1] = x;
+      shake128_absorb(&state, seedxy[0], MLKEM_SYMBYTES + 2);
     }
 
     shake128_squeezeblocks(bufx[0], GEN_MATRIX_NBLOCKS, &state);
     buflen = GEN_MATRIX_NBLOCKS * SHAKE128_RATE;
-    ctr[0] = rej_uniform(vec[0], KYBER_N, bufx[0], buflen);
+    ctr[0] = rej_uniform(vec[0], MLKEM_N, bufx[0], buflen);
 
-    while (ctr[0] < KYBER_N) {
+    while (ctr[0] < MLKEM_N) {
       shake128_squeezeblocks(bufx[0], 1, &state);
       buflen = SHAKE128_RATE;
-      ctr[0] += rej_uniform(vec[0] + ctr[0], KYBER_N - ctr[0], bufx[0], buflen);
+      ctr[0] += rej_uniform(vec[0] + ctr[0], MLKEM_N - ctr[0], bufx[0], buflen);
     }
   }
 
 #if defined(MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER)
   // The public matrix is generated in NTT domain. If the native backend
   // uses a custom order in NTT domain, permute A accordingly.
-  for (i = 0; i < KYBER_K; i++) {
-    for (int j = 0; j < KYBER_K; j++) {
+  for (i = 0; i < MLKEM_K; i++) {
+    for (int j = 0; j < MLKEM_K; j++) {
       poly_permute_bitrev_to_custom(&a[i].vec[j]);
     }
   }
@@ -245,44 +245,44 @@ void gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMBYTES],
  * Name:        indcpa_keypair_derand
  *
  * Description: Generates public and private key for the CPA-secure
- *              public-key encryption scheme underlying Kyber
+ *              public-key encryption scheme underlying ML-KEM
  *
  * Arguments:   - uint8_t *pk: pointer to output public key
- *                             (of length KYBER_INDCPA_PUBLICKEYBYTES bytes)
+ *                             (of length MLKEM_INDCPA_PUBLICKEYBYTES bytes)
  *              - uint8_t *sk: pointer to output private key
- *                             (of length KYBER_INDCPA_SECRETKEYBYTES bytes)
+ *                             (of length MLKEM_INDCPA_SECRETKEYBYTES bytes)
  *              - const uint8_t *coins: pointer to input randomness
- *                             (of length KYBER_SYMBYTES bytes)
+ *                             (of length MLKEM_SYMBYTES bytes)
  **************************************************/
 
-STATIC_ASSERT(NTT_BOUND + KYBER_Q < INT16_MAX, indcpa_enc_bound_0)
+STATIC_ASSERT(NTT_BOUND + MLKEM_Q < INT16_MAX, indcpa_enc_bound_0)
 
-void indcpa_keypair_derand(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
-                           uint8_t sk[KYBER_INDCPA_SECRETKEYBYTES],
-                           const uint8_t coins[KYBER_SYMBYTES]) {
+void indcpa_keypair_derand(uint8_t pk[MLKEM_INDCPA_PUBLICKEYBYTES],
+                           uint8_t sk[MLKEM_INDCPA_SECRETKEYBYTES],
+                           const uint8_t coins[MLKEM_SYMBYTES]) {
   unsigned int i;
-  uint8_t buf[2 * KYBER_SYMBYTES] ALIGN;
+  uint8_t buf[2 * MLKEM_SYMBYTES] ALIGN;
   const uint8_t *publicseed = buf;
-  const uint8_t *noiseseed = buf + KYBER_SYMBYTES;
-  polyvec a[KYBER_K], e, pkpv, skpv;
+  const uint8_t *noiseseed = buf + MLKEM_SYMBYTES;
+  polyvec a[MLKEM_K], e, pkpv, skpv;
   polyvec_mulcache skpv_cache;
 
-  // Add KYBER_K for domain separation of security levels
-  memcpy(buf, coins, KYBER_SYMBYTES);
-  buf[KYBER_SYMBYTES] = KYBER_K;
-  hash_g(buf, buf, KYBER_SYMBYTES + 1);
+  // Add MLKEM_K for domain separation of security levels
+  memcpy(buf, coins, MLKEM_SYMBYTES);
+  buf[MLKEM_SYMBYTES] = MLKEM_K;
+  hash_g(buf, buf, MLKEM_SYMBYTES + 1);
 
   gen_a(a, publicseed);
 
-#if KYBER_K == 2
+#if MLKEM_K == 2
   poly_getnoise_eta1_4x(skpv.vec + 0, skpv.vec + 1, e.vec + 0, e.vec + 1,
                         noiseseed, 0, 1, 2, 3);
-#elif KYBER_K == 3
+#elif MLKEM_K == 3
   poly_getnoise_eta1_4x(skpv.vec + 0, skpv.vec + 1, skpv.vec + 2, e.vec + 0,
                         noiseseed, 0, 1, 2, 3);
   poly_getnoise_eta1_4x(e.vec + 1, e.vec + 2, pkpv.vec + 0, pkpv.vec + 1,
                         noiseseed, 4, 5, 6, 7);
-#elif KYBER_K == 4
+#elif MLKEM_K == 4
   poly_getnoise_eta1_4x(skpv.vec + 0, skpv.vec + 1, skpv.vec + 2, skpv.vec + 3,
                         noiseseed, 0, 1, 2, 3);
   poly_getnoise_eta1_4x(e.vec + 0, e.vec + 1, e.vec + 2, e.vec + 3, noiseseed,
@@ -295,7 +295,7 @@ void indcpa_keypair_derand(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
   polyvec_mulcache_compute(&skpv_cache, &skpv);
 
   // matrix-vector multiplication
-  for (i = 0; i < KYBER_K; i++) {
+  for (i = 0; i < MLKEM_K; i++) {
     polyvec_basemul_acc_montgomery_cached(&pkpv.vec[i], &a[i], &skpv,
                                           &skpv_cache);
     poly_tomont(&pkpv.vec[i]);
@@ -317,27 +317,27 @@ void indcpa_keypair_derand(uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
  *              public-key encryption scheme underlying Kyber.
  *
  * Arguments:   - uint8_t *c: pointer to output ciphertext
- *                            (of length KYBER_INDCPA_BYTES bytes)
+ *                            (of length MLKEM_INDCPA_BYTES bytes)
  *              - const uint8_t *m: pointer to input message
- *                                  (of length KYBER_INDCPA_MSGBYTES bytes)
+ *                                  (of length MLKEM_INDCPA_MSGBYTES bytes)
  *              - const uint8_t *pk: pointer to input public key
- *                                   (of length KYBER_INDCPA_PUBLICKEYBYTES)
+ *                                   (of length MLKEM_INDCPA_PUBLICKEYBYTES)
  *              - const uint8_t *coins: pointer to input random coins used as
- *seed (of length KYBER_SYMBYTES) to deterministically generate all randomness
+ *seed (of length MLKEM_SYMBYTES) to deterministically generate all randomness
  **************************************************/
 
 // Check that the arithmetic in indcpa_enc() does not overflow
-STATIC_ASSERT(INVNTT_BOUND + KYBER_ETA1 < INT16_MAX, indcpa_enc_bound_0)
-STATIC_ASSERT(INVNTT_BOUND + KYBER_ETA2 + KYBER_Q < INT16_MAX,
+STATIC_ASSERT(INVNTT_BOUND + MLKEM_ETA1 < INT16_MAX, indcpa_enc_bound_0)
+STATIC_ASSERT(INVNTT_BOUND + MLKEM_ETA2 + MLKEM_Q < INT16_MAX,
               indcpa_enc_bound_1)
 
-void indcpa_enc(uint8_t c[KYBER_INDCPA_BYTES],
-                const uint8_t m[KYBER_INDCPA_MSGBYTES],
-                const uint8_t pk[KYBER_INDCPA_PUBLICKEYBYTES],
-                const uint8_t coins[KYBER_SYMBYTES]) {
+void indcpa_enc(uint8_t c[MLKEM_INDCPA_BYTES],
+                const uint8_t m[MLKEM_INDCPA_MSGBYTES],
+                const uint8_t pk[MLKEM_INDCPA_PUBLICKEYBYTES],
+                const uint8_t coins[MLKEM_SYMBYTES]) {
   unsigned int i;
-  uint8_t seed[KYBER_SYMBYTES] ALIGN;
-  polyvec sp, pkpv, ep, at[KYBER_K], b;
+  uint8_t seed[MLKEM_SYMBYTES] ALIGN;
+  polyvec sp, pkpv, ep, at[MLKEM_K], b;
   polyvec_mulcache sp_cache;
   poly v, k, epp;
 
@@ -345,16 +345,16 @@ void indcpa_enc(uint8_t c[KYBER_INDCPA_BYTES],
   poly_frommsg(&k, m);
   gen_at(at, seed);
 
-#if KYBER_K == 2
+#if MLKEM_K == 2
   poly_getnoise_eta1122_4x(sp.vec + 0, sp.vec + 1, ep.vec + 0, ep.vec + 1,
                            coins, 0, 1, 2, 3);
   poly_getnoise_eta2(&epp, coins, 4);
-#elif KYBER_K == 3
+#elif MLKEM_K == 3
   poly_getnoise_eta1_4x(sp.vec + 0, sp.vec + 1, sp.vec + 2, ep.vec + 0, coins,
                         0, 1, 2, 3);
   poly_getnoise_eta1_4x(ep.vec + 1, ep.vec + 2, &epp, b.vec + 0, coins, 4, 5, 6,
                         7);
-#elif KYBER_K == 4
+#elif MLKEM_K == 4
   poly_getnoise_eta1_4x(sp.vec + 0, sp.vec + 1, sp.vec + 2, sp.vec + 3, coins,
                         0, 1, 2, 3);
   poly_getnoise_eta1_4x(ep.vec + 0, ep.vec + 1, ep.vec + 2, ep.vec + 3, coins,
@@ -366,7 +366,7 @@ void indcpa_enc(uint8_t c[KYBER_INDCPA_BYTES],
   polyvec_mulcache_compute(&sp_cache, &sp);
 
   // matrix-vector multiplication
-  for (i = 0; i < KYBER_K; i++) {
+  for (i = 0; i < MLKEM_K; i++) {
     polyvec_basemul_acc_montgomery_cached(&b.vec[i], &at[i], &sp, &sp_cache);
   }
 
@@ -393,19 +393,19 @@ void indcpa_enc(uint8_t c[KYBER_INDCPA_BYTES],
  *              public-key encryption scheme underlying Kyber.
  *
  * Arguments:   - uint8_t *m: pointer to output decrypted message
- *                            (of length KYBER_INDCPA_MSGBYTES)
+ *                            (of length MLKEM_INDCPA_MSGBYTES)
  *              - const uint8_t *c: pointer to input ciphertext
- *                                  (of length KYBER_INDCPA_BYTES)
+ *                                  (of length MLKEM_INDCPA_BYTES)
  *              - const uint8_t *sk: pointer to input secret key
- *                                   (of length KYBER_INDCPA_SECRETKEYBYTES)
+ *                                   (of length MLKEM_INDCPA_SECRETKEYBYTES)
  **************************************************/
 
 // Check that the arithmetic in indcpa_dec() does not overflow
-STATIC_ASSERT(INVNTT_BOUND + KYBER_Q < INT16_MAX, indcpa_dec_bound_0)
+STATIC_ASSERT(INVNTT_BOUND + MLKEM_Q < INT16_MAX, indcpa_dec_bound_0)
 
-void indcpa_dec(uint8_t m[KYBER_INDCPA_MSGBYTES],
-                const uint8_t c[KYBER_INDCPA_BYTES],
-                const uint8_t sk[KYBER_INDCPA_SECRETKEYBYTES]) {
+void indcpa_dec(uint8_t m[MLKEM_INDCPA_MSGBYTES],
+                const uint8_t c[MLKEM_INDCPA_BYTES],
+                const uint8_t sk[MLKEM_INDCPA_SECRETKEYBYTES]) {
   polyvec b, skpv;
   poly v, mp;
 

@@ -6,14 +6,14 @@
  * Description: Run rejection sampling on uniform random bytes to generate
  *              uniform random integers mod q
  *
- * Arguments:   - int16_t *r:          pointer to output buffer of KYBER_N
+ * Arguments:   - int16_t *r:          pointer to output buffer of MLKEM_N
  *                                     16-bit coefficients.
  *              - const uint8_t *buf:  pointer to input buffer
  *                                     (assumed to be uniform random bytes)
  *              - unsigned int buflen: length of input buffer in bytes.
  *                                     Must be a multiple of 24.
  *
- * Returns number of sampled 16-bit integers (at most KYBER_N).
+ * Returns number of sampled 16-bit integers (at most MLKEM_N).
  **************************************************/
 #include "config.h"
 #include "params.h"
@@ -287,7 +287,7 @@ bit_table_data:
 // We save the output on the stack first, and copy to the actual
 // output buffer only in the end. This is because the main loop can overwrite
 // by up to 62 bytes, which we account for here (we use 64 bytes for alignment).
-#define STACK_SIZE (2*KYBER_N + 64)
+#define STACK_SIZE (2*MLKEM_N + 64)
 #define STACK_OFFSET_TMP_OUTPUT 0
 
 .macro push_stack
@@ -372,7 +372,7 @@ bit_table_data:
     table3                      .req v27
     table3q                     .req q27
 
-    kyber_q                     .req v30
+    mlkem_q                     .req v30
     bits                        .req v31
     bits_q                      .req q31
 
@@ -388,14 +388,14 @@ _rej_uniform_asm_clean:
     ASM_LOAD(table_idx, table_data)
 
     ldr  bits_q, [bit_table]
-    movz tmp, #KYBER_Q
-    dup  kyber_q.8h, tmp
+    movz tmp, #MLKEM_Q
+    dup  mlkem_q.8h, tmp
 
     add output_tmp_base, sp, #STACK_OFFSET_TMP_OUTPUT
     mov output_tmp, output_tmp_base
 
     mov count, #0
-    mov len, #KYBER_N
+    mov len, #MLKEM_N
 
     cmp buflen, #48
     b.lo loop48_end
@@ -443,10 +443,10 @@ loop48:
         //   buffer pointer by the number of valid coefficients.
 
         // Set valid lanes to -1 (0b1...1)
-        cmhi    sign0.8h, kyber_q.8h, val0.8h
-        cmhi    sign1.8h, kyber_q.8h, val1.8h
-        cmhi    sign2.8h, kyber_q.8h, val2.8h
-        cmhi    sign3.8h, kyber_q.8h, val3.8h
+        cmhi    sign0.8h, mlkem_q.8h, val0.8h
+        cmhi    sign1.8h, mlkem_q.8h, val1.8h
+        cmhi    sign2.8h, mlkem_q.8h, val2.8h
+        cmhi    sign3.8h, mlkem_q.8h, val3.8h
 
         // If lane i is valid and has value -1, retain only i-th bit
         and     sign0.16b, sign0.16b, bits.16b
@@ -535,8 +535,8 @@ loop48_end:
         zip1    val0.8h, tmp0.8h, tmp1.8h
         zip2    val1.8h, tmp0.8h, tmp1.8h
 
-        cmhi    sign0.8h, kyber_q.8h, val0.8h
-        cmhi    sign1.8h, kyber_q.8h, val1.8h
+        cmhi    sign0.8h, mlkem_q.8h, val0.8h
+        cmhi    sign1.8h, mlkem_q.8h, val1.8h
 
         and     sign0.16b, sign0.16b, bits.16b
         and     sign1.16b, sign1.16b, bits.16b
@@ -576,7 +576,7 @@ memory_copy:
     cmp  count, len
     csel count, count, len, lo
 
-    // Always copy KYBER_N coefficients from the stack to the destination,
+    // Always copy MLKEM_N coefficients from the stack to the destination,
     // even if not all of them may be valid. This simplifies the loop and
     // allows us to stick to vectorized code.
     mov final_copy_count, #0
@@ -591,7 +591,7 @@ final_copy:
         str val2q, [output, #-32]
         str val3q, [output, #-16]
         add final_copy_count, final_copy_count, #32
-        cmp final_copy_count, #KYBER_N
+        cmp final_copy_count, #MLKEM_N
         b.lt final_copy
 
     mov w0, count
