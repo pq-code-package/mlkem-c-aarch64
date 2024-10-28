@@ -98,8 +98,28 @@ jobs:
           opt: opt
           func: false
           nistkat: false
+  compiler_tests:
+    name: Compiler tests (${{ matrix.target.name }})
+    strategy:
+      fail-fast: false
+      matrix:
+        external:
+         - ${{ github.repository_owner != 'pq-code-package' }}
+        target:
+         - runner: pqcp-arm64
+           name: 'aarch64'
+         - runner: ubuntu-latest
+           name: 'x86_64'
+        exclude:
+          - {external: true,
+             target: {
+               runner: pqcp-arm64,
+               name: 'aarch64'
+             }}
+    runs-on: ${{ matrix.target.runner }}
+    steps:
+      - uses: actions/checkout@v4
       - name: native build+functest (gcc-4.8)
-        if: ${{ matrix.target.runner != 'macos-latest' && (success() || failure()) }}
         uses: ./.github/actions/multi-functest
         with:
           gh_token: ${{ secrets.GITHUB_TOKEN }}
@@ -109,7 +129,6 @@ jobs:
           kat: false
           nix-shell: "ci_gcc48"
       - name: native build+functest (gcc-4.9)
-        if: ${{ matrix.target.runner != 'macos-latest' && (success() || failure()) }}
         uses: ./.github/actions/multi-functest
         with:
           gh_token: ${{ secrets.GITHUB_TOKEN }}
@@ -119,7 +138,6 @@ jobs:
           kat: false
           nix-shell: "ci_gcc49"
       - name: native build+functest (gcc-7)
-        if: ${{ matrix.target.runner != 'macos-latest' && (success() || failure()) }}
         uses: ./.github/actions/multi-functest
         with:
           gh_token: ${{ secrets.GITHUB_TOKEN }}
@@ -128,7 +146,6 @@ jobs:
           nistkat: false
           kat: false
           nix-shell: "ci_gcc7"
-
   lint:
     strategy:
       matrix:
