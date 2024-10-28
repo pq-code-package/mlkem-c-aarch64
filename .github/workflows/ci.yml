@@ -77,7 +77,7 @@ jobs:
         uses: ./.github/actions/multi-functest
         with:
           gh_token: ${{ secrets.GITHUB_TOKEN }}
-          compile_mode: nativ
+          compile_mode: native
           func: false
           nistkat: false
           kat: false
@@ -98,7 +98,72 @@ jobs:
           opt: opt
           func: false
           nistkat: false
-
+  compiler_tests:
+    name: Compiler tests (${{ matrix.target.name }})
+    strategy:
+      fail-fast: false
+      matrix:
+        external:
+         - ${{ github.repository_owner != 'pq-code-package' }}
+        target:
+         - runner: pqcp-arm64
+           name: 'aarch64'
+         - runner: ubuntu-latest
+           name: 'x86_64'
+        exclude:
+          - {external: true,
+             target: {
+               runner: pqcp-arm64,
+               name: 'aarch64'
+             }}
+    runs-on: ${{ matrix.target.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: native build+functest (gcc-4.8)
+        uses: ./.github/actions/multi-functest
+        with:
+          gh_token: ${{ secrets.GITHUB_TOKEN }}
+          compile_mode: native
+          func: true
+          nistkat: false
+          kat: false
+          nix-shell: "ci_gcc48"
+      - name: native build+functest (gcc-4.9)
+        uses: ./.github/actions/multi-functest
+        with:
+          gh_token: ${{ secrets.GITHUB_TOKEN }}
+          compile_mode: native
+          func: true
+          nistkat: false
+          kat: false
+          nix-shell: "ci_gcc49"
+      - name: native build+functest (gcc-7)
+        uses: ./.github/actions/multi-functest
+        with:
+          gh_token: ${{ secrets.GITHUB_TOKEN }}
+          compile_mode: native
+          func: true
+          nistkat: false
+          kat: false
+          nix-shell: "ci_gcc7"
+      - name: native build+functest (gcc-11)
+        uses: ./.github/actions/multi-functest
+        with:
+          gh_token: ${{ secrets.GITHUB_TOKEN }}
+          compile_mode: native
+          func: true
+          nistkat: false
+          kat: false
+          nix-shell: "ci_gcc11"
+      - name: native build+functest (clang-18)
+        uses: ./.github/actions/multi-functest
+        with:
+          gh_token: ${{ secrets.GITHUB_TOKEN }}
+          compile_mode: native
+          func: true
+          nistkat: false
+          kat: false
+          nix-shell: "ci_clang18"
   lint:
     strategy:
       matrix:

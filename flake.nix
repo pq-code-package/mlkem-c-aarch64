@@ -49,8 +49,7 @@
           x86_64-gcc = wrap-gcc pkgs.pkgsCross.gnu64;
           aarch64-gcc = wrap-gcc pkgs.pkgsCross.aarch64-multiplatform;
 
-          # cross is for determining whether to install the cross toolchain or not
-          core = { cross ? true }:
+          default_gcc = { cross ? true }:
             let
               gcc =
                 if pkgs.stdenv.isDarwin
@@ -66,16 +65,48 @@
                     then [ aarch64-gcc ]
                     else [ x86_64-gcc ];
             in
-            gcc ++
-            builtins.attrValues {
-              inherit (pkgs)
-                qemu; # 8.2.4
+            gcc;
 
+          base =
+            builtins.attrValues {
               inherit (pkgs.python3Packages)
                 pyyaml
                 python
                 click;
             };
+
+          # cross is for determining whether to install the cross toolchain or not
+          core = { cross ? true }:
+            default_gcc { cross = cross; } ++ base ++
+            builtins.attrValues {
+              inherit (pkgs)
+                qemu; # 8.2.4
+            };
+
+          core_gcc48 = base ++ builtins.attrValues {
+            inherit (pkgs)
+              gcc48; #4.8
+          };
+
+          core_gcc49 = base ++ builtins.attrValues {
+            inherit (pkgs)
+              gcc49; #4.9
+          };
+
+          core_gcc7 = base ++ builtins.attrValues {
+            inherit (pkgs)
+              gcc7; #7
+          };
+
+          core_gcc11 = base ++ builtins.attrValues {
+            inherit (pkgs)
+              gcc11; #11
+          };
+
+          core_clang18 = base ++ builtins.attrValues {
+            inherit (pkgs)
+              clang_18; #18
+          };
 
           wrapShell = mkShell: attrs:
             mkShell (attrs // {
@@ -99,6 +130,12 @@
           devShells.ci-cbmc = wrapShell pkgs.mkShellNoCC { packages = core { cross = false; } ++ cbmcpkg; };
           devShells.ci-cbmc-cross = wrapShell pkgs.mkShellNoCC { packages = core { } ++ cbmcpkg; };
           devShells.ci-linter = wrapShell pkgs.mkShellNoCC { packages = linters; };
+
+          devShells.ci_clang18 = wrapShell pkgs.mkShellNoCC { packages = core_clang18; };
+          devShells.ci_gcc48 = wrapShell pkgs.mkShellNoCC { packages = core_gcc48; };
+          devShells.ci_gcc49 = wrapShell pkgs.mkShellNoCC { packages = core_gcc49; };
+          devShells.ci_gcc7 = wrapShell pkgs.mkShellNoCC { packages = core_gcc7; };
+          devShells.ci_gcc11 = wrapShell pkgs.mkShellNoCC { packages = core_gcc11; };
         };
       flake = {
         # The usual flake attributes can be defined here, including system-
