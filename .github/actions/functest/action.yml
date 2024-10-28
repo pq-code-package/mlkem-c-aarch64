@@ -72,9 +72,7 @@ runs:
           gh_token: ${{ inputs.gh_token }}
           custom_shell: ${{ inputs.custom_shell }}
           script: |
-            # only summary on the first time
-            if [[ "${{ env.SHELL }}" == '' ]]; then
-              ARCH=$(uname -m)
+            ARCH=$(uname -m)
             echo <<-EOF
               ## Setup
               Architecture: $ARCH
@@ -91,7 +89,6 @@ runs:
               - $(bash --version | grep -m1 "")
               - $(${_CROSS_PREFIX}${_CC} --version | grep -m1 "")
             EOF
-            fi
 
       - name: Compile ${{ inputs.mode }} ${{ env.OPT }} tests (${{ env.FUNC }}, ${{ env.KAT }}, ${{ env.NISTKAT }})
         shell: ${{ env.SHELL }}
