@@ -92,6 +92,10 @@ runs:
         shell: ${{ env.SHELL }}
         run: |
           tests all  --cross-prefix="${{ env._CROSS_PREFIX }}" --cflags="${{ inputs.cflags }}" --${{ env.OPT }} --${{ env.FUNC }} --${{ env.KAT }} --${{ env.NISTKAT }} --no-compile --run -v
+      - name: Check namespacing ${{ inputs.mode }} ${{ env.OPT }} tests (${{ env.FUNC }}, ${{ env.KAT }}, ${{ env.NISTKAT }})
+        shell: ${{ env.SHELL }}
+        run: |
+          check-namespace
       - name: Post ${{ inputs.mode }} Tests
         shell: ${{ env.SHELL }}
         if: success() || failure()
