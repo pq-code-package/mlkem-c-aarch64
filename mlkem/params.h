@@ -5,57 +5,57 @@
 #include "common.h"
 #include "cpucap.h"
 
-#ifndef KYBER_K
-#define KYBER_K 3 /* Change this for different security strengths */
+#ifndef MLKEM_K
+#define MLKEM_K 3 /* Change this for different security strengths */
 #endif
 
 /* Don't change parameters below this line */
-#if (KYBER_K == 2)
-#define KYBER_NAMESPACE(s) pqcrystals_kyber512_ref_##s
-#elif (KYBER_K == 3)
-#define KYBER_NAMESPACE(s) pqcrystals_kyber768_ref_##s
-#elif (KYBER_K == 4)
-#define KYBER_NAMESPACE(s) pqcrystals_kyber1024_ref_##s
+#if (MLKEM_K == 2)
+#define MLKEM_NAMESPACE(s) pqcrystals_mlkem512_ref_##s
+#elif (MLKEM_K == 3)
+#define MLKEM_NAMESPACE(s) pqcrystals_mlkem768_ref_##s
+#elif (MLKEM_K == 4)
+#define MLKEM_NAMESPACE(s) pqcrystals_mlkem1024_ref_##s
 #else
-#error "KYBER_K must be in {2,3,4}"
+#error "MLKEM_K must be in {2,3,4}"
 #endif
 
-#define KYBER_N 256
-#define KYBER_Q 3329
+#define MLKEM_N 256
+#define MLKEM_Q 3329
 
-#define KYBER_SYMBYTES 32 /* size in bytes of hashes, and seeds */
-#define KYBER_SSBYTES 32  /* size in bytes of shared key */
+#define MLKEM_SYMBYTES 32 /* size in bytes of hashes, and seeds */
+#define MLKEM_SSBYTES 32  /* size in bytes of shared key */
 
-#define KYBER_POLYBYTES 384
-#define KYBER_POLYVECBYTES (KYBER_K * KYBER_POLYBYTES)
+#define MLKEM_POLYBYTES 384
+#define MLKEM_POLYVECBYTES (MLKEM_K * MLKEM_POLYBYTES)
 
-#if KYBER_K == 2
-#define KYBER_ETA1 3
-#define KYBER_POLYCOMPRESSEDBYTES 128
-#define KYBER_POLYVECCOMPRESSEDBYTES (KYBER_K * 320)
-#elif KYBER_K == 3
-#define KYBER_ETA1 2
-#define KYBER_POLYCOMPRESSEDBYTES 128
-#define KYBER_POLYVECCOMPRESSEDBYTES (KYBER_K * 320)
-#elif KYBER_K == 4
-#define KYBER_ETA1 2
-#define KYBER_POLYCOMPRESSEDBYTES 160
-#define KYBER_POLYVECCOMPRESSEDBYTES (KYBER_K * 352)
+#if MLKEM_K == 2
+#define MLKEM_ETA1 3
+#define MLKEM_POLYCOMPRESSEDBYTES 128
+#define MLKEM_POLYVECCOMPRESSEDBYTES (MLKEM_K * 320)
+#elif MLKEM_K == 3
+#define MLKEM_ETA1 2
+#define MLKEM_POLYCOMPRESSEDBYTES 128
+#define MLKEM_POLYVECCOMPRESSEDBYTES (MLKEM_K * 320)
+#elif MLKEM_K == 4
+#define MLKEM_ETA1 2
+#define MLKEM_POLYCOMPRESSEDBYTES 160
+#define MLKEM_POLYVECCOMPRESSEDBYTES (MLKEM_K * 352)
 #endif
 
-#define KYBER_ETA2 2
+#define MLKEM_ETA2 2
 
-#define KYBER_INDCPA_MSGBYTES (KYBER_SYMBYTES)
-#define KYBER_INDCPA_PUBLICKEYBYTES (KYBER_POLYVECBYTES + KYBER_SYMBYTES)
-#define KYBER_INDCPA_SECRETKEYBYTES (KYBER_POLYVECBYTES)
-#define KYBER_INDCPA_BYTES \
-  (KYBER_POLYVECCOMPRESSEDBYTES + KYBER_POLYCOMPRESSEDBYTES)
+#define MLKEM_INDCPA_MSGBYTES (MLKEM_SYMBYTES)
+#define MLKEM_INDCPA_PUBLICKEYBYTES (MLKEM_POLYVECBYTES + MLKEM_SYMBYTES)
+#define MLKEM_INDCPA_SECRETKEYBYTES (MLKEM_POLYVECBYTES)
+#define MLKEM_INDCPA_BYTES \
+  (MLKEM_POLYVECCOMPRESSEDBYTES + MLKEM_POLYCOMPRESSEDBYTES)
 
-#define KYBER_PUBLICKEYBYTES (KYBER_INDCPA_PUBLICKEYBYTES)
+#define MLKEM_PUBLICKEYBYTES (MLKEM_INDCPA_PUBLICKEYBYTES)
 /* 32 bytes of additional space to save H(pk) */
-#define KYBER_SECRETKEYBYTES                                   \
-  (KYBER_INDCPA_SECRETKEYBYTES + KYBER_INDCPA_PUBLICKEYBYTES + \
-   2 * KYBER_SYMBYTES)
-#define KYBER_CIPHERTEXTBYTES (KYBER_INDCPA_BYTES)
+#define MLKEM_SECRETKEYBYTES                                   \
+  (MLKEM_INDCPA_SECRETKEYBYTES + MLKEM_INDCPA_PUBLICKEYBYTES + \
+   2 * MLKEM_SYMBYTES)
+#define MLKEM_CIPHERTEXTBYTES (MLKEM_INDCPA_BYTES)
 
 #endif

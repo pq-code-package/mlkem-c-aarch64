@@ -27,13 +27,13 @@ static uint32_t load32_littleendian(const uint8_t x[4]) {
  *
  * Description: load 3 bytes into a 32-bit integer
  *              in little-endian order.
- *              This function is only needed for Kyber-512
+ *              This function is only needed for ML-KEM-512
  *
  * Arguments:   - const uint8_t *x: pointer to input byte array
  *
  * Returns 32-bit unsigned integer loaded from x (most significant byte is zero)
  **************************************************/
-#if KYBER_ETA1 == 3
+#if MLKEM_ETA1 == 3
 static uint32_t load24_littleendian(const uint8_t x[3]) {
   uint32_t r;
   r = (uint32_t)x[0];
@@ -53,12 +53,12 @@ static uint32_t load24_littleendian(const uint8_t x[3]) {
  * Arguments:   - poly *r: pointer to output polynomial
  *              - const uint8_t *buf: pointer to input byte array
  **************************************************/
-static void cbd2(poly *r, const uint8_t buf[2 * KYBER_N / 4]) {
+static void cbd2(poly *r, const uint8_t buf[2 * MLKEM_N / 4]) {
   unsigned int i, j;
   uint32_t t, d;
   int16_t a, b;
 
-  for (i = 0; i < KYBER_N / 8; i++) {
+  for (i = 0; i < MLKEM_N / 8; i++) {
     t = load32_littleendian(buf + 4 * i);
     d = t & 0x55555555;
     d += (t >> 1) & 0x55555555;
@@ -77,18 +77,18 @@ static void cbd2(poly *r, const uint8_t buf[2 * KYBER_N / 4]) {
  * Description: Given an array of uniformly random bytes, compute
  *              polynomial with coefficients distributed according to
  *              a centered binomial distribution with parameter eta=3.
- *              This function is only needed for Kyber-512
+ *              This function is only needed for ML-KEM-512
  *
  * Arguments:   - poly *r: pointer to output polynomial
  *              - const uint8_t *buf: pointer to input byte array
  **************************************************/
-#if KYBER_ETA1 == 3
-static void cbd3(poly *r, const uint8_t buf[3 * KYBER_N / 4]) {
+#if MLKEM_ETA1 == 3
+static void cbd3(poly *r, const uint8_t buf[3 * MLKEM_N / 4]) {
   unsigned int i, j;
   uint32_t t, d;
   int16_t a, b;
 
-  for (i = 0; i < KYBER_N / 4; i++) {
+  for (i = 0; i < MLKEM_N / 4; i++) {
     t = load24_littleendian(buf + 3 * i);
     d = t & 0x00249249;
     d += (t >> 1) & 0x00249249;
@@ -103,18 +103,18 @@ static void cbd3(poly *r, const uint8_t buf[3 * KYBER_N / 4]) {
 }
 #endif
 
-void poly_cbd_eta1(poly *r, const uint8_t buf[KYBER_ETA1 * KYBER_N / 4]) {
-#if KYBER_ETA1 == 2
+void poly_cbd_eta1(poly *r, const uint8_t buf[MLKEM_ETA1 * MLKEM_N / 4]) {
+#if MLKEM_ETA1 == 2
   cbd2(r, buf);
-#elif KYBER_ETA1 == 3
+#elif MLKEM_ETA1 == 3
   cbd3(r, buf);
 #else
 #error "This implementation requires eta1 in {2,3}"
 #endif
 }
 
-void poly_cbd_eta2(poly *r, const uint8_t buf[KYBER_ETA2 * KYBER_N / 4]) {
-#if KYBER_ETA2 == 2
+void poly_cbd_eta2(poly *r, const uint8_t buf[MLKEM_ETA2 * MLKEM_N / 4]) {
+#if MLKEM_ETA2 == 2
   cbd2(r, buf);
 #else
 #error "This implementation requires eta2 = 2"

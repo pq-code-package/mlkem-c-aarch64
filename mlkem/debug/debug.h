@@ -91,7 +91,7 @@ void mlkem_debug_print_error(const char *file, int line, const char *msg);
 #define POLYVEC_BOUND(ptr, abs_bound)                                    \
   do {                                                                   \
     for (unsigned _debug_polyvec_bound_idx = 0;                          \
-         _debug_polyvec_bound_idx < KYBER_K; _debug_polyvec_bound_idx++) \
+         _debug_polyvec_bound_idx < MLKEM_K; _debug_polyvec_bound_idx++) \
       POLY_BOUND_MSG(&(ptr)->vec[_debug_polyvec_bound_idx], (abs_bound), \
                      "polyvec absolute bound for " #ptr ".vec[i]");      \
   } while (0)
@@ -103,7 +103,7 @@ void mlkem_debug_print_error(const char *file, int line, const char *msg);
 #define POLYVEC_UBOUND(ptr, ubound)                                      \
   do {                                                                   \
     for (unsigned _debug_polyvec_bound_idx = 0;                          \
-         _debug_polyvec_bound_idx < KYBER_K; _debug_polyvec_bound_idx++) \
+         _debug_polyvec_bound_idx < MLKEM_K; _debug_polyvec_bound_idx++) \
       POLY_UBOUND_MSG(&(ptr)->vec[_debug_polyvec_bound_idx], (ubound),   \
                       "polyvec unsigned bound for " #ptr ".vec[i]");     \
   } while (0)

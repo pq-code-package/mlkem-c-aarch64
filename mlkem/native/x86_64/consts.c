@@ -11,7 +11,7 @@
 #include "consts.h"
 #include "params.h"
 
-#define Q KYBER_Q
+#define Q MLKEM_Q
 #define MONT -1044      // 2^16 mod q
 #define QINV -3327      // q^-1 mod 2^16
 #define V 20159         // floor(2^26/q + 0.5)

@@ -1,17 +1,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
-ifndef KYBER_K
-       $(warning KYBER_K not set -- defaulting to KYBER_K=3)
+ifndef MLKEM_K
+       $(warning MLKEM_K not set -- defaulting to MLKEM_K=3)
 endif
 
-KYBER_K ?= 3
+MLKEM_K ?= 3
 
-ifeq ($(KYBER_K),2)
-     KYBER_NAMESPACE = pqcrystals_kyber512_ref_
-else ifeq ($(KYBER_K),3)
-     KYBER_NAMESPACE=pqcrystals_kyber768_ref_
-else ifeq ($(KYBER_K),4)
-     KYBER_NAMESPACE=pqcrystals_kyber1024_ref_
+ifeq ($(MLKEM_K),2)
+     MLKEM_NAMESPACE = pqcrystals_mlkem512_ref_
+else ifeq ($(MLKEM_K),3)
+     MLKEM_NAMESPACE=pqcrystals_mlkem768_ref_
+else ifeq ($(MLKEM_K),4)
+     MLKEM_NAMESPACE=pqcrystals_mlkem1024_ref_
 else
-     $(error Invalid value of KYBER_K)
+     $(error Invalid value of MLKEM_K)
 endif

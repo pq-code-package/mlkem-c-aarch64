@@ -194,9 +194,9 @@ static inline void polyvec_basemul_acc_montgomery_cached_native(
  *                with each coefficient in the range -Q+1 .. Q-1
  *              OUTPUT
  *              - r: pointer to output byte array
- *                   (of KYBER_POLYBYTES bytes)
+ *                   (of MLKEM_POLYBYTES bytes)
  **************************************************/
-static inline void poly_tobytes_native(uint8_t r[KYBER_POLYBYTES],
+static inline void poly_tobytes_native(uint8_t r[MLKEM_POLYBYTES],
                                        const poly *a);
 #endif /* MLKEM_USE_NATIVE_POLY_TOBYTES */
 
@@ -212,10 +212,10 @@ static inline void poly_tobytes_native(uint8_t r[KYBER_POLYBYTES],
  *              - r: pointer to output polynomial in NTT domain
  *              OUTPUT
  *              - a: const pointer to input byte aray
- *                   (of KYBER_POLYBYTES bytes)
+ *                   (of MLKEM_POLYBYTES bytes)
  **************************************************/
 static inline void poly_frombytes_native(poly *a,
-                                         const uint8_t r[KYBER_POLYBYTES]);
+                                         const uint8_t r[MLKEM_POLYBYTES]);
 #endif /* MLKEM_USE_NATIVE_POLY_FROMBYTES */
 
 #if defined(MLKEM_USE_NATIVE_REJ_UNIFORM)

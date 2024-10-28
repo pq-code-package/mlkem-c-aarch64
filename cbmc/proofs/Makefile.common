@@ -528,11 +528,11 @@ DEFINES += -DCBMC=1
 DEFINES += -DCBMC_OBJECT_BITS=$(CBMC_OBJECT_BITS)
 DEFINES += -DCBMC_MAX_OBJECT_SIZE="(SIZE_MAX>>(CBMC_OBJECT_BITS+1))"
 
-ifndef KYBER_K
-    $(error KYBER_K not set)
+ifndef MLKEM_K
+    $(error MLKEM_K not set)
 endif
 
-DEFINES += -DKYBER_K=$(KYBER_K)
+DEFINES += -DMLKEM_K=$(MLKEM_K)
 
 # CI currently assumes cbmc invocation has at most one --unwindset
 

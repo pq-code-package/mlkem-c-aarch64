@@ -135,7 +135,7 @@ const_addr:
         .short 0
         .short 0
 
-#if KYBER_K == 2
+#if MLKEM_K == 2
 
 .global polyvec_basemul_acc_montgomery_cached_asm_k2_opt
 .global _polyvec_basemul_acc_montgomery_cached_asm_k2_opt
@@ -155,7 +155,7 @@ _polyvec_basemul_acc_montgomery_cached_asm_k2_opt:
         add b1_ptr, b0_ptr, #(1 * 512)
         add b1_cache_ptr, b0_cache_ptr, #(1 * 512/2)
 
-        mov count, #(KYBER_N / 16)
+        mov count, #(MLKEM_N / 16)
                                                // Instructions:    6
                                                // Expected cycles: 11
                                                // Expected IPC:    0.55
@@ -349,9 +349,9 @@ k2_loop_start:
 
         pop_stack
         ret
-#endif /* KYBER_K == 2 */
+#endif /* MLKEM_K == 2 */
 
-#if KYBER_K == 3
+#if MLKEM_K == 3
 .global polyvec_basemul_acc_montgomery_cached_asm_k3_opt
 .global _polyvec_basemul_acc_montgomery_cached_asm_k3_opt
 
@@ -373,7 +373,7 @@ _polyvec_basemul_acc_montgomery_cached_asm_k3_opt:
         add b2_ptr, b0_ptr, #(2 * 512)
         add b2_cache_ptr, b0_cache_ptr, #(2 * 512/2)
 
-        mov count, #(KYBER_N / 16)
+        mov count, #(MLKEM_N / 16)
                                                // Instructions:    52
                                                // Expected cycles: 66
                                                // Expected IPC:    0.79
@@ -699,9 +699,9 @@ k3_loop_start:
 
         pop_stack
         ret
-#endif /* KYBER_K == 3 */
+#endif /* MLKEM_K == 3 */
 
-#if KYBER_K == 4
+#if MLKEM_K == 4
 .global polyvec_basemul_acc_montgomery_cached_asm_k4_opt
 .global _polyvec_basemul_acc_montgomery_cached_asm_k4_opt
 
@@ -726,7 +726,7 @@ _polyvec_basemul_acc_montgomery_cached_asm_k4_opt:
         add b3_ptr, b0_ptr, #(3 * 512)
         add b3_cache_ptr, b0_cache_ptr, #(3 * 512/2)
 
-        mov count, #(KYBER_N / 16)
+        mov count, #(MLKEM_N / 16)
                                                 // Instructions:    18
                                                 // Expected cycles: 27
                                                 // Expected IPC:    0.67
@@ -1118,6 +1118,6 @@ k4_loop_start:
 
         pop_stack
         ret
-#endif /* KYBER_K == 4 */
+#endif /* MLKEM_K == 4 */
 
 #endif /* MLKEM_USE_NATIVE_AARCH64 */

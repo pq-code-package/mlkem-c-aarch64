@@ -33,7 +33,7 @@
 
 .p2align 4
 const_addr:
-        .short 3329   // Kyber modulus
+        .short 3329   // ML-KEM modulus
         .short 20159  // Barrett twist of 1 wrt 2^27
         .short -1044  // 2^16 % 3329
         .short -10276 // Barrett twist of -1044 (wrt 2^16)

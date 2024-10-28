@@ -6,10 +6,10 @@
 #include "randombytes.h"
 
 #define USAGE \
-  "acvp_kyber{lvl} [encapDecap|keyGen] [AFT|VAL] {test specific arguments}"
-#define ENCAPS_USAGE "acvp_kyber{lvl} encapDecap AFT encaps ek=HEX m=HEX"
-#define DECAPS_USAGE "acvp_kyber{lvl} encapDecap VAL decaps dk=HEX c=HEX"
-#define KEYGEN_USAGE "acvp_kyber{lvl} keyGen AFT z=HEX d=HEX"
+  "acvp_mlkem{lvl} [encapDecap|keyGen] [AFT|VAL] {test specific arguments}"
+#define ENCAPS_USAGE "acvp_mlkem{lvl} encapDecap AFT encaps ek=HEX m=HEX"
+#define DECAPS_USAGE "acvp_mlkem{lvl} encapDecap VAL decaps dk=HEX c=HEX"
+#define KEYGEN_USAGE "acvp_mlkem{lvl} keyGen AFT z=HEX d=HEX"
 
 typedef enum { encapDecap, keyGen } acvp_mode;
 
@@ -79,11 +79,11 @@ static void print_hex(const char *name, const unsigned char *raw, size_t len) {
   printf("\n");
 }
 
-static void acvp_kyber_encapDecp_AFT_encapsulation(
-    unsigned char const ek[KYBER_INDCPA_PUBLICKEYBYTES],
-    unsigned char const m[KYBER_SYMBYTES]) {
-  unsigned char ct[KYBER_CIPHERTEXTBYTES];
-  unsigned char ss[KYBER_SSBYTES];
+static void acvp_mlkem_encapDecp_AFT_encapsulation(
+    unsigned char const ek[MLKEM_INDCPA_PUBLICKEYBYTES],
+    unsigned char const m[MLKEM_SYMBYTES]) {
+  unsigned char ct[MLKEM_CIPHERTEXTBYTES];
+  unsigned char ss[MLKEM_SSBYTES];
 
   crypto_kem_enc_derand(ct, ss, ek, m);
 
@@ -91,24 +91,24 @@ static void acvp_kyber_encapDecp_AFT_encapsulation(
   print_hex("k", ss, sizeof(ss));
 }
 
-static void acvp_kyber_encapDecp_VAL_decapsulation(
-    unsigned char const dk[KYBER_SECRETKEYBYTES],
-    unsigned char const c[KYBER_CIPHERTEXTBYTES]) {
-  unsigned char ss[KYBER_SSBYTES];
+static void acvp_mlkem_encapDecp_VAL_decapsulation(
+    unsigned char const dk[MLKEM_SECRETKEYBYTES],
+    unsigned char const c[MLKEM_CIPHERTEXTBYTES]) {
+  unsigned char ss[MLKEM_SSBYTES];
 
   crypto_kem_dec(ss, c, dk);
 
   print_hex("k", ss, sizeof(ss));
 }
 
-static void acvp_kyber_keyGen_AFT(unsigned char const z[KYBER_SYMBYTES],
-                                  unsigned char const d[KYBER_SYMBYTES]) {
-  unsigned char ek[KYBER_INDCPA_PUBLICKEYBYTES];
-  unsigned char dk[KYBER_SECRETKEYBYTES];
+static void acvp_mlkem_keyGen_AFT(unsigned char const z[MLKEM_SYMBYTES],
+                                  unsigned char const d[MLKEM_SYMBYTES]) {
+  unsigned char ek[MLKEM_INDCPA_PUBLICKEYBYTES];
+  unsigned char dk[MLKEM_SECRETKEYBYTES];
 
-  unsigned char zd[2 * KYBER_SYMBYTES];
-  memcpy(zd, d, KYBER_SYMBYTES);
-  memcpy(zd + KYBER_SYMBYTES, z, KYBER_SYMBYTES);
+  unsigned char zd[2 * MLKEM_SYMBYTES];
+  memcpy(zd, d, MLKEM_SYMBYTES);
+  memcpy(zd + MLKEM_SYMBYTES, z, MLKEM_SYMBYTES);
 
   crypto_kem_keypair_derand(ek, dk, zd);
 
@@ -178,21 +178,21 @@ int main(int argc, char *argv[]) {
           }
 
           /* Parse ek */
-          unsigned char ek[KYBER_INDCPA_PUBLICKEYBYTES];
+          unsigned char ek[MLKEM_INDCPA_PUBLICKEYBYTES];
           if (argc == 0 || decode_hex("ek", ek, sizeof(ek), *argv) != 0) {
             goto encaps_usage;
           }
           argc--, argv++;
 
           /* Parse m */
-          unsigned char m[KYBER_SYMBYTES];
+          unsigned char m[MLKEM_SYMBYTES];
           if (argc == 0 || decode_hex("m", m, sizeof(m), *argv) != 0) {
             goto encaps_usage;
           }
           argc--, argv++;
 
           /* Call function under test */
-          acvp_kyber_encapDecp_AFT_encapsulation(ek, m);
+          acvp_mlkem_encapDecp_AFT_encapsulation(ek, m);
           break;
         }
         case decapsulation: {
@@ -202,21 +202,21 @@ int main(int argc, char *argv[]) {
           }
 
           /* Parse dk */
-          unsigned char dk[KYBER_SECRETKEYBYTES];
+          unsigned char dk[MLKEM_SECRETKEYBYTES];
           if (argc == 0 || decode_hex("dk", dk, sizeof(dk), *argv) != 0) {
             goto decaps_usage;
           }
           argc--, argv++;
 
           /* Parse c */
-          unsigned char c[KYBER_CIPHERTEXTBYTES];
+          unsigned char c[MLKEM_CIPHERTEXTBYTES];
           if (argc == 0 || decode_hex("c", c, sizeof(c), *argv) != 0) {
             goto decaps_usage;
           }
           argc--, argv++;
 
           /* Call function under test */
-          acvp_kyber_encapDecp_VAL_decapsulation(dk, c);
+          acvp_mlkem_encapDecp_VAL_decapsulation(dk, c);
           break;
         }
       }
@@ -229,21 +229,21 @@ int main(int argc, char *argv[]) {
       }
 
       /* Parse z */
-      unsigned char z[KYBER_SYMBYTES];
+      unsigned char z[MLKEM_SYMBYTES];
       if (argc == 0 || decode_hex("z", z, sizeof(z), *argv) != 0) {
         goto keygen_usage;
       }
       argc--, argv++;
 
       /* Parse d */
-      unsigned char d[KYBER_SYMBYTES];
+      unsigned char d[MLKEM_SYMBYTES];
       if (argc == 0 || decode_hex("d", d, sizeof(d), *argv) != 0) {
         goto keygen_usage;
       }
       argc--, argv++;
 
       /* Call function under test */
-      acvp_kyber_keyGen_AFT(z, d);
+      acvp_mlkem_keyGen_AFT(z, d);
       break;
     }
   }

@@ -23,7 +23,7 @@
  */
 void harness(void) {
   poly r;
-  uint8_t a[KYBER_POLYCOMPRESSEDBYTES];
+  uint8_t a[MLKEM_POLYCOMPRESSEDBYTES];
 
   poly_compress(a, &r);
 }

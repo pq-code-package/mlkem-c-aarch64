@@ -23,7 +23,7 @@
  */
 void harness(void) {
   poly a;
-  uint8_t r[KYBER_POLYBYTES];
+  uint8_t r[MLKEM_POLYBYTES];
 
   /* Contracts for this function are in poly.h */
   poly_tobytes(r, &a);

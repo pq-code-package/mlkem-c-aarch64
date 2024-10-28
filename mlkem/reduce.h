@@ -7,17 +7,17 @@
 #include "params.h"
 
 #define MONT -1044                  // 2^16 mod q
-#define HALF_Q ((KYBER_Q - 1) / 2)  // 1664
+#define HALF_Q ((MLKEM_Q - 1) / 2)  // 1664
 
-#define montgomery_reduce KYBER_NAMESPACE(montgomery_reduce)
+#define montgomery_reduce MLKEM_NAMESPACE(montgomery_reduce)
 int16_t montgomery_reduce(int32_t a)
     // clang-format off
-REQUIRES(a >= INT32_MIN + (32768 * KYBER_Q))
-REQUIRES(a <= INT32_MAX - (32768 * KYBER_Q))
+REQUIRES(a >= INT32_MIN + (32768 * MLKEM_Q))
+REQUIRES(a <= INT32_MAX - (32768 * MLKEM_Q))
 ENSURES(RETURN_VALUE >= INT16_MIN && RETURN_VALUE <= INT16_MAX);
 // clang-format on
 
-#define barrett_reduce KYBER_NAMESPACE(barrett_reduce)
+#define barrett_reduce MLKEM_NAMESPACE(barrett_reduce)
 int16_t barrett_reduce(int16_t a)
     // clang-format off
 ENSURES(RETURN_VALUE >= -HALF_Q && RETURN_VALUE <= HALF_Q);
