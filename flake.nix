@@ -98,6 +98,16 @@
               gcc7; #7
           };
 
+          core_gcc11 = base ++ builtins.attrValues {
+            inherit (pkgs)
+              gcc11; #11
+          };
+
+          core_clang18 = base ++ builtins.attrValues {
+            inherit (pkgs)
+              clang_18; #18
+          };
+
           wrapShell = mkShell: attrs:
             mkShell (attrs // {
               shellHook = ''
@@ -121,9 +131,11 @@
           devShells.ci-cbmc-cross = wrapShell pkgs.mkShellNoCC { packages = core { } ++ cbmcpkg; };
           devShells.ci-linter = wrapShell pkgs.mkShellNoCC { packages = linters; };
 
+          devShells.ci_clang18 = wrapShell pkgs.mkShellNoCC { packages = core_clang18; };
           devShells.ci_gcc48 = wrapShell pkgs.mkShellNoCC { packages = core_gcc48; };
           devShells.ci_gcc49 = wrapShell pkgs.mkShellNoCC { packages = core_gcc49; };
           devShells.ci_gcc7 = wrapShell pkgs.mkShellNoCC { packages = core_gcc7; };
+          devShells.ci_gcc11 = wrapShell pkgs.mkShellNoCC { packages = core_gcc11; };
         };
       flake = {
         # The usual flake attributes can be defined here, including system-
