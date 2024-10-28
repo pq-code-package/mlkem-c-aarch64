@@ -75,6 +75,14 @@ runs:
             # only summary on the first time
             if [[ "${{ env.SHELL }}" == '' ]]; then
               ARCH=$(uname -m)
+            echo <<-EOF
+              ## Setup
+              Architecture: $ARCH
+              - $(uname -a)
+              - $(nix --version)
+              - $(bash --version | grep -m1 "")
+              - $(${_CROSS_PREFIX}${_CC} --version | grep -m1 "")
+            EOF
             cat >> $GITHUB_STEP_SUMMARY <<-EOF
               ## Setup
               Architecture: $ARCH
