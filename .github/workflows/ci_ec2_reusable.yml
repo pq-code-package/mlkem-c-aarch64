@@ -117,12 +117,12 @@ jobs:
         id: preprocess
         shell: bash
         run: |
-          echo "nix-shell=${{ inputs.cbmc && 'ci-cbmc' || 'ci' }}${{ inputs.compile_mode == 'cross' && '-cross' || '' }}" >> $GITHUB_OUTPUT
+          echo "nix-shell=${{ inputs.cbmc && 'ci-cbmc' || 'ci' }}${{ (inputs.compile_mode == 'cross' || inputs.compile_mode == 'all') && '-cross' || '' }}" >> $GITHUB_OUTPUT
       - name: Functional Tests
         uses: ./.github/actions/multi-functest
         with:
           nix-shell: ${{ steps.preprocess.outputs.nix-shell }}
-          nix-cache: ${{ inputs.cbmc || inputs.compile_mode == 'cross' }}
+          nix-cache: ${{ inputs.cbmc || inputs.compile_mode == 'cross' || inputs.compile_mode == 'all' }}
           nix-verbose: ${{ inputs.verbose }}
           gh_token: ${{ secrets.AWS_GITHUB_TOKEN }}
           cflags: ${{ inputs.cflags }}
