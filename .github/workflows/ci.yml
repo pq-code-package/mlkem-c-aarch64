@@ -179,7 +179,7 @@ jobs:
           gh_token: ${{ secrets.GITHUB_TOKEN }}
           cross-prefix: "aarch64-unknown-linux-gnu-"
 
-  ec2_all:
+  ec2_functests:
     needs: quickcheck
     strategy:
       fail-fast: false
@@ -189,27 +189,27 @@ jobs:
             ec2_instance_type: t3a.small
             ec2_ami: ubuntu-latest (custom AMI)
             ec2_ami_id: ami-0d47e137a1108e078 # x86_64 ubuntu-latest, 32g
-            compile_mode: cross
-            opt: opt
-            kattest: true
-            cbmc: 'false'
+            compile_mode: native
+            opt: all
           - name: Intel Xeon 4th gen (t3)
             ec2_instance_type: t3.small
             ec2_ami: ubuntu-latest (custom AMI)
             ec2_ami_id: ami-0d47e137a1108e078 # x86_64 ubuntu-latest, 32g
-            compile_mode: cross
-            opt: non-opt
-            kattest: true
-            cbmc: 'false'
-          - name: Graviton3, CBMC (c7g.xlarge)
+            compile_mode: native
+            opt: all
+          - name: Graviton2 (c6g.xlarge)
+            ec2_instance_type: c6g.xlarge
+            ec2_ami: ubuntu-latest (custom AMI)
+            ec2_ami_id: ami-08ddb0acd99dc3d33 # aarch64, ubuntu-latest, 64g
+            compile_mode: native
+            opt: all
+          - name: Graviton3 (c7g.xlarge)
             ec2_instance_type: c7g.xlarge
             ec2_ami: ubuntu-latest (custom AMI)
             ec2_ami_id: ami-08ddb0acd99dc3d33 # aarch64, ubuntu-latest, 64g
-            compile_mode: cross
+            compile_mode: native
             opt: all
-            kattest: false
-            cbmc: 'true'
-    name: ${{ matrix.target.name }}
+    name: Functional tests  (${{ matrix.target.name }})
     permissions:
       contents: 'read'
       id-token: 'write'
@@ -222,7 +222,30 @@ jobs:
       ec2_ami_id: ${{ matrix.target.ec2_ami_id }}
       compile_mode: ${{ matrix.target.compile_mode }}
       opt: ${{ matrix.target.opt }}
+      functest: true
+      kattest: true
+      nistkattest: true
       lint: false
-      cbmc: ${{ matrix.target.cbmc == 'true' }}
       verbose: true
+    secrets: inherit
+  cbmc:
+    needs: quickcheck
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+    uses: ./.github/workflows/ci_ec2_reusable.yml
+    if: github.repository_owner == 'pq-code-package' && !github.event.pull_request.head.repo.fork
+    with:
+      name: CBMC
+      ec2_instance_type: c7g.4xlarge
+      ec2_ami: ubuntu-latest (custom AMI)
+      ec2_ami_id: ami-08ddb0acd99dc3d33 # aarch64, ubuntu-latest, 64g
+      compile_mode: native
+      opt: non-opt
+      lint: false
+      verbose: true
+      functest: true
+      kattest: false
+      nistkattest: false
+      cbmc: true
     secrets: inherit
