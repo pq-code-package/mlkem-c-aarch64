@@ -8,6 +8,8 @@
 #if defined(MLKEM_USE_NATIVE_X86_64) && defined(SYS_X86_64_AVX2)
 
 #include "consts.h"
+#include "params.h"
+
 .include "shuffle.inc"
 
 .macro mul rh0,rh1,rh2,rh3,zl0=15,zl1=15,zh0=2,zh1=2
@@ -185,10 +187,8 @@ vmovdqa		%ymm11,(128*\off+112)*2(%rdi)
 .endm
 
 .text
-.global ntt_avx2
-.global _ntt_avx2
-ntt_avx2:
-_ntt_avx2:
+.global MLKEM_NAMESPACE(ntt_avx2)
+MLKEM_NAMESPACE(ntt_avx2):
 vmovdqa		_16XQ*2(%rsi),%ymm0
 
 level0		0

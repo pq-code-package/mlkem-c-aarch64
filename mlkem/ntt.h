@@ -11,10 +11,10 @@
 #define zetas MLKEM_NAMESPACE(zetas)
 extern const int16_t zetas[128];
 
-#define ntt MLKEM_NAMESPACE(ntt)
+#define poly_ntt MLKEM_NAMESPACE(poly_ntt)
 void poly_ntt(poly *r);
 
-#define invntt MLKEM_NAMESPACE(invntt)
+#define poly_invntt_tomont MLKEM_NAMESPACE(poly_invntt_tomont)
 void poly_invntt_tomont(poly *r);
 
 // Absolute exclusive upper bound for the output of the inverse NTT

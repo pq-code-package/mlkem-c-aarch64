@@ -1,0 +1,71 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
+
+# This scripts runs nm on the object files (excluding test objects) and checks that all exported
+# symbols are properly namespaced.
+# It assumes that object files are present under test/build/mlkem{512,768,1024} and
+# test/build/fips202.
+
+# The checked namespaces are
+# PQCP_MLKEM_NATIVE_FIPS202_ for FIPS202 code
+# PQCP_MLKEM_NATIVE_MLKEM512_ for MLKEM512 code
+# PQCP_MLKEM_NATIVE_MLKEM768_ for MLKEM768 code
+# PQCP_MLKEM_NATIVE_MLKEM1024_ for MLKEM1024 code
+
+import subprocess
+import os
+
+def check_file(file_path, namespace):
+    if file_path.endswith("debug.c.o"):
+        print("skipping namespacing: {}".format(file_path))
+        return
+    print("checking namespacing: {}".format(file_path))
+    command = ['nm', '-g', file_path]
+
+    result = subprocess.run(
+        command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT)
+
+    result = result.stdout.decode('utf-8')
+    lines = result.strip().split("\n")
+    symbols = []
+    for line in lines:
+        if line.startswith("00"):
+            symbols.append(line)
+
+    non_namespaced = []
+    for symbolstr in symbols:
+        *_, symtype, symbol = symbolstr.split()
+        if symtype in 'TDRS':
+            if not (symbol.startswith(namespace) or
+                symbol.startswith('_' + namespace)):
+                non_namespaced.append(symbol)
+
+    if non_namespaced:
+        print("Missing namespace literal {}".format(namespace))
+        for symbol in non_namespaced:
+            print("\tsymbol: {}".format(symbol))
+    assert not non_namespaced, "Literals with missing namespaces"
+
+
+def check_folder(folder, namespace):
+    checked = 0
+    # recursively go through folder and check all object files
+    for root, dirnames, filenames in os.walk(folder):
+        for filename in filenames:
+            if filename.endswith(".o"):
+                check_file(os.path.join(root, filename), namespace)
+                checked += 1
+    print("Checked {} files".format(checked))
+    assert checked > 0
+
+
+def run():
+    check_folder("test/build/mlkem512/mlkem", "PQCP_MLKEM_NATIVE_MLKEM512_")
+    check_folder("test/build/mlkem768/mlkem", "PQCP_MLKEM_NATIVE_MLKEM768_")
+    check_folder("test/build/mlkem1024/mlkem", "PQCP_MLKEM_NATIVE_MLKEM1024_")
+    check_folder("test/build/fips202", "PQCP_MLKEM_NATIVE_FIPS202_")
+
+if __name__ == "__main__":
+    run()

@@ -136,12 +136,11 @@ const_addr:
         .short 0
 
 #if MLKEM_K == 2
+.global MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_k2_opt)
+.global _MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_k2_opt)
 
-.global polyvec_basemul_acc_montgomery_cached_asm_k2_opt
-.global _polyvec_basemul_acc_montgomery_cached_asm_k2_opt
-
-polyvec_basemul_acc_montgomery_cached_asm_k2_opt:
-_polyvec_basemul_acc_montgomery_cached_asm_k2_opt:
+MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_k2_opt):
+_MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_k2_opt):
         push_stack
 
         ASM_LOAD(xtmp, const_addr)
@@ -352,11 +351,11 @@ k2_loop_start:
 #endif /* MLKEM_K == 2 */
 
 #if MLKEM_K == 3
-.global polyvec_basemul_acc_montgomery_cached_asm_k3_opt
-.global _polyvec_basemul_acc_montgomery_cached_asm_k3_opt
+.global MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_k3_opt)
+.global _MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_k3_opt)
 
-polyvec_basemul_acc_montgomery_cached_asm_k3_opt:
-_polyvec_basemul_acc_montgomery_cached_asm_k3_opt:
+MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_k3_opt):
+_MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_k3_opt):
         push_stack
 
         ASM_LOAD(xtmp, const_addr)
@@ -702,11 +701,11 @@ k3_loop_start:
 #endif /* MLKEM_K == 3 */
 
 #if MLKEM_K == 4
-.global polyvec_basemul_acc_montgomery_cached_asm_k4_opt
-.global _polyvec_basemul_acc_montgomery_cached_asm_k4_opt
+.global MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_k4_opt)
+.global _MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_k4_opt)
 
-polyvec_basemul_acc_montgomery_cached_asm_k4_opt:
-_polyvec_basemul_acc_montgomery_cached_asm_k4_opt:
+MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_k4_opt):
+_MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_k4_opt):
         push_stack
 
         ASM_LOAD(xtmp, const_addr)

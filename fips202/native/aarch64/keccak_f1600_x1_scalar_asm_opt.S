@@ -32,6 +32,7 @@
 
 // Needed to provide ASM_LOAD directive
 #include "common.i"
+#include "namespace.h"
 
 /********************** CONSTANTS *************************/
     .data
@@ -194,11 +195,11 @@ round_constants:
 
 .text
 .balign 16
-.global keccak_f1600_x1_scalar_asm_opt
-.global _keccak_f1600_x1_scalar_asm_opt
+.global FIPS202_NAMESPACE(keccak_f1600_x1_scalar_asm_opt)
+.global _FIPS202_NAMESPACE(keccak_f1600_x1_scalar_asm_opt)
 
-keccak_f1600_x1_scalar_asm_opt:
-_keccak_f1600_x1_scalar_asm_opt:
+FIPS202_NAMESPACE(keccak_f1600_x1_scalar_asm_opt):
+_FIPS202_NAMESPACE(keccak_f1600_x1_scalar_asm_opt):
     alloc_stack
     save_gprs
 

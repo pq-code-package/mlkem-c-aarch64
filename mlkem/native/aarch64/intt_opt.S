@@ -28,6 +28,7 @@
 
 // Needed to provide ASM_LOAD directive
 #include "common.i"
+#include "params.h"
 
 // Bounds:
 // If C is chosen so that |src| < q * C, then |dst| < q * (0.0508 * C + 1/2)
@@ -142,9 +143,8 @@
 roots:
 #include "intt_123_45_67_twiddles.S"
 .text
-
-        .global intt_asm_opt
-        .global _intt_asm_opt
+        .global MLKEM_NAMESPACE(intt_asm_opt)
+        .global _MLKEM_NAMESPACE(intt_asm_opt)
 
 .p2align 4
 const_addr:       .short 3329
@@ -172,8 +172,8 @@ ninv_tw_addr:     .short 5040
                   .short 5040
                   .short 5040
 
-intt_asm_opt:
-_intt_asm_opt:
+MLKEM_NAMESPACE(intt_asm_opt):
+_MLKEM_NAMESPACE(intt_asm_opt):
         push_stack
 
         in      .req x0

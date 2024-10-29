@@ -28,6 +28,7 @@
 
 // Needed to provide ASM_LOAD directive
 #include "common.i"
+#include "params.h"
 
 // Bounds:
 // If C is chosen so that |src| < q * C, then |dst| < q * (0.0508 * C + 1/2)
@@ -183,8 +184,8 @@ roots:
         t3  .req v28
 
         .text
-        .global ntt_asm_clean
-        .global _ntt_asm_clean
+        .global MLKEM_NAMESPACE(ntt_asm_clean)
+        .global _MLKEM_NAMESPACE(ntt_asm_clean)
 
 .p2align 4
 const_addr:
@@ -197,8 +198,8 @@ const_addr:
         .short 0
         .short 0
 
-ntt_asm_clean:
-_ntt_asm_clean:
+MLKEM_NAMESPACE(ntt_asm_clean):
+_MLKEM_NAMESPACE(ntt_asm_clean):
         push_stack
 
         ASM_LOAD(r_ptr0, roots)
