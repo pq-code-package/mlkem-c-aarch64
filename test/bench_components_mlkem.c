@@ -71,7 +71,7 @@ static int bench(void) {
         poly_mulcache_compute_asm_clean((int16_t *)data0, (int16_t *)data1,
                                         (int16_t *)data2, (int16_t *)data3));
   BENCH("poly-basemul-acc-montgomery-clean",
-        polyvec_basemul_acc_montgomery_cached_asm_clean_name(MLKEM_K)(
+        polyvec_basemul_acc_montgomery_cached_asm_clean_name(
             (int16_t *)data0, (int16_t *)data1, (int16_t *)data2,
             (int16_t *)data3));
 
@@ -83,7 +83,7 @@ static int bench(void) {
         poly_mulcache_compute_asm_opt((int16_t *)data0, (int16_t *)data1,
                                       (int16_t *)data2, (int16_t *)data3));
   BENCH("poly-basemul-acc-montgomery-opt",
-        polyvec_basemul_acc_montgomery_cached_asm_opt_name(MLKEM_K)(
+        polyvec_basemul_acc_montgomery_cached_asm_opt_name(
             (int16_t *)data0, (int16_t *)data1, (int16_t *)data2,
             (int16_t *)data3));
 #endif
