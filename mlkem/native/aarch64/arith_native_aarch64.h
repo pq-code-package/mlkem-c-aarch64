@@ -50,57 +50,19 @@ void poly_mulcache_compute_asm_opt(int16_t *, const int16_t *, const int16_t *,
 #define poly_tobytes_asm_clean MLKEM_NAMESPACE(poly_tobytes_asm_clean)
 void poly_tobytes_asm_clean(uint8_t *r, const int16_t *a);
 
-#define polyvec_basemul_acc_montgomery_cached_asm_k2_clean \
-  MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_k2_clean)
-void polyvec_basemul_acc_montgomery_cached_asm_k2_clean(int16_t *r,
-                                                        const int16_t *a,
-                                                        const int16_t *b,
-                                                        const int16_t *b_cache);
+#define polyvec_basemul_acc_montgomery_cached_asm_clean \
+  MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_clean)
+void polyvec_basemul_acc_montgomery_cached_asm_clean(int16_t *r,
+                                                     const int16_t *a,
+                                                     const int16_t *b,
+                                                     const int16_t *b_cache);
 
-#define polyvec_basemul_acc_montgomery_cached_asm_k3_clean \
-  MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_k3_clean)
-void polyvec_basemul_acc_montgomery_cached_asm_k3_clean(int16_t *r,
-                                                        const int16_t *a,
-                                                        const int16_t *b,
-                                                        const int16_t *b_cache);
+#define polyvec_basemul_acc_montgomery_cached_asm_opt \
+  MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_opt)
+void polyvec_basemul_acc_montgomery_cached_asm_opt(int16_t *r, const int16_t *a,
+                                                   const int16_t *b,
+                                                   const int16_t *b_cache);
 
-#define polyvec_basemul_acc_montgomery_cached_asm_k4_clean \
-  MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_k4_clean)
-void polyvec_basemul_acc_montgomery_cached_asm_k4_clean(int16_t *r,
-                                                        const int16_t *a,
-                                                        const int16_t *b,
-                                                        const int16_t *b_cache);
-
-#define polyvec_basemul_acc_montgomery_cached_asm_k2_opt \
-  MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_k2_opt)
-void polyvec_basemul_acc_montgomery_cached_asm_k2_opt(int16_t *r,
-                                                      const int16_t *a,
-                                                      const int16_t *b,
-                                                      const int16_t *b_cache);
-
-#define polyvec_basemul_acc_montgomery_cached_asm_k3_opt \
-  MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_k3_opt)
-void polyvec_basemul_acc_montgomery_cached_asm_k3_opt(int16_t *r,
-                                                      const int16_t *a,
-                                                      const int16_t *b,
-                                                      const int16_t *b_cache);
-
-#define polyvec_basemul_acc_montgomery_cached_asm_k4_opt \
-  MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_k4_opt)
-void polyvec_basemul_acc_montgomery_cached_asm_k4_opt(int16_t *r,
-                                                      const int16_t *a,
-                                                      const int16_t *b,
-                                                      const int16_t *b_cache);
-
-#define _polyvec_basemul_acc_montgomery_cached_asm_clean_name(k) \
-  MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_k##k##_clean)
-#define polyvec_basemul_acc_montgomery_cached_asm_clean_name(k) \
-  _polyvec_basemul_acc_montgomery_cached_asm_clean_name(k)
-
-#define _polyvec_basemul_acc_montgomery_cached_asm_opt_name(k) \
-  MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_k##k##_opt)
-#define polyvec_basemul_acc_montgomery_cached_asm_opt_name(k) \
-  _polyvec_basemul_acc_montgomery_cached_asm_opt_name(k)
 
 #endif /* MLKEM_USE_NATIVE_AARCH64 */
 #endif /* MLKEM_AARCH64_NATIVE_H */

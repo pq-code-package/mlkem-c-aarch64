@@ -41,7 +41,7 @@ static inline void poly_mulcache_compute_native(poly_mulcache *x,
 static inline void polyvec_basemul_acc_montgomery_cached_native(
     poly *r, const polyvec *a, const polyvec *b,
     const polyvec_mulcache *b_cache) {
-  polyvec_basemul_acc_montgomery_cached_asm_clean_name(MLKEM_K)(
+  polyvec_basemul_acc_montgomery_cached_asm_clean(
       r->coeffs, a->vec[0].coeffs, b->vec[0].coeffs, b_cache->vec[0].coeffs);
 }
 
