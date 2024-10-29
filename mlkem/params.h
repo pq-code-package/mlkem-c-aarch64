@@ -11,11 +11,14 @@
 
 /* Don't change parameters below this line */
 #if (MLKEM_K == 2)
-#define MLKEM_NAMESPACE(s) pqcrystals_mlkem512_ref_##s
+#define MLKEM_NAMESPACE(s) PQCP_MLKEM_NATIVE_MLKEM512_##s
+#define _MLKEM_NAMESPACE(s) _PQCP_MLKEM_NATIVE_MLKEM512_##s
 #elif (MLKEM_K == 3)
-#define MLKEM_NAMESPACE(s) pqcrystals_mlkem768_ref_##s
+#define MLKEM_NAMESPACE(s) PQCP_MLKEM_NATIVE_MLKEM768_##s
+#define _MLKEM_NAMESPACE(s) _PQCP_MLKEM_NATIVE_MLKEM768_##s
 #elif (MLKEM_K == 4)
-#define MLKEM_NAMESPACE(s) pqcrystals_mlkem1024_ref_##s
+#define MLKEM_NAMESPACE(s) PQCP_MLKEM_NATIVE_MLKEM1024_##s
+#define _MLKEM_NAMESPACE(s) _PQCP_MLKEM_NATIVE_MLKEM1024_##s
 #else
 #error "MLKEM_K must be in {2,3,4}"
 #endif

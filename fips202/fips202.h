@@ -4,6 +4,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include "namespace.h"
 
 #define SHAKE128_RATE 168
 #define SHAKE256_RATE 136
@@ -36,35 +37,44 @@ typedef struct {
  * This function does not support being called multiple times
  * with the same state.
  */
+#define shake128_absorb FIPS202_NAMESPACE(shake128_absorb)
 void shake128_absorb(shake128ctx *state, const uint8_t *input, size_t inlen);
 /* Squeeze output out of the sponge.
  *
  * Supports being called multiple times
  */
+#define shake128_squeezeblocks FIPS202_NAMESPACE(shake128_squeezeblocks)
 void shake128_squeezeblocks(uint8_t *output, size_t nblocks,
                             shake128ctx *state);
 
 /* Initialize incremental hashing API */
+#define shake256_inc_init FIPS202_NAMESPACE(shake256_inc_init)
 void shake256_inc_init(shake256incctx *state);
+#define shake256_inc_absorb FIPS202_NAMESPACE(shake256_inc_absorb)
 void shake256_inc_absorb(shake256incctx *state, const uint8_t *input,
                          size_t inlen);
 /* Prepares for squeeze phase */
+#define shake256_inc_finalize FIPS202_NAMESPACE(shake256_inc_finalize)
 void shake256_inc_finalize(shake256incctx *state);
 
 /* Squeeze output out of the sponge.
  *
  * Supports being called multiple times
  */
+#define shake256_inc_squeeze FIPS202_NAMESPACE(shake256_inc_squeeze)
 void shake256_inc_squeeze(uint8_t *output, size_t outlen,
                           shake256incctx *state);
 
 /* One-stop SHAKE256 call */
+#define shake256 FIPS202_NAMESPACE(shake256)
 void shake256(uint8_t *output, size_t outlen, const uint8_t *input,
               size_t inlen);
 
 /* One-stop SHA3-256 shop */
+#define sha3_256 FIPS202_NAMESPACE(sha3_256)
 void sha3_256(uint8_t *output, const uint8_t *input, size_t inlen);
 
 /* One-stop SHA3-512 shop */
+#define sha3_512 FIPS202_NAMESPACE(sha3_512)
 void sha3_512(uint8_t *output, const uint8_t *input, size_t inlen);
 #endif

@@ -8,6 +8,7 @@
 #if defined(MLKEM_USE_NATIVE_X86_64) && defined(SYS_X86_64_AVX2)
 
 #include "consts.h"
+#include "params.h"
 
 .macro schoolbook off
 vmovdqa		_16XQINV*2(%rcx),%ymm0
@@ -92,10 +93,8 @@ vmovdqa		%ymm11,(64*\off+48)*2(%rdi)
 .endm
 
 .text
-.global basemul_avx2
-.global _basemul_avx2
-basemul_avx2:
-_basemul_avx2:
+.global MLKEM_NAMESPACE(basemul_avx2)
+MLKEM_NAMESPACE(basemul_avx2):
 mov		%rsp,%r8
 and		$-32,%rsp
 sub		$32,%rsp

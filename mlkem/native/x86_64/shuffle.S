@@ -8,13 +8,12 @@
 #if defined(MLKEM_USE_NATIVE_X86_64) && defined(SYS_X86_64_AVX2)
 
 #include "consts.h"
+#include "params.h"
 .include "fq.inc"
 .include "shuffle.inc"
 
-.global nttpack_avx2
-.global _nttpack_avx2
-nttpack_avx2:
-_nttpack_avx2:
+.global MLKEM_NAMESPACE(nttpack_avx2)
+MLKEM_NAMESPACE(nttpack_avx2):
 #load
 vmovdqa		(%rdi),%ymm4
 vmovdqa		32(%rdi),%ymm5
@@ -100,10 +99,8 @@ vmovdqa		%ymm11,224(%rdi)
 
 ret
 
-.global nttunpack_avx2
-.global _nttunpack_avx2
-nttunpack_avx2:
-_nttunpack_avx2:
+.global MLKEM_NAMESPACE(nttunpack_avx2)
+MLKEM_NAMESPACE(nttunpack_avx2):
 call		nttunpack128_avx2
 add		$256,%rdi
 call		nttunpack128_avx2
@@ -169,10 +166,8 @@ vmovdqu		%ymm9,160(%rdi)
 
 ret
 
-.global _ntttobytes_avx2
-.global ntttobytes_avx2
-ntttobytes_avx2:
-_ntttobytes_avx2:
+.global MLKEM_NAMESPACE(ntttobytes_avx2)
+MLKEM_NAMESPACE(ntttobytes_avx2):
 #consts
 vmovdqa		_16XQ*2(%rdx),%ymm0
 call		ntttobytes128_avx
@@ -247,10 +242,8 @@ vmovdqa		%ymm1,224(%rdi)
 
 ret
 
-.global nttfrombytes_avx2
-.global _nttfrombytes_avx2
-_nttfrombytes_avx2:
-nttfrombytes_avx2:
+.global MLKEM_NAMESPACE(nttfrombytes_avx2)
+MLKEM_NAMESPACE(nttfrombytes_avx2):
 #consts
 vmovdqa		_16XMASK*2(%rdx),%ymm0
 call		nttfrombytes128_avx

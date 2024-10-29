@@ -41,6 +41,7 @@
 
 // Needed to provide ASM_LOAD directive
 #include "common.i"
+#include "namespace.h"
 
 #if defined(__ARM_FEATURE_SHA3)
 
@@ -367,11 +368,11 @@ round_constants:
 
 .text
 .align 4
-.global keccak_f1600_x2_v84a_asm_clean
-.global _keccak_f1600_x2_v84a_asm_clean
+.global FIPS202_NAMESPACE(keccak_f1600_x2_v84a_asm_clean)
+.global _FIPS202_NAMESPACE(keccak_f1600_x2_v84a_asm_clean)
 
-keccak_f1600_x2_v84a_asm_clean:
-_keccak_f1600_x2_v84a_asm_clean:
+FIPS202_NAMESPACE(keccak_f1600_x2_v84a_asm_clean):
+_FIPS202_NAMESPACE(keccak_f1600_x2_v84a_asm_clean):
     alloc_stack
     save_vregs
     ASM_LOAD(const_addr, round_constants)

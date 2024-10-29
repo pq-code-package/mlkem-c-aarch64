@@ -21,6 +21,7 @@
 
 // Needed to provide ASM_LOAD directive
 #include "common.i"
+#include "params.h"
 
 .data
 table_data:
@@ -378,10 +379,10 @@ bit_table_data:
 
 .text
 .align 4
-.global     rej_uniform_asm_clean
-.global     _rej_uniform_asm_clean
-rej_uniform_asm_clean:
-_rej_uniform_asm_clean:
+.global MLKEM_NAMESPACE(rej_uniform_asm_clean)
+.global _MLKEM_NAMESPACE(rej_uniform_asm_clean)
+MLKEM_NAMESPACE(rej_uniform_asm_clean):
+_MLKEM_NAMESPACE(rej_uniform_asm_clean):
     push_stack
 
     ASM_LOAD(bit_table, bit_table_data)

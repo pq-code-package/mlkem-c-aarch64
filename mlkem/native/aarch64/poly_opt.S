@@ -5,6 +5,7 @@
 
 // Needed to provide ASM_LOAD directive
 #include "common.i"
+#include "params.h"
 
 .macro barrett_reduce a
         sqdmulh t0.8h, \a\().8h, consts.h[1]
@@ -27,9 +28,8 @@
 /**********************************
  *          poly_reduce()         *
  **********************************/
-
-.global poly_reduce_asm_opt
-.global _poly_reduce_asm_opt
+.global MLKEM_NAMESPACE(poly_reduce_asm_opt)
+.global _MLKEM_NAMESPACE(poly_reduce_asm_opt)
 
 .p2align 4
 const_addr:
@@ -54,8 +54,8 @@ const_addr:
         mask    .req v3
         modulus .req v4
 
-poly_reduce_asm_opt:
-_poly_reduce_asm_opt:
+MLKEM_NAMESPACE(poly_reduce_asm_opt):
+_MLKEM_NAMESPACE(poly_reduce_asm_opt):
 
         ASM_LOAD(xtmp, const_addr)
         ld1 {consts.8h}, [xtmp]
@@ -267,9 +267,8 @@ loop_start:
 /********************************************
  *          poly_mulcache_compute()         *
  ********************************************/
-
-.global poly_mulcache_compute_asm_opt
-.global _poly_mulcache_compute_asm_opt
+.global MLKEM_NAMESPACE(poly_mulcache_compute_asm_opt)
+.global _MLKEM_NAMESPACE(poly_mulcache_compute_asm_opt)
 
         cache_ptr  .req x0
         data_ptr   .req x1
@@ -294,8 +293,8 @@ loop_start:
         dst     .req v7
         q_dst   .req q7
 
-poly_mulcache_compute_asm_opt:
-_poly_mulcache_compute_asm_opt:
+MLKEM_NAMESPACE(poly_mulcache_compute_asm_opt):
+_MLKEM_NAMESPACE(poly_mulcache_compute_asm_opt):
         ASM_LOAD(xtmp, const_addr)
         ld1 {consts.8h}, [xtmp]
 
@@ -419,9 +418,8 @@ mulcache_compute_loop_start:
 /********************************************
  *             poly_tobytes()               *
  ********************************************/
-
-.global poly_tobytes_asm_opt
-.global _poly_tobytes_asm_opt
+.global MLKEM_NAMESPACE(poly_tobytes_asm_opt)
+.global _MLKEM_NAMESPACE(poly_tobytes_asm_opt)
 
         data0 .req v0
         data1 .req v1
@@ -436,8 +434,8 @@ mulcache_compute_loop_start:
         src   .req x1
         count .req x2
 
-poly_tobytes_asm_opt:
-_poly_tobytes_asm_opt:
+MLKEM_NAMESPACE(poly_tobytes_asm_opt):
+_MLKEM_NAMESPACE(poly_tobytes_asm_opt):
 
         mov count, #16
 poly_tobytes_asm_opt_asm_loop_start:
@@ -474,9 +472,8 @@ poly_tobytes_asm_opt_asm_loop_start:
 /**********************************
  *          poly_tomont()         *
  **********************************/
-
-.global poly_tomont_asm_opt
-.global _poly_tomont_asm_opt
+.global MLKEM_NAMESPACE(poly_tomont_asm_opt)
+.global _MLKEM_NAMESPACE(poly_tomont_asm_opt)
 
         src     .req x0
         count   .req x1
@@ -496,8 +493,8 @@ poly_tobytes_asm_opt_asm_loop_start:
 
         tmp0    .req v5
 
-poly_tomont_asm_opt:
-_poly_tomont_asm_opt:
+MLKEM_NAMESPACE(poly_tomont_asm_opt):
+_MLKEM_NAMESPACE(poly_tomont_asm_opt):
 
         ASM_LOAD(xtmp, const_addr)
         ld1 {consts.8h}, [xtmp]
