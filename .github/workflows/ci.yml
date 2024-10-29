@@ -78,9 +78,9 @@ jobs:
         with:
           gh_token: ${{ secrets.GITHUB_TOKEN }}
           compile_mode: native
-          func: false
-          nistkat: false
-          kat: false
+          func: true
+          nistkat: true
+          kat: true
       - name: native tests (+debug)
         uses: ./.github/actions/multi-functest
         with:
@@ -96,8 +96,9 @@ jobs:
           gh_token: ${{ secrets.GITHUB_TOKEN }}
           compile_mode: cross
           opt: opt
-          func: false
-          nistkat: false
+          func: true
+          nistkat: true
+          kat: true
   compiler_tests:
     name: Compiler tests (${{ matrix.target.name }})
     strategy:
