@@ -197,14 +197,14 @@ jobs:
             ec2_ami_id: ami-0d47e137a1108e078 # x86_64 ubuntu-latest, 32g
             compile_mode: native
             opt: all
-          - name: Graviton2 (c6g.xlarge)
-            ec2_instance_type: c6g.xlarge
+          - name: Graviton2 (c6g.medium)
+            ec2_instance_type: c6g.medium
             ec2_ami: ubuntu-latest (custom AMI)
             ec2_ami_id: ami-08ddb0acd99dc3d33 # aarch64, ubuntu-latest, 64g
             compile_mode: native
             opt: all
-          - name: Graviton3 (c7g.xlarge)
-            ec2_instance_type: c7g.xlarge
+          - name: Graviton3 (c7g.medium)
+            ec2_instance_type: c7g.medium
             ec2_ami: ubuntu-latest (custom AMI)
             ec2_ami_id: ami-08ddb0acd99dc3d33 # aarch64, ubuntu-latest, 64g
             compile_mode: native
