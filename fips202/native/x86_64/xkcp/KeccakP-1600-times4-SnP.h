@@ -21,100 +21,14 @@ http://creativecommons.org/publicdomain/zero/1.0/
 /** For the documentation, see PlSnP-documentation.h.
  */
 
+#include <stddef.h>
 #include "KeccakP-SIMD256-config.h"
 #include "namespace.h"
 
-#define KeccakP1600times4_implementation \
-  "256-bit SIMD implementation (" KeccakP1600times4_implementation_config ")"
-#define KeccakP1600times4_statesSizeInBytes 800
 #define KeccakP1600times4_statesAlignment 32
-#define KeccakF1600times4_FastLoop_supported
-#define KeccakP1600times4_12rounds_FastLoop_supported
-
-#include <stddef.h>
-
-#define KeccakP1600times4_InitializeAll \
-  FIPS202_NAMESPACE(KeccakP1600times4_InitializeAll)
-void KeccakP1600times4_InitializeAll(void *states);
-
-#define KeccakP1600times4_AddBytes FIPS202_NAMESPACE(KeccakP1600times4_AddBytes)
-void KeccakP1600times4_AddBytes(void *states, unsigned int instanceIndex,
-                                const unsigned char *data, unsigned int offset,
-                                unsigned int length);
-
-#define KeccakP1600times4_AddLanesAll \
-  FIPS202_NAMESPACE(KeccakP1600times4_AddLanesAll)
-void KeccakP1600times4_AddLanesAll(void *states, const unsigned char *data,
-                                   unsigned int laneCount,
-                                   unsigned int laneOffset);
-
-#define KeccakP1600times4_OverwriteBytes \
-  FIPS202_NAMESPACE(KeccakP1600times4_OverwriteBytes)
-void KeccakP1600times4_OverwriteBytes(void *states, unsigned int instanceIndex,
-                                      const unsigned char *data,
-                                      unsigned int offset, unsigned int length);
-
-#define KeccakP1600times4_OverwriteLanesAll \
-  FIPS202_NAMESPACE(KeccakP1600times4_OverwriteLanesAll)
-void KeccakP1600times4_OverwriteLanesAll(void *states,
-                                         const unsigned char *data,
-                                         unsigned int laneCount,
-                                         unsigned int laneOffset);
-
-#define KeccakP1600times4_OverwriteWithZeroes \
-  FIPS202_NAMESPACE(KeccakP1600times4_OverwriteWithZeroes)
-void KeccakP1600times4_OverwriteWithZeroes(void *states,
-                                           unsigned int instanceIndex,
-                                           unsigned int byteCount);
-
-#define KeccakP1600times4_PermuteAll_12rounds \
-  FIPS202_NAMESPACE(KeccakP1600times4_PermuteAll_12rounds)
-void KeccakP1600times4_PermuteAll_12rounds(void *states);
 
 #define KeccakP1600times4_PermuteAll_24rounds \
   FIPS202_NAMESPACE(KeccakP1600times4_PermuteAll_24rounds)
 void KeccakP1600times4_PermuteAll_24rounds(void *states);
-
-#define KeccakP1600times4_ExtractBytes \
-  FIPS202_NAMESPACE(KeccakP1600times4_ExtractBytes)
-void KeccakP1600times4_ExtractBytes(const void *states,
-                                    unsigned int instanceIndex,
-                                    unsigned char *data, unsigned int offset,
-                                    unsigned int length);
-
-#define KeccakP1600times4_ExtractLanesAll \
-  FIPS202_NAMESPACE(KeccakP1600times4_ExtractLanesAll)
-void KeccakP1600times4_ExtractLanesAll(const void *states, unsigned char *data,
-                                       unsigned int laneCount,
-                                       unsigned int laneOffset);
-
-#define KeccakP1600times4_ExtractAndAddBytes \
-  FIPS202_NAMESPACE(KeccakP1600times4_ExtractAndAddBytes)
-void KeccakP1600times4_ExtractAndAddBytes(
-    const void *states, unsigned int instanceIndex, const unsigned char *input,
-    unsigned char *output, unsigned int offset, unsigned int length);
-
-#define KeccakP1600times4_ExtractAndAddLanesAll \
-  FIPS202_NAMESPACE(KeccakP1600times4_ExtractAndAddLanesAll)
-void KeccakP1600times4_ExtractAndAddLanesAll(const void *states,
-                                             const unsigned char *input,
-                                             unsigned char *output,
-                                             unsigned int laneCount,
-                                             unsigned int laneOffset);
-
-#define KeccakF1600times4_FastLoop_Absorb \
-  FIPS202_NAMESPACE(KeccakF1600times4_FastLoop_Absorb)
-size_t KeccakF1600times4_FastLoop_Absorb(void *states, unsigned int laneCount,
-                                         unsigned int laneOffsetParallel,
-                                         unsigned int laneOffsetSerial,
-                                         const unsigned char *data,
-                                         size_t dataByteLen);
-
-#define KeccakP1600times4_12rounds_FastLoop_Absorb \
-  FIPS202_NAMESPACE(KeccakP1600times4_12rounds_FastLoop_Absorb)
-size_t KeccakP1600times4_12rounds_FastLoop_Absorb(
-    void *states, unsigned int laneCount, unsigned int laneOffsetParallel,
-    unsigned int laneOffsetSerial, const unsigned char *data,
-    size_t dataByteLen);
 
 #endif
