@@ -687,6 +687,7 @@ def all(
             return [
                 "tests",
                 f"{cmd}",
+                f"--cross-prefix={state.cross_prefix}",
                 f"--{opt_flag}",
                 f"--{auto_flag}",
                 f"--no-compile",
