@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 name: CI
+permissions:
+  contents: read
 on:
   workflow_dispatch:
   push:
