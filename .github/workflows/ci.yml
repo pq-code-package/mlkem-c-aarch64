@@ -86,12 +86,12 @@ jobs:
           func: true
           nistkat: true
           kat: true
-      - name: native tests (+debug)
+      - name: native tests (+debug+memsan+ubsan)
         uses: ./.github/actions/multi-functest
         with:
           gh_token: ${{ secrets.GITHUB_TOKEN }}
           compile_mode: native
-          cflags: "-DMLKEM_DEBUG"
+          cflags: "-DMLKEM_DEBUG -fsanitize=address -fsanitize=undefined -fno-sanitize-recover=all"
       - name: cross tests (opt only)
         uses: ./.github/actions/multi-functest
         if: ${{ matrix.target.runner != 'macos-latest' && (success() || failure()) }}
