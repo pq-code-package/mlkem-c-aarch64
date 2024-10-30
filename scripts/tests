@@ -669,17 +669,30 @@ def all(
     compile_mode = "cross" if state.cross_prefix else "native"
 
     def _cmd(cmd: str, compile_flag: str, run_flag: str) -> [str]:
-        return [
-            "tests",
-            f"{cmd}",
-            f"--cross-prefix={state.cross_prefix}",
-            *([f"--cflags={state.cflags}"] if state.cflags is not None else []),
-            f"--{opt_flag}",
-            f"--{auto_flag}",
-            f"--{compile_flag}",
-            f"--{run_flag}",
-            *(["--verbose"] if state.verbose else []),
-        ]
+        if compile_flag == "compile":
+            return [
+                "tests",
+                f"{cmd}",
+                f"--cross-prefix={state.cross_prefix}",
+                *(["--cflags", state.cflags] if state.cflags is not None else []),
+                f"--{opt_flag}",
+                f"--{auto_flag}",
+                f"--compile",
+                f"--no-run",
+                *(["--verbose"] if state.verbose else []),
+            ]
+        elif run_flag == "run":
+            # Omit CFLAGS here because quoting for CFLAGS breaks when there are
+            # multiple space-seperated components to it.
+            return [
+                "tests",
+                f"{cmd}",
+                f"--{opt_flag}",
+                f"--{auto_flag}",
+                f"--no-compile",
+                f"--run",
+                *(["--verbose"] if state.verbose else []),
+            ]
 
     def _cmds(compile_flag: str, run_flag: str) -> TypedDict:
         return {
