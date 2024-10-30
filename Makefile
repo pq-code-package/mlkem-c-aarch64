@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
-
-.PHONY: mlkem kat nistkat clean quickcheck buildall
+.PHONY: mlkem kat nistkat clean quickcheck buildall all
+.DEFAULT_GOAL := buildall
+all: quickcheck
 
 include mk/config.mk
 -include mk/$(MAKECMDGOALS).mk
