@@ -203,7 +203,13 @@ ASSIGNS(OBJECT_WHOLE(r));
 
 
 #define poly_frombytes MLKEM_NAMESPACE(poly_frombytes)
-void poly_frombytes(poly *r, const uint8_t a[MLKEM_POLYBYTES]);
+void poly_frombytes(poly *r, const uint8_t a[MLKEM_POLYBYTES])
+    // clang-format off
+REQUIRES(a != NULL && IS_FRESH(a, MLKEM_POLYBYTES))
+REQUIRES(r != NULL && IS_FRESH(r, sizeof(poly)))
+ASSIGNS(OBJECT_WHOLE(r))
+ENSURES(ARRAY_IN_BOUNDS(int, k, 0, (MLKEM_N - 1), r->coeffs, 0, 4095));
+// clang-format on
 
 #define poly_frommsg MLKEM_NAMESPACE(poly_frommsg)
 void poly_frommsg(poly *r, const uint8_t msg[MLKEM_INDCPA_MSGBYTES]);

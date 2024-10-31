@@ -239,9 +239,6 @@ void poly_tobytes(uint8_t r[MLKEM_POLYBYTES], const poly *a) {
  *
  * Description: De-serialization of a polynomial.
  *
- *              Note that this is not a strict inverse to poly_tobytes() since
- *              the latter includes normalization to unsigned coefficients.
- *
  * Arguments:   INPUT
  *              - a: pointer to input byte array
  *                   (of MLKEM_POLYBYTES bytes)
@@ -251,13 +248,25 @@ void poly_tobytes(uint8_t r[MLKEM_POLYBYTES], const poly *a) {
  *                   0 .. 4095
  **************************************************/
 void poly_frombytes(poly *r, const uint8_t a[MLKEM_POLYBYTES]) {
-  unsigned int i;
-  for (i = 0; i < MLKEM_N / 2; i++) {
-    r->coeffs[2 * i] =
-        ((a[3 * i + 0] >> 0) | ((uint16_t)a[3 * i + 1] << 8)) & 0xFFF;
-    r->coeffs[2 * i + 1] =
-        ((a[3 * i + 1] >> 4) | ((uint16_t)a[3 * i + 2] << 4)) & 0xFFF;
-  }
+  int i;
+  for (i = 0; i < MLKEM_N / 2; i++)
+      // clang-format off
+    ASSIGNS(i, OBJECT_WHOLE(r))
+    INVARIANT(i >= 0 && i <= MLKEM_N / 2)
+    INVARIANT(ARRAY_IN_BOUNDS(int, k, 0, (2 * i - 1), r->coeffs, 0, 4095))
+    DECREASES(MLKEM_N / 2 - i)
+    // clang-format on
+    {
+      // REF-CHANGE: Introduce some locals for better readability
+      const uint8_t t0 = a[3 * i + 0];
+      const uint8_t t1 = a[3 * i + 1];
+      const uint8_t t2 = a[3 * i + 2];
+      r->coeffs[2 * i + 0] = t0 | ((t1 << 8) & 0xFFF);
+      r->coeffs[2 * i + 1] = (t1 >> 4) | (t2 << 4);
+    }
+
+  // Note that the coefficients are not canonical
+  POLY_UBOUND(r, 4096);
 }
 #else  /* MLKEM_USE_NATIVE_POLY_FROMBYTES */
 void poly_frombytes(poly *r, const uint8_t a[MLKEM_POLYBYTES]) {
