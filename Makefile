@@ -1,15 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
-
-.PHONY: mlkem kat nistkat clean quickcheck buildall
-
-buildall:
-	$(Q)$(MAKE) mlkem
-	$(Q)$(MAKE) nistkat
-	$(Q)$(MAKE) kat
-	$(Q)$(MAKE) acvp
-
-	$(Q)echo "  Everything builds fine!"
+.PHONY: mlkem kat nistkat clean quickcheck buildall all
+.DEFAULT_GOAL := buildall
+all: quickcheck
 
 include mk/config.mk
 -include mk/$(MAKECMDGOALS).mk
@@ -17,14 +10,10 @@ include mk/crypto.mk
 include mk/schemes.mk
 include mk/rules.mk
 
-quickcheck:
-        # Check that everything builds
-	$(Q)$(MAKE) mlkem
-	$(Q)$(MAKE) nistkat
-	$(Q)$(MAKE) kat
-	$(Q)$(MAKE) acvp
-
+buildall: mlkem nistkat kat acvp
 	$(Q)echo "  Everything builds fine!"
+
+quickcheck: buildall
         # Run basic functionality checks
 	$(MLKEM512_DIR)/bin/test_mlkem512
 	$(MLKEM768_DIR)/bin/test_mlkem768

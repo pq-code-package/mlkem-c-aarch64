@@ -5,7 +5,7 @@
 #include <string.h>
 
 #include "aes.h"
-#include "randombytes.h"
+#include "nistrng.h"
 
 typedef struct {
   unsigned char key[AES256_KEYBYTES];

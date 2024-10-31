@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "kem.h"
+#include "nistrng.h"
 #include "randombytes.h"
 
 static void fprintBstr(FILE *fp, const char *S, const uint8_t *A, size_t L) {
