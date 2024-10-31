@@ -27,6 +27,7 @@ static int check_pk(const uint8_t pk[MLKEM_PUBLICKEYBYTES]) {
   polyvec_frombytes(&p, pk);
   polyvec_reduce(&p);
   polyvec_tobytes(p_reencoded, &p);
+  // Data is public, so a variable-time memcmp() is OK
   if (memcmp(pk, p_reencoded, MLKEM_POLYVECBYTES)) {
     return -1;
   }
@@ -48,6 +49,9 @@ static int check_pk(const uint8_t pk[MLKEM_PUBLICKEYBYTES]) {
  **************************************************/
 static int check_sk(const uint8_t sk[MLKEM_SECRETKEYBYTES]) {
   uint8_t test[MLKEM_SYMBYTES];
+  // The parts of `sk` being hashed and compared here are public, so
+  // no public information is leaked through the runtime or the return value
+  // of this function.
   hash_h(test, sk + MLKEM_INDCPA_SECRETKEYBYTES, MLKEM_PUBLICKEYBYTES);
   if (memcmp(sk + MLKEM_SECRETKEYBYTES - 2 * MLKEM_SYMBYTES, test,
              MLKEM_SYMBYTES)) {
@@ -120,7 +124,7 @@ int crypto_kem_keypair(uint8_t *pk, uint8_t *sk) {
  *bytes)
  **
  * Returns 0 on success, and -1 if the public key modulus check (see Section 7.2
- *of FIPS203) fails.
+ * of FIPS203) fails.
  **************************************************/
 int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss, const uint8_t *pk,
                           const uint8_t *coins) {
@@ -159,7 +163,7 @@ int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss, const uint8_t *pk,
  *                (an already allocated array of MLKEM_PUBLICKEYBYTES bytes)
  *
  * Returns 0 on success, and -1 if the public key modulus check (see Section 7.2
- *of FIPS203) fails
+ * of FIPS203) fails.
  **************************************************/
 int crypto_kem_enc(uint8_t *ct, uint8_t *ss, const uint8_t *pk) {
   uint8_t coins[MLKEM_SYMBYTES] ALIGN;
@@ -181,7 +185,7 @@ int crypto_kem_enc(uint8_t *ct, uint8_t *ss, const uint8_t *pk) {
  *                (an already allocated array of MLKEM_SECRETKEYBYTES bytes)
  *
  * Returns 0 on success, and -1 if the secret key hash check (see Section 7.3 of
- *FIPS203) fails
+ * FIPS203) fails.
  *
  * On failure, ss will contain a pseudo-random value.
  **************************************************/
