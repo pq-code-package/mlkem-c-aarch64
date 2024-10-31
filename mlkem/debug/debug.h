@@ -37,13 +37,13 @@ void mlkem_debug_assert(const char *file, int line, const char *description,
  *              - description: Textual description of check
  *              - ptr: Base of array to be checked
  *              - len: Number of int16_t in ptr
- *              - lower_bound_inclusive: Inclusive lower bound
- *              - upper_bound_inclusive: Inclusive upper bound
+ *              - lower_bound_exclusive: Exclusive lower bound
+ *              - upper_bound_exclusive: Exclusive upper bound
  **************************************************/
 void mlkem_debug_check_bounds(const char *file, int line,
                               const char *description, const int16_t *ptr,
-                              unsigned len, int lower_bound_inclusive,
-                              int upper_bound_inclusive);
+                              unsigned len, int lower_bound_exclusive,
+                              int upper_bound_exclusive);
 
 /* Print error message to stderr alongside file and line information */
 void mlkem_debug_print_error(const char *file, int line, const char *msg);
