@@ -4,5 +4,6 @@
 
 #define DEFAULT_ALIGN 32
 #define ALIGN __attribute__((aligned(DEFAULT_ALIGN)))
+#define ALWAYS_INLINE __attribute__((always_inline))
 
 #endif
