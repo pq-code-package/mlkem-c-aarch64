@@ -31,12 +31,43 @@ static int test_keys(void) {
   return 0;
 }
 
+static int test_invalid_pk(void) {
+  uint8_t pk[CRYPTO_PUBLICKEYBYTES];
+  uint8_t sk[CRYPTO_SECRETKEYBYTES];
+  uint8_t ct[CRYPTO_CIPHERTEXTBYTES];
+  uint8_t key_b[CRYPTO_BYTES];
+  int rc;
+  // Alice generates a public key
+  crypto_kem_keypair(pk, sk);
+
+  // Bob derives a secret key and creates a response
+  rc = crypto_kem_enc(ct, key_b, pk);
+
+  if (rc) {
+    printf("ERROR test_invalid_pk\n");
+    return 1;
+  }
+
+  // set first public key coefficient to 4095 (0xFFF)
+  pk[0] = 0xFF;
+  pk[1] |= 0x0F;
+  // Bob derives a secret key and creates a response
+  rc = crypto_kem_enc(ct, key_b, pk);
+
+  if (!rc) {
+    printf("ERROR test_invalid_pk\n");
+    return 1;
+  }
+  return 0;
+}
+
 static int test_invalid_sk_a(void) {
   uint8_t pk[CRYPTO_PUBLICKEYBYTES];
   uint8_t sk[CRYPTO_SECRETKEYBYTES];
   uint8_t ct[CRYPTO_CIPHERTEXTBYTES];
   uint8_t key_a[CRYPTO_BYTES];
   uint8_t key_b[CRYPTO_BYTES];
+  int rc;
 
   // Alice generates a public key
   crypto_kem_keypair(pk, sk);
@@ -44,14 +75,47 @@ static int test_invalid_sk_a(void) {
   // Bob derives a secret key and creates a response
   crypto_kem_enc(ct, key_b, pk);
 
-  // Replace secret key with random values
-  randombytes(sk, CRYPTO_SECRETKEYBYTES);
+  // Replace first part of secret key with random values
+  randombytes(sk, 10);
 
   // Alice uses Bobs response to get her shared key
-  crypto_kem_dec(key_a, ct, sk);
+  // This should fail due to wrong sk
+  rc = crypto_kem_dec(key_a, ct, sk);
+  if (rc) {
+    printf("ERROR test_invalid_sk_a\n");
+    return 1;
+  }
 
   if (!memcmp(key_a, key_b, CRYPTO_BYTES)) {
     printf("ERROR invalid sk\n");
+    return 1;
+  }
+
+  return 0;
+}
+
+static int test_invalid_sk_b(void) {
+  uint8_t pk[CRYPTO_PUBLICKEYBYTES];
+  uint8_t sk[CRYPTO_SECRETKEYBYTES];
+  uint8_t ct[CRYPTO_CIPHERTEXTBYTES];
+  uint8_t key_a[CRYPTO_BYTES];
+  uint8_t key_b[CRYPTO_BYTES];
+  int rc;
+
+  // Alice generates a public key
+  crypto_kem_keypair(pk, sk);
+
+  // Bob derives a secret key and creates a response
+  crypto_kem_enc(ct, key_b, pk);
+
+  // Replace H(pk) with radom values;
+  randombytes(sk + CRYPTO_SECRETKEYBYTES - 64, 32);
+
+  // Alice uses Bobs response to get her shared key
+  // This should fail due to the input validation
+  rc = crypto_kem_dec(key_a, ct, sk);
+  if (!rc) {
+    printf("ERROR test_invalid_sk_b\n");
     return 1;
   }
 
@@ -98,7 +162,9 @@ int main(void) {
 
   for (i = 0; i < NTESTS; i++) {
     r = test_keys();
+    r |= test_invalid_pk();
     r |= test_invalid_sk_a();
+    r |= test_invalid_sk_b();
     r |= test_invalid_ciphertext();
     if (r) {
       return 1;
