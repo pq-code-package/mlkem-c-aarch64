@@ -8,6 +8,54 @@
 #include "randombytes.h"
 #include "symmetric.h"
 #include "verify.h"
+
+/*************************************************
+ * Name:        check_pk
+ *
+ * Description: Implements modulus check mandated by FIPS203,
+ *              i.e., ensures that coefficients are in [0,q-1].
+ *              Described in Section 7.2 of FIPS203.
+ *
+ * Arguments:   - const uint8_t *pk: pointer to input public key
+ *                (an already allocated array of MLKEM_PUBLICKEYBYTES bytes)
+ **
+ * Returns 0 on success, and -1 on failure
+ **************************************************/
+static int check_pk(const uint8_t pk[MLKEM_PUBLICKEYBYTES]) {
+  polyvec p;
+  uint8_t p_reencoded[MLKEM_POLYVECBYTES];
+  polyvec_frombytes(&p, pk);
+  polyvec_reduce(&p);
+  polyvec_tobytes(p_reencoded, &p);
+  if (memcmp(pk, p_reencoded, MLKEM_POLYVECBYTES)) {
+    return -1;
+  }
+  return 0;
+}
+
+/*************************************************
+ * Name:        check_sk
+ *
+ * Description: Implements public key hash check mandated by FIPS203,
+ *              i.e., ensures that
+ *              sk[768𝑘+32 ∶ 768𝑘+64] = H(pk)= H(sk[384𝑘 : 768𝑘+32])
+ *              Described in Section 7.3 of FIPS203.
+ *
+ * Arguments:   - const uint8_t *sk: pointer to input private key
+ *                (an already allocated array of MLKEM_SECRETKEYBYTES bytes)
+ *
+ * Returns 0 on success, and -1 on failure
+ **************************************************/
+static int check_sk(const uint8_t sk[MLKEM_SECRETKEYBYTES]) {
+  uint8_t test[MLKEM_SYMBYTES];
+  hash_h(test, sk + MLKEM_INDCPA_SECRETKEYBYTES, MLKEM_PUBLICKEYBYTES);
+  if (memcmp(sk + MLKEM_SECRETKEYBYTES - 2 * MLKEM_SYMBYTES, test,
+             MLKEM_SYMBYTES)) {
+    return -1;
+  }
+  return 0;
+}
+
 /*************************************************
  * Name:        crypto_kem_keypair_derand
  *
@@ -71,13 +119,18 @@ int crypto_kem_keypair(uint8_t *pk, uint8_t *sk) {
  *                (an already allocated array filled with MLKEM_SYMBYTES random
  *bytes)
  **
- * Returns 0 (success)
+ * Returns 0 on success, and -1 if the public key modulus check (see Section 7.2
+ *of FIPS203) fails.
  **************************************************/
 int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss, const uint8_t *pk,
                           const uint8_t *coins) {
   uint8_t buf[2 * MLKEM_SYMBYTES] ALIGN;
   /* Will contain key, coins */
   uint8_t kr[2 * MLKEM_SYMBYTES] ALIGN;
+
+  if (check_pk(pk)) {
+    return -1;
+  }
 
   memcpy(buf, coins, MLKEM_SYMBYTES);
 
@@ -105,13 +158,13 @@ int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss, const uint8_t *pk,
  *              - const uint8_t *pk: pointer to input public key
  *                (an already allocated array of MLKEM_PUBLICKEYBYTES bytes)
  *
- * Returns 0 (success)
+ * Returns 0 on success, and -1 if the public key modulus check (see Section 7.2
+ *of FIPS203) fails
  **************************************************/
 int crypto_kem_enc(uint8_t *ct, uint8_t *ss, const uint8_t *pk) {
   uint8_t coins[MLKEM_SYMBYTES] ALIGN;
   randombytes(coins, MLKEM_SYMBYTES);
-  crypto_kem_enc_derand(ct, ss, pk, coins);
-  return 0;
+  return crypto_kem_enc_derand(ct, ss, pk, coins);
 }
 
 /*************************************************
@@ -127,7 +180,8 @@ int crypto_kem_enc(uint8_t *ct, uint8_t *ss, const uint8_t *pk) {
  *              - const uint8_t *sk: pointer to input private key
  *                (an already allocated array of MLKEM_SECRETKEYBYTES bytes)
  *
- * Returns 0.
+ * Returns 0 on success, and -1 if the secret key hash check (see Section 7.3 of
+ *FIPS203) fails
  *
  * On failure, ss will contain a pseudo-random value.
  **************************************************/
@@ -138,6 +192,10 @@ int crypto_kem_dec(uint8_t *ss, const uint8_t *ct, const uint8_t *sk) {
   uint8_t kr[2 * MLKEM_SYMBYTES] ALIGN;
   uint8_t cmp[MLKEM_CIPHERTEXTBYTES + MLKEM_SYMBYTES] ALIGN;
   const uint8_t *pk = sk + MLKEM_INDCPA_SECRETKEYBYTES;
+
+  if (check_sk(sk)) {
+    return -1;
+  }
 
   indcpa_dec(buf, ct, sk);
 
