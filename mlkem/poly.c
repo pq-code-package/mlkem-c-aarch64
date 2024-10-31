@@ -239,9 +239,6 @@ void poly_tobytes(uint8_t r[MLKEM_POLYBYTES], const poly *a) {
  *
  * Description: De-serialization of a polynomial.
  *
- *              Note that this is not a strict inverse to poly_tobytes() since
- *              the latter includes normalization to unsigned coefficients.
- *
  * Arguments:   INPUT
  *              - a: pointer to input byte array
  *                   (of MLKEM_POLYBYTES bytes)
