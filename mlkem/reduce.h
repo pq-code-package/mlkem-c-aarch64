@@ -4,6 +4,7 @@
 
 #include <stdint.h>
 #include "cbmc.h"
+#include "debug/debug.h"
 #include "params.h"
 
 #define MONT -1044                  // 2^16 mod q
@@ -29,17 +30,21 @@ ENSURES(RETURN_VALUE >= -HALF_Q && RETURN_VALUE <= HALF_Q);
  * Description: Multiplication followed by Montgomery reduction
  *
  * Arguments:   - int16_t a: first factor
- *              - int16_t b: second factor
+ *                  Can be any int16_t.
+ *              - int16_t b: second factor.
+ *                  Must be signed canonical (abs value <|q|/2)
  *
- * Returns 16-bit integer congruent to a*b*R^{-1} mod q
- *
- * If one input is < |q|/2 in absolute value (which is given
- * in the common case of multiplication with constants), the
- * return value is < |q| in absolute value.
+ * Returns 16-bit integer congruent to a*b*R^{-1} mod q, and
+ * smaller than q in absolute value.
  *
  **************************************************/
 static inline int16_t fqmul(int16_t a, int16_t b) {
-  return montgomery_reduce((int32_t)a * (int32_t)b);
+  SCALAR_BOUND(b, HALF_Q + 1, "fqmul input");
+
+  int16_t res = montgomery_reduce((int32_t)a * (int32_t)b);
+
+  SCALAR_BOUND(res, MLKEM_Q, "fqmul output");
+  return res;
 }
 
 #endif

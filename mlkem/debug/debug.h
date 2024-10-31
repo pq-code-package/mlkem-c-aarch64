@@ -8,6 +8,22 @@
 #include <stdlib.h>
 
 /*************************************************
+ * Name:        mlkem_debug_assert
+ *
+ * Description: Check debug assertion
+ *
+ *              Prints an error message to stderr and calls
+ *              exit(1) if not.
+ *
+ * Arguments:   - file: filename
+ *              - line: line number
+ *              - description: Textual description of assertion
+ *              - val: Value asserted to be non-zero
+ **************************************************/
+void mlkem_debug_assert(const char *file, int line, const char *description,
+                        const int val);
+
+/*************************************************
  * Name:        mlkem_debug_check_bounds
  *
  * Description: Check whether values in an array of int16_t
@@ -21,16 +37,35 @@
  *              - description: Textual description of check
  *              - ptr: Base of array to be checked
  *              - len: Number of int16_t in ptr
- *              - lower_bound_inclusive: Inclusive lower bound
- *              - upper_bound_inclusive: Inclusive upper bound
+ *              - lower_bound_exclusive: Exclusive lower bound
+ *              - upper_bound_exclusive: Exclusive upper bound
  **************************************************/
 void mlkem_debug_check_bounds(const char *file, int line,
                               const char *description, const int16_t *ptr,
-                              unsigned len, int lower_bound_inclusive,
-                              int upper_bound_inclusive);
+                              unsigned len, int lower_bound_exclusive,
+                              int upper_bound_exclusive);
 
 /* Print error message to stderr alongside file and line information */
 void mlkem_debug_print_error(const char *file, int line, const char *msg);
+
+/* Check assertion, calling exit() upon failure
+ *
+ * val: Value that's asserted to be non-zero
+ * msg: Message to print on failure
+ *
+ * Currently called CASSERT to avoid clash with CBMC assert.
+ */
+#define CASSERT(val, msg)                                 \
+  do {                                                    \
+    mlkem_debug_assert(__FILE__, __LINE__, (msg), (val)); \
+  } while (0)
+
+/* Check absolute bounds of scalar
+ * val: Scalar to be checked
+ * abs_bound: Exclusive upper bound on absolute value to check
+ * msg: Message to print on failure */
+#define SCALAR_BOUND(val, abs_bound, msg) \
+  CASSERT((val) > -(abs_bound) && (val) < (abs_bound), msg)
 
 /* Check that all coefficients in array of int16_t's are non-negative
  * and below an exclusive upper bound.
@@ -127,6 +162,12 @@ void mlkem_debug_print_error(const char *file, int line, const char *msg);
 
 #else /* MLKEM_DEBUG */
 
+#define CASSERT(...) \
+  do {               \
+  } while (0)
+#define SCALAR_BOUND(...) \
+  do {                    \
+  } while (0)
 #define BOUND(...) \
   do {             \
   } while (0)

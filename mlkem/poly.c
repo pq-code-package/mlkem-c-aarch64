@@ -523,7 +523,7 @@ void poly_tomont(poly *r) {
   unsigned int i;
   const int16_t f = (1ULL << 32) % MLKEM_Q;  // 1353
   for (i = 0; i < MLKEM_N; i++) {
-    r->coeffs[i] = montgomery_reduce((int32_t)r->coeffs[i] * f);
+    r->coeffs[i] = fqmul(r->coeffs[i], f);
   }
 
   POLY_BOUND(r, MLKEM_Q);

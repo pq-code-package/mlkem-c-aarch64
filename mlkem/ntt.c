@@ -107,7 +107,7 @@ void poly_ntt(poly *p) {
     for (start = 0; start < 256; start = j + len) {
       zeta = zetas[k++];
       for (j = start; j < start + len; j++) {
-        t = fqmul(zeta, r[j + len]);
+        t = fqmul(r[j + len], zeta);
         r[j + len] = r[j] - t;
         r[j] = r[j] + t;
       }
@@ -173,7 +173,7 @@ void poly_invntt_tomont(poly *p) {
         t = r[j];
         r[j] = barrett_reduce(t + r[j + len]);  // abs < q/2
         r[j + len] = r[j + len] - t;
-        r[j + len] = fqmul(zeta, r[j + len]);  // abs < 3/4 q
+        r[j + len] = fqmul(r[j + len], zeta);  // abs < 3/4 q
       }
     }
   }
