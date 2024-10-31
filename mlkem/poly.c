@@ -616,12 +616,17 @@ void poly_sub(poly *r, const poly *a, const poly *b) {
  **************************************************/
 #if !defined(MLKEM_USE_NATIVE_POLY_MULCACHE_COMPUTE)
 void poly_mulcache_compute(poly_mulcache *x, const poly *a) {
-  unsigned int i;
-  for (i = 0; i < MLKEM_N / 4; i++) {
-    x->coeffs[2 * i + 0] = fqmul(a->coeffs[4 * i + 1], zetas[64 + i]);
-    x->coeffs[2 * i + 1] = fqmul(a->coeffs[4 * i + 3], -zetas[64 + i]);
-  }
-
+  int i;
+  for (i = 0; i < MLKEM_N / 4; i++)
+      // clang-format off
+      ASSIGNS(i, OBJECT_WHOLE(x))
+      INVARIANT(i >= 0 && i <= MLKEM_N / 4)
+      DECREASES(MLKEM_N / 4 - i)
+    // clang-format on
+    {
+      x->coeffs[2 * i + 0] = fqmul(a->coeffs[4 * i + 1], zetas[64 + i]);
+      x->coeffs[2 * i + 1] = fqmul(a->coeffs[4 * i + 3], -zetas[64 + i]);
+    }
   POLY_BOUND(x, MLKEM_Q);
 }
 #else  /* MLKEM_USE_NATIVE_POLY_MULCACHE_COMPUTE */
