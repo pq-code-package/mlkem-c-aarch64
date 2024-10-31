@@ -5,6 +5,15 @@
 
 static char debug_buf[256];
 
+void mlkem_debug_assert(const char *file, int line, const char *description,
+                        const int val) {
+  if (val == 0) {
+    snprintf(debug_buf, sizeof(debug_buf), "Assertion failed: %s (value %d)",
+             description, val);
+    mlkem_debug_print_error(file, line, debug_buf);
+    exit(1);
+  }
+}
 void mlkem_debug_check_bounds(const char *file, int line,
                               const char *description, const int16_t *ptr,
                               unsigned len, int lower_bound_exclusive,
