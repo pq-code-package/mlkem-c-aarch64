@@ -43,7 +43,7 @@ ENSURES(RETURN_VALUE > -HALF_Q && RETURN_VALUE < HALF_Q);
  * Arguments:   - int16_t a: first factor
  *                  Can be any int16_t.
  *              - int16_t b: second factor.
- *                  Must be signed canonical (abs value <|q|/2)
+ *                  Must be signed canonical (abs value <(q+1)/2)
  *
  * Returns 16-bit integer congruent to a*b*R^{-1} mod q, and
  * smaller than q in absolute value.
