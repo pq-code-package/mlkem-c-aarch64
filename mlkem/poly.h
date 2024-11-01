@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include "cbmc.h"
 #include "params.h"
+#include "reduce.h"
 #include "verify.h"
 
 /*
@@ -238,8 +239,39 @@ void poly_getnoise_eta1122_4x(poly *r0, poly *r1, poly *r2, poly *r3,
 
 #define poly_basemul_montgomery_cached \
   MLKEM_NAMESPACE(poly_basemul_montgomery_cached)
+/*************************************************
+ * Name:        poly_basemul_montgomery_cached
+ *
+ * Description: Multiplication of two polynomials in NTT domain,
+ *              using mulcache for second operand.
+ *
+ *              Bounds:
+ *              - a is assumed to be coefficient-wise < q in absolute value.
+ *              - b is assumed to be the output of a forward NTT and
+ *                thus coefficient-wise bound by C
+ *              - b_cache is assumed to be coefficient-wise bound by D.
+ *
+ *              The result is coefficient-wise bound by 3/2 q in absolute value.
+ *
+ * Arguments:   - poly *r: pointer to output polynomial
+ *              - const poly *a: pointer to first input polynomial
+ *              - const poly *b: pointer to second input polynomial
+ *              - const poly_mulcache *b_cache: pointer to mulcache
+ *                  for second input polynomial. Can be computed
+ *                  via poly_mulcache_compute().
+ **************************************************/
 void poly_basemul_montgomery_cached(poly *r, const poly *a, const poly *b,
-                                    const poly_mulcache *b_cache);
+                                    const poly_mulcache *b_cache)
+    // clang-format off
+REQUIRES(r != NULL && IS_FRESH(r, sizeof(poly)))
+REQUIRES(a != NULL && IS_FRESH(a, sizeof(poly)))
+REQUIRES(b != NULL && IS_FRESH(b, sizeof(poly)))
+REQUIRES(b_cache != NULL && IS_FRESH(b_cache, sizeof(poly_mulcache)))
+REQUIRES(ARRAY_IN_BOUNDS(int, k, 0, MLKEM_N - 1, a->coeffs, -(MLKEM_Q - 1), (MLKEM_Q - 1)))
+ASSIGNS(OBJECT_WHOLE(r))
+ENSURES(ARRAY_IN_BOUNDS(int, k, 0, MLKEM_N - 1, r->coeffs, -3 * HALF_Q + 1, 3 * HALF_Q - 1));
+// clang-format on
+
 #define poly_tomont MLKEM_NAMESPACE(poly_tomont)
 void poly_tomont(poly *r);
 

@@ -476,36 +476,22 @@ void poly_getnoise_eta1122_4x(poly *r0, poly *r1, poly *r2, poly *r3,
   POLY_BOUND_MSG(r3, MLKEM_ETA2 + 1, "poly_getnoise_eta1122_4x output 3");
 }
 
-/*************************************************
- * Name:        poly_basemul_montgomery_cached
- *
- * Description: Multiplication of two polynomials in NTT domain,
- *              using mulcache for second operand.
- *
- *              Bounds:
- *              - a is assumed to be coefficient-wise < q in absolute value.
- *              - b is assumed to be the output of a forward NTT and
- *                thus coefficient-wise bound by C
- *              - b_cache is assumed to be coefficient-wise bound by D.
- *
- *              The result is coefficient-wise bound by 3/2 q in absolute value.
- *
- * Arguments:   - poly *r: pointer to output polynomial
- *              - const poly *a: pointer to first input polynomial
- *              - const poly *b: pointer to second input polynomial
- *              - const poly_mulcache *b_cache: pointer to mulcache
- *                  for second input polynomial. Can be computed
- *                  via poly_mulcache_compute().
- **************************************************/
 void poly_basemul_montgomery_cached(poly *r, const poly *a, const poly *b,
                                     const poly_mulcache *b_cache) {
-  unsigned int i;
-  for (i = 0; i < MLKEM_N / 4; i++) {
-    basemul_cached(&r->coeffs[4 * i], &a->coeffs[4 * i], &b->coeffs[4 * i],
-                   b_cache->coeffs[2 * i]);
-    basemul_cached(&r->coeffs[4 * i + 2], &a->coeffs[4 * i + 2],
-                   &b->coeffs[4 * i + 2], b_cache->coeffs[2 * i + 1]);
-  }
+  int i;
+  for (i = 0; i < MLKEM_N / 4; i++)
+      // clang-format off
+    ASSIGNS(i, OBJECT_WHOLE(r))
+    INVARIANT(i >= 0 && i <= MLKEM_N / 4)
+    INVARIANT(ARRAY_IN_BOUNDS(int, k, 0, (4 * i - 1), r->coeffs, -3 * HALF_Q + 1, 3 * HALF_Q - 1))
+    DECREASES(MLKEM_N / 4 - i)
+    // clang-format on
+    {
+      basemul_cached(&r->coeffs[4 * i], &a->coeffs[4 * i], &b->coeffs[4 * i],
+                     b_cache->coeffs[2 * i]);
+      basemul_cached(&r->coeffs[4 * i + 2], &a->coeffs[4 * i + 2],
+                     &b->coeffs[4 * i + 2], b_cache->coeffs[2 * i + 1]);
+    }
 }
 
 /*************************************************
@@ -619,9 +605,9 @@ void poly_mulcache_compute(poly_mulcache *x, const poly *a) {
   int i;
   for (i = 0; i < MLKEM_N / 4; i++)
       // clang-format off
-      ASSIGNS(i, OBJECT_WHOLE(x))
-      INVARIANT(i >= 0 && i <= MLKEM_N / 4)
-      DECREASES(MLKEM_N / 4 - i)
+    ASSIGNS(i, OBJECT_WHOLE(x))
+    INVARIANT(i >= 0 && i <= MLKEM_N / 4)
+    DECREASES(MLKEM_N / 4 - i)
     // clang-format on
     {
       x->coeffs[2 * i + 0] = fqmul(a->coeffs[4 * i + 1], zetas[64 + i]);
