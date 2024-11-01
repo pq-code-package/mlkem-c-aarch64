@@ -247,9 +247,6 @@ void poly_getnoise_eta1122_4x(poly *r0, poly *r1, poly *r2, poly *r3,
  *
  *              Bounds:
  *              - a is assumed to be coefficient-wise < q in absolute value.
- *              - b is assumed to be the output of a forward NTT and
- *                thus coefficient-wise bound by C
- *              - b_cache is assumed to be coefficient-wise bound by D.
  *
  *              The result is coefficient-wise bound by 3/2 q in absolute value.
  *
