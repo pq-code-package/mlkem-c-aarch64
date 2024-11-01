@@ -3,6 +3,7 @@
 
 import platform
 import sys
+import io
 import os
 import subprocess
 import logging
@@ -13,6 +14,8 @@ import asyncio
 from functools import reduce
 from enum import IntEnum
 from typing import Optional, Callable, TypedDict
+from contextlib import redirect_stdout, redirect_stderr
+import copy
 
 
 def config_logger(verbose):
@@ -365,6 +368,58 @@ class State(object):
         return results
 
 
+"""
+Underlying functional tests
+
+"""
+
+
+def _func(state: State):
+    """Underlying function for functional test"""
+
+    def expect(scheme: SCHEME) -> str:
+        sk_bytes = parse_meta(scheme, "length-secret-key")
+        pk_bytes = parse_meta(scheme, "length-public-key")
+        ct_bytes = parse_meta(scheme, "length-ciphertext")
+
+        return (
+            f"CRYPTO_SECRETKEYBYTES:  {sk_bytes}\n"
+            + f"CRYPTO_PUBLICKEYBYTES:  {pk_bytes}\n"
+            + f"CRYPTO_CIPHERTEXTBYTES: {ct_bytes}\n"
+        )
+
+    state.test(
+        TEST_TYPES.MLKEM,
+        actual_proc=lambda result: str(result, encoding="utf-8"),
+        expect_proc=expect,
+    )
+
+
+def _nistkat(state: State):
+    """Underlying function for nistkat test"""
+
+    state.test(
+        TEST_TYPES.NISTKAT,
+        actual_proc=sha256sum,
+        expect_proc=lambda scheme: parse_meta(scheme, "nistkat-sha256"),
+    )
+
+
+def _kat(state: State):
+    """Underlying function for kat test"""
+
+    state.test(
+        TEST_TYPES.KAT,
+        actual_proc=sha256sum,
+        expect_proc=lambda scheme: parse_meta(scheme, "kat-sha256"),
+    )
+
+
+"""
+Click interface configuration
+"""
+
+
 def __callback(n):
     def callback(ctx, param, value):
         state = ctx.ensure_object(State)
@@ -515,22 +570,7 @@ def cli():
 @add_options(_shared_options)
 @click.make_pass_decorator(State, ensure=True)
 def func(state: State):
-    def expect(scheme: SCHEME) -> str:
-        sk_bytes = parse_meta(scheme, "length-secret-key")
-        pk_bytes = parse_meta(scheme, "length-public-key")
-        ct_bytes = parse_meta(scheme, "length-ciphertext")
-
-        return (
-            f"CRYPTO_SECRETKEYBYTES:  {sk_bytes}\n"
-            + f"CRYPTO_PUBLICKEYBYTES:  {pk_bytes}\n"
-            + f"CRYPTO_CIPHERTEXTBYTES: {ct_bytes}\n"
-        )
-
-    state.test(
-        TEST_TYPES.MLKEM,
-        actual_proc=lambda result: str(result, encoding="utf-8"),
-        expect_proc=expect,
-    )
+    _func(state)
 
 
 @cli.command(
@@ -540,11 +580,7 @@ def func(state: State):
 @add_options(_shared_options)
 @click.make_pass_decorator(State, ensure=True)
 def nistkat(state: State):
-    state.test(
-        TEST_TYPES.NISTKAT,
-        actual_proc=sha256sum,
-        expect_proc=lambda scheme: parse_meta(scheme, "nistkat-sha256"),
-    )
+    _nistkat(state)
 
 
 @cli.command(
@@ -554,11 +590,7 @@ def nistkat(state: State):
 @add_options(_shared_options)
 @click.make_pass_decorator(State, ensure=True)
 def kat(state: State):
-    state.test(
-        TEST_TYPES.KAT,
-        actual_proc=sha256sum,
-        expect_proc=lambda scheme: parse_meta(scheme, "kat-sha256"),
-    )
+    _kat(state)
 
 
 @cli.command(
@@ -664,98 +696,71 @@ def all(
     kat: bool,
     nistkat: bool,
 ):
-    opt_flag = "opt" if state.opt else "no-opt"
-    auto_flag = "auto" if state.auto else "no-auto"
+    opt_label = "opt" if state.opt else "no-opt"
     compile_mode = "cross" if state.cross_prefix else "native"
-
-    def _cmd(cmd: str, compile_flag: str, run_flag: str) -> [str]:
-        if compile_flag == "compile":
-            return [
-                "tests",
-                f"{cmd}",
-                f"--cross-prefix={state.cross_prefix}",
-                *(["--cflags", state.cflags] if state.cflags is not None else []),
-                f"--{opt_flag}",
-                f"--{auto_flag}",
-                f"--compile",
-                f"--no-run",
-                *(["--verbose"] if state.verbose else []),
-            ]
-        elif run_flag == "run":
-            # Omit CFLAGS here because quoting for CFLAGS breaks when there are
-            # multiple space-seperated components to it.
-            return [
-                "tests",
-                f"{cmd}",
-                f"--cross-prefix={state.cross_prefix}",
-                f"--{opt_flag}",
-                f"--{auto_flag}",
-                f"--no-compile",
-                f"--run",
-                *(["--verbose"] if state.verbose else []),
-            ]
-
-    def _cmds(compile_flag: str, run_flag: str) -> TypedDict:
-        return {
-            **({"func": _cmd("func", compile_flag, run_flag)} if func else {}),
-            **({"kat": _cmd("kat", compile_flag, run_flag)} if kat else {}),
-            **({"nistkat": _cmd("nistkat", compile_flag, run_flag)} if nistkat else {}),
-        }
-
-    compile_cmds = {} if not state.compile else _cmds("compile", "no-run")
-    run_cmds = {} if not state.run else _cmds("no-compile", "run")
-
-    exit_code = 0
 
     gh_env = os.environ.get("GITHUB_ENV")
 
+    tests = [
+        *([_func] if func else []),
+        *([_nistkat] if nistkat else []),
+        *([_kat] if kat else []),
+    ]
+    exit_code = 0
+
     # sequentially compile
-    for k, c in compile_cmds.items():
-        if gh_env is not None:
-            print(f"::group::compile {compile_mode} {opt_flag} {k} test")
-        result = subprocess.run(
-            c,
-            encoding="utf-8",
-            capture_output=True,
-            universal_newlines=False,
-        )
-        exit_code = exit_code or result.returncode
-        print(result.stdout)
-        if result.returncode != 0:
-            print(f"{result.stderr}")
-            run_cmds.pop(k, None)
-        if gh_env is not None:
-            print(f"::endgroup::")
+    _state = copy.deepcopy(state)
+    _state.run = False
+
+    if state.compile:
+        for f in tests:
+            if gh_env is not None:
+                print(f"::group::compile {compile_mode} {opt_label} {opt_label} test")
+
+            try:
+                f(_state)
+                print("")
+            except SystemExit as e:
+                exit_code = exit_code or e
+
+            if gh_env is not None:
+                print(f"::endgroup::")
 
     # parallelly run
-    async def run(k: str, cmd: str):
-        p = await asyncio.create_subprocess_shell(
-            " ".join(cmd),
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-        )
-
-        stdout, stderr = await p.communicate()
+    async def run(f, _state: State):
+        code = 0
         if gh_env is not None:
-            print(f"::group::run {compile_mode} {opt_flag} {k} test")
+            print(
+                f"::group::run {compile_mode} {opt_label} {f.__name__.removeprefix('_')} test"
+            )
 
-        if stdout:
-            print(stdout.decode())
-        if p.returncode != 0 and stderr:
-            print(stderr.decode())
+        with redirect_stdout(io.StringIO()) as out:
+            try:
+                f(_state)
+            except SystemExit as e:
+                code = e
+
+        if out:
+            print(out.getvalue())
+
         if gh_env is not None:
             print(f"::endgroup::")
 
-        return p.returncode
+        return code
 
-    async def run_all():
+    async def run_all(_state: State):
         ts = []
         async with asyncio.TaskGroup() as g:
-            for k, cmd in run_cmds.items():
-                ts.append(g.create_task(run(k, cmd)))
+            for f in tests:
+                ts.append(g.create_task(run(f, _state)))
         return reduce(lambda acc, c: acc or c, map(lambda t: t.result(), ts), exit_code)
 
-    exit_code = asyncio.run(run_all())
+    if state.run:
+        _state = state
+        _state.compile = False
+
+        exit_code = asyncio.run(run_all(_state))
+
     exit(exit_code)
 
 
