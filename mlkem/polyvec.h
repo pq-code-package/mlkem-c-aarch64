@@ -46,7 +46,34 @@ void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a,
 
 // REF-CHANGE: This function does not exist in the reference implementation
 #define polyvec_mulcache_compute MLKEM_NAMESPACE(polyvec_mulcache_compute)
-void polyvec_mulcache_compute(polyvec_mulcache *x, const polyvec *a);
+/************************************************************
+ * Name: polyvec_mulcache_compute
+ *
+ * Description: Computes the mulcache for a vector of polynomials in NTT domain
+ *
+ *              The mulcache of a degree-2 polynomial b := b0 + b1*X
+ *              in Fq[X]/(X^2-zeta) is the value b1*zeta, needed when
+ *              computing products of b in Fq[X]/(X^2-zeta).
+ *
+ *              The mulcache of a polynomial in NTT domain -- which is
+ *              a 128-tuple of degree-2 polynomials in Fq[X]/(X^2-zeta),
+ *              for varying zeta, is the 128-tuple of mulcaches of those
+ *              polynomials.
+ *
+ *              The mulcache of a vector of polynomials is the vector
+ *              of mulcaches of its entries.
+ *
+ * Arguments: - x: Pointer to mulcache to be populated
+ *            - a: Pointer to input polynomial vector
+ ************************************************************/
+// NOTE: The default C implementation of this function populates
+// the mulcache with values in (-q,q), but this is not needed for the
+// higher level safety proofs, and thus not part of the spec.
+void polyvec_mulcache_compute(polyvec_mulcache *x, const polyvec *a)
+    // clang-format off
+REQUIRES(a != NULL && IS_FRESH(a, sizeof(polyvec)))
+ASSIGNS(OBJECT_WHOLE(x));
+// clang-format on
 
 #define polyvec_reduce MLKEM_NAMESPACE(polyvec_reduce)
 void polyvec_reduce(polyvec *r);
