@@ -245,7 +245,31 @@ void poly_tomont(poly *r);
 
 // REF-CHANGE: This function does not exist in the reference implementation
 #define poly_mulcache_compute MLKEM_NAMESPACE(poly_mulcache_compute)
-void poly_mulcache_compute(poly_mulcache *x, const poly *a);
+/************************************************************
+ * Name: poly_mulcache_compute
+ *
+ * Description: Computes the mulcache for a polynomial in NTT domain
+ *
+ *              The mulcache of a degree-2 polynomial b := b0 + b1*X
+ *              in Fq[X]/(X^2-zeta) is the value b1*zeta, needed when
+ *              computing products of b in Fq[X]/(X^2-zeta).
+ *
+ *              The mulcache of a polynomial in NTT domain -- which is
+ *              a 128-tuple of degree-2 polynomials in Fq[X]/(X^2-zeta),
+ *              for varying zeta, is the 128-tuple of mulcaches of those
+ *              polynomials.
+ *
+ * Arguments: - x: Pointer to mulcache to be populated
+ *            - a: Pointer to input polynomial
+ ************************************************************/
+// NOTE: The default C implementation of this function populates
+// the mulcache with values in (-q,q), but this is not needed for the
+// higher level safety proofs, and thus not part of the spec.
+void poly_mulcache_compute(poly_mulcache *x, const poly *a)
+    // clang-format off
+REQUIRES(a != NULL && IS_FRESH(a, sizeof(poly)))
+ASSIGNS(OBJECT_WHOLE(x));
+// clang-format on
 
 #define poly_reduce MLKEM_NAMESPACE(poly_reduce)
 void poly_reduce(poly *r);
