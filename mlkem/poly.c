@@ -446,23 +446,20 @@ void poly_basemul_montgomery_cached(poly *r, const poly *a, const poly *b,
     }
 }
 
-/*************************************************
- * Name:        poly_tomont
- *
- * Description: Inplace conversion of all coefficients of a polynomial
- *              from normal domain to Montgomery domain
- *
- *              Bounds: Output < q in absolute value.
- *
- * Arguments:   - poly *r: pointer to input/output polynomial
- **************************************************/
 #if !defined(MLKEM_USE_NATIVE_POLY_TOMONT)
 void poly_tomont(poly *r) {
-  unsigned int i;
+  int i;
   const int16_t f = (1ULL << 32) % MLKEM_Q;  // 1353
-  for (i = 0; i < MLKEM_N; i++) {
-    r->coeffs[i] = fqmul(r->coeffs[i], f);
-  }
+  for (i = 0; i < MLKEM_N; i++)
+      // clang-format off
+    ASSIGNS(i, OBJECT_WHOLE(r))
+    INVARIANT(i >= 0 && i <= MLKEM_N)
+    INVARIANT(ARRAY_IN_BOUNDS(int, k, 0, (i - 1), r->coeffs, -(MLKEM_Q - 1), (MLKEM_Q - 1)))
+    DECREASES(MLKEM_N - i)
+    // clang-format on
+    {
+      r->coeffs[i] = fqmul(r->coeffs[i], f);
+    }
 
   POLY_BOUND(r, MLKEM_Q);
 }
