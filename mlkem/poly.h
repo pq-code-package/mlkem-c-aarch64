@@ -301,7 +301,27 @@ ASSIGNS(OBJECT_WHOLE(x));
 // clang-format on
 
 #define poly_reduce MLKEM_NAMESPACE(poly_reduce)
-void poly_reduce(poly *r);
+/*************************************************
+ * Name:        poly_reduce
+ *
+ * Description: Converts polynomial to _unsigned canonical_ representatives.
+ *
+ *              The input coefficients can be arbitrary integers in int16_t.
+ *              The output coefficients are in [0,1,...,MLKEM_Q-1].
+ *
+ * Arguments:   - poly *r: pointer to input/output polynomial
+ **************************************************/
+// REF-CHANGE: The semantics of poly_reduce() is different in
+//             the reference implementation, which requires
+//             signed canonical output data. Unsigned canonical
+//             outputs are better suited to the only remaining
+//             use of poly_reduce() in the context of (de)serialization.
+void poly_reduce(poly *r)
+    // clang-format off
+REQUIRES(r != NULL && IS_FRESH(r, sizeof(poly)))
+ASSIGNS(OBJECT_WHOLE(r))
+ENSURES(ARRAY_IN_BOUNDS(int, k, 0, MLKEM_N - 1, r->coeffs, 0, MLKEM_Q - 1));
+// clang-format on
 
 #define poly_add MLKEM_NAMESPACE(poly_add)
 void poly_add(poly *r, const poly *a, const poly *b);
