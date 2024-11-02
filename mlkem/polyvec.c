@@ -233,7 +233,7 @@ void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a,
   for (i = 1; i < MLKEM_K; i++) {
     poly_basemul_montgomery_cached(&t, &a->vec[i], &b->vec[i],
                                    &b_cache->vec[i]);
-    poly_add(r, r, &t);
+    poly_add(r, &t);
     // abs bounds: < (i+1) * 3/2 * q
   }
 
@@ -310,9 +310,9 @@ void polyvec_reduce(polyvec *r) {
  *            - const polyvec *a: pointer to first input vector of polynomials
  *            - const polyvec *b: pointer to second input vector of polynomials
  **************************************************/
-void polyvec_add(polyvec *r, const polyvec *a, const polyvec *b) {
+void polyvec_add(polyvec *r, const polyvec *b) {
   unsigned int i;
   for (i = 0; i < MLKEM_K; i++) {
-    poly_add(&r->vec[i], &a->vec[i], &b->vec[i]);
+    poly_add(&r->vec[i], &b->vec[i]);
   }
 }

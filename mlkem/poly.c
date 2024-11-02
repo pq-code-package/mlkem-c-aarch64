@@ -496,20 +496,19 @@ void poly_reduce(poly *r) {
 }
 #endif /* MLKEM_USE_NATIVE_POLY_REDUCE */
 
-/*************************************************
- * Name:        poly_add
- *
- * Description: Add two polynomials; no modular reduction is performed
- *
- * Arguments: - poly *r: pointer to output polynomial
- *            - const poly *a: pointer to first input polynomial
- *            - const poly *b: pointer to second input polynomial
- **************************************************/
-void poly_add(poly *r, const poly *a, const poly *b) {
-  unsigned int i;
-  for (i = 0; i < MLKEM_N; i++) {
-    r->coeffs[i] = a->coeffs[i] + b->coeffs[i];
-  }
+void poly_add(poly *r, const poly *b) {
+  int i;
+  for (i = 0; i < MLKEM_N; i++)
+      // clang-format off
+    ASSIGNS(i, OBJECT_WHOLE(r))
+    INVARIANT(i >= 0 && i <= MLKEM_N)
+    INVARIANT(FORALL(int, k0, i, MLKEM_N - 1, r->coeffs[k0] == LOOP_ENTRY(*r).coeffs[k0]))
+    INVARIANT(FORALL(int, k1, 0, i - 1, r->coeffs[k1] == LOOP_ENTRY(*r).coeffs[k1] + b->coeffs[k1]))
+    DECREASES(MLKEM_N - i)
+    // clang-format on
+    {
+      r->coeffs[i] = r->coeffs[i] + b->coeffs[i];
+    }
 }
 
 /*************************************************

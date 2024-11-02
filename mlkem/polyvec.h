@@ -80,6 +80,6 @@ ASSIGNS(OBJECT_WHOLE(x));
 void polyvec_reduce(polyvec *r);
 
 #define polyvec_add MLKEM_NAMESPACE(polyvec_add)
-void polyvec_add(polyvec *r, const polyvec *a, const polyvec *b);
+void polyvec_add(polyvec *r, const polyvec *b);
 
 #endif
