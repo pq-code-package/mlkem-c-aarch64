@@ -521,30 +521,22 @@ void poly_tomont(poly *r) {
 }
 #endif /* MLKEM_USE_NATIVE_POLY_TOMONT */
 
-/*************************************************
- * Name:        poly_reduce
- *
- * Description: Converts polynomial to _unsigned canonical_ representatives.
- *
- *              The input coefficients can be arbitrary integers in int16_t.
- *              The output coefficients are in [0,1,...,MLKEM_Q-1].
- *
- * Arguments:   - poly *r: pointer to input/output polynomial
- **************************************************/
-// REF-CHANGE: The semantics of poly_reduce() is different in
-//             the reference implementation, which requires
-//             signed canonical output data. Unsigned canonical
-//             outputs are better suited to the only remaining
-//             use of poly_reduce() in the context of (de)serialization.
 #if !defined(MLKEM_USE_NATIVE_POLY_REDUCE)
 void poly_reduce(poly *r) {
-  unsigned int i;
-  for (i = 0; i < MLKEM_N; i++) {
-    // Barrett reduction, giving signed canonical representative
-    int16_t t = barrett_reduce(r->coeffs[i]);
-    // Conditional addition to get unsigned canonical representative
-    r->coeffs[i] = scalar_signed_to_unsigned_q_16(t);
-  }
+  int i;
+  for (i = 0; i < MLKEM_N; i++)
+      // clang-format off
+    ASSIGNS(i, OBJECT_WHOLE(r))
+    INVARIANT(i >= 0 && i <= MLKEM_N)
+    INVARIANT(ARRAY_IN_BOUNDS(int, k, 0, (i - 1), r->coeffs, 0, MLKEM_Q - 1))
+    DECREASES(MLKEM_N - i)
+    // clang-format on
+    {
+      // Barrett reduction, giving signed canonical representative
+      int16_t t = barrett_reduce(r->coeffs[i]);
+      // Conditional addition to get unsigned canonical representative
+      r->coeffs[i] = scalar_signed_to_unsigned_q_16(t);
+    }
 
   POLY_UBOUND(r, MLKEM_Q);
 }
