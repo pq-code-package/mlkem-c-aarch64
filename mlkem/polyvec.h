@@ -40,9 +40,37 @@ void polyvec_basemul_acc_montgomery(poly *r, const polyvec *a,
 // REF-CHANGE: This function does not exist in the reference implementation
 #define polyvec_basemul_acc_montgomery_cached \
   MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached)
+/*************************************************
+ * Name:        polyvec_basemul_acc_montgomery_cached
+ *
+ * Description: Scalar product of two vectors of polynomials in NTT domain,
+ *              using mulcache for second operand.
+ *
+ *              Bounds:
+ *              - a is assumed to be coefficient-wise < q in absolute value.
+ *              - No bounds guarantees for the coefficients in the result.
+ *
+ * Arguments:   - poly *r: pointer to output polynomial
+ *              - const polyvec *a: pointer to first input polynomial vector
+ *              - const polyvec *b: pointer to second input polynomial vector
+ *              - const polyvec_mulcache *b_cache: pointer to mulcache
+ *                  for second input polynomial vector. Can be computed
+ *                  via polyvec_mulcache_compute().
+ **************************************************/
 void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a,
                                            const polyvec *b,
-                                           const polyvec_mulcache *b_cache);
+                                           const polyvec_mulcache *b_cache)
+    // clang-format off
+REQUIRES(IS_FRESH(r, sizeof(poly)))
+REQUIRES(IS_FRESH(a, sizeof(polyvec)))
+REQUIRES(IS_FRESH(b, sizeof(polyvec)))
+REQUIRES(IS_FRESH(b_cache, sizeof(polyvec_mulcache)))
+// Input is coefficient-wise < q in absolute value
+REQUIRES(FORALL(int, k1, 0, MLKEM_K - 1,
+ ARRAY_IN_BOUNDS(int, k2, 0, MLKEM_N - 1,
+   a->vec[k1].coeffs, -(MLKEM_Q - 1), (MLKEM_Q - 1))))
+ASSIGNS(OBJECT_WHOLE(r));
+// clang-format on
 
 // REF-CHANGE: This function does not exist in the reference implementation
 #define polyvec_mulcache_compute MLKEM_NAMESPACE(polyvec_mulcache_compute)
