@@ -173,6 +173,7 @@ void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES],
         seedxy[j][MLKEM_SYMBYTES + 0] = y;
         seedxy[j][MLKEM_SYMBYTES + 1] = x;
       }
+      vec[j] = a[x].vec[y].coeffs;
     }
 
     shake128x4_absorb(&statex, seedxy[0], seedxy[1], seedxy[2], seedxy[3],
@@ -181,9 +182,6 @@ void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES],
                              GEN_MATRIX_NBLOCKS, &statex);
 
     for (unsigned int j = 0; j < KECCAK_WAY; j++) {
-      x = (i + j) / MLKEM_K;
-      y = (i + j) % MLKEM_K;
-      vec[j] = a[x].vec[y].coeffs;
       buflen = GEN_MATRIX_NBLOCKS * SHAKE128_RATE;
       ctr[j] = rej_uniform(vec[j], MLKEM_N, bufx[j], buflen);
     }
