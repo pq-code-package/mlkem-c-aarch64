@@ -120,8 +120,69 @@ static void unpack_ciphertext(polyvec *b, poly *v,
   poly_decompress(v, c + MLKEM_POLYVECCOMPRESSEDBYTES);
 }
 
-#define gen_a(A, B) gen_matrix(A, B, 0)
-#define gen_at(A, B) gen_matrix(A, B, 1)
+#define GEN_MATRIX_NBLOCKS \
+  ((12 * MLKEM_N / 8 * (1 << 12) / MLKEM_Q + SHAKE128_RATE) / SHAKE128_RATE)
+
+// Generate four A matrix entries from a seed, using rejection
+// sampling on the output of a XOF.
+static void gen_matrix_entry_x4(poly *vec[4],
+                                uint8_t seed[4][MLKEM_SYMBYTES + 16]) {
+  // Temporary buffers for XOF output before rejection sampling
+  uint8_t bufx[KECCAK_WAY][GEN_MATRIX_NBLOCKS * SHAKE128_RATE];
+  // Tracks the number of coefficients we have already sampled
+  unsigned int ctr[KECCAK_WAY];
+  keccakx4_state statex;
+  unsigned int buflen;
+
+  // seed is MLKEM_SYMBYTES + 2 bytes long, but padded to MLKEM_SYMBYTES + 16
+  shake128x4_absorb(&statex, seed[0], seed[1], seed[2], seed[3],
+                    MLKEM_SYMBYTES + 2);
+
+  // Initially, squeeze heuristic number of GEN_MATRIX_NBLOCKS.
+  // This should generate the matrix entries with high probability.
+  shake128x4_squeezeblocks(bufx[0], bufx[1], bufx[2], bufx[3],
+                           GEN_MATRIX_NBLOCKS, &statex);
+  buflen = GEN_MATRIX_NBLOCKS * SHAKE128_RATE;
+  for (unsigned int j = 0; j < KECCAK_WAY; j++) {
+    ctr[j] = rej_uniform(vec[j]->coeffs, MLKEM_N, bufx[j], buflen);
+  }
+
+  // So long as not all matrix entries have been generated, squeeze
+  // one more block a time until we're done.
+  buflen = SHAKE128_RATE;
+  while (ctr[0] < MLKEM_N || ctr[1] < MLKEM_N || ctr[2] < MLKEM_N ||
+         ctr[3] < MLKEM_N) {
+    shake128x4_squeezeblocks(bufx[0], bufx[1], bufx[2], bufx[3], 1, &statex);
+    for (unsigned j = 0; j < KECCAK_WAY; j++) {
+      ctr[j] += rej_uniform(vec[j]->coeffs + ctr[j], MLKEM_N - ctr[j], bufx[j],
+                            buflen);
+    }
+  }
+}
+
+// Generate a single A matrix entry from a seed, using rejection
+// sampling on the output of a XOF.
+static void gen_matrix_entry(poly *entry, uint8_t seed[MLKEM_SYMBYTES + 16]) {
+  shake128ctx state;
+  uint8_t buf[GEN_MATRIX_NBLOCKS * SHAKE128_RATE];
+  unsigned int ctr, buflen;
+
+  // seed is MLKEM_SYMBYTES + 2 bytes long, but padded to MLKEM_SYMBYTES + 16
+  shake128_absorb(&state, seed, MLKEM_SYMBYTES + 2);
+
+  // Initially, squeeze + sample heuristic number of GEN_MATRIX_NBLOCKS.
+  // This should generate the matrix entry with high probability.
+  shake128_squeezeblocks(buf, GEN_MATRIX_NBLOCKS, &state);
+  buflen = GEN_MATRIX_NBLOCKS * SHAKE128_RATE;
+  ctr = rej_uniform(entry->coeffs, MLKEM_N, buf, buflen);
+
+  // Squeeze + sampel one more block a time until we're done
+  buflen = SHAKE128_RATE;
+  while (ctr < MLKEM_N) {
+    shake128_squeezeblocks(buf, 1, &state);
+    ctr += rej_uniform(entry->coeffs + ctr, MLKEM_N - ctr, buf, buflen);
+  }
+}
 
 /*************************************************
  * Name:        gen_matrix
@@ -135,19 +196,11 @@ static void unpack_ciphertext(polyvec *b, poly *v,
  *              - const uint8_t *seed: pointer to input seed
  *              - int transposed: boolean deciding whether A or A^T is generated
  **************************************************/
-#define GEN_MATRIX_NBLOCKS \
-  ((12 * MLKEM_N / 8 * (1 << 12) / MLKEM_Q + SHAKE128_RATE) / SHAKE128_RATE)
 // Not static for benchmarking
 void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES],
                 int transposed) {
-  unsigned int ctr[KECCAK_WAY], i;
-  unsigned int buflen;
-  uint8_t bufx[KECCAK_WAY][GEN_MATRIX_NBLOCKS * SHAKE128_RATE];
-  int16_t *vec[KECCAK_WAY] = {NULL};
-
-  keccakx4_state statex;
-  // The input data to each Keccak lane.
-  // Original size; MLKEM_SYMBYTES + 2, we add padding to make align load/store.
+  int i;
+  // We need MLKEM_SYMBYTES + 2 bytes per seed, but add padding for alignment
   uint8_t seedxy[KECCAK_WAY][MLKEM_SYMBYTES + 16];
   for (unsigned j = 0; j < KECCAK_WAY; j++) {
     memcpy(seedxy[j], seed, MLKEM_SYMBYTES);
@@ -158,10 +211,10 @@ void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES],
   //
   // Either add suitable pragmas, or split gen_matrix according to MLKEM_K
   // and unroll by hand.
-
   for (i = 0; i < (MLKEM_K * MLKEM_K / KECCAK_WAY) * KECCAK_WAY;
        i += KECCAK_WAY) {
     uint8_t x, y;
+    poly *vec[4];
 
     for (unsigned int j = 0; j < KECCAK_WAY; j++) {
       x = (i + j) / MLKEM_K;
@@ -173,59 +226,27 @@ void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES],
         seedxy[j][MLKEM_SYMBYTES + 0] = y;
         seedxy[j][MLKEM_SYMBYTES + 1] = x;
       }
-      vec[j] = a[x].vec[y].coeffs;
+      vec[j] = &a[x].vec[y];
     }
 
-    shake128x4_absorb(&statex, seedxy[0], seedxy[1], seedxy[2], seedxy[3],
-                      MLKEM_SYMBYTES + 2);
-    shake128x4_squeezeblocks(bufx[0], bufx[1], bufx[2], bufx[3],
-                             GEN_MATRIX_NBLOCKS, &statex);
-
-    for (unsigned int j = 0; j < KECCAK_WAY; j++) {
-      buflen = GEN_MATRIX_NBLOCKS * SHAKE128_RATE;
-      ctr[j] = rej_uniform(vec[j], MLKEM_N, bufx[j], buflen);
-    }
-
-    while (ctr[0] < MLKEM_N || ctr[1] < MLKEM_N || ctr[2] < MLKEM_N ||
-           ctr[3] < MLKEM_N) {
-      shake128x4_squeezeblocks(bufx[0], bufx[1], bufx[2], bufx[3], 1, &statex);
-      buflen = SHAKE128_RATE;
-
-      for (unsigned j = 0; j < KECCAK_WAY; j++) {
-        ctr[j] +=
-            rej_uniform(vec[j] + ctr[j], MLKEM_N - ctr[j], bufx[j], buflen);
-      }
-    }
+    gen_matrix_entry_x4(vec, seedxy);
   }
 
   // For left over vector, we use single keccak.
   for (; i < MLKEM_K * MLKEM_K; i++) {
-    shake128ctx state;
     uint8_t x, y;
-
     x = i / MLKEM_K;
     y = i % MLKEM_K;
-    vec[0] = a[x].vec[y].coeffs;
 
     if (transposed) {
       seedxy[0][MLKEM_SYMBYTES + 0] = x;
       seedxy[0][MLKEM_SYMBYTES + 1] = y;
-      shake128_absorb(&state, seedxy[0], MLKEM_SYMBYTES + 2);
     } else {
       seedxy[0][MLKEM_SYMBYTES + 0] = y;
       seedxy[0][MLKEM_SYMBYTES + 1] = x;
-      shake128_absorb(&state, seedxy[0], MLKEM_SYMBYTES + 2);
     }
 
-    shake128_squeezeblocks(bufx[0], GEN_MATRIX_NBLOCKS, &state);
-    buflen = GEN_MATRIX_NBLOCKS * SHAKE128_RATE;
-    ctr[0] = rej_uniform(vec[0], MLKEM_N, bufx[0], buflen);
-
-    while (ctr[0] < MLKEM_N) {
-      shake128_squeezeblocks(bufx[0], 1, &state);
-      buflen = SHAKE128_RATE;
-      ctr[0] += rej_uniform(vec[0] + ctr[0], MLKEM_N - ctr[0], bufx[0], buflen);
-    }
+    gen_matrix_entry(&a[x].vec[y], seedxy[0]);
   }
 
 #if defined(MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER)
@@ -270,7 +291,7 @@ void indcpa_keypair_derand(uint8_t pk[MLKEM_INDCPA_PUBLICKEYBYTES],
   buf[MLKEM_SYMBYTES] = MLKEM_K;
   hash_g(buf, buf, MLKEM_SYMBYTES + 1);
 
-  gen_a(a, publicseed);
+  gen_matrix(a, publicseed, 0 /* no transpose */);
 
 #if MLKEM_K == 2
   poly_getnoise_eta1_4x(skpv.vec + 0, skpv.vec + 1, e.vec + 0, e.vec + 1,
@@ -341,7 +362,7 @@ void indcpa_enc(uint8_t c[MLKEM_INDCPA_BYTES],
 
   unpack_pk(&pkpv, seed, pk);
   poly_frommsg(&k, m);
-  gen_at(at, seed);
+  gen_matrix(at, seed, 1 /* transpose */);
 
 #if MLKEM_K == 2
   poly_getnoise_eta1122_4x(sp.vec + 0, sp.vec + 1, ep.vec + 0, ep.vec + 1,
