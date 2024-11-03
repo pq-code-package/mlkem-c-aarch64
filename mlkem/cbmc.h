@@ -34,6 +34,9 @@
 #define ASSERT(...) __CPROVER_assert(__VA_ARGS__)
 #define ASSUME(...) __CPROVER_assume(__VA_ARGS__)
 
+#define READABLE(...) __CPROVER_r_ok(__VA_ARGS__)
+#define WRITEABLE(...) __CPROVER_w_ok(__VA_ARGS__)
+
 ///////////////////////////////////////////////////
 // Macros for "expression" forms that may appear
 // _inside_ top-level contracts.
