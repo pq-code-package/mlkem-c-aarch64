@@ -48,23 +48,23 @@ void cmov(uint8_t *r, const uint8_t *x, size_t len, uint8_t b) {
 }
 
 /*************************************************
- * Name:        cmov_int16
+ * Note:
  *
- * Description: Copy input v to *r if b is 1, don't modify *r if b is 0.
- *              Requires b to be in {0,1};
- *              Runs in constant time.
- *
- * Arguments:   int16_t *r:       pointer to output int16_t
- *              int16_t v:        input int16_t
- *              uint8_t b:        Condition bit; has to be in {0,1}
+ * Constant-time implementation. Relies on basic
+ * properties of bitwise ^ or and &.
  **************************************************/
-void cmov_int16(int16_t *r, int16_t v, uint16_t b) {
+void cmov_int16(int16_t *r, const int16_t v, const uint16_t b) {
 // CBMC issues false alarms here for the implicit conversions between
 // uint16_t and int, so disable "conversion-check" here for now.
-// Revisit this when proof of this unit with contracts is attempted.
 #pragma CPROVER check push
 #pragma CPROVER check disable "conversion"
-  b = -b;
-  *r ^= b & ((*r) ^ v);
+
+  // b == 0 => mask = 0x0000
+  // b == 1 => mask = 0xFFFF
+  const uint16_t mask = -b;
+
+  // mask == 0x0000 => *r == (*r ^ 0x0000) == *r
+  // mask == 0xFFFF => *r == (*r ^ (*r ^ v)) == (*r ^ *r) ^ v == 0 ^ v == v
+  *r ^= mask & ((*r) ^ v);
 #pragma CPROVER check pop
 }
