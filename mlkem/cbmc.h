@@ -57,6 +57,8 @@
 // https://diffblue.github.io/cbmc/contracts-memory-predicates.html
 #define IS_FRESH(...) __CPROVER_is_fresh(__VA_ARGS__)
 #define POINTER_IN_RANGE(...) __CPROVER_pointer_in_range_dfcc(__VA_ARGS__)
+#define READABLE(...) __CPROVER_r_ok(__VA_ARGS__)
+#define WRITEABLE(...) __CPROVER_w_ok(__VA_ARGS__)
 
 // Function pointer/contract establishment
 // https://diffblue.github.io/cbmc/contracts-function-pointer-predicates.html

@@ -218,24 +218,115 @@ void poly_frommsg(poly *r, const uint8_t msg[MLKEM_INDCPA_MSGBYTES]);
 void poly_tomsg(uint8_t msg[MLKEM_INDCPA_MSGBYTES], const poly *r);
 
 #define poly_getnoise_eta1_4x MLKEM_NAMESPACE(poly_getnoise_eta1_4x)
+/*************************************************
+ * Name:        poly_getnoise_eta1_4x
+ *
+ * Description: Batch sample four polynomials deterministically from a seed and
+ *  nonces, with output polynomials close to centered binomial distribution with
+ *  parameter MLKEM_ETA1.
+ *
+ * Arguments:   - poly *r{0,1,2,3}: pointer to output polynomial
+ *              - const uint8_t *seed: pointer to input seed
+ *                                     (of length MLKEM_SYMBYTES bytes)
+ *              - uint8_t nonce{0,1,2,3}: one-byte input nonce
+ **************************************************/
 void poly_getnoise_eta1_4x(poly *r0, poly *r1, poly *r2, poly *r3,
                            const uint8_t seed[MLKEM_SYMBYTES], uint8_t nonce0,
-                           uint8_t nonce1, uint8_t nonce2, uint8_t nonce3);
+                           uint8_t nonce1, uint8_t nonce2,
+                           uint8_t nonce3)  // clang-format off
+REQUIRES(r0 != NULL && IS_FRESH(r0, sizeof(poly)))
+REQUIRES(r1 != NULL && IS_FRESH(r1, sizeof(poly)))
+REQUIRES(r2 != NULL && IS_FRESH(r2, sizeof(poly)))
+REQUIRES(r3 != NULL && IS_FRESH(r3, sizeof(poly)))
+REQUIRES(seed != NULL && IS_FRESH(seed, MLKEM_SYMBYTES))
+ASSIGNS(OBJECT_WHOLE(r0), OBJECT_WHOLE(r1), OBJECT_WHOLE(r2), OBJECT_WHOLE(r3))
+ENSURES(                                                                          \
+    ARRAY_IN_BOUNDS(int, k0, 0, MLKEM_N - 1, r0->coeffs, -MLKEM_ETA1, MLKEM_ETA1) \
+ && ARRAY_IN_BOUNDS(int, k1, 0, MLKEM_N - 1, r1->coeffs, -MLKEM_ETA1, MLKEM_ETA1) \
+ && ARRAY_IN_BOUNDS(int, k2, 0, MLKEM_N - 1, r2->coeffs, -MLKEM_ETA1, MLKEM_ETA1) \
+ && ARRAY_IN_BOUNDS(int, k3, 0, MLKEM_N - 1, r3->coeffs, -MLKEM_ETA1, MLKEM_ETA1));
+// clang-format on
 
 #define poly_getnoise_eta2 MLKEM_NAMESPACE(poly_getnoise_eta2)
+/*************************************************
+ * Name:        poly_getnoise_eta2
+ *
+ * Description: Sample a polynomial deterministically from a seed and a nonce,
+ *              with output polynomial close to centered binomial distribution
+ *              with parameter MLKEM_ETA2
+ *
+ * Arguments:   - poly *r: pointer to output polynomial
+ *              - const uint8_t *seed: pointer to input seed
+ *                                     (of length MLKEM_SYMBYTES bytes)
+ *              - uint8_t nonce: one-byte input nonce
+ **************************************************/
 void poly_getnoise_eta2(poly *r, const uint8_t seed[MLKEM_SYMBYTES],
-                        uint8_t nonce);
+                        uint8_t nonce)  // clang-format off
+REQUIRES(r != NULL && IS_FRESH(r, sizeof(poly)))
+REQUIRES(seed != NULL && IS_FRESH(seed, MLKEM_SYMBYTES))
+ASSIGNS(OBJECT_WHOLE(r))
+ENSURES(ARRAY_IN_BOUNDS(int, k0, 0, MLKEM_N - 1, r->coeffs, -MLKEM_ETA2, MLKEM_ETA2));
+// clang-format on
 
 #define poly_getnoise_eta2_4x MLKEM_NAMESPACE(poly_getnoise_eta2_4x)
+/*************************************************
+ * Name:        poly_getnoise_eta2_4x
+ *
+ * Description: Batch sample four polynomials deterministically from a seed and
+ * nonces, with output polynomials close to centered binomial distribution with
+ * parameter MLKEM_ETA2
+ *
+ * Arguments:   - poly *r{0,1,2,3}: pointer to output polynomial
+ *              - const uint8_t *seed: pointer to input seed
+ *                                     (of length MLKEM_SYMBYTES bytes)
+ *              - uint8_t nonce{0,1,2,3}: one-byte input nonce
+ **************************************************/
 void poly_getnoise_eta2_4x(poly *r0, poly *r1, poly *r2, poly *r3,
                            const uint8_t seed[MLKEM_SYMBYTES], uint8_t nonce0,
-                           uint8_t nonce1, uint8_t nonce2, uint8_t nonce3);
+                           uint8_t nonce1, uint8_t nonce2,
+                           uint8_t nonce3)  // clang-format off
+REQUIRES(r0 != NULL && IS_FRESH(r0, sizeof(poly)))
+REQUIRES(r1 != NULL && IS_FRESH(r1, sizeof(poly)))
+REQUIRES(r2 != NULL && IS_FRESH(r2, sizeof(poly)))
+REQUIRES(r3 != NULL && IS_FRESH(r3, sizeof(poly)))
+REQUIRES(seed != NULL && IS_FRESH(seed, MLKEM_SYMBYTES))
+ASSIGNS(OBJECT_WHOLE(r0), OBJECT_WHOLE(r1), OBJECT_WHOLE(r2), OBJECT_WHOLE(r3))
+ENSURES(                                                                          \
+    ARRAY_IN_BOUNDS(int, k0, 0, MLKEM_N - 1, r0->coeffs, -MLKEM_ETA2, MLKEM_ETA2) \
+ && ARRAY_IN_BOUNDS(int, k1, 0, MLKEM_N - 1, r1->coeffs, -MLKEM_ETA2, MLKEM_ETA2) \
+ && ARRAY_IN_BOUNDS(int, k2, 0, MLKEM_N - 1, r2->coeffs, -MLKEM_ETA2, MLKEM_ETA2) \
+ && ARRAY_IN_BOUNDS(int, k3, 0, MLKEM_N - 1, r3->coeffs, -MLKEM_ETA2, MLKEM_ETA2));
+// clang-format on
 
 #define poly_getnoise_eta1122_4x MLKEM_NAMESPACE(poly_getnoise_eta1122_4x)
+/*************************************************
+ * Name:        poly_getnoise_eta1122_4x
+ *
+ * Description: Batch sample four polynomials deterministically from a seed and
+ * a nonces, with output polynomials close to centered binomial distribution
+ * with parameter MLKEM_ETA1 and MLKEM_ETA2
+ *
+ * Arguments:   - poly *r{0,1,2,3}: pointer to output polynomial
+ *              - const uint8_t *seed: pointer to input seed
+ *                                     (of length MLKEM_SYMBYTES bytes)
+ *              - uint8_t nonce{0,1,2,3}: one-byte input nonce
+ **************************************************/
 void poly_getnoise_eta1122_4x(poly *r0, poly *r1, poly *r2, poly *r3,
                               const uint8_t seed[MLKEM_SYMBYTES],
                               uint8_t nonce0, uint8_t nonce1, uint8_t nonce2,
-                              uint8_t nonce3);
+                              uint8_t nonce3)  // clang-format off
+REQUIRES(r0 != NULL && IS_FRESH(r0, sizeof(poly)))
+REQUIRES(r1 != NULL && IS_FRESH(r1, sizeof(poly)))
+REQUIRES(r2 != NULL && IS_FRESH(r2, sizeof(poly)))
+REQUIRES(r3 != NULL && IS_FRESH(r3, sizeof(poly)))
+REQUIRES(seed != NULL && IS_FRESH(seed, MLKEM_SYMBYTES))
+ASSIGNS(OBJECT_WHOLE(r0), OBJECT_WHOLE(r1), OBJECT_WHOLE(r2), OBJECT_WHOLE(r3))
+ENSURES(                                                                          \
+    ARRAY_IN_BOUNDS(int, k0, 0, MLKEM_N - 1, r0->coeffs, -MLKEM_ETA1, MLKEM_ETA1) \
+ && ARRAY_IN_BOUNDS(int, k1, 0, MLKEM_N - 1, r1->coeffs, -MLKEM_ETA1, MLKEM_ETA1) \
+ && ARRAY_IN_BOUNDS(int, k2, 0, MLKEM_N - 1, r2->coeffs, -MLKEM_ETA2, MLKEM_ETA2) \
+ && ARRAY_IN_BOUNDS(int, k3, 0, MLKEM_N - 1, r3->coeffs, -MLKEM_ETA2, MLKEM_ETA2));
+// clang-format on
 
 #define poly_basemul_montgomery_cached \
   MLKEM_NAMESPACE(poly_basemul_montgomery_cached)

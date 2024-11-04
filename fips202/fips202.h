@@ -6,6 +6,8 @@
 #include <stdint.h>
 #include "namespace.h"
 
+#include "cbmc.h"
+
 #define SHAKE128_RATE 168
 #define SHAKE256_RATE 136
 #define SHA3_256_RATE 136
@@ -68,7 +70,12 @@ void shake256_inc_squeeze(uint8_t *output, size_t outlen,
 /* One-stop SHAKE256 call */
 #define shake256 FIPS202_NAMESPACE(shake256)
 void shake256(uint8_t *output, size_t outlen, const uint8_t *input,
-              size_t inlen);
+              size_t inlen)  // clang-format off
+// Refine +prove this spec, e.g. add disjointness constraints?
+REQUIRES(READABLE(input, inlen))
+REQUIRES(WRITEABLE(output, outlen))
+ASSIGNS(OBJECT_UPTO(output, outlen));
+// clang-format on
 
 /* One-stop SHA3-256 shop */
 #define sha3_256 FIPS202_NAMESPACE(sha3_256)

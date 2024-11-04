@@ -330,18 +330,6 @@ void poly_tomsg(uint8_t msg[MLKEM_INDCPA_MSGBYTES], const poly *a) {
   }
 }
 
-/*************************************************
- * Name:        poly_getnoise_eta1_4x
- *
- * Description: Batch sample four polynomials deterministically from a seed and
- *nonces, with output polynomials close to centered binomial distribution with
- *parameter MLKEM_ETA1
- *
- * Arguments:   - poly *r{0,1,2,3}: pointer to output polynomial
- *              - const uint8_t *seed: pointer to input seed
- *                                     (of length MLKEM_SYMBYTES bytes)
- *              - uint8_t nonce{0,1,2,3}: one-byte input nonce
- **************************************************/
 void poly_getnoise_eta1_4x(poly *r0, poly *r1, poly *r2, poly *r3,
                            const uint8_t seed[MLKEM_SYMBYTES], uint8_t nonce0,
                            uint8_t nonce1, uint8_t nonce2, uint8_t nonce3) {
@@ -368,18 +356,6 @@ void poly_getnoise_eta1_4x(poly *r0, poly *r1, poly *r2, poly *r3,
   POLY_BOUND_MSG(r3, MLKEM_ETA1 + 1, "poly_getnoise_eta1_4x output 3");
 }
 
-/*************************************************
- * Name:        poly_getnoise_eta2
- *
- * Description: Sample a polynomial deterministically from a seed and a nonce,
- *              with output polynomial close to centered binomial distribution
- *              with parameter MLKEM_ETA2
- *
- * Arguments:   - poly *r: pointer to output polynomial
- *              - const uint8_t *seed: pointer to input seed
- *                                     (of length MLKEM_SYMBYTES bytes)
- *              - uint8_t nonce: one-byte input nonce
- **************************************************/
 void poly_getnoise_eta2(poly *r, const uint8_t seed[MLKEM_SYMBYTES],
                         uint8_t nonce) {
   uint8_t buf[MLKEM_ETA2 * MLKEM_N / 4] ALIGN;
@@ -389,18 +365,6 @@ void poly_getnoise_eta2(poly *r, const uint8_t seed[MLKEM_SYMBYTES],
   POLY_BOUND_MSG(r, MLKEM_ETA1 + 1, "poly_getnoise_eta2 output");
 }
 
-/*************************************************
- * Name:        poly_getnoise_eta2_4x
- *
- * Description: Batch sample four polynomials deterministically from a seed and
- *nonces, with output polynomials close to centered binomial distribution with
- *parameter MLKEM_ETA2
- *
- * Arguments:   - poly *r{0,1,2,3}: pointer to output polynomial
- *              - const uint8_t *seed: pointer to input seed
- *                                     (of length MLKEM_SYMBYTES bytes)
- *              - uint8_t nonce{0,1,2,3}: one-byte input nonce
- **************************************************/
 void poly_getnoise_eta2_4x(poly *r0, poly *r1, poly *r2, poly *r3,
                            const uint8_t seed[MLKEM_SYMBYTES], uint8_t nonce0,
                            uint8_t nonce1, uint8_t nonce2, uint8_t nonce3) {
@@ -427,18 +391,6 @@ void poly_getnoise_eta2_4x(poly *r0, poly *r1, poly *r2, poly *r3,
   POLY_BOUND_MSG(r3, MLKEM_ETA2 + 1, "poly_getnoise_eta2_4x output 3");
 }
 
-/*************************************************
- * Name:        poly_getnoise_eta1122_4x
- *
- * Description: Batch sample four polynomials deterministically from a seed and
- *a nonces, with output polynomials close to centered binomial distribution with
- *parameter MLKEM_ETA1 and MLKEM_ETA2
- *
- * Arguments:   - poly *r{0,1,2,3}: pointer to output polynomial
- *              - const uint8_t *seed: pointer to input seed
- *                                     (of length MLKEM_SYMBYTES bytes)
- *              - uint8_t nonce{0,1,2,3}: one-byte input nonce
- **************************************************/
 void poly_getnoise_eta1122_4x(poly *r0, poly *r1, poly *r2, poly *r3,
                               const uint8_t seed[MLKEM_SYMBYTES],
                               uint8_t nonce0, uint8_t nonce1, uint8_t nonce2,
