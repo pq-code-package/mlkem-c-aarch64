@@ -361,7 +361,22 @@ ENSURES(ARRAY_IN_BOUNDS(int, k, 0, MLKEM_N - 1, r->coeffs, -3 * HALF_Q + 1, 3 * 
 // clang-format on
 
 #define poly_tomont MLKEM_NAMESPACE(poly_tomont)
-void poly_tomont(poly *r);
+/*************************************************
+ * Name:        poly_tomont
+ *
+ * Description: Inplace conversion of all coefficients of a polynomial
+ *              from normal domain to Montgomery domain
+ *
+ *              Bounds: Output < q in absolute value.
+ *
+ * Arguments:   - poly *r: pointer to input/output polynomial
+ **************************************************/
+void poly_tomont(poly *r)
+    // clang-format off
+REQUIRES(r != NULL && IS_FRESH(r, sizeof(poly)))
+ASSIGNS(OBJECT_WHOLE(r))
+ENSURES(ARRAY_IN_BOUNDS(int, k, 0, MLKEM_N - 1, r->coeffs, -(MLKEM_Q - 1), (MLKEM_Q - 1)));
+// clang-format on
 
 // REF-CHANGE: This function does not exist in the reference implementation
 #define poly_mulcache_compute MLKEM_NAMESPACE(poly_mulcache_compute)
