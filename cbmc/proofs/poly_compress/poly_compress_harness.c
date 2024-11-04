@@ -22,8 +22,8 @@
  *
  */
 void harness(void) {
-  poly r;
-  uint8_t a[MLKEM_POLYCOMPRESSEDBYTES];
+  poly *r;
+  uint8_t *a;
 
-  poly_compress(a, &r);
+  poly_compress(a, r);
 }

@@ -22,8 +22,8 @@
  *
  */
 void harness(void) {
-  poly a;
+  poly *a;
 
   /* Contracts for this function are in poly.h */
-  poly_reduce(&a);
+  poly_reduce(a);
 }

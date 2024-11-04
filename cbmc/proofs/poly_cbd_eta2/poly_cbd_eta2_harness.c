@@ -22,8 +22,8 @@
  *
  */
 void harness(void) {
-  uint8_t buf[MLKEM_ETA2 * MLKEM_N / 4];
-  poly a;
+  uint8_t *buf;
+  poly *a;
 
-  poly_cbd_eta2(&a, buf);
+  poly_cbd_eta2(a, buf);
 }

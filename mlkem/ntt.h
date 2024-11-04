@@ -47,9 +47,9 @@ void poly_invntt_tomont(poly *r);
 void basemul_cached(int16_t r[2], const int16_t a[2], const int16_t b[2],
                     int16_t b_cached)
     // clang-format off
-REQUIRES(r != NULL && IS_FRESH(r, 2 * sizeof(int16_t)))
-REQUIRES(a != NULL && IS_FRESH(a, 2 * sizeof(int16_t)))
-REQUIRES(b != NULL && IS_FRESH(b, 2 * sizeof(int16_t)))
+REQUIRES(IS_FRESH(r, 2 * sizeof(int16_t)))
+REQUIRES(IS_FRESH(a, 2 * sizeof(int16_t)))
+REQUIRES(IS_FRESH(b, 2 * sizeof(int16_t)))
 REQUIRES(ARRAY_IN_BOUNDS(int, k, 0, 1, a, -(MLKEM_Q - 1), (MLKEM_Q - 1)))
 ASSIGNS(OBJECT_UPTO(r, 2 * sizeof(int16_t)))
 ENSURES(ARRAY_IN_BOUNDS(int, k, 0, 1, r, -3 * HALF_Q + 1, 3 * HALF_Q - 1));

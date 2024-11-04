@@ -70,8 +70,8 @@ ENSURES(RETURN_VALUE == (int32_t)c + (((int32_t)c < 0) * MLKEM_Q));
 #define poly_compress MLKEM_NAMESPACE(poly_compress)
 void poly_compress(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES], const poly *a)
     // clang-format off
-REQUIRES(r != NULL && IS_FRESH(r, MLKEM_POLYCOMPRESSEDBYTES))
-REQUIRES(a != NULL && IS_FRESH(a, sizeof(poly)))
+REQUIRES(IS_FRESH(r, MLKEM_POLYCOMPRESSEDBYTES))
+REQUIRES(IS_FRESH(a, sizeof(poly)))
 REQUIRES(ARRAY_IN_BOUNDS(int, k, 0, (MLKEM_N - 1), a->coeffs, 0, (MLKEM_Q - 1)))
 ASSIGNS(OBJECT_WHOLE(r));
 // clang-format on
@@ -188,8 +188,8 @@ static inline uint16_t scalar_signed_to_unsigned_q_16(int16_t c) {
 #define poly_decompress MLKEM_NAMESPACE(poly_decompress)
 void poly_decompress(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES])
     // clang-format off
-REQUIRES(a != NULL && IS_FRESH(a, MLKEM_POLYCOMPRESSEDBYTES))
-REQUIRES(r != NULL && IS_FRESH(r, sizeof(poly)))
+REQUIRES(IS_FRESH(a, MLKEM_POLYCOMPRESSEDBYTES))
+REQUIRES(IS_FRESH(r, sizeof(poly)))
 ASSIGNS(OBJECT_WHOLE(r))
 ENSURES(ARRAY_IN_BOUNDS(int, k, 0, (MLKEM_N - 1), r->coeffs, 0, (MLKEM_Q - 1)));
 // clang-format on
@@ -197,7 +197,8 @@ ENSURES(ARRAY_IN_BOUNDS(int, k, 0, (MLKEM_N - 1), r->coeffs, 0, (MLKEM_Q - 1)));
 #define poly_tobytes MLKEM_NAMESPACE(poly_tobytes)
 void poly_tobytes(uint8_t r[MLKEM_POLYBYTES], const poly *a)
     // clang-format off
-REQUIRES(a != NULL && IS_FRESH(a, sizeof(poly)))
+REQUIRES(IS_FRESH(r, MLKEM_POLYBYTES))
+REQUIRES(IS_FRESH(a, sizeof(poly)))
 REQUIRES(ARRAY_IN_BOUNDS(int, k, 0, (MLKEM_N - 1), a->coeffs, 0, (MLKEM_Q - 1)))
 ASSIGNS(OBJECT_WHOLE(r));
 // clang-format on
@@ -206,8 +207,8 @@ ASSIGNS(OBJECT_WHOLE(r));
 #define poly_frombytes MLKEM_NAMESPACE(poly_frombytes)
 void poly_frombytes(poly *r, const uint8_t a[MLKEM_POLYBYTES])
     // clang-format off
-REQUIRES(a != NULL && IS_FRESH(a, MLKEM_POLYBYTES))
-REQUIRES(r != NULL && IS_FRESH(r, sizeof(poly)))
+REQUIRES(IS_FRESH(a, MLKEM_POLYBYTES))
+REQUIRES(IS_FRESH(r, sizeof(poly)))
 ASSIGNS(OBJECT_WHOLE(r))
 ENSURES(ARRAY_IN_BOUNDS(int, k, 0, (MLKEM_N - 1), r->coeffs, 0, 4095));
 // clang-format on
@@ -234,11 +235,11 @@ void poly_getnoise_eta1_4x(poly *r0, poly *r1, poly *r2, poly *r3,
                            const uint8_t seed[MLKEM_SYMBYTES], uint8_t nonce0,
                            uint8_t nonce1, uint8_t nonce2,
                            uint8_t nonce3)  // clang-format off
-REQUIRES(r0 != NULL && IS_FRESH(r0, sizeof(poly)))
-REQUIRES(r1 != NULL && IS_FRESH(r1, sizeof(poly)))
-REQUIRES(r2 != NULL && IS_FRESH(r2, sizeof(poly)))
-REQUIRES(r3 != NULL && IS_FRESH(r3, sizeof(poly)))
-REQUIRES(seed != NULL && IS_FRESH(seed, MLKEM_SYMBYTES))
+REQUIRES(IS_FRESH(r0, sizeof(poly)))
+REQUIRES(IS_FRESH(r1, sizeof(poly)))
+REQUIRES(IS_FRESH(r2, sizeof(poly)))
+REQUIRES(IS_FRESH(r3, sizeof(poly)))
+REQUIRES(IS_FRESH(seed, MLKEM_SYMBYTES))
 ASSIGNS(OBJECT_WHOLE(r0), OBJECT_WHOLE(r1), OBJECT_WHOLE(r2), OBJECT_WHOLE(r3))
 ENSURES(                                                                          \
     ARRAY_IN_BOUNDS(int, k0, 0, MLKEM_N - 1, r0->coeffs, -MLKEM_ETA1, MLKEM_ETA1) \
@@ -262,8 +263,8 @@ ENSURES(                                                                        
  **************************************************/
 void poly_getnoise_eta2(poly *r, const uint8_t seed[MLKEM_SYMBYTES],
                         uint8_t nonce)  // clang-format off
-REQUIRES(r != NULL && IS_FRESH(r, sizeof(poly)))
-REQUIRES(seed != NULL && IS_FRESH(seed, MLKEM_SYMBYTES))
+REQUIRES(IS_FRESH(r, sizeof(poly)))
+REQUIRES(IS_FRESH(seed, MLKEM_SYMBYTES))
 ASSIGNS(OBJECT_WHOLE(r))
 ENSURES(ARRAY_IN_BOUNDS(int, k0, 0, MLKEM_N - 1, r->coeffs, -MLKEM_ETA2, MLKEM_ETA2));
 // clang-format on
@@ -285,11 +286,11 @@ void poly_getnoise_eta2_4x(poly *r0, poly *r1, poly *r2, poly *r3,
                            const uint8_t seed[MLKEM_SYMBYTES], uint8_t nonce0,
                            uint8_t nonce1, uint8_t nonce2,
                            uint8_t nonce3)  // clang-format off
-REQUIRES(r0 != NULL && IS_FRESH(r0, sizeof(poly)))
-REQUIRES(r1 != NULL && IS_FRESH(r1, sizeof(poly)))
-REQUIRES(r2 != NULL && IS_FRESH(r2, sizeof(poly)))
-REQUIRES(r3 != NULL && IS_FRESH(r3, sizeof(poly)))
-REQUIRES(seed != NULL && IS_FRESH(seed, MLKEM_SYMBYTES))
+REQUIRES(IS_FRESH(r0, sizeof(poly)))
+REQUIRES(IS_FRESH(r1, sizeof(poly)))
+REQUIRES(IS_FRESH(r2, sizeof(poly)))
+REQUIRES(IS_FRESH(r3, sizeof(poly)))
+REQUIRES(IS_FRESH(seed, MLKEM_SYMBYTES))
 ASSIGNS(OBJECT_WHOLE(r0), OBJECT_WHOLE(r1), OBJECT_WHOLE(r2), OBJECT_WHOLE(r3))
 ENSURES(                                                                          \
     ARRAY_IN_BOUNDS(int, k0, 0, MLKEM_N - 1, r0->coeffs, -MLKEM_ETA2, MLKEM_ETA2) \
@@ -315,11 +316,11 @@ void poly_getnoise_eta1122_4x(poly *r0, poly *r1, poly *r2, poly *r3,
                               const uint8_t seed[MLKEM_SYMBYTES],
                               uint8_t nonce0, uint8_t nonce1, uint8_t nonce2,
                               uint8_t nonce3)  // clang-format off
-REQUIRES(r0 != NULL && IS_FRESH(r0, sizeof(poly)))
-REQUIRES(r1 != NULL && IS_FRESH(r1, sizeof(poly)))
-REQUIRES(r2 != NULL && IS_FRESH(r2, sizeof(poly)))
-REQUIRES(r3 != NULL && IS_FRESH(r3, sizeof(poly)))
-REQUIRES(seed != NULL && IS_FRESH(seed, MLKEM_SYMBYTES))
+REQUIRES(IS_FRESH(r0, sizeof(poly)))
+REQUIRES(IS_FRESH(r1, sizeof(poly)))
+REQUIRES(IS_FRESH(r2, sizeof(poly)))
+REQUIRES(IS_FRESH(r3, sizeof(poly)))
+REQUIRES(IS_FRESH(seed, MLKEM_SYMBYTES))
 ASSIGNS(OBJECT_WHOLE(r0), OBJECT_WHOLE(r1), OBJECT_WHOLE(r2), OBJECT_WHOLE(r3))
 ENSURES(                                                                          \
     ARRAY_IN_BOUNDS(int, k0, 0, MLKEM_N - 1, r0->coeffs, -MLKEM_ETA1, MLKEM_ETA1) \
@@ -351,10 +352,10 @@ ENSURES(                                                                        
 void poly_basemul_montgomery_cached(poly *r, const poly *a, const poly *b,
                                     const poly_mulcache *b_cache)
     // clang-format off
-REQUIRES(r != NULL && IS_FRESH(r, sizeof(poly)))
-REQUIRES(a != NULL && IS_FRESH(a, sizeof(poly)))
-REQUIRES(b != NULL && IS_FRESH(b, sizeof(poly)))
-REQUIRES(b_cache != NULL && IS_FRESH(b_cache, sizeof(poly_mulcache)))
+REQUIRES(IS_FRESH(r, sizeof(poly)))
+REQUIRES(IS_FRESH(a, sizeof(poly)))
+REQUIRES(IS_FRESH(b, sizeof(poly)))
+REQUIRES(IS_FRESH(b_cache, sizeof(poly_mulcache)))
 REQUIRES(ARRAY_IN_BOUNDS(int, k, 0, MLKEM_N - 1, a->coeffs, -(MLKEM_Q - 1), (MLKEM_Q - 1)))
 ASSIGNS(OBJECT_WHOLE(r))
 ENSURES(ARRAY_IN_BOUNDS(int, k, 0, MLKEM_N - 1, r->coeffs, -3 * HALF_Q + 1, 3 * HALF_Q - 1));
@@ -373,7 +374,7 @@ ENSURES(ARRAY_IN_BOUNDS(int, k, 0, MLKEM_N - 1, r->coeffs, -3 * HALF_Q + 1, 3 * 
  **************************************************/
 void poly_tomont(poly *r)
     // clang-format off
-REQUIRES(r != NULL && IS_FRESH(r, sizeof(poly)))
+REQUIRES(IS_FRESH(r, sizeof(poly)))
 ASSIGNS(OBJECT_WHOLE(r))
 ENSURES(ARRAY_IN_BOUNDS(int, k, 0, MLKEM_N - 1, r->coeffs, -(MLKEM_Q - 1), (MLKEM_Q - 1)));
 // clang-format on
@@ -402,7 +403,8 @@ ENSURES(ARRAY_IN_BOUNDS(int, k, 0, MLKEM_N - 1, r->coeffs, -(MLKEM_Q - 1), (MLKE
 // higher level safety proofs, and thus not part of the spec.
 void poly_mulcache_compute(poly_mulcache *x, const poly *a)
     // clang-format off
-REQUIRES(a != NULL && IS_FRESH(a, sizeof(poly)))
+REQUIRES(IS_FRESH(x, sizeof(poly_mulcache)))
+REQUIRES(IS_FRESH(a, sizeof(poly)))
 ASSIGNS(OBJECT_WHOLE(x));
 // clang-format on
 
@@ -424,7 +426,7 @@ ASSIGNS(OBJECT_WHOLE(x));
 //             use of poly_reduce() in the context of (de)serialization.
 void poly_reduce(poly *r)
     // clang-format off
-REQUIRES(r != NULL && IS_FRESH(r, sizeof(poly)))
+REQUIRES(IS_FRESH(r, sizeof(poly)))
 ASSIGNS(OBJECT_WHOLE(r))
 ENSURES(ARRAY_IN_BOUNDS(int, k, 0, MLKEM_N - 1, r->coeffs, 0, MLKEM_Q - 1));
 // clang-format on

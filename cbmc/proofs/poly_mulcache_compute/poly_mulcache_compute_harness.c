@@ -23,8 +23,8 @@
  *
  */
 void harness(void) {
-  poly_mulcache x;
-  poly a;
+  poly_mulcache *x;
+  poly *a;
 
-  poly_mulcache_compute(&x, &a);
+  poly_mulcache_compute(x, a);
 }

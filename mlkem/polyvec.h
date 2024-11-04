@@ -71,7 +71,8 @@ void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a,
 // higher level safety proofs, and thus not part of the spec.
 void polyvec_mulcache_compute(polyvec_mulcache *x, const polyvec *a)
     // clang-format off
-REQUIRES(a != NULL && IS_FRESH(a, sizeof(polyvec)))
+REQUIRES(IS_FRESH(x, sizeof(polyvec_mulcache)))
+REQUIRES(IS_FRESH(a, sizeof(polyvec)))
 ASSIGNS(OBJECT_WHOLE(x));
 // clang-format on
 

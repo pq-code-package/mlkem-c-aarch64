@@ -23,7 +23,7 @@
  *
  */
 void harness(void) {
-  int16_t a[2], b[2], r[2], b_cached;
+  int16_t *a, *b, *r, b_cached;
 
   basemul_cached(r, a, b, b_cached);
 }

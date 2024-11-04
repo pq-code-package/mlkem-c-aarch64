@@ -22,7 +22,7 @@
  *
  */
 void harness(void) {
-  poly a;
+  poly *a;
 
-  poly_tomont(&a);
+  poly_tomont(a);
 }
