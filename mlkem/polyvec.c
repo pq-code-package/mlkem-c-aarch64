@@ -138,15 +138,6 @@ void polyvec_decompress(polyvec *r,
 #endif
 }
 
-/*************************************************
- * Name:        polyvec_tobytes
- *
- * Description: Serialize vector of polynomials
- *
- * Arguments:   - uint8_t *r: pointer to output byte array
- *                            (needs space for MLKEM_POLYVECBYTES)
- *              - const polyvec *a: pointer to input vector of polynomials
- **************************************************/
 void polyvec_tobytes(uint8_t r[MLKEM_POLYVECBYTES], const polyvec *a) {
   unsigned int i;
   for (i = 0; i < MLKEM_K; i++) {
@@ -154,16 +145,6 @@ void polyvec_tobytes(uint8_t r[MLKEM_POLYVECBYTES], const polyvec *a) {
   }
 }
 
-/*************************************************
- * Name:        polyvec_frombytes
- *
- * Description: De-serialize vector of polynomials;
- *              inverse of polyvec_tobytes
- *
- * Arguments:   - uint8_t *r:       pointer to output byte array
- *              - const polyvec *a: pointer to input vector of polynomials
- *                                  (of length MLKEM_POLYVECBYTES)
- **************************************************/
 void polyvec_frombytes(polyvec *r, const uint8_t a[MLKEM_POLYVECBYTES]) {
   unsigned int i;
   for (i = 0; i < MLKEM_K; i++) {

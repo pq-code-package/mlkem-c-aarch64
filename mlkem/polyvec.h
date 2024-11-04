@@ -23,9 +23,45 @@ void polyvec_decompress(polyvec *r,
                         const uint8_t a[MLKEM_POLYVECCOMPRESSEDBYTES]);
 
 #define polyvec_tobytes MLKEM_NAMESPACE(polyvec_tobytes)
-void polyvec_tobytes(uint8_t r[MLKEM_POLYVECBYTES], const polyvec *a);
+/*************************************************
+ * Name:        polyvec_tobytes
+ *
+ * Description: Serialize vector of polynomials
+ *
+ * Arguments:   - uint8_t *r: pointer to output byte array
+ *                            (needs space for MLKEM_POLYVECBYTES)
+ *              - const polyvec *a: pointer to input vector of polynomials
+ *                  Each polynomial must have coefficients in [0,..,q-1].
+ **************************************************/
+void polyvec_tobytes(uint8_t r[MLKEM_POLYVECBYTES],
+                     const polyvec *a)  // clang-format off
+REQUIRES(IS_FRESH(a, sizeof(polyvec)))
+REQUIRES(IS_FRESH(r, MLKEM_POLYVECBYTES))
+REQUIRES(FORALL(int, k0, 0, MLKEM_K - 1,
+         ARRAY_IN_BOUNDS(int, k1, 0, (MLKEM_N - 1), a->vec[k0].coeffs, 0, (MLKEM_Q - 1))))
+ASSIGNS(OBJECT_WHOLE(r));
+// clang-format on
+
 #define polyvec_frombytes MLKEM_NAMESPACE(polyvec_frombytes)
-void polyvec_frombytes(polyvec *r, const uint8_t a[MLKEM_POLYVECBYTES]);
+/*************************************************
+ * Name:        polyvec_frombytes
+ *
+ * Description: De-serialize vector of polynomials;
+ *              inverse of polyvec_tobytes
+ *
+ * Arguments:   - const polyvec *a: pointer to output vector of polynomials
+ *                 (of length MLKEM_POLYVECBYTES). Output will have coefficients
+ *                 normalized to [0,..,q-1].
+ *              - uint8_t *r: pointer to input byte array
+ **************************************************/
+void polyvec_frombytes(polyvec *r,
+                       const uint8_t a[MLKEM_POLYVECBYTES])  // clang-format off
+REQUIRES(IS_FRESH(r, sizeof(polyvec)))
+REQUIRES(IS_FRESH(a, MLKEM_POLYVECBYTES))
+ENSURES(FORALL(int, k0, 0, MLKEM_K - 1,
+        ARRAY_IN_BOUNDS(int, k1, 0, (MLKEM_N - 1),
+                        r->vec[k0].coeffs, 0, 4095)))
+ASSIGNS(OBJECT_WHOLE(r));  // clang-format on
 
 #define polyvec_ntt MLKEM_NAMESPACE(polyvec_ntt)
 void polyvec_ntt(polyvec *r);
