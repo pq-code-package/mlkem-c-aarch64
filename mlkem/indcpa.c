@@ -321,7 +321,7 @@ void indcpa_keypair_derand(uint8_t pk[MLKEM_INDCPA_PUBLICKEYBYTES],
   }
 
   // Arithmetic cannot overflow, see static assertion at the top
-  polyvec_add(&pkpv, &pkpv, &e);
+  polyvec_add(&pkpv, &e);
   polyvec_reduce(&pkpv);
   polyvec_reduce(&skpv);
 
@@ -395,9 +395,9 @@ void indcpa_enc(uint8_t c[MLKEM_INDCPA_BYTES],
   poly_invntt_tomont(&v);
 
   // Arithmetic cannot overflow, see static assertion at the top
-  polyvec_add(&b, &b, &ep);
-  poly_add(&v, &v, &epp);
-  poly_add(&v, &v, &k);
+  polyvec_add(&b, &ep);
+  poly_add(&v, &epp);
+  poly_add(&v, &k);
 
   polyvec_reduce(&b);
   poly_reduce(&v);

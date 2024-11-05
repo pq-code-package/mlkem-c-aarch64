@@ -226,18 +226,35 @@ void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a,
   POLYVEC_BOUND(b, NTT_BOUND);
   POLYVEC_BOUND(b_cache, MLKEM_Q);
 
-  unsigned int i;
+  int i;
   poly t;
 
   poly_basemul_montgomery_cached(r, &a->vec[0], &b->vec[0], &b_cache->vec[0]);
-  for (i = 1; i < MLKEM_K; i++) {
-    poly_basemul_montgomery_cached(&t, &a->vec[i], &b->vec[i],
-                                   &b_cache->vec[i]);
-    poly_add(r, r, &t);
-    // abs bounds: < (i+1) * 3/2 * q
-  }
 
-  // abs bounds: < MLKEM_K * 3/2 * q <= 4 * 3/2 * q = 19974
+  for (i = 1; i < MLKEM_K; i++)
+      // clang-format off
+    ASSIGNS(i, t, OBJECT_WHOLE(r))
+    INVARIANT(i >= 1 && i <= MLKEM_K)
+    INVARIANT(ARRAY_IN_BOUNDS(int, k, 0, MLKEM_N - 1, r->coeffs,
+                              i * (-3 * HALF_Q + 1), i * (3 * HALF_Q - 1)))
+    DECREASES(MLKEM_K - i)
+    // clang-format on
+    {
+      poly_basemul_montgomery_cached(&t, &a->vec[i], &b->vec[i],
+                                     &b_cache->vec[i]);
+      poly_add(r, &t);
+      // abs bounds: < (i+1) * 3/2 * q
+    }
+
+  // Those bounds are true for the C implementation, but not needed
+  // in the higher level bounds reasoning. It is thus best to omit
+  // them from the spec to not unnecessarily constraint native implementations.
+  ASSERT(
+      ARRAY_IN_BOUNDS(int, k, 0, MLKEM_N - 1, r->coeffs,
+                      MLKEM_K * (-3 * HALF_Q + 1), MLKEM_K * (3 * HALF_Q - 1)),
+      "polyvec_basemul_acc_montgomery_cached output bounds");
+  // TODO: Integrate CBMC assertion into POLY_BOUND if CBMC is set
+  POLY_BOUND(r, MLKEM_K * 3 * HALF_Q);
 }
 #else  /* !MLKEM_USE_NATIVE_POLYVEC_BASEMUL_ACC_MONTGOMERY_CACHED */
 void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a,
@@ -310,9 +327,9 @@ void polyvec_reduce(polyvec *r) {
  *            - const polyvec *a: pointer to first input vector of polynomials
  *            - const polyvec *b: pointer to second input vector of polynomials
  **************************************************/
-void polyvec_add(polyvec *r, const polyvec *a, const polyvec *b) {
+void polyvec_add(polyvec *r, const polyvec *b) {
   unsigned int i;
   for (i = 0; i < MLKEM_K; i++) {
-    poly_add(&r->vec[i], &a->vec[i], &b->vec[i]);
+    poly_add(&r->vec[i], &b->vec[i]);
   }
 }
