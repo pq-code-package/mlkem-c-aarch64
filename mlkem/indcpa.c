@@ -448,18 +448,18 @@ void indcpa_dec(uint8_t m[MLKEM_INDCPA_MSGBYTES],
                 const uint8_t c[MLKEM_INDCPA_BYTES],
                 const uint8_t sk[MLKEM_INDCPA_SECRETKEYBYTES]) {
   polyvec b, skpv;
-  poly v, mp;
+  poly v, sb;
 
   unpack_ciphertext(&b, &v, c);
   unpack_sk(&skpv, sk);
 
   polyvec_ntt(&b);
-  polyvec_basemul_acc_montgomery(&mp, &skpv, &b);
-  poly_invntt_tomont(&mp);
+  polyvec_basemul_acc_montgomery(&sb, &skpv, &b);
+  poly_invntt_tomont(&sb);
 
   // Arithmetic cannot overflow, see static assertion at the top
-  poly_sub(&mp, &v, &mp);
-  poly_reduce(&mp);
+  poly_sub(&v, &sb);
+  poly_reduce(&v);
 
-  poly_tomsg(m, &mp);
+  poly_tomsg(m, &v);
 }

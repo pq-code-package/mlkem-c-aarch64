@@ -458,6 +458,25 @@ ASSIGNS(OBJECT_WHOLE(r));
 // clang-format on
 
 #define poly_sub MLKEM_NAMESPACE(poly_sub)
-void poly_sub(poly *r, const poly *a, const poly *b);
+/*************************************************
+ * Name:        poly_sub
+ *
+ * Description: Subtract two polynomials; no modular reduction is performed
+ *
+ * Arguments: - poly *r:       Pointer to input-output polynomial to be added
+ *to.
+ *            - const poly *b: Pointer to second input polynomial
+ **************************************************/
+// REF-CHANGE:
+// The reference implementation uses a 3-argument poly_sub.
+// We specialize to the accumulator form to avoid reasoning about aliasing.
+void poly_sub(poly *r, const poly *b)  // clang-format off
+REQUIRES(IS_FRESH(r, sizeof(poly)))
+REQUIRES(IS_FRESH(b, sizeof(poly)))
+REQUIRES(FORALL(int, k0, 0, MLKEM_N - 1, (int32_t) r->coeffs[k0] - b->coeffs[k0] <= INT16_MAX))
+REQUIRES(FORALL(int, k1, 0, MLKEM_N - 1, (int32_t) r->coeffs[k1] - b->coeffs[k1] >= INT16_MIN))
+ENSURES(FORALL(int, k, 0, MLKEM_N - 1, r->coeffs[k] == OLD(*r).coeffs[k] - b->coeffs[k]))
+ASSIGNS(OBJECT_WHOLE(r));
+// clang-format on
 
 #endif
