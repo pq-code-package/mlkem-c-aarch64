@@ -53,6 +53,9 @@ on:
       cbmc:
         type: boolean
         default: false
+      cbmc_mlkem_k:
+        type: string
+        default: 2
 env:
   AWS_ROLE: arn:aws:iam::559050233797:role/mlkem-c-aarch64-gh-action
   AWS_REGION: us-east-1
@@ -139,6 +142,7 @@ jobs:
         with:
           nix-shell: ${{ steps.preprocess.outputs.nix-shell }}
           nix-verbose: ${{ inputs.verbose }}
+          mlkem_k: ${{ inputs.cbmc_mlkem_k }}
           gh_token: ${{ secrets.AWS_GITHUB_TOKEN }}
   stop-ec2-runner:
     name: Stop ${{ inputs.name }} (${{ inputs.ec2_instance_type }})
