@@ -215,8 +215,27 @@ ENSURES(ARRAY_IN_BOUNDS(int, k, 0, (MLKEM_N - 1), r->coeffs, 0, 4095));
 
 #define poly_frommsg MLKEM_NAMESPACE(poly_frommsg)
 void poly_frommsg(poly *r, const uint8_t msg[MLKEM_INDCPA_MSGBYTES]);
+
+
 #define poly_tomsg MLKEM_NAMESPACE(poly_tomsg)
-void poly_tomsg(uint8_t msg[MLKEM_INDCPA_MSGBYTES], const poly *r);
+/*************************************************
+ * Name:        poly_tomsg
+ *
+ * Description: Convert polynomial to 32-byte message
+ *
+ * Arguments:   - uint8_t *msg: pointer to output message
+ *              - const poly *r: pointer to input polynomial
+ *                Coefficients must be unsigned canonical
+ **************************************************/
+void poly_tomsg(uint8_t msg[MLKEM_INDCPA_MSGBYTES], const poly *r)
+    // clang-format off
+REQUIRES(IS_FRESH(msg, MLKEM_INDCPA_MSGBYTES))
+REQUIRES(IS_FRESH(r, sizeof(poly)))
+REQUIRES(ARRAY_IN_BOUNDS(int, k, 0, (MLKEM_N - 1), r->coeffs, 0, (MLKEM_Q - 1)))
+ASSIGNS(OBJECT_WHOLE(msg));
+// clang-format on
+
+
 
 #define poly_getnoise_eta1_4x MLKEM_NAMESPACE(poly_getnoise_eta1_4x)
 /*************************************************
