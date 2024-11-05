@@ -141,7 +141,26 @@ ASSIGNS(OBJECT_WHOLE(x));
 // clang-format on
 
 #define polyvec_reduce MLKEM_NAMESPACE(polyvec_reduce)
-void polyvec_reduce(polyvec *r);
+/*************************************************
+ * Name:        polyvec_reduce
+ *
+ * Description: Applies Barrett reduction to each coefficient
+ *              of each element of a vector of polynomials;
+ *              for details of the Barrett reduction see comments in reduce.c
+ *
+ * Arguments:   - polyvec *r: pointer to input/output polynomial
+ **************************************************/
+// REF-CHANGE: The semantics of polyvec_reduce() is different in
+//             the reference implementation, which requires
+//             signed canonical output data. Unsigned canonical
+//             outputs are better suited to the only remaining
+//             use of poly_reduce() in the context of (de)serialization.
+void polyvec_reduce(polyvec *r)  // clang-format off
+REQUIRES(IS_FRESH(r, sizeof(polyvec)))
+ASSIGNS(OBJECT_WHOLE(r))
+ENSURES(FORALL(int, k0, 0, MLKEM_K - 1,
+  ARRAY_IN_BOUNDS(int, k1, 0, MLKEM_N - 1, r->vec[k0].coeffs, 0, MLKEM_Q - 1)));
+// clang-format on
 
 #define polyvec_add MLKEM_NAMESPACE(polyvec_add)
 void polyvec_add(polyvec *r, const polyvec *b);
