@@ -45,7 +45,7 @@ runs:
         run: |
           cd cbmc/proofs;
           echo "::group::cbmc"
-          MLKEM_K=2 ./run-cbmc-proofs.py --summarize;
-          MLKEM_K=3 ./run-cbmc-proofs.py --summarize;
-          MLKEM_K=4 ./run-cbmc-proofs.py --summarize;
+          MLKEM_K=2 ./run-cbmc-proofs.py --summarize -j8;
+          MLKEM_K=3 ./run-cbmc-proofs.py --summarize -j8;
+          MLKEM_K=4 ./run-cbmc-proofs.py --summarize -j8;
           echo "::endgroup::"
