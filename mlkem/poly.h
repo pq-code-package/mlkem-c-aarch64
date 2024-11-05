@@ -209,7 +209,7 @@ void poly_frombytes(poly *r, const uint8_t a[MLKEM_POLYBYTES])
     // clang-format off
 REQUIRES(IS_FRESH(a, MLKEM_POLYBYTES))
 REQUIRES(IS_FRESH(r, sizeof(poly)))
-ASSIGNS(OBJECT_WHOLE(r))
+ASSIGNS(OBJECT_UPTO(r, sizeof(poly)))
 ENSURES(ARRAY_IN_BOUNDS(int, k, 0, (MLKEM_N - 1), r->coeffs, 0, 4095));
 // clang-format on
 
@@ -427,7 +427,7 @@ ASSIGNS(OBJECT_WHOLE(x));
 void poly_reduce(poly *r)
     // clang-format off
 REQUIRES(IS_FRESH(r, sizeof(poly)))
-ASSIGNS(OBJECT_WHOLE(r))
+ASSIGNS(OBJECT_UPTO(r, sizeof(poly)))
 ENSURES(ARRAY_IN_BOUNDS(int, k, 0, MLKEM_N - 1, r->coeffs, 0, MLKEM_Q - 1));
 // clang-format on
 

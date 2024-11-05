@@ -17,6 +17,8 @@
 #include "arith_native.h"
 #include "debug/debug.h"
 
+#include "cbmc.h"
+
 /*************************************************
  * Name:        pack_pk
  *
@@ -25,11 +27,20 @@
  *              and the public seed used to generate the matrix A.
  *
  * Arguments:   uint8_t *r: pointer to the output serialized public key
- *              polyvec *pk: pointer to the input public-key polyvec
+ *              polyvec *pk: pointer to the input public-key polyvec.
+ *                Must have coefficients within [0,..,q-1].
  *              const uint8_t *seed: pointer to the input public seed
  **************************************************/
-static void pack_pk(uint8_t r[MLKEM_INDCPA_PUBLICKEYBYTES], polyvec *pk,
-                    const uint8_t seed[MLKEM_SYMBYTES]) {
+STATIC_TESTABLE
+void pack_pk(uint8_t r[MLKEM_INDCPA_PUBLICKEYBYTES], polyvec *pk,
+             const uint8_t seed[MLKEM_SYMBYTES])  // clang-format off
+REQUIRES(IS_FRESH(r, MLKEM_INDCPA_PUBLICKEYBYTES))
+REQUIRES(IS_FRESH(pk, sizeof(polyvec)))
+REQUIRES(IS_FRESH(seed, MLKEM_SYMBYTES))
+REQUIRES(FORALL(int, k0, 0, MLKEM_K - 1,
+  ARRAY_IN_BOUNDS(int, k1, 0, MLKEM_N - 1, pk->vec[k0].coeffs, 0, MLKEM_Q - 1)))
+ASSIGNS(OBJECT_WHOLE(r))  // clang-format on
+{
   POLYVEC_BOUND(pk, MLKEM_Q);
   polyvec_tobytes(r, pk);
   memcpy(r + MLKEM_POLYVECBYTES, seed, MLKEM_SYMBYTES);
@@ -42,12 +53,23 @@ static void pack_pk(uint8_t r[MLKEM_INDCPA_PUBLICKEYBYTES], polyvec *pk,
  *              approximate inverse of pack_pk
  *
  * Arguments:   - polyvec *pk: pointer to output public-key polynomial vector
+ *                  Coefficients will be normalized to [0,..,q-1].
  *              - uint8_t *seed: pointer to output seed to generate matrix A
  *              - const uint8_t *packedpk: pointer to input serialized public
- *key
+ *                  key.
  **************************************************/
-static void unpack_pk(polyvec *pk, uint8_t seed[MLKEM_SYMBYTES],
-                      const uint8_t packedpk[MLKEM_INDCPA_PUBLICKEYBYTES]) {
+STATIC_TESTABLE
+void unpack_pk(
+    polyvec *pk, uint8_t seed[MLKEM_SYMBYTES],
+    const uint8_t packedpk[MLKEM_INDCPA_PUBLICKEYBYTES])  // clang-format off
+REQUIRES(IS_FRESH(packedpk, MLKEM_INDCPA_PUBLICKEYBYTES))
+REQUIRES(IS_FRESH(pk, sizeof(polyvec)))
+REQUIRES(IS_FRESH(seed, MLKEM_SYMBYTES))
+ENSURES(FORALL(int, k0, 0, MLKEM_K - 1,
+  ARRAY_IN_BOUNDS(int, k1, 0, MLKEM_N - 1, pk->vec[k0].coeffs, 0, MLKEM_Q - 1)))
+ASSIGNS(OBJECT_WHOLE(pk))
+ASSIGNS(OBJECT_WHOLE(seed))  // clang-format on
+{
   polyvec_frombytes(pk, packedpk);
   memcpy(seed, packedpk + MLKEM_POLYVECBYTES, MLKEM_SYMBYTES);
 

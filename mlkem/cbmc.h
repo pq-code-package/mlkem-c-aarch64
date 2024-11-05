@@ -6,6 +6,8 @@
 
 #ifndef CBMC
 
+#define STATIC_TESTABLE static
+
 // CBMC top-level contracts are replaced by "" for compilation
 #define ASSIGNS(...)
 #define REQUIRES(...)
@@ -16,6 +18,9 @@
 #define ASSUME(...)
 
 #else  // CBMC _is_ defined, therefore we're doing proof
+
+// expose certain procedures to CBMC proofs that are static otherwise
+#define STATIC_TESTABLE
 
 // https://diffblue.github.io/cbmc/contracts-assigns.html
 #define ASSIGNS(...) __CPROVER_assigns(__VA_ARGS__)
