@@ -299,35 +299,48 @@ void poly_frommsg(poly *r, const uint8_t msg[MLKEM_INDCPA_MSGBYTES]) {
   POLY_BOUND_MSG(r, MLKEM_Q, "poly_frommsg output");
 }
 
-/*************************************************
- * Name:        poly_tomsg
- *
- * Description: Convert polynomial to 32-byte message
- *
- * Arguments:   - uint8_t *msg: pointer to output message
- *              - const poly *a: pointer to input polynomial
- *                  Coefficients must be unsigned canonical
- **************************************************/
 void poly_tomsg(uint8_t msg[MLKEM_INDCPA_MSGBYTES], const poly *a) {
   POLY_UBOUND(a, MLKEM_Q);
 
-  unsigned int i, j;
-  uint32_t t;
+  for (int i = 0; i < MLKEM_N / 8; i++)
+      // clang-format off
+    ASSIGNS(i, OBJECT_WHOLE(msg))
+    INVARIANT(i >= 0 && i <= MLKEM_N / 8)
+    // clang-format on
+    {
+      msg[i] = 0;
+      for (int j = 0; j < 8; j++)
+          // clang-format off
+        ASSIGNS(j, OBJECT_WHOLE(msg))
+        INVARIANT(i >= 0 && i <= MLKEM_N / 8 && j >= 0 && j <= 8)
+        // clang-format on
+        {
+          uint32_t coeff = a->coeffs[8 * i + j];
 
-  for (i = 0; i < MLKEM_N / 8; i++) {
-    msg[i] = 0;
-    for (j = 0; j < 8; j++) {
-      t = a->coeffs[8 * i + j];
-      // t += ((int16_t)t >> 15) & MLKEM_Q;
-      // t  = (((t << 1) + MLKEM_Q/2)/MLKEM_Q) & 1;
-      t <<= 1;
-      t += 1665;
-      t *= 80635;
-      t >>= 28;
-      t &= 1;
-      msg[i] |= t << j;
+          // We now apply the "Compress1" function from FIPS-203 (eq 4.7)
+          // A simple expansion would be:
+          //   t += ((int16_t)t >> 15) & MLKEM_Q;
+          //   t  = (((t << 1) + MLKEM_Q/2)/MLKEM_Q) & 1;
+          // but we require constant-time evaluation, avoiding the division
+          // operator. We therefore use a Montgomery division, using magic
+          // multiplier floor(2**28 / MLKEM_Q) == 80635
+
+          uint32_t t = coeff << 1;
+          t += HALF_Q;
+          t *= 80635;
+          t >>= 28;
+          t &= 1;
+
+          // We can prove equivalence of these two forms, thus:
+          ASSERT(t == (((((coeff + (((int16_t)coeff >> 15) & MLKEM_Q)) << 1) +
+                         MLKEM_Q / 2) /
+                        MLKEM_Q) &
+                       1),
+                 "axiomatic definition of Compress1");
+
+          msg[i] |= t << j;
+        }
     }
-  }
 }
 
 void poly_getnoise_eta1_4x(poly *r0, poly *r1, poly *r2, poly *r3,
