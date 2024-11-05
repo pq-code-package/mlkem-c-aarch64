@@ -23,7 +23,7 @@
  */
 void harness(void) {
   uint16_t b;
-  int16_t r, v;
+  int16_t *r, v;
 
-  cmov_int16(&r, v, b);
+  cmov_int16(r, v, b);
 }

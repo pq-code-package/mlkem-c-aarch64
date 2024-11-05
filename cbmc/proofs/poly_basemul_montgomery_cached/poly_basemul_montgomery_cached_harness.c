@@ -22,8 +22,8 @@
  *
  */
 void harness(void) {
-  poly r, a, b;
-  poly_mulcache b_cached;
+  poly *r, *a, *b;
+  poly_mulcache *b_cached;
 
-  poly_basemul_montgomery_cached(&r, &a, &b, &b_cached);
+  poly_basemul_montgomery_cached(r, a, b, b_cached);
 }

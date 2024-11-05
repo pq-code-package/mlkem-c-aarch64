@@ -22,9 +22,9 @@
  *
  */
 void harness(void) {
-  uint8_t seed[MLKEM_SYMBYTES];
-  poly r;
+  uint8_t *seed;
+  poly *r;
   uint8_t nonce;
 
-  poly_getnoise_eta2(&r, seed, nonce);
+  poly_getnoise_eta2(r, seed, nonce);
 }

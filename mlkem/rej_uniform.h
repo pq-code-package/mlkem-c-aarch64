@@ -36,8 +36,8 @@
 unsigned int rej_uniform(int16_t *r, unsigned int len, const uint8_t *buf,
                          unsigned int buflen)  // clang-format off
 REQUIRES(buflen <= 4096 && buflen % 3 == 0)
-REQUIRES(r != NULL && IS_FRESH(r, sizeof(int16_t) * len))
-REQUIRES(buf != NULL && IS_FRESH(buf, buflen))
+REQUIRES(IS_FRESH(r, sizeof(int16_t) * len))
+REQUIRES(IS_FRESH(buf, buflen))
 ASSIGNS(OBJECT_UPTO(r, len * sizeof(int16_t)))
 ENSURES(RETURN_VALUE <= len &&
         (RETURN_VALUE > 0 ==> ARRAY_IN_BOUNDS(int, k, 0, RETURN_VALUE - 1, r, 0, (MLKEM_Q - 1))));

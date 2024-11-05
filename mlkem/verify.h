@@ -28,7 +28,7 @@ void cmov(uint8_t *r, const uint8_t *x, size_t len, uint8_t b);
 void cmov_int16(int16_t *r, const int16_t v, const uint16_t b)
     // clang-format off
 REQUIRES(b == 0 || b == 1)
-REQUIRES(r != NULL && IS_FRESH(r, sizeof(int16_t)))
+REQUIRES(IS_FRESH(r, sizeof(int16_t)))
 ASSIGNS(OBJECT_WHOLE(r))
 ENSURES(*r == (b ? v : OLD(*r)));
 // clang-format on

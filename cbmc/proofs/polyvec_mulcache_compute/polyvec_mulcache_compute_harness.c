@@ -22,8 +22,8 @@
  *
  */
 void harness(void) {
-  polyvec_mulcache x;
-  polyvec a;
+  polyvec_mulcache *x;
+  polyvec *a;
 
-  polyvec_mulcache_compute(&x, &a);
+  polyvec_mulcache_compute(x, a);
 }
