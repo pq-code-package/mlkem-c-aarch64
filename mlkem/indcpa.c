@@ -179,6 +179,7 @@ static void gen_matrix_entry_x4(poly *vec[4],
       ctr[j] = rej_uniform(vec[j]->coeffs, MLKEM_N, ctr[j], bufx[j], buflen);
     }
   }
+  shake128x4_ctx_release(&statex);
 }
 
 // Generate a single A matrix entry from a seed, using rejection
@@ -215,6 +216,8 @@ void gen_matrix_entry(poly *entry,
       shake128_squeezeblocks(buf, 1, &state);
       ctr = rej_uniform(entry->coeffs, MLKEM_N, ctr, buf, SHAKE128_RATE);
     }
+
+  shake128_ctx_release(&state);
 }
 
 /*************************************************
