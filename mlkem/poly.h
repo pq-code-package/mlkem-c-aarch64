@@ -89,24 +89,23 @@ ASSIGNS(OBJECT_WHOLE(r));
  * Arguments: - u: Unsigned canonical modulus modulo q
  *                 to be compressed.
  ************************************************************/
-static inline uint32_t scalar_compress_q_16(uint16_t u) {
-  uint32_t d0 = (uint32_t)u;
-  d0 <<= 4;
-  d0 += 1665;
-
-/* This multiply will exceed UINT32_MAX and wrap around */
-/* for large values of u. This is expected and required */
+// The multiplication in this routine will exceed UINT32_MAX
+// and wrap around for large values of u. This is expected and required.
 #ifdef CBMC
 #pragma CPROVER check push
 #pragma CPROVER check disable "unsigned-overflow"
 #endif
-  d0 *= 80635;
-#ifdef CBMC
-#pragma CPROVER check pop
-#endif
+static inline uint32_t scalar_compress_q_16(uint16_t u) {
+  uint32_t d0 = (uint32_t)u;
+  d0 <<= 4;
+  d0 += 1665;
+  d0 *= 80635;  // round(2^28 / MLKEM_Q)
   d0 >>= 28;
   return d0;
 }
+#ifdef CBMC
+#pragma CPROVER check pop
+#endif
 
 /************************************************************
  * Name: scalar_decompress_q_16
@@ -128,24 +127,23 @@ static inline uint16_t scalar_decompress_q_16(uint32_t u) {
  * Arguments: - u: Unsigned canonical modulus modulo q
  *                 to be compressed.
  ************************************************************/
-static inline uint32_t scalar_compress_q_32(uint16_t u) {
-  uint32_t d0 = (uint32_t)u;
-  d0 <<= 5;
-  d0 += 1664;
-
-/* This multiply will exceed UINT32_MAX and wrap around */
-/* for large values of u. This is expected and required */
+// The multiplication in this routine will exceed UINT32_MAX
+// and wrap around for large values of u. This is expected and required.
 #ifdef CBMC
 #pragma CPROVER check push
 #pragma CPROVER check disable "unsigned-overflow"
 #endif
-  d0 *= 40318;
-#ifdef CBMC
-#pragma CPROVER check pop
-#endif
+static inline uint32_t scalar_compress_q_32(uint16_t u) {
+  uint32_t d0 = (uint32_t)u;
+  d0 <<= 5;
+  d0 += 1664;
+  d0 *= 40318;  // round(2^27 / MLKEM_Q)
   d0 >>= 27;
   return d0;
 }
+#ifdef CBMC
+#pragma CPROVER check pop
+#endif
 
 /************************************************************
  * Name: scalar_decompress_q_32
