@@ -23,9 +23,9 @@
  *
  */
 void harness(void) {
-  unsigned int outlen, inlen;
+  unsigned int target, offset, inlen;
   int16_t *r;
   uint8_t *buf;
 
-  rej_uniform(r, outlen, buf, inlen);
+  rej_uniform(r, target, offset, buf, inlen);
 }

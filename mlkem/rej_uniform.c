@@ -11,8 +11,12 @@
  *              uniform random integers mod q
  *
  * Arguments:   - int16_t *r:          pointer to output buffer
- *              - unsigned int len:    requested number of 16-bit integers
+ *              - unsigned int target: requested number of 16-bit integers
  *                                     (uniform mod q).
+ *                                     Must be <= 4096.
+ *              - unsigned int offset: number of 16-bit integers that have
+ *                                     already been sampled.
+ *                                     Must be <= target.
  *              - const uint8_t *buf:  pointer to input buffer
  *                                     (assumed to be uniform random bytes)
  *              - unsigned int buflen: length of input buffer in bytes
@@ -21,25 +25,26 @@
  *
  * Note: Strictly speaking, only a few values of buflen near UINT_MAX need
  * excluding. The limit of 4096 is somewhat arbitary but sufficient for all
- * uses of this function.
+ * uses of this function. Similarly, the actual limit for target is UINT_MAX/2.
  *
- * Returns the number of sampled 16-bit integers, at most len.
- * If it is strictly less than len, all of the input buffers is
- * guaranteed to have been consumed. If it is equal to len, no
- * information is provided on how many bytes of the input buffer
- * have been consumed.
+ * Returns the new offset of sampled 16-bit integers, at most target,
+ * and at least the initial offset.
+ * If the new offset is strictly less than len, all of the input buffers
+ * is guaranteed to have been consumed. If it is equal to len, no information
+ * is provided on how many bytes of the input buffer have been consumed.
  **************************************************/
-static unsigned int rej_uniform_scalar(int16_t *r, unsigned int len,
-                                       const uint8_t *buf,
+static unsigned int rej_uniform_scalar(int16_t *r, unsigned int target,
+                                       unsigned int offset, const uint8_t *buf,
                                        unsigned int buflen) {
   unsigned int ctr, pos;
   uint16_t val0, val1;
 
-  ctr = pos = 0;
+  ctr = offset;
+  pos = 0;
   // pos + 3 cannot overflow due to the assumption buflen <= 4096
-  while (ctr < len && pos + 3 <= buflen)  // clang-format off
+  while (ctr < target && pos + 3 <= buflen)  // clang-format off
     ASSIGNS(ctr, val0, val1, pos, OBJECT_WHOLE(r))
-    INVARIANT(ctr <= len && pos <= buflen)
+    INVARIANT(offset <= ctr && ctr <= target && pos <= buflen)
     INVARIANT(ctr > 0 ==> ARRAY_IN_BOUNDS(int, k, 0, ctr - 1, r, 0, (MLKEM_Q - 1)))  // clang-format on
     {
       val0 = ((buf[pos + 0] >> 0) | ((uint16_t)buf[pos + 1] << 8)) & 0xFFF;
@@ -49,7 +54,7 @@ static unsigned int rej_uniform_scalar(int16_t *r, unsigned int len,
       if (val0 < MLKEM_Q) {
         r[ctr++] = val0;
       }
-      if (ctr < len && val1 < MLKEM_Q) {
+      if (ctr < target && val1 < MLKEM_Q) {
         r[ctr++] = val1;
       }
     }
@@ -57,21 +62,21 @@ static unsigned int rej_uniform_scalar(int16_t *r, unsigned int len,
 }
 
 #if !defined(MLKEM_USE_NATIVE_AARCH64)
-unsigned int rej_uniform(int16_t *r, unsigned int len, const uint8_t *buf,
-                         unsigned int buflen) {
-  return rej_uniform_scalar(r, len, buf, buflen);
+unsigned int rej_uniform(int16_t *r, unsigned int target, unsigned int offset,
+                         const uint8_t *buf, unsigned int buflen) {
+  return rej_uniform_scalar(r, target, offset, buf, buflen);
 }
 #else  /* MLKEM_USE_NATIVE_AARCH64 */
 
-unsigned int rej_uniform(int16_t *r, unsigned int len, const uint8_t *buf,
-                         unsigned int buflen) {
+unsigned int rej_uniform(int16_t *r, unsigned int target, unsigned int offset,
+                         const uint8_t *buf, unsigned int buflen) {
   int ret;
 
   // Sample from large buffer with full lane as much as possible.
-  ret = rej_uniform_native(r, len, buf, buflen);
+  ret = rej_uniform_native(r + offset, target - offset, buf, buflen);
   if (ret != -1)
-    return (unsigned)ret;
+    return offset + (unsigned)ret;
 
-  return rej_uniform_scalar(r, len, buf, buflen);
+  return rej_uniform_scalar(r, target, offset, buf, buflen);
 }
 #endif /* MLKEM_USE_NATIVE_AARCH64 */
