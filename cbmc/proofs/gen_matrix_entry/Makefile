@@ -3,11 +3,11 @@
 include ../Makefile_params.common
 
 HARNESS_ENTRY = harness
-HARNESS_FILE = polyvec_tobytes_harness
+HARNESS_FILE = gen_matrix_entry_harness
 
 # This should be a unique identifier for this proof, and will appear on the
 # Litani dashboard. It can be human-readable and contain spaces if you wish.
-PROOF_UID = polyvec_tobytes
+PROOF_UID = gen_matrix_entry
 
 DEFINES +=
 INCLUDES +=
@@ -16,18 +16,18 @@ REMOVE_FUNCTION_BODY +=
 UNWINDSET +=
 
 PROOF_SOURCES += $(PROOFDIR)/$(HARNESS_FILE).c
-PROJECT_SOURCES += $(SRCDIR)/mlkem/polyvec.c
+PROJECT_SOURCES += $(SRCDIR)/mlkem/indcpa.c
 
-CHECK_FUNCTION_CONTRACTS=$(MLKEM_NAMESPACE)polyvec_tobytes
-USE_FUNCTION_CONTRACTS=$(MLKEM_NAMESPACE)poly_tobytes
+CHECK_FUNCTION_CONTRACTS=gen_matrix_entry
+USE_FUNCTION_CONTRACTS=$(FIPS202_NAMESPACE)shake128_absorb $(FIPS202_NAMESPACE)shake128_squeezeblocks $(MLKEM_NAMESPACE)rej_uniform
 APPLY_LOOP_CONTRACTS=on
 USE_DYNAMIC_FRAMES=1
 
 # Disable any setting of EXTERNAL_SAT_SOLVER, and choose SMT backend instead
 EXTERNAL_SAT_SOLVER=
-CBMCFLAGS=--smt2
+CBMCFLAGS=--bitwuzla
 
-FUNCTION_NAME = $(MLKEM_NAMESPACE)polyvec_tobytes
+FUNCTION_NAME = $(MLKEM_NAMESPACE)gen_matrix_entry
 
 # If this proof is found to consume huge amounts of RAM, you can set the
 # EXPENSIVE variable. With new enough versions of the proof tools, this will

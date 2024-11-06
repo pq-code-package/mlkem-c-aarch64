@@ -166,7 +166,7 @@ static void gen_matrix_entry_x4(poly *vec[4],
                            GEN_MATRIX_NBLOCKS, &statex);
   buflen = GEN_MATRIX_NBLOCKS * SHAKE128_RATE;
   for (unsigned int j = 0; j < KECCAK_WAY; j++) {
-    ctr[j] = rej_uniform(vec[j]->coeffs, MLKEM_N, bufx[j], buflen);
+    ctr[j] = rej_uniform(vec[j]->coeffs, MLKEM_N, 0, bufx[j], buflen);
   }
 
   // So long as not all matrix entries have been generated, squeeze
@@ -176,15 +176,21 @@ static void gen_matrix_entry_x4(poly *vec[4],
          ctr[3] < MLKEM_N) {
     shake128x4_squeezeblocks(bufx[0], bufx[1], bufx[2], bufx[3], 1, &statex);
     for (unsigned j = 0; j < KECCAK_WAY; j++) {
-      ctr[j] += rej_uniform(vec[j]->coeffs + ctr[j], MLKEM_N - ctr[j], bufx[j],
-                            buflen);
+      ctr[j] = rej_uniform(vec[j]->coeffs, MLKEM_N, ctr[j], bufx[j], buflen);
     }
   }
 }
 
 // Generate a single A matrix entry from a seed, using rejection
 // sampling on the output of a XOF.
-static void gen_matrix_entry(poly *entry, uint8_t seed[MLKEM_SYMBYTES + 16]) {
+STATIC_TESTABLE
+void gen_matrix_entry(poly *entry,
+                      uint8_t seed[MLKEM_SYMBYTES + 16])  // clang-format off
+  REQUIRES(IS_FRESH(entry, sizeof(poly)))
+  REQUIRES(IS_FRESH(seed, MLKEM_SYMBYTES + 16))
+  ASSIGNS(OBJECT_UPTO(entry, sizeof(poly)))
+  ENSURES(ARRAY_IN_BOUNDS(int, k, 0, MLKEM_N - 1, entry->coeffs, 0, (MLKEM_Q - 1)))
+{  // clang-format on
   shake128ctx state;
   uint8_t buf[GEN_MATRIX_NBLOCKS * SHAKE128_RATE];
   unsigned int ctr, buflen;
@@ -196,14 +202,19 @@ static void gen_matrix_entry(poly *entry, uint8_t seed[MLKEM_SYMBYTES + 16]) {
   // This should generate the matrix entry with high probability.
   shake128_squeezeblocks(buf, GEN_MATRIX_NBLOCKS, &state);
   buflen = GEN_MATRIX_NBLOCKS * SHAKE128_RATE;
-  ctr = rej_uniform(entry->coeffs, MLKEM_N, buf, buflen);
+  ctr = rej_uniform(entry->coeffs, MLKEM_N, 0, buf, buflen);
 
   // Squeeze + sampel one more block a time until we're done
   buflen = SHAKE128_RATE;
-  while (ctr < MLKEM_N) {
-    shake128_squeezeblocks(buf, 1, &state);
-    ctr += rej_uniform(entry->coeffs + ctr, MLKEM_N - ctr, buf, buflen);
-  }
+  while (ctr < MLKEM_N)  // clang-format off
+    ASSIGNS(ctr, state, OBJECT_UPTO(entry, sizeof(poly)), OBJECT_WHOLE(buf))
+    INVARIANT(0 <= ctr && ctr <= MLKEM_N)
+    INVARIANT(ctr > 0 ==> ARRAY_IN_BOUNDS(int, k, 0, ctr - 1, entry->coeffs,
+                                          0, (MLKEM_Q - 1)))  // clang-format on
+    {
+      shake128_squeezeblocks(buf, 1, &state);
+      ctr = rej_uniform(entry->coeffs, MLKEM_N, ctr, buf, SHAKE128_RATE);
+    }
 }
 
 /*************************************************

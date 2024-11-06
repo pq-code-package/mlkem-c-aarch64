@@ -15,17 +15,18 @@
  *   - include the declaration of the function
  *   - include the types needed to declare function arguments
  */
-#include "cbmc.h"
-#include "rej_uniform.h"
+#include <stdint.h>
+#include "poly.h"
+
+// declare here since it's static in non-CBMC builds
+void gen_matrix_entry(poly *entry, uint8_t seed[MLKEM_SYMBYTES + 16]);
 
 /**
  * @brief Starting point for formal analysis
  *
  */
 void harness(void) {
-  unsigned int target, offset, inlen;
-  int16_t *r;
-  uint8_t *buf;
-
-  rej_uniform(r, target, offset, buf, inlen);
+  poly *out;
+  uint8_t *seed;
+  gen_matrix_entry(out, seed);
 }

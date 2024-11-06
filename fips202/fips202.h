@@ -40,14 +40,23 @@ typedef struct {
  * with the same state.
  */
 #define shake128_absorb FIPS202_NAMESPACE(shake128_absorb)
-void shake128_absorb(shake128ctx *state, const uint8_t *input, size_t inlen);
+void shake128_absorb(shake128ctx *state, const uint8_t *input, size_t inlen)
+    // clang-format off
+REQUIRES(IS_FRESH(state, sizeof(shake128ctx)))
+REQUIRES(IS_FRESH(input, inlen)) ASSIGNS(OBJECT_WHOLE(state));
+// clang-format on
+
 /* Squeeze output out of the sponge.
  *
  * Supports being called multiple times
  */
 #define shake128_squeezeblocks FIPS202_NAMESPACE(shake128_squeezeblocks)
-void shake128_squeezeblocks(uint8_t *output, size_t nblocks,
-                            shake128ctx *state);
+void shake128_squeezeblocks(uint8_t *output, size_t nblocks, shake128ctx *state)
+    // clang-format off
+REQUIRES(IS_FRESH(state, sizeof(shake128ctx)))
+REQUIRES(IS_FRESH(output, nblocks *SHAKE128_RATE))
+ASSIGNS(OBJECT_WHOLE(output), OBJECT_WHOLE(state));
+// clang-format on
 
 /* Initialize incremental hashing API */
 #define shake256_inc_init FIPS202_NAMESPACE(shake256_inc_init)

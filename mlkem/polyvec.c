@@ -140,13 +140,16 @@ void polyvec_decompress(polyvec *r,
 
 void polyvec_tobytes(uint8_t r[MLKEM_POLYVECBYTES], const polyvec *a) {
   unsigned int i;
-  for (i = 0; i < MLKEM_K; i++) {
-    poly_tobytes(r + i * MLKEM_POLYBYTES, &a->vec[i]);
-  }
+  for (i = 0; i < MLKEM_K; i++)  // clang-format off
+    ASSIGNS(i, OBJECT_WHOLE(r))
+    INVARIANT(i <= MLKEM_K)  // clang-format on
+    {
+      poly_tobytes(r + i * MLKEM_POLYBYTES, &a->vec[i]);
+    }
 }
 
 void polyvec_frombytes(polyvec *r, const uint8_t a[MLKEM_POLYVECBYTES]) {
-  unsigned int i;
+  int i;
   for (i = 0; i < MLKEM_K; i++) {
     poly_frombytes(&r->vec[i], a + i * MLKEM_POLYBYTES);
   }
