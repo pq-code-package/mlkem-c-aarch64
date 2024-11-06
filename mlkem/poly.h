@@ -213,8 +213,23 @@ ASSIGNS(OBJECT_UPTO(r, sizeof(poly)))
 ENSURES(ARRAY_IN_BOUNDS(int, k, 0, (MLKEM_N - 1), r->coeffs, 0, 4095));
 // clang-format on
 
+
 #define poly_frommsg MLKEM_NAMESPACE(poly_frommsg)
-void poly_frommsg(poly *r, const uint8_t msg[MLKEM_INDCPA_MSGBYTES]);
+/*************************************************
+ * Name:        poly_frommsg
+ *
+ * Description: Convert 32-byte message to polynomial
+ *
+ * Arguments:   - poly *r: pointer to output polynomial
+ *              - const uint8_t *msg: pointer to input message
+ **************************************************/
+void poly_frommsg(poly *r, const uint8_t msg[MLKEM_INDCPA_MSGBYTES])
+    // clang-format off
+REQUIRES(IS_FRESH(msg, MLKEM_INDCPA_MSGBYTES))
+REQUIRES(IS_FRESH(r, sizeof(poly)))
+ASSIGNS(OBJECT_WHOLE(r))
+ENSURES(ARRAY_IN_BOUNDS(int, k, 0, (MLKEM_N - 1), r->coeffs, 0, (MLKEM_Q - 1)));
+// clang-format on
 
 
 #define poly_tomsg MLKEM_NAMESPACE(poly_tomsg)
