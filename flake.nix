@@ -5,6 +5,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     flake-parts = {
       url = "github:hercules-ci/flake-parts";
@@ -16,10 +17,9 @@
     flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [ ];
       systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
-      perSystem = { pkgs, ... }:
+      perSystem = { pkgs, system, inputs', ... }:
         let
           cbmcpkg = pkgs.callPackage ./cbmc { }; # 6.3.1
-
           linters = builtins.attrValues {
             clang-tools = pkgs.clang-tools.overrideAttrs {
               unwrapped = pkgs.llvmPackages_17.clang-unwrapped;
@@ -116,13 +116,22 @@
             });
         in
         {
+          # NOTE: hack for replacing bitwuzla in nixos-24.05 (0.4.0) to the one in nixos-unstable (0.6.0) by nix overlays
+          _module.args.pkgs = import inputs.nixpkgs {
+            inherit system;
+            overlays = [
+              (_: _: { bitwuzla = inputs'.nixpkgs-unstable.legacyPackages.bitwuzla; })
+            ];
+          };
+
           devShells.default = wrapShell pkgs.mkShellNoCC {
             packages = core { } ++ linters ++ cbmcpkg ++
-              builtins.attrValues {
-                inherit (pkgs)
-                  direnv
-                  nix-direnv;
-              };
+              builtins.attrValues
+                {
+                  inherit (pkgs)
+                    direnv
+                    nix-direnv;
+                };
           };
 
           devShells.ci = wrapShell pkgs.mkShellNoCC { packages = core { cross = false; }; };

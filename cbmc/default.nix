@@ -23,7 +23,7 @@ builtins.attrValues {
   cbmc-viewer = callPackage ./cbmc-viewer.nix { }; # 3.9
 
   inherit
-    ninja# 1.11.1
     z3_4_12# 4.12.5
-    bitwuzla; # 0.4.0
+    bitwuzla# 0.6.0
+    ninja; # 1.11.1
 }
