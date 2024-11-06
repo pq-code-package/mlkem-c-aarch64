@@ -14,17 +14,6 @@
 #include "arith_native.h"
 #include "debug/debug.h"
 
-/*************************************************
- * Name:        poly_compress
- *
- * Description: Compression and subsequent serialization of a polynomial
- *
- * Arguments:   - uint8_t *r: pointer to output byte array
- *                            (of length MLKEM_POLYCOMPRESSEDBYTES)
- *              - const poly *a: pointer to input polynomial
- *                  Coefficients must be unsigned canonical,
- *                  i.e. in [0,1,..,MLKEM_Q-1].
- **************************************************/
 void poly_compress(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES], const poly *a) {
   POLY_UBOUND(a, MLKEM_Q);
   uint8_t t[8] = {0};
@@ -97,20 +86,6 @@ void poly_compress(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES], const poly *a) {
 #endif
 }
 
-/*************************************************
- * Name:        poly_decompress
- *
- * Description: De-serialization and subsequent decompression of a polynomial;
- *              approximate inverse of poly_compress
- *
- * Arguments:   - poly *r: pointer to output polynomial
- *              - const uint8_t *a: pointer to input byte array
- *                                  (of length MLKEM_POLYCOMPRESSEDBYTES bytes)
- *
- * Upon return, the coefficients of the output polynomial are unsigned-canonical
- * (non-negative and smaller than MLKEM_Q).
- *
- **************************************************/
 void poly_decompress(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES]) {
 #if (MLKEM_POLYCOMPRESSEDBYTES == 128)
   for (int i = 0; i < MLKEM_N / 2; i++)
@@ -126,9 +101,6 @@ void poly_decompress(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES]) {
       r->coeffs[2 * i + 0] = scalar_decompress_q_16((a[i] >> 0) & 0xF);
       r->coeffs[2 * i + 1] = scalar_decompress_q_16((a[i] >> 4) & 0xF);
     }
-
-
-
 #elif (MLKEM_POLYCOMPRESSEDBYTES == 160)
   const int num_blocks = MLKEM_N / 8;
   for (int i = 0; i < num_blocks; i++)
@@ -181,20 +153,6 @@ void poly_decompress(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES]) {
   POLY_UBOUND(r, MLKEM_Q);
 }
 
-/*************************************************
- * Name:        poly_tobytes
- *
- * Description: Serialization of a polynomial.
- *              Signed coefficients are converted to
- *              unsigned form before serialization.
- *
- * Arguments:   INPUT:
- *              - a: const pointer to input polynomial,
- *                with each coefficient in the range [0,1,..,Q-1]
- *              OUTPUT
- *              - r: pointer to output byte array
- *                   (of MLKEM_POLYBYTES bytes)
- **************************************************/
 #if !defined(MLKEM_USE_NATIVE_POLY_TOBYTES)
 void poly_tobytes(uint8_t r[MLKEM_POLYBYTES], const poly *a) {
   POLY_UBOUND(a, MLKEM_Q);
@@ -234,19 +192,6 @@ void poly_tobytes(uint8_t r[MLKEM_POLYBYTES], const poly *a) {
 #endif /* MLKEM_USE_NATIVE_POLY_TOBYTES */
 
 #if !defined(MLKEM_USE_NATIVE_POLY_FROMBYTES)
-/*************************************************
- * Name:        poly_frombytes
- *
- * Description: De-serialization of a polynomial.
- *
- * Arguments:   INPUT
- *              - a: pointer to input byte array
- *                   (of MLKEM_POLYBYTES bytes)
- *              OUTPUT
- *              - r: pointer to output polynomial, with
- *                   each coefficient unsigned and in the range
- *                   0 .. 4095
- **************************************************/
 void poly_frombytes(poly *r, const uint8_t a[MLKEM_POLYBYTES]) {
   int i;
   for (i = 0; i < MLKEM_N / 2; i++)
@@ -537,19 +482,6 @@ void poly_sub(poly *r, const poly *b) {
     }
 }
 
-/*************************************************
- * Name:        poly_mulcache_compute
- *
- * Description: Precompute values speeding up
- *              base multiplications of polynomials
- *              in NTT domain.
- *
- *              The coefficients in the mulcache must be
- *              bound by MLKEM_Q in absolute value.
- *
- * Arguments: - poly_mulcache *x: pointer to output cache.
- *            - const poly *a: pointer to input polynomial
- **************************************************/
 #if !defined(MLKEM_USE_NATIVE_POLY_MULCACHE_COMPUTE)
 void poly_mulcache_compute(poly_mulcache *x, const poly *a) {
   int i;

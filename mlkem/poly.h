@@ -159,6 +159,17 @@ static inline uint16_t scalar_signed_to_unsigned_q_16(
 }
 
 #define poly_compress MLKEM_NAMESPACE(poly_compress)
+/*************************************************
+ * Name:        poly_compress
+ *
+ * Description: Compression and subsequent serialization of a polynomial
+ *
+ * Arguments:   - uint8_t *r: pointer to output byte array
+ *                            (of length MLKEM_POLYCOMPRESSEDBYTES)
+ *              - const poly *a: pointer to input polynomial
+ *                  Coefficients must be unsigned canonical,
+ *                  i.e. in [0,1,..,MLKEM_Q-1].
+ **************************************************/
 void poly_compress(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES], const poly *a)
     // clang-format off
 REQUIRES(IS_FRESH(r, MLKEM_POLYCOMPRESSEDBYTES))
@@ -168,6 +179,20 @@ ASSIGNS(OBJECT_WHOLE(r));
 // clang-format on
 
 #define poly_decompress MLKEM_NAMESPACE(poly_decompress)
+/*************************************************
+ * Name:        poly_decompress
+ *
+ * Description: De-serialization and subsequent decompression of a polynomial;
+ *              approximate inverse of poly_compress
+ *
+ * Arguments:   - poly *r: pointer to output polynomial
+ *              - const uint8_t *a: pointer to input byte array
+ *                                  (of length MLKEM_POLYCOMPRESSEDBYTES bytes)
+ *
+ * Upon return, the coefficients of the output polynomial are unsigned-canonical
+ * (non-negative and smaller than MLKEM_Q).
+ *
+ **************************************************/
 void poly_decompress(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES])
     // clang-format off
 REQUIRES(IS_FRESH(a, MLKEM_POLYCOMPRESSEDBYTES))
@@ -177,6 +202,20 @@ ENSURES(ARRAY_IN_BOUNDS(int, k, 0, (MLKEM_N - 1), r->coeffs, 0, (MLKEM_Q - 1)));
 // clang-format on
 
 #define poly_tobytes MLKEM_NAMESPACE(poly_tobytes)
+/*************************************************
+ * Name:        poly_tobytes
+ *
+ * Description: Serialization of a polynomial.
+ *              Signed coefficients are converted to
+ *              unsigned form before serialization.
+ *
+ * Arguments:   INPUT:
+ *              - a: const pointer to input polynomial,
+ *                with each coefficient in the range [0,1,..,Q-1]
+ *              OUTPUT
+ *              - r: pointer to output byte array
+ *                   (of MLKEM_POLYBYTES bytes)
+ **************************************************/
 void poly_tobytes(uint8_t r[MLKEM_POLYBYTES], const poly *a)
     // clang-format off
 REQUIRES(IS_FRESH(r, MLKEM_POLYBYTES))
@@ -187,6 +226,19 @@ ASSIGNS(OBJECT_WHOLE(r));
 
 
 #define poly_frombytes MLKEM_NAMESPACE(poly_frombytes)
+/*************************************************
+ * Name:        poly_frombytes
+ *
+ * Description: De-serialization of a polynomial.
+ *
+ * Arguments:   INPUT
+ *              - a: pointer to input byte array
+ *                   (of MLKEM_POLYBYTES bytes)
+ *              OUTPUT
+ *              - r: pointer to output polynomial, with
+ *                   each coefficient unsigned and in the range
+ *                   0 .. 4095
+ **************************************************/
 void poly_frombytes(poly *r, const uint8_t a[MLKEM_POLYBYTES])
     // clang-format off
 REQUIRES(IS_FRESH(a, MLKEM_POLYBYTES))
