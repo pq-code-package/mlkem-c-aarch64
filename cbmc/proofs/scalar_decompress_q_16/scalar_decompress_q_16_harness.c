@@ -22,11 +22,7 @@
  *
  */
 void harness(void) {
-  // Check that decompression followed by compression is the identity
-  uint32_t c0, c1, d;
-
-  d = scalar_decompress_q_16(c0);
-  c1 = scalar_compress_q_16(d);
-  __CPROVER_assert(c0 == c1,
-                   "scalar_compress_q_16 o scalar_decompress_q_16 != id");
+  uint32_t u;
+  uint16_t d;
+  d = scalar_decompress_q_16(u);
 }

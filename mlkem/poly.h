@@ -34,33 +34,38 @@ typedef struct {
 #define scalar_signed_to_unsigned_q_16 \
   MLKEM_NAMESPACE(scalar_signed_to_unsigned_q_16)
 
-static inline uint32_t scalar_compress_q_16(int32_t u)
+STATIC_INLINE_TESTABLE
+uint32_t scalar_compress_q_16(uint16_t u)
     // clang-format off
 REQUIRES(0 <= u && u <= (MLKEM_Q - 1))
 ENSURES(RETURN_VALUE < 16)
 ENSURES(RETURN_VALUE == (((uint32_t)u * 16 + MLKEM_Q / 2) / MLKEM_Q) % 16);
 // clang-format on
 
-static inline uint32_t scalar_decompress_q_16(uint32_t u)
+STATIC_INLINE_TESTABLE
+uint16_t scalar_decompress_q_16(uint32_t u)
     // clang-format off
 REQUIRES(0 <= u && u < 16)
 ENSURES(RETURN_VALUE <= (MLKEM_Q - 1));
 // clang-format on
 
-static inline uint32_t scalar_compress_q_32(int32_t u)
+STATIC_INLINE_TESTABLE
+uint32_t scalar_compress_q_32(uint16_t u)
     // clang-format off
 REQUIRES(0 <= u && u <= (MLKEM_Q - 1))
 ENSURES(RETURN_VALUE < 32)
 ENSURES(RETURN_VALUE == (((uint32_t)u * 32 + MLKEM_Q / 2) / MLKEM_Q) % 32);
 // clang-format on
 
-static inline uint32_t scalar_decompress_q_32(uint32_t u)
+STATIC_INLINE_TESTABLE
+uint16_t scalar_decompress_q_32(uint32_t u)
     // clang-format off
 REQUIRES(0 <= u && u < 32)
 ENSURES(RETURN_VALUE <= (MLKEM_Q - 1));
 // clang-format on
 
-static inline uint16_t scalar_signed_to_unsigned_q_16(int16_t c)
+STATIC_INLINE_TESTABLE
+uint16_t scalar_signed_to_unsigned_q_16(int16_t c)
     // clang-format off
 REQUIRES(c >= -(MLKEM_Q - 1) && c <= (MLKEM_Q - 1))
 ENSURES(RETURN_VALUE >= 0 && RETURN_VALUE <= (MLKEM_Q - 1))
@@ -84,7 +89,7 @@ ASSIGNS(OBJECT_WHOLE(r));
  * Arguments: - u: Unsigned canonical modulus modulo q
  *                 to be compressed.
  ************************************************************/
-static inline uint32_t scalar_compress_q_16(int32_t u) {
+static inline uint32_t scalar_compress_q_16(uint16_t u) {
   uint32_t d0 = (uint32_t)u;
   d0 <<= 4;
   d0 += 1665;
@@ -112,7 +117,7 @@ static inline uint32_t scalar_compress_q_16(int32_t u) {
  * Arguments: - u: Unsigned canonical modulus modulo 16
  *                 to be decompressed.
  ************************************************************/
-static inline uint32_t scalar_decompress_q_16(uint32_t u) {
+static inline uint16_t scalar_decompress_q_16(uint32_t u) {
   return ((u * MLKEM_Q) + 8) / 16;
 }
 
@@ -124,7 +129,7 @@ static inline uint32_t scalar_decompress_q_16(uint32_t u) {
  * Arguments: - u: Unsigned canonical modulus modulo q
  *                 to be compressed.
  ************************************************************/
-static inline uint32_t scalar_compress_q_32(int32_t u) {
+static inline uint32_t scalar_compress_q_32(uint16_t u) {
   uint32_t d0 = (uint32_t)u;
   d0 <<= 5;
   d0 += 1664;
@@ -152,7 +157,7 @@ static inline uint32_t scalar_compress_q_32(int32_t u) {
  * Arguments: - u: Unsigned canonical modulus modulo 32
  *                 to be decompressed.
  ************************************************************/
-static inline uint32_t scalar_decompress_q_32(uint32_t u) {
+static inline uint16_t scalar_decompress_q_32(uint32_t u) {
   return ((u * MLKEM_Q) + 16) / 32;
 }
 

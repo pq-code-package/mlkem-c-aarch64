@@ -22,7 +22,7 @@
  *
  */
 void harness(void) {
-  int32_t u;
+  uint16_t u;
 
   /* Contracts for this function are in poly.h */
   uint32_t d = scalar_compress_q_16(u);
