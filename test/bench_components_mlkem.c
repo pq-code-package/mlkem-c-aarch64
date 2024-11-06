@@ -54,10 +54,10 @@ static int bench(void) {
   BENCH("keccak-f1600-x1", KeccakF1600_StatePermute(data0));
   BENCH("keccak-f1600-x4", KeccakF1600x4_StatePermute(data0));
   BENCH("rej_uniform (bulk)",
-        rej_uniform((int16_t *)data0, MLKEM_N, (const uint8_t *)data1,
+        rej_uniform((int16_t *)data0, MLKEM_N, 0, (const uint8_t *)data1,
                     3 * SHAKE128_RATE));
   BENCH("rej_uniform (residue)",
-        rej_uniform((int16_t *)data0, MLKEM_N / 2, (const uint8_t *)data1,
+        rej_uniform((int16_t *)data0, MLKEM_N / 2, 0, (const uint8_t *)data1,
                     1 * SHAKE128_RATE));
 
 #if defined(MLKEM_USE_NATIVE_AARCH64)
