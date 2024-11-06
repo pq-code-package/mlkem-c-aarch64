@@ -19,6 +19,7 @@
  **************************************************/
 void polyvec_compress(uint8_t r[MLKEM_POLYVECCOMPRESSEDBYTES],
                       const polyvec *a) {
+  POLYVEC_UBOUND(a, MLKEM_Q);
   unsigned int i, j, k;
   uint64_t d0;
 
@@ -28,9 +29,10 @@ void polyvec_compress(uint8_t r[MLKEM_POLYVECCOMPRESSEDBYTES],
     for (j = 0; j < MLKEM_N / 8; j++) {
       for (k = 0; k < 8; k++) {
         t[k] = a->vec[i].coeffs[8 * j + k];
-        t[k] += ((int16_t)t[k] >> 15) & MLKEM_Q;
         /*      t[k]  = ((((uint32_t)t[k] << 11) + MLKEM_Q/2)/MLKEM_Q) & 0x7ff;
          */
+
+        // TODO: Hoist this into scalar compression routine
         d0 = t[k];
         d0 <<= 11;
         d0 += 1664;
@@ -59,9 +61,10 @@ void polyvec_compress(uint8_t r[MLKEM_POLYVECCOMPRESSEDBYTES],
     for (j = 0; j < MLKEM_N / 4; j++) {
       for (k = 0; k < 4; k++) {
         t[k] = a->vec[i].coeffs[4 * j + k];
-        t[k] += ((int16_t)t[k] >> 15) & MLKEM_Q;
         /*      t[k]  = ((((uint32_t)t[k] << 10) + MLKEM_Q/2)/ MLKEM_Q) & 0x3ff;
          */
+
+        // TODO: Hoist this into scalar compression routine
         d0 = t[k];
         d0 <<= 10;
         d0 += 1665;
@@ -136,6 +139,8 @@ void polyvec_decompress(polyvec *r,
 #else
 #error "MLKEM_POLYVECCOMPRESSEDBYTES needs to be in {320*MLKEM_K, 352*MLKEM_K}"
 #endif
+
+  POLYVEC_UBOUND(r, MLKEM_Q);
 }
 
 void polyvec_tobytes(uint8_t r[MLKEM_POLYVECBYTES], const polyvec *a) {

@@ -96,7 +96,7 @@ static inline uint16_t scalar_decompress_q_16(uint32_t u)  // clang-format off
 static inline uint32_t scalar_compress_q_32(uint16_t u)  // clang-format off
   REQUIRES(u <= MLKEM_Q - 1)
   ENSURES(RETURN_VALUE < 32)
-  ENSURES(RETURN_VALUE == (((uint32_t)u * 32 + MLKEM_Q / 2) / MLKEM_Q) % 32);  // clang-format on
+  ENSURES(RETURN_VALUE == (((uint32_t)u * 32 + MLKEM_Q / 2) / MLKEM_Q) % 32)  // clang-format on
 {
   uint32_t d0 = (uint32_t)u;
   d0 <<= 5;
