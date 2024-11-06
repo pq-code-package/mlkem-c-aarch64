@@ -34,53 +34,6 @@ typedef struct {
 #define scalar_signed_to_unsigned_q_16 \
   MLKEM_NAMESPACE(scalar_signed_to_unsigned_q_16)
 
-STATIC_INLINE_TESTABLE
-uint32_t scalar_compress_q_16(uint16_t u)
-    // clang-format off
-REQUIRES(0 <= u && u <= (MLKEM_Q - 1))
-ENSURES(RETURN_VALUE < 16)
-ENSURES(RETURN_VALUE == (((uint32_t)u * 16 + MLKEM_Q / 2) / MLKEM_Q) % 16);
-// clang-format on
-
-STATIC_INLINE_TESTABLE
-uint16_t scalar_decompress_q_16(uint32_t u)
-    // clang-format off
-REQUIRES(0 <= u && u < 16)
-ENSURES(RETURN_VALUE <= (MLKEM_Q - 1));
-// clang-format on
-
-STATIC_INLINE_TESTABLE
-uint32_t scalar_compress_q_32(uint16_t u)
-    // clang-format off
-REQUIRES(0 <= u && u <= (MLKEM_Q - 1))
-ENSURES(RETURN_VALUE < 32)
-ENSURES(RETURN_VALUE == (((uint32_t)u * 32 + MLKEM_Q / 2) / MLKEM_Q) % 32);
-// clang-format on
-
-STATIC_INLINE_TESTABLE
-uint16_t scalar_decompress_q_32(uint32_t u)
-    // clang-format off
-REQUIRES(0 <= u && u < 32)
-ENSURES(RETURN_VALUE <= (MLKEM_Q - 1));
-// clang-format on
-
-STATIC_INLINE_TESTABLE
-uint16_t scalar_signed_to_unsigned_q_16(int16_t c)
-    // clang-format off
-REQUIRES(c >= -(MLKEM_Q - 1) && c <= (MLKEM_Q - 1))
-ENSURES(RETURN_VALUE >= 0 && RETURN_VALUE <= (MLKEM_Q - 1))
-ENSURES(RETURN_VALUE == (int32_t)c + (((int32_t)c < 0) * MLKEM_Q));
-// clang-format on
-
-#define poly_compress MLKEM_NAMESPACE(poly_compress)
-void poly_compress(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES], const poly *a)
-    // clang-format off
-REQUIRES(IS_FRESH(r, MLKEM_POLYCOMPRESSEDBYTES))
-REQUIRES(IS_FRESH(a, sizeof(poly)))
-REQUIRES(ARRAY_IN_BOUNDS(int, k, 0, (MLKEM_N - 1), a->coeffs, 0, (MLKEM_Q - 1)))
-ASSIGNS(OBJECT_WHOLE(r));
-// clang-format on
-
 /************************************************************
  * Name: scalar_compress_q_16
  *
@@ -95,7 +48,11 @@ ASSIGNS(OBJECT_WHOLE(r));
 #pragma CPROVER check push
 #pragma CPROVER check disable "unsigned-overflow"
 #endif
-static inline uint32_t scalar_compress_q_16(uint16_t u) {
+static inline uint32_t scalar_compress_q_16(uint16_t u)  // clang-format off
+  REQUIRES(u <= MLKEM_Q - 1)
+  ENSURES(RETURN_VALUE < 16)
+  ENSURES(RETURN_VALUE == (((uint32_t)u * 16 + MLKEM_Q / 2) / MLKEM_Q) % 16)
+{  // clang-format on
   uint32_t d0 = (uint32_t)u;
   d0 <<= 4;
   d0 += 1665;
@@ -115,7 +72,10 @@ static inline uint32_t scalar_compress_q_16(uint16_t u) {
  * Arguments: - u: Unsigned canonical modulus modulo 16
  *                 to be decompressed.
  ************************************************************/
-static inline uint16_t scalar_decompress_q_16(uint32_t u) {
+static inline uint16_t scalar_decompress_q_16(uint32_t u)  // clang-format off
+  REQUIRES(0 <= u && u < 16)
+  ENSURES(RETURN_VALUE <= (MLKEM_Q - 1))
+{  // clang-format on
   return ((u * MLKEM_Q) + 8) / 16;
 }
 
@@ -133,7 +93,11 @@ static inline uint16_t scalar_decompress_q_16(uint32_t u) {
 #pragma CPROVER check push
 #pragma CPROVER check disable "unsigned-overflow"
 #endif
-static inline uint32_t scalar_compress_q_32(uint16_t u) {
+static inline uint32_t scalar_compress_q_32(uint16_t u)  // clang-format off
+  REQUIRES(u <= MLKEM_Q - 1)
+  ENSURES(RETURN_VALUE < 32)
+  ENSURES(RETURN_VALUE == (((uint32_t)u * 32 + MLKEM_Q / 2) / MLKEM_Q) % 32);  // clang-format on
+{
   uint32_t d0 = (uint32_t)u;
   d0 <<= 5;
   d0 += 1664;
@@ -153,7 +117,10 @@ static inline uint32_t scalar_compress_q_32(uint16_t u) {
  * Arguments: - u: Unsigned canonical modulus modulo 32
  *                 to be decompressed.
  ************************************************************/
-static inline uint16_t scalar_decompress_q_32(uint32_t u) {
+static inline uint16_t scalar_decompress_q_32(uint32_t u)  // clang-format off
+  REQUIRES(0 <= u && u < 32)
+  ENSURES(RETURN_VALUE <= MLKEM_Q - 1)
+{  // clang-format on
   return ((u * MLKEM_Q) + 16) / 32;
 }
 
@@ -175,7 +142,12 @@ static inline uint16_t scalar_decompress_q_32(uint32_t u) {
  *
  * Arguments: c: signed coefficient to be converted
  ************************************************************/
-static inline uint16_t scalar_signed_to_unsigned_q_16(int16_t c) {
+static inline uint16_t scalar_signed_to_unsigned_q_16(
+    int16_t c)  // clang-format off
+  REQUIRES(c >= -(MLKEM_Q - 1) && c <= (MLKEM_Q - 1))
+  ENSURES(RETURN_VALUE >= 0 && RETURN_VALUE <= (MLKEM_Q - 1))
+  ENSURES(RETURN_VALUE == (int32_t)c + (((int32_t)c < 0) * MLKEM_Q))
+{  // clang-format on
   // Add Q if c is negative, but in constant time
   cmov_int16(&c, c + MLKEM_Q, c < 0);
 
@@ -185,6 +157,15 @@ static inline uint16_t scalar_signed_to_unsigned_q_16(int16_t c) {
   // and therefore cast to uint16_t is safe.
   return (uint16_t)c;
 }
+
+#define poly_compress MLKEM_NAMESPACE(poly_compress)
+void poly_compress(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES], const poly *a)
+    // clang-format off
+REQUIRES(IS_FRESH(r, MLKEM_POLYCOMPRESSEDBYTES))
+REQUIRES(IS_FRESH(a, sizeof(poly)))
+REQUIRES(ARRAY_IN_BOUNDS(int, k, 0, (MLKEM_N - 1), a->coeffs, 0, (MLKEM_Q - 1)))
+ASSIGNS(OBJECT_WHOLE(r));
+// clang-format on
 
 #define poly_decompress MLKEM_NAMESPACE(poly_decompress)
 void poly_decompress(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES])
@@ -257,9 +238,9 @@ ASSIGNS(OBJECT_WHOLE(msg));
 /*************************************************
  * Name:        poly_getnoise_eta1_4x
  *
- * Description: Batch sample four polynomials deterministically from a seed and
- *  nonces, with output polynomials close to centered binomial distribution with
- *  parameter MLKEM_ETA1.
+ * Description: Batch sample four polynomials deterministically from a seed
+ * and nonces, with output polynomials close to centered binomial distribution
+ * with parameter MLKEM_ETA1.
  *
  * Arguments:   - poly *r{0,1,2,3}: pointer to output polynomial
  *              - const uint8_t *seed: pointer to input seed
@@ -308,9 +289,9 @@ ENSURES(ARRAY_IN_BOUNDS(int, k0, 0, MLKEM_N - 1, r->coeffs, -MLKEM_ETA2, MLKEM_E
 /*************************************************
  * Name:        poly_getnoise_eta2_4x
  *
- * Description: Batch sample four polynomials deterministically from a seed and
- * nonces, with output polynomials close to centered binomial distribution with
- * parameter MLKEM_ETA2
+ * Description: Batch sample four polynomials deterministically from a seed
+ * and nonces, with output polynomials close to centered binomial distribution
+ * with parameter MLKEM_ETA2
  *
  * Arguments:   - poly *r{0,1,2,3}: pointer to output polynomial
  *              - const uint8_t *seed: pointer to input seed
@@ -338,9 +319,9 @@ ENSURES(                                                                        
 /*************************************************
  * Name:        poly_getnoise_eta1122_4x
  *
- * Description: Batch sample four polynomials deterministically from a seed and
- * a nonces, with output polynomials close to centered binomial distribution
- * with parameter MLKEM_ETA1 and MLKEM_ETA2
+ * Description: Batch sample four polynomials deterministically from a seed
+ * and a nonces, with output polynomials close to centered binomial
+ * distribution with parameter MLKEM_ETA1 and MLKEM_ETA2
  *
  * Arguments:   - poly *r{0,1,2,3}: pointer to output polynomial
  *              - const uint8_t *seed: pointer to input seed
@@ -375,7 +356,8 @@ ENSURES(                                                                        
  *              Bounds:
  *              - a is assumed to be coefficient-wise < q in absolute value.
  *
- *              The result is coefficient-wise bound by 3/2 q in absolute value.
+ *              The result is coefficient-wise bound by 3/2 q in absolute
+ *              value.
  *
  * Arguments:   - poly *r: pointer to output polynomial
  *              - const poly *a: pointer to first input polynomial
