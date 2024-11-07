@@ -27,137 +27,203 @@ typedef struct {
   int16_t coeffs[MLKEM_N >> 1];
 } poly_mulcache;
 
-#define scalar_compress_q_16 MLKEM_NAMESPACE(scalar_compress_q_16)
-#define scalar_decompress_q_16 MLKEM_NAMESPACE(scalar_decompress_q_16)
-#define scalar_compress_q_32 MLKEM_NAMESPACE(scalar_compress_q_32)
-#define scalar_decompress_q_32 MLKEM_NAMESPACE(scalar_decompress_q_32)
-#define scalar_signed_to_unsigned_q_16 \
-  MLKEM_NAMESPACE(scalar_signed_to_unsigned_q_16)
-
-static inline uint32_t scalar_compress_q_16(int32_t u)
-    // clang-format off
-REQUIRES(0 <= u && u <= (MLKEM_Q - 1))
-ENSURES(RETURN_VALUE < 16)
-ENSURES(RETURN_VALUE == (((uint32_t)u * 16 + MLKEM_Q / 2) / MLKEM_Q) % 16);
-// clang-format on
-
-static inline uint32_t scalar_decompress_q_16(uint32_t u)
-    // clang-format off
-REQUIRES(0 <= u && u < 16)
-ENSURES(RETURN_VALUE <= (MLKEM_Q - 1));
-// clang-format on
-
-static inline uint32_t scalar_compress_q_32(int32_t u)
-    // clang-format off
-REQUIRES(0 <= u && u <= (MLKEM_Q - 1))
-ENSURES(RETURN_VALUE < 32)
-ENSURES(RETURN_VALUE == (((uint32_t)u * 32 + MLKEM_Q / 2) / MLKEM_Q) % 32);
-// clang-format on
-
-static inline uint32_t scalar_decompress_q_32(uint32_t u)
-    // clang-format off
-REQUIRES(0 <= u && u < 32)
-ENSURES(RETURN_VALUE <= (MLKEM_Q - 1));
-// clang-format on
-
-static inline uint16_t scalar_signed_to_unsigned_q_16(int16_t c)
-    // clang-format off
-REQUIRES(c >= -(MLKEM_Q - 1) && c <= (MLKEM_Q - 1))
-ENSURES(RETURN_VALUE >= 0 && RETURN_VALUE <= (MLKEM_Q - 1))
-ENSURES(RETURN_VALUE == (int32_t)c + (((int32_t)c < 0) * MLKEM_Q));
-// clang-format on
-
-#define poly_compress MLKEM_NAMESPACE(poly_compress)
-void poly_compress(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES], const poly *a)
-    // clang-format off
-REQUIRES(IS_FRESH(r, MLKEM_POLYCOMPRESSEDBYTES))
-REQUIRES(IS_FRESH(a, sizeof(poly)))
-REQUIRES(ARRAY_IN_BOUNDS(int, k, 0, (MLKEM_N - 1), a->coeffs, 0, (MLKEM_Q - 1)))
-ASSIGNS(OBJECT_WHOLE(r));
-// clang-format on
+#define scalar_compress_d1 MLKEM_NAMESPACE(scalar_compress_d1)
+#define scalar_compress_d4 MLKEM_NAMESPACE(scalar_compress_d4)
+#define scalar_compress_d5 MLKEM_NAMESPACE(scalar_compress_d5)
+#define scalar_compress_d10 MLKEM_NAMESPACE(scalar_compress_d10)
+#define scalar_compress_d11 MLKEM_NAMESPACE(scalar_compress_d11)
+#define scalar_decompress_d4 MLKEM_NAMESPACE(scalar_decompress_d4)
+#define scalar_decompress_d5 MLKEM_NAMESPACE(scalar_decompress_d5)
+#define scalar_signed_to_unsigned_q MLKEM_NAMESPACE(scalar_signed_to_unsigned_q)
 
 /************************************************************
- * Name: scalar_compress_q_16
+ * Name: scalar_compress_d1
  *
- * Description: Computes round(u * 16 / q)
+ * Description: Computes round(u * 2 / q)
+ *
+ *              Implements Compress_d from FIPS203, Eq (4.7),
+ *              for d = 1.
  *
  * Arguments: - u: Unsigned canonical modulus modulo q
  *                 to be compressed.
  ************************************************************/
-static inline uint32_t scalar_compress_q_16(int32_t u) {
-  uint32_t d0 = (uint32_t)u;
-  d0 <<= 4;
-  d0 += 1665;
-
-/* This multiply will exceed UINT32_MAX and wrap around */
-/* for large values of u. This is expected and required */
+// The multiplication in this routine will exceed UINT32_MAX
+// and wrap around for large values of u. This is expected and required.
 #ifdef CBMC
 #pragma CPROVER check push
 #pragma CPROVER check disable "unsigned-overflow"
 #endif
-  d0 *= 80635;
+static inline uint32_t scalar_compress_d1(uint16_t u)  // clang-format off
+  REQUIRES(u <= MLKEM_Q - 1)
+  ENSURES(RETURN_VALUE < 2)
+  ENSURES(RETURN_VALUE == (((uint32_t)u * 2 + MLKEM_Q / 2) / MLKEM_Q) % 2)  // clang-format on
+{
+  uint32_t d0 = u << 1;
+  d0 *= 645083;
+  d0 += 1u << 30;
+  d0 >>= 31;
+  return d0;
+}
 #ifdef CBMC
 #pragma CPROVER check pop
 #endif
-  d0 >>= 28;
-  d0 &= 0xF;
-  return d0;
-}
 
 /************************************************************
- * Name: scalar_decompress_q_16
+ * Name: scalar_compress_d4
+ *
+ * Description: Computes round(u * 16 / q) % 16
+ *
+ *              Implements Compress_d from FIPS203, Eq (4.7),
+ *              for d = 4.
+ *
+ * Arguments: - u: Unsigned canonical modulus modulo q
+ *                 to be compressed.
+ ************************************************************/
+// The multiplication in this routine will exceed UINT32_MAX
+// and wrap around for large values of u. This is expected and required.
+#ifdef CBMC
+#pragma CPROVER check push
+#pragma CPROVER check disable "unsigned-overflow"
+#endif
+static inline uint32_t scalar_compress_d4(uint16_t u)  // clang-format off
+  REQUIRES(u <= MLKEM_Q - 1)
+  ENSURES(RETURN_VALUE < 16)
+  ENSURES(RETURN_VALUE == (((uint32_t)u * 16 + MLKEM_Q / 2) / MLKEM_Q) % 16)
+{  // clang-format on
+  uint32_t d0 = (uint32_t)u * 1290160;     // 16 * round(2^28 / MLKEM_Q)
+  return (d0 + (1u << 27)) >> 28;          // round(d0/2^28)
+}
+#ifdef CBMC
+#pragma CPROVER check pop
+#endif
+
+/************************************************************
+ * Name: scalar_decompress_d4
  *
  * Description: Computes round(u * q / 16)
+ *
+ *              Implements Decompress_d from FIPS203, Eq (4.8),
+ *              for d = 4.
  *
  * Arguments: - u: Unsigned canonical modulus modulo 16
  *                 to be decompressed.
  ************************************************************/
-static inline uint32_t scalar_decompress_q_16(uint32_t u) {
+static inline uint16_t scalar_decompress_d4(uint32_t u)  // clang-format off
+  REQUIRES(0 <= u && u < 16)
+  ENSURES(RETURN_VALUE <= (MLKEM_Q - 1))
+{  // clang-format on
   return ((u * MLKEM_Q) + 8) / 16;
 }
 
 /************************************************************
- * Name: scalar_compress_q_32
+ * Name: scalar_compress_d5
  *
- * Description: Computes round(u * 32 / q)
+ * Description: Computes round(u * 32 / q) % 32
+ *
+ *              Implements Compress_d from FIPS203, Eq (4.7),
+ *              for d = 5.
  *
  * Arguments: - u: Unsigned canonical modulus modulo q
  *                 to be compressed.
  ************************************************************/
-static inline uint32_t scalar_compress_q_32(int32_t u) {
-  uint32_t d0 = (uint32_t)u;
-  d0 <<= 5;
-  d0 += 1664;
-
-/* This multiply will exceed UINT32_MAX and wrap around */
-/* for large values of u. This is expected and required */
+// The multiplication in this routine will exceed UINT32_MAX
+// and wrap around for large values of u. This is expected and required.
 #ifdef CBMC
 #pragma CPROVER check push
 #pragma CPROVER check disable "unsigned-overflow"
 #endif
-  d0 *= 40318;
+static inline uint32_t scalar_compress_d5(uint16_t u)  // clang-format off
+  REQUIRES(u <= MLKEM_Q - 1)
+  ENSURES(RETURN_VALUE < 32)
+  ENSURES(RETURN_VALUE == (((uint32_t)u * 32 + MLKEM_Q / 2) / MLKEM_Q) % 32)  // clang-format on
+{
+  uint32_t d0 = (uint32_t)u * 1290176;  // 2^5 * round(2^27 / MLKEM_Q)
+  return (d0 + (1u << 26)) >> 27;       // round(d0/2^27)
+}
 #ifdef CBMC
 #pragma CPROVER check pop
 #endif
-  d0 >>= 27;
-  d0 &= 0x1f;
-  return d0;
-}
 
 /************************************************************
- * Name: scalar_decompress_q_32
+ * Name: scalar_decompress_d5
  *
  * Description: Computes round(u * q / 32)
+ *
+ *              Implements Decompress_d from FIPS203, Eq (4.8),
+ *              for d = 5.
  *
  * Arguments: - u: Unsigned canonical modulus modulo 32
  *                 to be decompressed.
  ************************************************************/
-static inline uint32_t scalar_decompress_q_32(uint32_t u) {
+static inline uint16_t scalar_decompress_d5(uint32_t u)  // clang-format off
+  REQUIRES(0 <= u && u < 32)
+  ENSURES(RETURN_VALUE <= MLKEM_Q - 1)
+{  // clang-format on
   return ((u * MLKEM_Q) + 16) / 32;
 }
 
 /************************************************************
- * Name: scalar_signed_to_unsigned_q_16
+ * Name: scalar_compress_d10
+ *
+ * Description: Computes round(u * 2**10 / q) % 2**10
+ *
+ *              Implements Compress_d from FIPS203, Eq (4.7),
+ *              for d = 10.
+ *
+ * Arguments: - u: Unsigned canonical modulus modulo q
+ *                 to be compressed.
+ ************************************************************/
+// The multiplication in this routine will exceed UINT32_MAX
+// and wrap around for large values of u. This is expected and required.
+#ifdef CBMC
+#pragma CPROVER check push
+#pragma CPROVER check disable "unsigned-overflow"
+#endif
+static inline uint32_t scalar_compress_d10(uint16_t u)  // clang-format off
+  REQUIRES(u <= MLKEM_Q - 1)
+  ENSURES(RETURN_VALUE < (1u << 10))
+  ENSURES(RETURN_VALUE == (((uint32_t)u * (1u << 10) + MLKEM_Q / 2) / MLKEM_Q) % (1 << 10))
+{           // clang-format on
+  uint64_t d0 = (uint64_t)u * 2642263040;  // 2^10 * round(2^32 / MLKEM_Q)
+  d0 = (d0 + ((uint64_t)1u << 32)) >> 33;
+  return (d0 & 0x3FF);
+}
+#ifdef CBMC
+#pragma CPROVER check pop
+#endif
+
+/************************************************************
+ * Name: scalar_compress_d11
+ *
+ * Description: Computes round(u * 2**11 / q) % 2**11
+ *
+ *              Implements Compress_d from FIPS203, Eq (4.7),
+ *              for d = 11.
+ *
+ * Arguments: - u: Unsigned canonical modulus modulo q
+ *                 to be compressed.
+ ************************************************************/
+// The multiplication in this routine will exceed UINT32_MAX
+// and wrap around for large values of u. This is expected and required.
+#ifdef CBMC
+#pragma CPROVER check push
+#pragma CPROVER check disable "unsigned-overflow"
+#endif
+static inline uint32_t scalar_compress_d11(uint16_t u)  // clang-format off
+  REQUIRES(u <= MLKEM_Q - 1)
+  ENSURES(RETURN_VALUE < (1u << 11))
+  ENSURES(RETURN_VALUE == (((uint32_t)u * (1u << 11) + MLKEM_Q / 2) / MLKEM_Q) % (1 << 11))
+{           // clang-format on
+  uint64_t d0 = (uint64_t)u * 5284526080;  // 2^11 * round(2^33 / MLKEM_Q)
+  d0 = (d0 + ((uint64_t)1u << 32)) >> 33;
+  return (d0 & 0x7FF);
+}
+#ifdef CBMC
+#pragma CPROVER check pop
+#endif
+
+/************************************************************
+ * Name: scalar_signed_to_unsigned_q
  *
  * Description: converts signed polynomial coefficient
  *              from signed (-3328 .. 3328) form to
@@ -174,18 +240,57 @@ static inline uint32_t scalar_decompress_q_32(uint32_t u) {
  *
  * Arguments: c: signed coefficient to be converted
  ************************************************************/
-static inline uint16_t scalar_signed_to_unsigned_q_16(int16_t c) {
+static inline uint16_t scalar_signed_to_unsigned_q(
+    int16_t c)  // clang-format off
+  REQUIRES(c >= -(MLKEM_Q - 1) && c <= (MLKEM_Q - 1))
+  ENSURES(RETURN_VALUE >= 0 && RETURN_VALUE <= (MLKEM_Q - 1))
+  ENSURES(RETURN_VALUE == (int32_t)c + (((int32_t)c < 0) * MLKEM_Q))
+{  // clang-format on
   // Add Q if c is negative, but in constant time
   cmov_int16(&c, c + MLKEM_Q, c < 0);
 
-  ASSERT(c >= 0, "scalar_signed_to_unsigned_q_16 result lower bound");
-  ASSERT(c < MLKEM_Q, "scalar_signed_to_unsigned_q_16 result upper bound");
+  ASSERT(c >= 0, "scalar_signed_to_unsigned_q result lower bound");
+  ASSERT(c < MLKEM_Q, "scalar_signed_to_unsigned_q result upper bound");
 
   // and therefore cast to uint16_t is safe.
   return (uint16_t)c;
 }
 
+#define poly_compress MLKEM_NAMESPACE(poly_compress)
+/*************************************************
+ * Name:        poly_compress
+ *
+ * Description: Compression and subsequent serialization of a polynomial
+ *
+ * Arguments:   - uint8_t *r: pointer to output byte array
+ *                            (of length MLKEM_POLYCOMPRESSEDBYTES)
+ *              - const poly *a: pointer to input polynomial
+ *                  Coefficients must be unsigned canonical,
+ *                  i.e. in [0,1,..,MLKEM_Q-1].
+ **************************************************/
+void poly_compress(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES], const poly *a)
+    // clang-format off
+REQUIRES(IS_FRESH(r, MLKEM_POLYCOMPRESSEDBYTES))
+REQUIRES(IS_FRESH(a, sizeof(poly)))
+REQUIRES(ARRAY_IN_BOUNDS(int, k, 0, (MLKEM_N - 1), a->coeffs, 0, (MLKEM_Q - 1)))
+ASSIGNS(OBJECT_WHOLE(r));
+// clang-format on
+
 #define poly_decompress MLKEM_NAMESPACE(poly_decompress)
+/*************************************************
+ * Name:        poly_decompress
+ *
+ * Description: De-serialization and subsequent decompression of a polynomial;
+ *              approximate inverse of poly_compress
+ *
+ * Arguments:   - poly *r: pointer to output polynomial
+ *              - const uint8_t *a: pointer to input byte array
+ *                                  (of length MLKEM_POLYCOMPRESSEDBYTES bytes)
+ *
+ * Upon return, the coefficients of the output polynomial are unsigned-canonical
+ * (non-negative and smaller than MLKEM_Q).
+ *
+ **************************************************/
 void poly_decompress(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES])
     // clang-format off
 REQUIRES(IS_FRESH(a, MLKEM_POLYCOMPRESSEDBYTES))
@@ -195,6 +300,20 @@ ENSURES(ARRAY_IN_BOUNDS(int, k, 0, (MLKEM_N - 1), r->coeffs, 0, (MLKEM_Q - 1)));
 // clang-format on
 
 #define poly_tobytes MLKEM_NAMESPACE(poly_tobytes)
+/*************************************************
+ * Name:        poly_tobytes
+ *
+ * Description: Serialization of a polynomial.
+ *              Signed coefficients are converted to
+ *              unsigned form before serialization.
+ *
+ * Arguments:   INPUT:
+ *              - a: const pointer to input polynomial,
+ *                with each coefficient in the range [0,1,..,Q-1]
+ *              OUTPUT
+ *              - r: pointer to output byte array
+ *                   (of MLKEM_POLYBYTES bytes)
+ **************************************************/
 void poly_tobytes(uint8_t r[MLKEM_POLYBYTES], const poly *a)
     // clang-format off
 REQUIRES(IS_FRESH(r, MLKEM_POLYBYTES))
@@ -205,6 +324,19 @@ ASSIGNS(OBJECT_WHOLE(r));
 
 
 #define poly_frombytes MLKEM_NAMESPACE(poly_frombytes)
+/*************************************************
+ * Name:        poly_frombytes
+ *
+ * Description: De-serialization of a polynomial.
+ *
+ * Arguments:   INPUT
+ *              - a: pointer to input byte array
+ *                   (of MLKEM_POLYBYTES bytes)
+ *              OUTPUT
+ *              - r: pointer to output polynomial, with
+ *                   each coefficient unsigned and in the range
+ *                   0 .. 4095
+ **************************************************/
 void poly_frombytes(poly *r, const uint8_t a[MLKEM_POLYBYTES])
     // clang-format off
 REQUIRES(IS_FRESH(a, MLKEM_POLYBYTES))
@@ -256,9 +388,9 @@ ASSIGNS(OBJECT_WHOLE(msg));
 /*************************************************
  * Name:        poly_getnoise_eta1_4x
  *
- * Description: Batch sample four polynomials deterministically from a seed and
- *  nonces, with output polynomials close to centered binomial distribution with
- *  parameter MLKEM_ETA1.
+ * Description: Batch sample four polynomials deterministically from a seed
+ * and nonces, with output polynomials close to centered binomial distribution
+ * with parameter MLKEM_ETA1.
  *
  * Arguments:   - poly *r{0,1,2,3}: pointer to output polynomial
  *              - const uint8_t *seed: pointer to input seed
@@ -307,9 +439,9 @@ ENSURES(ARRAY_IN_BOUNDS(int, k0, 0, MLKEM_N - 1, r->coeffs, -MLKEM_ETA2, MLKEM_E
 /*************************************************
  * Name:        poly_getnoise_eta2_4x
  *
- * Description: Batch sample four polynomials deterministically from a seed and
- * nonces, with output polynomials close to centered binomial distribution with
- * parameter MLKEM_ETA2
+ * Description: Batch sample four polynomials deterministically from a seed
+ * and nonces, with output polynomials close to centered binomial distribution
+ * with parameter MLKEM_ETA2
  *
  * Arguments:   - poly *r{0,1,2,3}: pointer to output polynomial
  *              - const uint8_t *seed: pointer to input seed
@@ -337,9 +469,9 @@ ENSURES(                                                                        
 /*************************************************
  * Name:        poly_getnoise_eta1122_4x
  *
- * Description: Batch sample four polynomials deterministically from a seed and
- * a nonces, with output polynomials close to centered binomial distribution
- * with parameter MLKEM_ETA1 and MLKEM_ETA2
+ * Description: Batch sample four polynomials deterministically from a seed
+ * and a nonces, with output polynomials close to centered binomial
+ * distribution with parameter MLKEM_ETA1 and MLKEM_ETA2
  *
  * Arguments:   - poly *r{0,1,2,3}: pointer to output polynomial
  *              - const uint8_t *seed: pointer to input seed
@@ -374,7 +506,8 @@ ENSURES(                                                                        
  *              Bounds:
  *              - a is assumed to be coefficient-wise < q in absolute value.
  *
- *              The result is coefficient-wise bound by 3/2 q in absolute value.
+ *              The result is coefficient-wise bound by 3/2 q in absolute
+ *              value.
  *
  * Arguments:   - poly *r: pointer to output polynomial
  *              - const poly *a: pointer to first input polynomial

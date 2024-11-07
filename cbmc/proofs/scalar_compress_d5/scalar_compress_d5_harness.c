@@ -6,8 +6,8 @@
  */
 
 /**
- * @file scalar_compress_q_16_harness.c
- * @brief Implements the proof harness for scalar_compress_q_16 function.
+ * @file scalar_compress_d5_harness.c
+ * @brief Implements the proof harness for scalar_compress_d5 function.
  */
 
 /*
@@ -22,8 +22,8 @@
  *
  */
 void harness(void) {
-  int32_t u;
+  uint16_t u;
 
   /* Contracts for this function are in poly.h */
-  uint32_t d = scalar_compress_q_16(u);
+  uint32_t d = scalar_compress_d5(u);
 }

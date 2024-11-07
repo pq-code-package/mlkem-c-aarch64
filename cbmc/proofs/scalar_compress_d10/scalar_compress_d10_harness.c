@@ -6,8 +6,8 @@
  */
 
 /**
- * @file scalar_decompress_q_32_harness.c
- * @brief Implements the proof harness for scalar_decompress_q_32 function.
+ * @file scalar_compress_d10_harness.c
+ * @brief Implements the proof harness for scalar_compress_d10 function.
  */
 
 /*
@@ -22,11 +22,8 @@
  *
  */
 void harness(void) {
-  // Check that decompression followed by compression is the identity
-  uint32_t c0, c1, d;
+  uint16_t u;
 
-  d = scalar_decompress_q_32(c0);
-  c1 = scalar_compress_q_32(d);
-  __CPROVER_assert(c0 == c1,
-                   "scalar_compress_q_32 o scalar_decompress_q_32 != id");
+  /* Contracts for this function are in poly.h */
+  uint32_t d = scalar_compress_d10(u);
 }

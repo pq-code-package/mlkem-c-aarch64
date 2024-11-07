@@ -3,11 +3,11 @@
 include ../Makefile_params.common
 
 HARNESS_ENTRY = harness
-HARNESS_FILE = poly_reduce_harness
+HARNESS_FILE = scalar_compress_d5_harness
 
 # This should be a unique identifier for this proof, and will appear on the
 # Litani dashboard. It can be human-readable and contain spaces if you wish.
-PROOF_UID = poly_reduce
+PROOF_UID = scalar_compress_d5
 
 DEFINES +=
 INCLUDES +=
@@ -18,25 +18,23 @@ UNWINDSET +=
 PROOF_SOURCES += $(PROOFDIR)/$(HARNESS_FILE).c
 PROJECT_SOURCES += $(SRCDIR)/mlkem/poly.c
 
-CHECK_FUNCTION_CONTRACTS=$(MLKEM_NAMESPACE)poly_reduce
-USE_FUNCTION_CONTRACTS=$(MLKEM_NAMESPACE)scalar_signed_to_unsigned_q $(MLKEM_NAMESPACE)barrett_reduce
+CHECK_FUNCTION_CONTRACTS=$(MLKEM_NAMESPACE)scalar_compress_d5
+USE_FUNCTION_CONTRACTS=
 APPLY_LOOP_CONTRACTS=on
 USE_DYNAMIC_FRAMES=1
 
-# Disable any setting of EXTERNAL_SAT_SOLVER, and choose SMT backend instead
-EXTERNAL_SAT_SOLVER=
-CBMCFLAGS=--bitwuzla
+# SMT backend for proving with contracts and quantifiers
+# To be re-enabled when CBMC Issue #8303 is fixed.
+# CBMCFLAGS=--smt2
 
-FUNCTION_NAME = $(MLKEM_NAMESPACE)poly_reduce
+# Uncomment this to see what commands litani is running...
+#VERBOSE=on
 
 # If this proof is found to consume huge amounts of RAM, you can set the
 # EXPENSIVE variable. With new enough versions of the proof tools, this will
 # restrict the number of EXPENSIVE CBMC jobs running at once. See the
 # documentation in Makefile.common under the "Job Pools" heading for details.
 # EXPENSIVE = true
-
-# This function is large enough to need...
-CBMC_OBJECT_BITS = 8
 
 # If you require access to a file-local ("static") function or object to conduct
 # your proof, set the following (and do not include the original source file

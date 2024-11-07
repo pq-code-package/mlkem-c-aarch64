@@ -2,6 +2,6 @@
   [
 
   ],
-  "proof-name": "scalar_decompress_q_32",
+  "proof-name": "scalar_compress_d10",
   "proof-root": "cbmc/proofs"
 }
