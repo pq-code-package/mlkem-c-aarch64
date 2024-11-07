@@ -1,6 +1,6 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1730967482177,
-  "repoUrl": "https://github.com/pq-code-package/mlkem-c-aarch64",
+  "lastUpdate": 1730990177034,
+  "repoUrl": "https://github.com/pq-code-package/mlkem-native",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
       {
@@ -29785,6 +29785,75 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 105869,
+            "unit": "cycles"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "beckphan@amazon.co.uk",
+            "name": "Hanno Becker",
+            "username": "hanno-becker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "991eaadaa22dd7d6e026576a4e17e13d5c5c90f2",
+          "message": "Merge pull request #364 from pq-code-package/mlkemnative\n\nRename mlkem-c-aarch64 to mlkem-native",
+          "timestamp": "2024-11-07T14:34:24Z",
+          "tree_id": "0ebe3730cfc35bf1f75198c80fc16134363612bf",
+          "url": "https://github.com/pq-code-package/mlkem-native/commit/991eaadaa22dd7d6e026576a4e17e13d5c5c90f2"
+        },
+        "date": 1730990168130,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ML-KEM-512 keypair",
+            "value": 29762,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 encaps",
+            "value": 37986,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 decaps",
+            "value": 48846,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 keypair",
+            "value": 50222,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 encaps",
+            "value": 58672,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 decaps",
+            "value": 73934,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 keypair",
+            "value": 73761,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 encaps",
+            "value": 85404,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 decaps",
+            "value": 106009,
             "unit": "cycles"
           }
         ]
