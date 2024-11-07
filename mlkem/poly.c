@@ -274,28 +274,25 @@ void poly_frombytes(poly *r, const uint8_t a[MLKEM_POLYBYTES]) {
 }
 #endif /* MLKEM_USE_NATIVE_POLY_FROMBYTES */
 
-/*************************************************
- * Name:        poly_frommsg
- *
- * Description: Convert 32-byte message to polynomial
- *
- * Arguments:   - poly *r: pointer to output polynomial
- *              - const uint8_t *msg: pointer to input message
- **************************************************/
 void poly_frommsg(poly *r, const uint8_t msg[MLKEM_INDCPA_MSGBYTES]) {
-  unsigned int i, j;
-
 #if (MLKEM_INDCPA_MSGBYTES != MLKEM_N / 8)
 #error "MLKEM_INDCPA_MSGBYTES must be equal to MLKEM_N/8 bytes!"
 #endif
 
-  for (i = 0; i < MLKEM_N / 8; i++) {
-    for (j = 0; j < 8; j++) {
-      r->coeffs[8 * i + j] = 0;
-      cmov_int16(r->coeffs + 8 * i + j, ((MLKEM_Q + 1) / 2), (msg[i] >> j) & 1);
+  for (int i = 0; i < MLKEM_N / 8; i++)  // clang-format off
+    ASSIGNS(i, OBJECT_WHOLE(r))
+    INVARIANT(i >= 0 && i <= MLKEM_N / 8)
+    INVARIANT(ARRAY_IN_BOUNDS(int, k, 0, (8 * i - 1), r->coeffs, 0, (MLKEM_Q - 1)))
+    {      // clang-format on
+      for (int j = 0; j < 8; j++)  // clang-format off
+        ASSIGNS(j, OBJECT_WHOLE(r))
+        INVARIANT(i >= 0 && i <  MLKEM_N / 8 && j >= 0 && j <= 8)
+        INVARIANT(ARRAY_IN_BOUNDS(int, k, 0, (8 * i + j - 1), r->coeffs, 0, (MLKEM_Q - 1)))
+        {  // clang-format on
+          r->coeffs[8 * i + j] = 0;
+          cmov_int16(&r->coeffs[8 * i + j], HALF_Q, (msg[i] >> j) & 1);
+        }
     }
-  }
-
   POLY_BOUND_MSG(r, MLKEM_Q, "poly_frommsg output");
 }
 
