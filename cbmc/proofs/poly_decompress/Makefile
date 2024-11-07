@@ -21,11 +21,11 @@ PROJECT_SOURCES += $(SRCDIR)/mlkem/verify.c
 
 CHECK_FUNCTION_CONTRACTS=$(MLKEM_NAMESPACE)poly_decompress
 
-# For K = 2 or 3, the code calls scalar_decompress_q_16, so
+# For K = 2 or 3, the code calls scalar_decompress_d4, so
 ifeq ($(MLKEM_K),4)
-USE_FUNCTION_CONTRACTS = $(MLKEM_NAMESPACE)scalar_decompress_q_32
+USE_FUNCTION_CONTRACTS = $(MLKEM_NAMESPACE)scalar_decompress_d5
 else
-USE_FUNCTION_CONTRACTS = $(MLKEM_NAMESPACE)scalar_decompress_q_16
+USE_FUNCTION_CONTRACTS = $(MLKEM_NAMESPACE)scalar_decompress_d4
 endif
 
 APPLY_LOOP_CONTRACTS=on

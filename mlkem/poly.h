@@ -27,17 +27,19 @@ typedef struct {
   int16_t coeffs[MLKEM_N >> 1];
 } poly_mulcache;
 
-#define scalar_compress_q_16 MLKEM_NAMESPACE(scalar_compress_q_16)
-#define scalar_decompress_q_16 MLKEM_NAMESPACE(scalar_decompress_q_16)
-#define scalar_compress_q_32 MLKEM_NAMESPACE(scalar_compress_q_32)
-#define scalar_decompress_q_32 MLKEM_NAMESPACE(scalar_decompress_q_32)
-#define scalar_signed_to_unsigned_q_16 \
-  MLKEM_NAMESPACE(scalar_signed_to_unsigned_q_16)
+#define scalar_compress_d4 MLKEM_NAMESPACE(scalar_compress_d4)
+#define scalar_decompress_d4 MLKEM_NAMESPACE(scalar_decompress_d4)
+#define scalar_compress_d5 MLKEM_NAMESPACE(scalar_compress_d5)
+#define scalar_decompress_d5 MLKEM_NAMESPACE(scalar_decompress_d5)
+#define scalar_signed_to_unsigned_q MLKEM_NAMESPACE(scalar_signed_to_unsigned_q)
 
 /************************************************************
- * Name: scalar_compress_q_16
+ * Name: scalar_compress_d4
  *
  * Description: Computes round(u * 16 / q)
+ *
+ *              Implements Compress_d from FIPS203, Eq (4.7),
+ *              for d = 4.
  *
  * Arguments: - u: Unsigned canonical modulus modulo q
  *                 to be compressed.
@@ -48,7 +50,7 @@ typedef struct {
 #pragma CPROVER check push
 #pragma CPROVER check disable "unsigned-overflow"
 #endif
-static inline uint32_t scalar_compress_q_16(uint16_t u)  // clang-format off
+static inline uint32_t scalar_compress_d4(uint16_t u)  // clang-format off
   REQUIRES(u <= MLKEM_Q - 1)
   ENSURES(RETURN_VALUE < 16)
   ENSURES(RETURN_VALUE == (((uint32_t)u * 16 + MLKEM_Q / 2) / MLKEM_Q) % 16)
@@ -65,14 +67,17 @@ static inline uint32_t scalar_compress_q_16(uint16_t u)  // clang-format off
 #endif
 
 /************************************************************
- * Name: scalar_decompress_q_16
+ * Name: scalar_decompress_d4
  *
  * Description: Computes round(u * q / 16)
+ *
+ *              Implements Decompress_d from FIPS203, Eq (4.8),
+ *              for d = 4.
  *
  * Arguments: - u: Unsigned canonical modulus modulo 16
  *                 to be decompressed.
  ************************************************************/
-static inline uint16_t scalar_decompress_q_16(uint32_t u)  // clang-format off
+static inline uint16_t scalar_decompress_d4(uint32_t u)  // clang-format off
   REQUIRES(0 <= u && u < 16)
   ENSURES(RETURN_VALUE <= (MLKEM_Q - 1))
 {  // clang-format on
@@ -80,9 +85,12 @@ static inline uint16_t scalar_decompress_q_16(uint32_t u)  // clang-format off
 }
 
 /************************************************************
- * Name: scalar_compress_q_32
+ * Name: scalar_compress_d5
  *
  * Description: Computes round(u * 32 / q)
+ *
+ *              Implements Compress_d from FIPS203, Eq (4.7),
+ *              for d = 5.
  *
  * Arguments: - u: Unsigned canonical modulus modulo q
  *                 to be compressed.
@@ -93,7 +101,7 @@ static inline uint16_t scalar_decompress_q_16(uint32_t u)  // clang-format off
 #pragma CPROVER check push
 #pragma CPROVER check disable "unsigned-overflow"
 #endif
-static inline uint32_t scalar_compress_q_32(uint16_t u)  // clang-format off
+static inline uint32_t scalar_compress_d5(uint16_t u)  // clang-format off
   REQUIRES(u <= MLKEM_Q - 1)
   ENSURES(RETURN_VALUE < 32)
   ENSURES(RETURN_VALUE == (((uint32_t)u * 32 + MLKEM_Q / 2) / MLKEM_Q) % 32)  // clang-format on
@@ -110,14 +118,17 @@ static inline uint32_t scalar_compress_q_32(uint16_t u)  // clang-format off
 #endif
 
 /************************************************************
- * Name: scalar_decompress_q_32
+ * Name: scalar_decompress_d5
  *
  * Description: Computes round(u * q / 32)
+ *
+ *              Implements Decompress_d from FIPS203, Eq (4.8),
+ *              for d = 5.
  *
  * Arguments: - u: Unsigned canonical modulus modulo 32
  *                 to be decompressed.
  ************************************************************/
-static inline uint16_t scalar_decompress_q_32(uint32_t u)  // clang-format off
+static inline uint16_t scalar_decompress_d5(uint32_t u)  // clang-format off
   REQUIRES(0 <= u && u < 32)
   ENSURES(RETURN_VALUE <= MLKEM_Q - 1)
 {  // clang-format on
@@ -125,7 +136,7 @@ static inline uint16_t scalar_decompress_q_32(uint32_t u)  // clang-format off
 }
 
 /************************************************************
- * Name: scalar_signed_to_unsigned_q_16
+ * Name: scalar_signed_to_unsigned_q
  *
  * Description: converts signed polynomial coefficient
  *              from signed (-3328 .. 3328) form to
@@ -142,7 +153,7 @@ static inline uint16_t scalar_decompress_q_32(uint32_t u)  // clang-format off
  *
  * Arguments: c: signed coefficient to be converted
  ************************************************************/
-static inline uint16_t scalar_signed_to_unsigned_q_16(
+static inline uint16_t scalar_signed_to_unsigned_q(
     int16_t c)  // clang-format off
   REQUIRES(c >= -(MLKEM_Q - 1) && c <= (MLKEM_Q - 1))
   ENSURES(RETURN_VALUE >= 0 && RETURN_VALUE <= (MLKEM_Q - 1))
@@ -151,8 +162,8 @@ static inline uint16_t scalar_signed_to_unsigned_q_16(
   // Add Q if c is negative, but in constant time
   cmov_int16(&c, c + MLKEM_Q, c < 0);
 
-  ASSERT(c >= 0, "scalar_signed_to_unsigned_q_16 result lower bound");
-  ASSERT(c < MLKEM_Q, "scalar_signed_to_unsigned_q_16 result upper bound");
+  ASSERT(c >= 0, "scalar_signed_to_unsigned_q result lower bound");
+  ASSERT(c < MLKEM_Q, "scalar_signed_to_unsigned_q result upper bound");
 
   // and therefore cast to uint16_t is safe.
   return (uint16_t)c;

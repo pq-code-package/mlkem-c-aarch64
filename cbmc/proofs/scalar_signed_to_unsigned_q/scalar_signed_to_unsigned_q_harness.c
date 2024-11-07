@@ -1,13 +1,14 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-// SPDX-License-Identifier: MIT-0
+// SPDX-License-Identifier: Apache-2.0
 
 /*
  * Insert copyright notice
  */
 
 /**
- * @file scalar_decompress_q_32_harness.c
- * @brief Implements the proof harness for scalar_decompress_q_32 function.
+ * @file scalar_signed_to_unsigned_q.c
+ * @brief Implements the proof harness for scalar_signed_to_unsigned_q
+ * function.
  */
 
 /*
@@ -22,7 +23,8 @@
  *
  */
 void harness(void) {
-  uint32_t u;
-  uint16_t d;
-  d = scalar_decompress_q_32(u);
+  int16_t u;
+
+  /* Contracts for this function are in poly.h */
+  uint16_t d = scalar_signed_to_unsigned_q(u);
 }

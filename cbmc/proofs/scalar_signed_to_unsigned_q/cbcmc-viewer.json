@@ -2,6 +2,6 @@
   [
 
   ],
-  "proof-name": "scalar_signed_to_unsigned_q_16",
+  "proof-name": "scalar_signed_to_unsigned_q",
   "proof-root": "cbmc/proofs"
 }

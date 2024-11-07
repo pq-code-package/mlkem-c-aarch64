@@ -6,8 +6,8 @@
  */
 
 /**
- * @file scalar_decompress_q_16_harness.c
- * @brief Implements the proof harness for scalar_decompress_q_16 function.
+ * @file scalar_decompress_d5_harness.c
+ * @brief Implements the proof harness for scalar_decompress_d5 function.
  */
 
 /*
@@ -24,5 +24,5 @@
 void harness(void) {
   uint32_t u;
   uint16_t d;
-  d = scalar_decompress_q_16(u);
+  d = scalar_decompress_d5(u);
 }

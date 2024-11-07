@@ -29,7 +29,7 @@ void poly_compress(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES], const poly *a) {
         INVARIANT(ARRAY_IN_BOUNDS(int, k2, 0, (j-1), t, 0, 15))
         {  // clang-format on
           // REF-CHANGE: Precondition change, we assume unsigned canonical data
-          t[j] = scalar_compress_q_16(a->coeffs[8 * i + j]);
+          t[j] = scalar_compress_d4(a->coeffs[8 * i + j]);
         }
 
       // REF-CHANGE: Use array indexing into
@@ -50,7 +50,7 @@ void poly_compress(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES], const poly *a) {
         INVARIANT(ARRAY_IN_BOUNDS(int, k2, 0, (j-1), t, 0, 31))
         {  // clang-format on
           // REF-CHANGE: Precondition change, we assume unsigned canonical data
-          t[j] = scalar_compress_q_32(a->coeffs[8 * i + j]);
+          t[j] = scalar_compress_d5(a->coeffs[8 * i + j]);
         }
 
       // REF-CHANGE: Explicitly truncate to avoid warning about
@@ -75,8 +75,8 @@ void poly_decompress(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES]) {
         INVARIANT(ARRAY_IN_BOUNDS(int, k, 0, (2 * i - 1), r->coeffs, 0, (MLKEM_Q - 1)))
     {  // clang-format on
       // REF-CHANGE: Hoist scalar decompression into separate function
-      r->coeffs[2 * i + 0] = scalar_decompress_q_16((a[i] >> 0) & 0xF);
-      r->coeffs[2 * i + 1] = scalar_decompress_q_16((a[i] >> 4) & 0xF);
+      r->coeffs[2 * i + 0] = scalar_decompress_d4((a[i] >> 0) & 0xF);
+      r->coeffs[2 * i + 1] = scalar_decompress_d4((a[i] >> 4) & 0xF);
     }
 #elif (MLKEM_POLYCOMPRESSEDBYTES == 160)
   for (int i = 0; i < MLKEM_N / 8; i++)  // clang-format off
@@ -108,7 +108,7 @@ void poly_decompress(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES]) {
         INVARIANT(ARRAY_IN_BOUNDS(int, k, 0, (8 * i + j - 1), r->coeffs, 0, (MLKEM_Q - 1)))
         {  // clang-format on
           // REF-CHANGE: Hoist scalar decompression into separate function
-          r->coeffs[8 * i + j] = scalar_decompress_q_32(t[j]);
+          r->coeffs[8 * i + j] = scalar_decompress_d5(t[j]);
         }
     }
 #else
@@ -388,7 +388,7 @@ void poly_reduce(poly *r) {
       // Barrett reduction, giving signed canonical representative
       int16_t t = barrett_reduce(r->coeffs[i]);
       // Conditional addition to get unsigned canonical representative
-      r->coeffs[i] = scalar_signed_to_unsigned_q_16(t);
+      r->coeffs[i] = scalar_signed_to_unsigned_q(t);
     }
 
   POLY_UBOUND(r, MLKEM_Q);
