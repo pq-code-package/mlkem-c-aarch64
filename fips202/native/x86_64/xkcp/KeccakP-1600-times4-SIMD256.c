@@ -16,7 +16,7 @@ http://creativecommons.org/publicdomain/zero/1.0/
 */
 
 /*
- * Changes for MLKEM-C-AArch64:
+ * Changes for mlkem-native:
  * - copyFromState and copyToState operate on uninterleaved
  *   Keccak states in memory.
  */

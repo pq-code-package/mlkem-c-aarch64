@@ -6,7 +6,7 @@ CBMC proofs
 # Overview
 
 This directory contains [CBMC](https://github.com/diffblue/cbmc) proofs for the absence
-of certain classes of undefined behaviour for parts of the C-code in MLKEM-C-AArch64.
+of certain classes of undefined behaviour for parts of the C-code in mlkem-native.
 
 Proofs are organized by functions, with the harnesses and proofs for each function
 in a separate directory.
