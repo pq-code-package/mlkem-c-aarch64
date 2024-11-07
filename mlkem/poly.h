@@ -57,10 +57,9 @@ static inline uint32_t scalar_compress_d1(uint16_t u)  // clang-format off
   ENSURES(RETURN_VALUE == (((uint32_t)u * 2 + MLKEM_Q / 2) / MLKEM_Q) % 2)  // clang-format on
 {
   uint32_t d0 = u << 1;
-  d0 += HALF_Q;
-  d0 *= 80635;
-  d0 >>= 28;
-  d0 &= 0x1;
+  d0 *= 645083;
+  d0 += 1u << 30;
+  d0 >>= 31;
   return d0;
 }
 #ifdef CBMC
@@ -89,12 +88,8 @@ static inline uint32_t scalar_compress_d4(uint16_t u)  // clang-format off
   ENSURES(RETURN_VALUE < 16)
   ENSURES(RETURN_VALUE == (((uint32_t)u * 16 + MLKEM_Q / 2) / MLKEM_Q) % 16)
 {  // clang-format on
-  uint32_t d0 = (uint32_t)u;
-  d0 <<= 4;
-  d0 += 1665;
-  d0 *= 80635;  // round(2^28 / MLKEM_Q)
-  d0 >>= 28;
-  return d0;
+  uint32_t d0 = (uint32_t)u * 1290160;     // 16 * round(2^28 / MLKEM_Q)
+  return (d0 + (1u << 27)) >> 28;          // round(d0/2^28)
 }
 #ifdef CBMC
 #pragma CPROVER check pop
@@ -140,12 +135,8 @@ static inline uint32_t scalar_compress_d5(uint16_t u)  // clang-format off
   ENSURES(RETURN_VALUE < 32)
   ENSURES(RETURN_VALUE == (((uint32_t)u * 32 + MLKEM_Q / 2) / MLKEM_Q) % 32)  // clang-format on
 {
-  uint32_t d0 = (uint32_t)u;
-  d0 <<= 5;
-  d0 += 1664;
-  d0 *= 40318;  // round(2^27 / MLKEM_Q)
-  d0 >>= 27;
-  return d0;
+  uint32_t d0 = (uint32_t)u * 1290176;  // 2^5 * round(2^27 / MLKEM_Q)
+  return (d0 + (1u << 26)) >> 27;       // round(d0/2^27)
 }
 #ifdef CBMC
 #pragma CPROVER check pop
