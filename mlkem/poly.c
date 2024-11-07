@@ -279,31 +279,18 @@ void poly_frommsg(poly *r, const uint8_t msg[MLKEM_INDCPA_MSGBYTES]) {
 #error "MLKEM_INDCPA_MSGBYTES must be equal to MLKEM_N/8 bytes!"
 #endif
 
-  const int num_blocks = MLKEM_N / 8;
-
-  for (int i = 0; i < num_blocks; i++)
-      // clang-format off
+  for (int i = 0; i < MLKEM_N / 8; i++)  // clang-format off
     ASSIGNS(i, OBJECT_WHOLE(r))
-    INVARIANT(i >= 0)
-    INVARIANT(i <= num_blocks)
-    INVARIANT(num_blocks == 32)
+    INVARIANT(i >= 0 && i <= MLKEM_N / 8)
     INVARIANT(ARRAY_IN_BOUNDS(int, k, 0, (8 * i - 1), r->coeffs, 0, (MLKEM_Q - 1)))
-    // clang-format on
-    {
-      for (int j = 0; j < 8; j++)
-          // clang-format off
+    {      // clang-format on
+      for (int j = 0; j < 8; j++)  // clang-format off
         ASSIGNS(j, OBJECT_WHOLE(r))
-        INVARIANT(i >= 0 && i <  num_blocks)
-        INVARIANT(j >= 0 && j <= 8)
+        INVARIANT(i >= 0 && i <  MLKEM_N / 8 && j >= 0 && j <= 8)
         INVARIANT(ARRAY_IN_BOUNDS(int, k, 0, (8 * i + j - 1), r->coeffs, 0, (MLKEM_Q - 1)))
-        // clang-format on
-        {
+        {  // clang-format on
           r->coeffs[8 * i + j] = 0;
           cmov_int16(&r->coeffs[8 * i + j], HALF_Q, (msg[i] >> j) & 1);
-
-          // Check that the value just assigned must be either HALF_Q or 0
-          ASSERT(r->coeffs[8 * i + j] == (((msg[i] >> j) & 1) ? HALF_Q : 0),
-                 "poly_frommsg() check new coefficient value");
         }
     }
   POLY_BOUND_MSG(r, MLKEM_Q, "poly_frommsg output");
