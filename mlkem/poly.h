@@ -105,7 +105,6 @@ static inline uint32_t scalar_compress_q_16(uint16_t u) {
 #pragma CPROVER check pop
 #endif
   d0 >>= 28;
-  d0 &= 0xF;
   return d0;
 }
 
@@ -145,7 +144,6 @@ static inline uint32_t scalar_compress_q_32(uint16_t u) {
 #pragma CPROVER check pop
 #endif
   d0 >>= 27;
-  d0 &= 0x1f;
   return d0;
 }
 
