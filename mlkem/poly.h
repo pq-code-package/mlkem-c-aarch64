@@ -29,8 +29,10 @@ typedef struct {
 
 #define scalar_compress_d1 MLKEM_NAMESPACE(scalar_compress_d1)
 #define scalar_compress_d4 MLKEM_NAMESPACE(scalar_compress_d4)
-#define scalar_decompress_d4 MLKEM_NAMESPACE(scalar_decompress_d4)
 #define scalar_compress_d5 MLKEM_NAMESPACE(scalar_compress_d5)
+#define scalar_compress_d10 MLKEM_NAMESPACE(scalar_compress_d10)
+#define scalar_compress_d11 MLKEM_NAMESPACE(scalar_compress_d11)
+#define scalar_decompress_d4 MLKEM_NAMESPACE(scalar_decompress_d4)
 #define scalar_decompress_d5 MLKEM_NAMESPACE(scalar_decompress_d5)
 #define scalar_signed_to_unsigned_q MLKEM_NAMESPACE(scalar_signed_to_unsigned_q)
 
@@ -159,6 +161,74 @@ static inline uint16_t scalar_decompress_d5(uint32_t u)  // clang-format off
 {  // clang-format on
   return ((u * MLKEM_Q) + 16) / 32;
 }
+
+/************************************************************
+ * Name: scalar_compress_d10
+ *
+ * Description: Computes round(u * 2**10 / q) % 2**10
+ *
+ *              Implements Compress_d from FIPS203, Eq (4.7),
+ *              for d = 10.
+ *
+ * Arguments: - u: Unsigned canonical modulus modulo q
+ *                 to be compressed.
+ ************************************************************/
+// The multiplication in this routine will exceed UINT32_MAX
+// and wrap around for large values of u. This is expected and required.
+#ifdef CBMC
+#pragma CPROVER check push
+#pragma CPROVER check disable "unsigned-overflow"
+#endif
+static inline uint32_t scalar_compress_d10(uint16_t u)  // clang-format off
+  REQUIRES(u <= MLKEM_Q - 1)
+  ENSURES(RETURN_VALUE < (1u << 10))
+  ENSURES(RETURN_VALUE == (((uint32_t)u * (1u << 10) + MLKEM_Q / 2) / MLKEM_Q) % (1 << 10))
+{  // clang-format on
+  uint64_t d0 = u;
+  d0 <<= 10;
+  d0 += 1665;
+  d0 *= 1290167;
+  d0 >>= 32;
+  d0 &= 0x3FF;
+  return d0;
+}
+#ifdef CBMC
+#pragma CPROVER check pop
+#endif
+
+/************************************************************
+ * Name: scalar_compress_d11
+ *
+ * Description: Computes round(u * 2**11 / q) % 2**11
+ *
+ *              Implements Compress_d from FIPS203, Eq (4.7),
+ *              for d = 11.
+ *
+ * Arguments: - u: Unsigned canonical modulus modulo q
+ *                 to be compressed.
+ ************************************************************/
+// The multiplication in this routine will exceed UINT32_MAX
+// and wrap around for large values of u. This is expected and required.
+#ifdef CBMC
+#pragma CPROVER check push
+#pragma CPROVER check disable "unsigned-overflow"
+#endif
+static inline uint32_t scalar_compress_d11(uint16_t u)  // clang-format off
+  REQUIRES(u <= MLKEM_Q - 1)
+  ENSURES(RETURN_VALUE < (1u << 11))
+  ENSURES(RETURN_VALUE == (((uint32_t)u * (1u << 11) + MLKEM_Q / 2) / MLKEM_Q) % (1 << 11))
+{  // clang-format on
+  uint64_t d0 = u;
+  d0 <<= 11;
+  d0 += 1664;
+  d0 *= 645084;
+  d0 >>= 31;
+  d0 &= 0x7FF;
+  return d0;
+}
+#ifdef CBMC
+#pragma CPROVER check pop
+#endif
 
 /************************************************************
  * Name: scalar_signed_to_unsigned_q
