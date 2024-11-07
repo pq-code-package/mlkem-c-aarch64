@@ -17,4 +17,4 @@ LITANI ?= litani
 #
 #         make PROJECT_NAME="FreeRTOS MQTT" report
 #
-PROJECT_NAME = "mlkem-c-aarch64"
+PROJECT_NAME = "mlkem-native"

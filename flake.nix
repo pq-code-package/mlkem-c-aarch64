@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 {
-  description = "mlkem-c-aarch64";
+  description = "mlkem-native";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
