@@ -84,7 +84,7 @@ def _get_status_and_proof_summaries(run_dict):
     The second sub-list maps each proof to its status.
     """
     count_statuses = {}
-    proofs = [["Proof", "Status"]]
+    proofs = [["Proof", "Status", "Duration (in s)"]]
     for proof_pipeline in run_dict["pipelines"]:
         status_pretty_name = proof_pipeline["status"].title().replace("_", " ")
         try:
@@ -93,7 +93,12 @@ def _get_status_and_proof_summaries(run_dict):
             count_statuses[status_pretty_name] = 1
         if proof_pipeline["name"] == "print_tool_versions":
             continue
-        proofs.append([proof_pipeline["name"], status_pretty_name])
+        duration = 0
+        for stage in proof_pipeline["ci_stages"]:
+            for job in stage["jobs"]:
+                if "duration" in job.keys():
+                    duration += int(job["duration"])
+        proofs.append([proof_pipeline["name"], status_pretty_name, str(duration)])
     statuses = [["Status", "Count"]]
     for status, count in count_statuses.items():
         statuses.append([status, str(count)])
