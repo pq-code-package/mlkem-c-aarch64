@@ -36,7 +36,7 @@ typedef struct {
 /************************************************************
  * Name: scalar_compress_d4
  *
- * Description: Computes round(u * 16 / q)
+ * Description: Computes round(u * 16 / q) % 16
  *
  *              Implements Compress_d from FIPS203, Eq (4.7),
  *              for d = 4.
@@ -87,7 +87,7 @@ static inline uint16_t scalar_decompress_d4(uint32_t u)  // clang-format off
 /************************************************************
  * Name: scalar_compress_d5
  *
- * Description: Computes round(u * 32 / q)
+ * Description: Computes round(u * 32 / q) % 32
  *
  *              Implements Compress_d from FIPS203, Eq (4.7),
  *              for d = 5.
