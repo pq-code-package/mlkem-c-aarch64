@@ -27,11 +27,45 @@ typedef struct {
   int16_t coeffs[MLKEM_N >> 1];
 } poly_mulcache;
 
+#define scalar_compress_d1 MLKEM_NAMESPACE(scalar_compress_d1)
 #define scalar_compress_d4 MLKEM_NAMESPACE(scalar_compress_d4)
 #define scalar_decompress_d4 MLKEM_NAMESPACE(scalar_decompress_d4)
 #define scalar_compress_d5 MLKEM_NAMESPACE(scalar_compress_d5)
 #define scalar_decompress_d5 MLKEM_NAMESPACE(scalar_decompress_d5)
 #define scalar_signed_to_unsigned_q MLKEM_NAMESPACE(scalar_signed_to_unsigned_q)
+
+/************************************************************
+ * Name: scalar_compress_d1
+ *
+ * Description: Computes round(u * 2 / q)
+ *
+ *              Implements Compress_d from FIPS203, Eq (4.7),
+ *              for d = 1.
+ *
+ * Arguments: - u: Unsigned canonical modulus modulo q
+ *                 to be compressed.
+ ************************************************************/
+// The multiplication in this routine will exceed UINT32_MAX
+// and wrap around for large values of u. This is expected and required.
+#ifdef CBMC
+#pragma CPROVER check push
+#pragma CPROVER check disable "unsigned-overflow"
+#endif
+static inline uint32_t scalar_compress_d1(uint16_t u)  // clang-format off
+  REQUIRES(u <= MLKEM_Q - 1)
+  ENSURES(RETURN_VALUE < 2)
+  ENSURES(RETURN_VALUE == (((uint32_t)u * 2 + MLKEM_Q / 2) / MLKEM_Q) % 2)  // clang-format on
+{
+  uint32_t d0 = u << 1;
+  d0 += HALF_Q;
+  d0 *= 80635;
+  d0 >>= 28;
+  d0 &= 0x1;
+  return d0;
+}
+#ifdef CBMC
+#pragma CPROVER check pop
+#endif
 
 /************************************************************
  * Name: scalar_compress_d4

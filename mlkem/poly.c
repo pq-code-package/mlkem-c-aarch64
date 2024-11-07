@@ -215,29 +215,7 @@ void poly_tomsg(uint8_t msg[MLKEM_INDCPA_MSGBYTES], const poly *a) {
         ASSIGNS(j, OBJECT_WHOLE(msg))
         INVARIANT(i >= 0 && i <= MLKEM_N / 8 && j >= 0 && j <= 8)
         {  // clang-format on
-          uint32_t coeff = a->coeffs[8 * i + j];
-
-          // We now apply the "Compress1" function from FIPS-203 (eq 4.7)
-          // A simple expansion would be:
-          //   t += ((int16_t)t >> 15) & MLKEM_Q;
-          //   t  = (((t << 1) + MLKEM_Q/2)/MLKEM_Q) & 1;
-          // but we require constant-time evaluation, avoiding the division
-          // operator. We therefore use a Montgomery division, using magic
-          // multiplier floor(2**28 / MLKEM_Q) == 80635
-
-          uint32_t t = coeff << 1;
-          t += HALF_Q;
-          t *= 80635;
-          t >>= 28;
-          t &= 1;
-
-          // We can prove equivalence of these two forms, thus:
-          ASSERT(t == (((((coeff + (((int16_t)coeff >> 15) & MLKEM_Q)) << 1) +
-                         MLKEM_Q / 2) /
-                        MLKEM_Q) &
-                       1),
-                 "axiomatic definition of Compress1");
-
+          uint32_t t = scalar_compress_d1(a->coeffs[8 * i + j]);
           msg[i] |= t << j;
         }
     }
