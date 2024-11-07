@@ -183,14 +183,10 @@ static inline uint32_t scalar_compress_d10(uint16_t u)  // clang-format off
   REQUIRES(u <= MLKEM_Q - 1)
   ENSURES(RETURN_VALUE < (1u << 10))
   ENSURES(RETURN_VALUE == (((uint32_t)u * (1u << 10) + MLKEM_Q / 2) / MLKEM_Q) % (1 << 10))
-{  // clang-format on
-  uint64_t d0 = u;
-  d0 <<= 10;
-  d0 += 1665;
-  d0 *= 1290167;
-  d0 >>= 32;
-  d0 &= 0x3FF;
-  return d0;
+{           // clang-format on
+  uint64_t d0 = (uint64_t)u * 2642263040;  // 2^10 * round(2^32 / MLKEM_Q)
+  d0 = (d0 + ((uint64_t)1u << 32)) >> 33;
+  return (d0 & 0x3FF);
 }
 #ifdef CBMC
 #pragma CPROVER check pop
@@ -217,14 +213,10 @@ static inline uint32_t scalar_compress_d11(uint16_t u)  // clang-format off
   REQUIRES(u <= MLKEM_Q - 1)
   ENSURES(RETURN_VALUE < (1u << 11))
   ENSURES(RETURN_VALUE == (((uint32_t)u * (1u << 11) + MLKEM_Q / 2) / MLKEM_Q) % (1 << 11))
-{  // clang-format on
-  uint64_t d0 = u;
-  d0 <<= 11;
-  d0 += 1664;
-  d0 *= 645084;
-  d0 >>= 31;
-  d0 &= 0x7FF;
-  return d0;
+{           // clang-format on
+  uint64_t d0 = (uint64_t)u * 5284526080;  // 2^11 * round(2^33 / MLKEM_Q)
+  d0 = (d0 + ((uint64_t)1u << 32)) >> 33;
+  return (d0 & 0x7FF);
 }
 #ifdef CBMC
 #pragma CPROVER check pop
