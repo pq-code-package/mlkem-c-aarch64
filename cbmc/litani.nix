@@ -2,6 +2,7 @@
 
 { stdenvNoCC
 , fetchFromGitHub
+, python3Packages
 }:
 
 stdenvNoCC.mkDerivation {
@@ -16,12 +17,17 @@ stdenvNoCC.mkDerivation {
   dontConfigure = true;
   installPhase = ''
     mkdir -p $out/bin
-    cp litani $out/bin
+    install -Dm755 litani $out/bin/litani
     cp -r lib $out/bin
     cp -r templates $out/bin
   '';
   dontStrip = true;
   noAuditTmpdir = true;
+  propagatedBuildInputs = [
+    (python3Packages.python.withPackages
+      (pythonPackages: [ pythonPackages.jinja2 ])
+    )
+  ];
 
   meta = {
     description = "Litani metabuild system";
