@@ -32,6 +32,18 @@ void indcpa_deserialize_pk(mlkem_indcpa_public_key *pk,
   gen_matrix(pk->at, pk->seed, 1);
 }
 
+void indcpa_serialize_sk(uint8_t sks[MLKEM_INDCPA_SECRETKEYBYTES],
+                         const mlkem_indcpa_secret_key *sk) {
+  polyvec_tobytes(sks, &sk->skpv);
+}
+
+void indcpa_deserialize_sk(mlkem_indcpa_secret_key *sk,
+                           const uint8_t sks[MLKEM_INDCPA_SECRETKEYBYTES]) {
+  polyvec_frombytes(&sk->skpv, sks);
+  // TODO: do we really need a reduce here?
+  polyvec_reduce(&sk->skpv);
+}
+
 /*************************************************
  * Name:        pack_ciphertext
  *

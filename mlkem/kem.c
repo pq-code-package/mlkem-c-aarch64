@@ -33,16 +33,60 @@ static int check_pk(const uint8_t pk[MLKEM_PUBLICKEYBYTES]) {
   return 0;
 }
 
+/*************************************************
+ * Name:        check_sk
+ *
+ * Description: Implements public key hash check mandated by FIPS203,
+ *              i.e., ensures that
+ *              sk[768𝑘+32 ∶ 768𝑘+64] = H(pk)= H(sk[384𝑘 : 768𝑘+32])
+ *              Described in Section 7.3 of FIPS203.
+ *
+ * Arguments:   - const uint8_t *sk: pointer to input private key
+ *                (an already allocated array of MLKEM_SECRETKEYBYTES bytes)
+ *
+ * Returns 0 on success, and -1 on failure
+ **************************************************/
+static int check_sk(const uint8_t sk[MLKEM_SECRETKEYBYTES]) {
+  uint8_t test[MLKEM_SYMBYTES];
+  // The parts of `sk` being hashed and compared here are public, so
+  // no public information is leaked through the runtime or the return value
+  // of this function.
+  hash_h(test, sk + MLKEM_INDCPA_SECRETKEYBYTES, MLKEM_PUBLICKEYBYTES);
+  if (memcmp(sk + MLKEM_SECRETKEYBYTES - 2 * MLKEM_SYMBYTES, test,
+             MLKEM_SYMBYTES)) {
+    return -1;
+  }
+  return 0;
+}
+
+
 int crypto_kem_serialize_sk(uint8_t sks[MLKEM_SECRETKEYBYTES],
                             const mlkem_secret_key *sk) {
-  memcpy(sks, sk->seed, MLKEM_SYMBYTES);
-  memcpy(sks + MLKEM_SYMBYTES, sk->z, MLKEM_SYMBYTES);
+  indcpa_serialize_sk(sks, &sk->indcpa_sk);
+  indcpa_serialize_pk(sks + MLKEM_INDCPA_SECRETKEYBYTES, &sk->indcpa_pk);
+  memcpy(sks + MLKEM_INDCPA_SECRETKEYBYTES + MLKEM_INDCPA_PUBLICKEYBYTES,
+         sk->hpk, MLKEM_SYMBYTES);
+  memcpy(sks + MLKEM_INDCPA_SECRETKEYBYTES + MLKEM_INDCPA_PUBLICKEYBYTES +
+             MLKEM_SYMBYTES,
+         sk->z, MLKEM_SYMBYTES);
   return 0;
 }
 
 int crypto_kem_deserialize_sk(mlkem_secret_key *sk,
                               const uint8_t sks[MLKEM_SECRETKEYBYTES]) {
-  crypto_kem_keypair_derand(NULL, sk, sks);
+  if (check_sk(sks)) {
+    return -1;
+  }
+  indcpa_deserialize_sk(&sk->indcpa_sk, sks);
+  indcpa_deserialize_pk(&sk->indcpa_pk, sks + MLKEM_INDCPA_SECRETKEYBYTES);
+  memcpy(sk->hpk,
+         sks + MLKEM_INDCPA_SECRETKEYBYTES + MLKEM_INDCPA_PUBLICKEYBYTES,
+         MLKEM_SYMBYTES);
+  memcpy(sk->z,
+         sks + MLKEM_INDCPA_SECRETKEYBYTES + MLKEM_INDCPA_PUBLICKEYBYTES +
+             MLKEM_SYMBYTES,
+         MLKEM_SYMBYTES);
+
   return 0;
 }
 

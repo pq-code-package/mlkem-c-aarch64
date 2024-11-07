@@ -26,6 +26,14 @@ void indcpa_serialize_pk(uint8_t pks[MLKEM_INDCPA_PUBLICKEYBYTES],
 void indcpa_deserialize_pk(mlkem_indcpa_public_key *pk,
                            const uint8_t pks[MLKEM_INDCPA_PUBLICKEYBYTES]);
 
+#define indcpa_serialize_sk MLKEM_NAMESPACE(indcpa_serialize_sk)
+void indcpa_serialize_sk(uint8_t sks[MLKEM_INDCPA_SECRETKEYBYTES],
+                         const mlkem_indcpa_secret_key *sk);
+
+#define indcpa_deserialize_sk MLKEM_NAMESPACE(indcpa_deserialize_sk)
+void indcpa_deserialize_sk(mlkem_indcpa_secret_key *sk,
+                           const uint8_t sks[MLKEM_INDCPA_SECRETKEYBYTES]);
+
 #define indcpa_keypair_derand MLKEM_NAMESPACE(indcpa_keypair_derand)
 void indcpa_keypair_derand(mlkem_indcpa_public_key *pk,
                            mlkem_indcpa_secret_key *sk,

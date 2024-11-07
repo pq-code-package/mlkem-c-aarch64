@@ -8,7 +8,7 @@ implementations:
     claimed-security: IND-CCA2
     length-public-key: 800
     length-ciphertext: 768
-    length-secret-key: 64
+    length-secret-key: 1632
     length-shared-secret: 32
     kat-sha256: 323d0e9aefe34819f10cdce1f0d9e5c8a55193cebe984fb1718e779ebfbc0da8
     nistkat-sha256: a30184edee53b3b009356e1e31d7f9e93ce82550e3c622d7192e387b0cc84f2e
@@ -18,7 +18,7 @@ implementations:
     claimed-security: IND-CCA2
     length-public-key: 1184
     length-ciphertext: 1088
-    length-secret-key: 64
+    length-secret-key:  2400
     length-shared-secret: 32
     kat-sha256: 99b497dcddfe418f44d30c7376fda09ae7cca2e9141143032d842508b4a1f438
     nistkat-sha256: 729367b590637f4a93c68d5e4a4d2e2b4454842a52c9eec503e3a0d24cb66471
@@ -28,7 +28,7 @@ implementations:
     claimed-security: IND-CCA2
     length-public-key: 1568
     length-ciphertext: 1568
-    length-secret-key: 64
+    length-secret-key: 3168
     length-shared-secret: 32
     kat-sha256: 104058bab1fef70aa10606831faabef7053d44b1adac6b34d35e505c3085db78
     nistkat-sha256: 3fba7327d0320cb6134badf2a1bcb963a5b3c0026c7dece8f00d6a6155e47b33
