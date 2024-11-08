@@ -9,6 +9,7 @@ from functools import reduce
 
 sys.path.append(f"{os.path.join(os.path.dirname(__file__), 'lib')}")
 from mlkem_test import *
+from util import path
 
 """
 Click interface configuration
@@ -188,6 +189,29 @@ def nistkat(opts: Options):
 @click.make_pass_decorator(Options, ensure=True)
 def kat(opts: Options):
     Tests(opts).kat()
+
+
+@cli.command(
+    short_help="Run ACVP client",
+    context_settings={"show_default": True},
+)
+@add_options(_shared_options)
+@add_options(
+    [
+        click.option(
+            "-d",
+            "--acvp_dir",
+            nargs=1,
+            show_default=True,
+            type=click.Path(),
+            default=path("test/acvp_data"),
+            help="Path to acvp directory",
+        ),
+    ]
+)
+@click.make_pass_decorator(Options, ensure=True)
+def acvp(opts: Options, acvp_dir: str):
+    Tests(opts).acvp(acvp_dir)
 
 
 @cli.command(
