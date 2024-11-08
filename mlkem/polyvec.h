@@ -36,9 +36,16 @@ REQUIRES(FORALL(int, k0, 0, MLKEM_K - 1,
          ARRAY_IN_BOUNDS(int, k1, 0, (MLKEM_N - 1), a->vec[k0].coeffs, 0, (MLKEM_Q - 1))));
 // clang-format on
 
+// clang-format off
 #define polyvec_decompress MLKEM_NAMESPACE(polyvec_decompress)
 void polyvec_decompress(polyvec *r,
-                        const uint8_t a[MLKEM_POLYVECCOMPRESSEDBYTES]);
+                        const uint8_t a[MLKEM_POLYVECCOMPRESSEDBYTES]) // clang-format off
+REQUIRES(IS_FRESH(a, MLKEM_POLYVECCOMPRESSEDBYTES))
+REQUIRES(IS_FRESH(r, sizeof(polyvec)))
+ASSIGNS(OBJECT_WHOLE(r))
+ENSURES(FORALL(int, k0, 0, MLKEM_K - 1,
+         ARRAY_IN_BOUNDS(int, k1, 0, (MLKEM_N - 1), r->vec[k0].coeffs, 0, (MLKEM_Q - 1))));
+// clang-format on
 
 #define polyvec_tobytes MLKEM_NAMESPACE(polyvec_tobytes)
 /*************************************************
@@ -198,7 +205,7 @@ void polyvec_add(polyvec *r, const polyvec *b)  // clang-format off
 REQUIRES(IS_FRESH(r, sizeof(polyvec)))
 REQUIRES(IS_FRESH(b, sizeof(polyvec)))
 REQUIRES(FORALL(int, j0, 0, MLKEM_K - 1,
-          FORALL(int, k0, 0, MLKEM_N - 1, 
+          FORALL(int, k0, 0, MLKEM_N - 1,
             (int32_t)r->vec[j0].coeffs[k0] + b->vec[j0].coeffs[k0] <= INT16_MAX)))
 REQUIRES(FORALL(int, j1, 0, MLKEM_K - 1,
           FORALL(int, k1, 0, MLKEM_N - 1,
