@@ -16,8 +16,26 @@ typedef struct {
 } polyvec_mulcache;
 
 #define polyvec_compress MLKEM_NAMESPACE(polyvec_compress)
+/*************************************************
+ * Name:        polyvec_compress
+ *
+ * Description: Compress and serialize vector of polynomials
+ *
+ * Arguments:   - uint8_t *r: pointer to output byte array
+ *                            (needs space for MLKEM_POLYVECCOMPRESSEDBYTES)
+ *              - const polyvec *a: pointer to input vector of polynomials.
+ *                                  Coefficients must be unsigned canonical,
+ *                                  i.e. in [0,1,..,MLKEM_Q-1].
+ **************************************************/
 void polyvec_compress(uint8_t r[MLKEM_POLYVECCOMPRESSEDBYTES],
-                      const polyvec *a);
+                      const polyvec *a)  // clang-format off
+REQUIRES(IS_FRESH(r, MLKEM_POLYVECCOMPRESSEDBYTES))
+REQUIRES(IS_FRESH(a, sizeof(polyvec)))
+ASSIGNS(OBJECT_WHOLE(r))
+REQUIRES(FORALL(int, k0, 0, MLKEM_K - 1,
+         ARRAY_IN_BOUNDS(int, k1, 0, (MLKEM_N - 1), a->vec[k0].coeffs, 0, (MLKEM_Q - 1))));
+// clang-format on
+
 #define polyvec_decompress MLKEM_NAMESPACE(polyvec_decompress)
 void polyvec_decompress(polyvec *r,
                         const uint8_t a[MLKEM_POLYVECCOMPRESSEDBYTES]);

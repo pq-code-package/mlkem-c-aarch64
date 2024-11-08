@@ -179,7 +179,9 @@ static inline uint16_t scalar_decompress_d5(uint32_t u)  // clang-format off
 #pragma CPROVER check push
 #pragma CPROVER check disable "unsigned-overflow"
 #endif
-static inline uint32_t scalar_compress_d10(uint16_t u)  // clang-format off
+// TODO: do the same for the other static inline functions
+STATIC_INLINE_TESTABLE
+uint32_t scalar_compress_d10(uint16_t u)  // clang-format off
   REQUIRES(u <= MLKEM_Q - 1)
   ENSURES(RETURN_VALUE < (1u << 10))
   ENSURES(RETURN_VALUE == (((uint32_t)u * (1u << 10) + MLKEM_Q / 2) / MLKEM_Q) % (1 << 10))
@@ -209,7 +211,8 @@ static inline uint32_t scalar_compress_d10(uint16_t u)  // clang-format off
 #pragma CPROVER check push
 #pragma CPROVER check disable "unsigned-overflow"
 #endif
-static inline uint32_t scalar_compress_d11(uint16_t u)  // clang-format off
+STATIC_INLINE_TESTABLE
+uint32_t scalar_compress_d11(uint16_t u)  // clang-format off
   REQUIRES(u <= MLKEM_Q - 1)
   ENSURES(RETURN_VALUE < (1u << 11))
   ENSURES(RETURN_VALUE == (((uint32_t)u * (1u << 11) + MLKEM_Q / 2) / MLKEM_Q) % (1 << 11))
