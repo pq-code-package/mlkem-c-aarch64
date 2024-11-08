@@ -304,8 +304,8 @@ void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES],
     gen_matrix_entry_x4(&a[0].vec[0] + i, seedxy);
   }
 
-  // For left over vector, we use single keccak.
-  for (; i < MLKEM_K * MLKEM_K; i++) {
+  // For left over polynomial, we use single keccak.
+  if (i < MLKEM_K * MLKEM_K) {
     uint8_t x, y;
     x = i / MLKEM_K;
     y = i % MLKEM_K;
@@ -319,7 +319,10 @@ void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES],
     }
 
     gen_matrix_entry(&a[0].vec[0] + i, seed0);
+    i++;
   }
+
+  ASSERT(i == MLKEM_K * MLKEM_K, "gen_matrix: failed to generate whole matrix");
 
 #if defined(MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER)
   // The public matrix is generated in NTT domain. If the native backend
