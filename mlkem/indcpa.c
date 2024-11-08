@@ -147,8 +147,7 @@ static void unpack_ciphertext(polyvec *b, poly *v,
 
 // Generate four A matrix entries from a seed, using rejection
 // sampling on the output of a XOF.
-static void gen_matrix_entry_x4(poly *vec[4],
-                                uint8_t seed[4][MLKEM_SYMBYTES + 16]) {
+static void gen_matrix_entry_x4(poly vec[4], uint8_t seed[4][MLKEM_SYMBYTES + 16]) {
   // Temporary buffers for XOF output before rejection sampling
   uint8_t bufx[KECCAK_WAY][GEN_MATRIX_NBLOCKS * SHAKE128_RATE];
   // Tracks the number of coefficients we have already sampled
@@ -166,7 +165,7 @@ static void gen_matrix_entry_x4(poly *vec[4],
                            GEN_MATRIX_NBLOCKS, &statex);
   buflen = GEN_MATRIX_NBLOCKS * SHAKE128_RATE;
   for (unsigned int j = 0; j < KECCAK_WAY; j++) {
-    ctr[j] = rej_uniform(vec[j]->coeffs, MLKEM_N, 0, bufx[j], buflen);
+    ctr[j] = rej_uniform(vec[j].coeffs, MLKEM_N, 0, bufx[j], buflen);
   }
 
   // So long as not all matrix entries have been generated, squeeze
@@ -176,7 +175,7 @@ static void gen_matrix_entry_x4(poly *vec[4],
          ctr[3] < MLKEM_N) {
     shake128x4_squeezeblocks(bufx[0], bufx[1], bufx[2], bufx[3], 1, &statex);
     for (unsigned j = 0; j < KECCAK_WAY; j++) {
-      ctr[j] = rej_uniform(vec[j]->coeffs, MLKEM_N, ctr[j], bufx[j], buflen);
+      ctr[j] = rej_uniform(vec[j].coeffs, MLKEM_N, ctr[j], bufx[j], buflen);
     }
   }
   shake128x4_ctx_release(&statex);
@@ -250,7 +249,6 @@ void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES],
   for (i = 0; i < (MLKEM_K * MLKEM_K / KECCAK_WAY) * KECCAK_WAY;
        i += KECCAK_WAY) {
     uint8_t x, y;
-    poly *vec[4];
 
     for (unsigned int j = 0; j < KECCAK_WAY; j++) {
       x = (i + j) / MLKEM_K;
@@ -262,10 +260,9 @@ void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES],
         seedxy[j][MLKEM_SYMBYTES + 0] = y;
         seedxy[j][MLKEM_SYMBYTES + 1] = x;
       }
-      vec[j] = &a[x].vec[y];
     }
 
-    gen_matrix_entry_x4(vec, seedxy);
+    gen_matrix_entry_x4(&a[0].vec[0] + i, seedxy);
   }
 
   // For left over vector, we use single keccak.
@@ -282,7 +279,7 @@ void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES],
       seedxy[0][MLKEM_SYMBYTES + 1] = x;
     }
 
-    gen_matrix_entry(&a[x].vec[y], seedxy[0]);
+    gen_matrix_entry(&a[0].vec[0] + i, seedxy[0]);
   }
 
 #if defined(MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER)
