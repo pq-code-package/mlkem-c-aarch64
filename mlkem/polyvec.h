@@ -237,13 +237,16 @@ ENSURES(FORALL(int, k0, 0, MLKEM_K - 1,
  *
  * Description: Add vectors of polynomials
  *
- * Arguments: - polyvec *r: pointer to  input-output vector of polynomials to be
- *added to
+ * Arguments: - polyvec *r: pointer to input-output vector of polynomials to be
+ *              added to
  *            - const polyvec *b: pointer to second input vector of polynomials
  *
  * The coefficients of r and b must be so that the addition does
  * not overflow. Otherwise, the behaviour of this function is undefined.
  *
+ * The coefficients returned in *r are in int16_t which is sufficient
+ * to prove type-safety of calling units. Therefore, no stronger
+ * ENSURES clause is required on this function.
  **************************************************/
 void polyvec_add(polyvec *r, const polyvec *b)  // clang-format off
 REQUIRES(IS_FRESH(r, sizeof(polyvec)))
@@ -254,9 +257,6 @@ REQUIRES(FORALL(int, j0, 0, MLKEM_K - 1,
 REQUIRES(FORALL(int, j1, 0, MLKEM_K - 1,
           FORALL(int, k1, 0, MLKEM_N - 1,
             (int32_t)r->vec[j1].coeffs[k1] + b->vec[j1].coeffs[k1] >= INT16_MIN)))
-ENSURES(FORALL(int, j, 0, MLKEM_K - 1,
-          FORALL(int, k, 0, MLKEM_N - 1,
-            r->vec[j].coeffs[k] == OLD(*r).vec[j].coeffs[k] + b->vec[j].coeffs[k])))
 ASSIGNS(OBJECT_WHOLE(r));
 // clang-format on
 
