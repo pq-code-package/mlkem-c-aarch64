@@ -112,8 +112,16 @@ ASSIGNS(OBJECT_WHOLE(r))
  *              - const uint8_t *packedsk: pointer to input serialized secret
  *key
  **************************************************/
-static void unpack_sk(polyvec *sk,
-                      const uint8_t packedsk[MLKEM_INDCPA_SECRETKEYBYTES]) {
+STATIC_TESTABLE
+void unpack_sk(
+    polyvec *sk,
+    const uint8_t packedsk[MLKEM_INDCPA_SECRETKEYBYTES])  // clang-format off
+REQUIRES(IS_FRESH(packedsk, MLKEM_INDCPA_SECRETKEYBYTES))
+REQUIRES(IS_FRESH(sk, sizeof(polyvec)))
+ENSURES(FORALL(int, k0, 0, MLKEM_K - 1,
+  ARRAY_IN_BOUNDS(int, k1, 0, MLKEM_N - 1, sk->vec[k0].coeffs, 0, MLKEM_Q - 1)))
+ASSIGNS(OBJECT_WHOLE(sk))  // clang-format on
+{
   polyvec_frombytes(sk, packedsk);
   polyvec_reduce(sk);
 }
