@@ -121,8 +121,8 @@ class Base:
         scheme: SCHEME,
         actual_proc: Callable[[bytes], str] = None,
         expect_proc: Callable[[SCHEME], str] = None,
-        run_as_root=False,
-        exec_wrapper=None,
+        cmd_prefix: [str] = [],
+        extra_args: [str] = [],
     ):
         """Run the binary in all different ways"""
         log = logger(self.test_type, scheme, self.cross_prefix, self.opt)
@@ -144,16 +144,7 @@ class Base:
                     f"Emulation for {self.cross_prefix} on {platform.system()} not supported",
                 )
 
-        if run_as_root:
-            log.info(
-                f"Running {bin} as root -- you may need to enter your root password.",
-            )
-            cmd = ["sudo"] + cmd
-
-        if exec_wrapper:
-            log.info(f"Running {bin} with customized wrapper.")
-            exec_wrapper = exec_wrapper.split(" ")
-            cmd = exec_wrapper + cmd
+        cmd = cmd_prefix + cmd + extra_args
 
         log.debug(" ".join(cmd))
 
@@ -211,8 +202,8 @@ class Test_Implementations:
         opt: bool,
         actual_proc: Callable[[bytes], str] = None,
         expect_proc: Callable[[SCHEME], str] = None,
-        run_as_root=False,
-        exec_wrapper=None,
+        cmd_prefix: [str] = [],
+        extra_args: [str] = [],
     ) -> TypedDict:
         results = {}
 
@@ -227,8 +218,8 @@ class Test_Implementations:
                 scheme,
                 actual_proc,
                 expect_proc,
-                run_as_root,
-                exec_wrapper,
+                cmd_prefix,
+                extra_args,
             )
 
             results[k][scheme] = result
@@ -368,11 +359,19 @@ class Tests:
     def _run_bench(
         self, t: Test_Implementations, opt: bool, run_as_root: bool, exec_wrapper: str
     ) -> TypedDict:
-        return t.run_schemes(
-            opt,
-            run_as_root=run_as_root,
-            exec_wrapper=exec_wrapper,
-        )
+        cmd_prefix = []
+        if run_as_root:
+            logging.info(
+                f"Running {bin} as root -- you may need to enter your root password.",
+            )
+            cmd_prefix.append("sudo")
+
+        if exec_wrapper:
+            logging.info(f"Running with customized wrapper.")
+            exec_wrapper = exec_wrapper.split(" ")
+            cmd_prefix = cmd_prefix + exec_wrapper
+
+        return t.run_schemes(opt, cmd_prefix=cmd_prefix)
 
     def bench(
         self,
