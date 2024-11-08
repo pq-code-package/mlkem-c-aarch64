@@ -81,6 +81,10 @@ void shake256x4_squeezeblocks(uint8_t *out0, uint8_t *out1, uint8_t *out2,
                           SHAKE256_RATE);
 }
 
+void shake128x4_ctx_release(keccakx4_state *state) { (void)state; }
+
+void shake256x4_ctx_release(keccakx4_state *state) { (void)state; }
+
 void shake256x4(uint8_t *out0, uint8_t *out1, uint8_t *out2, uint8_t *out3,
                 size_t outlen, uint8_t *in0, uint8_t *in1, uint8_t *in2,
                 uint8_t *in3, size_t inlen) {

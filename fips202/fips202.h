@@ -14,10 +14,6 @@
 #define SHA3_384_RATE 104
 #define SHA3_512_RATE 72
 
-// Context for incremental API
-typedef struct {
-  uint64_t ctx[26];
-} shake128incctx;
 
 // Context for non-incremental API
 typedef struct {
@@ -28,11 +24,6 @@ typedef struct {
 typedef struct {
   uint64_t ctx[26];
 } shake256incctx;
-
-// Context for non-incremental API
-typedef struct {
-  uint64_t ctx[25];
-} shake256ctx;
 
 /* Initialize the state and absorb the provided input.
  *
@@ -58,6 +49,11 @@ REQUIRES(IS_FRESH(output, nblocks *SHAKE128_RATE))
 ASSIGNS(OBJECT_WHOLE(output), OBJECT_WHOLE(state));
 // clang-format on
 
+
+/* Free the state */
+#define shake128_ctx_release FIPS202_NAMESPACE(shake128_ctx_release)
+void shake128_ctx_release(shake128ctx *state);
+
 /* Initialize incremental hashing API */
 #define shake256_inc_init FIPS202_NAMESPACE(shake256_inc_init)
 void shake256_inc_init(shake256incctx *state);
@@ -76,6 +72,10 @@ void shake256_inc_finalize(shake256incctx *state);
 void shake256_inc_squeeze(uint8_t *output, size_t outlen,
                           shake256incctx *state);
 
+/* Free the state */
+#define shake256_inc_ctx_release FIPS202_NAMESPACE(shake256_inc_ctx_release)
+void shake256_inc_ctx_release(shake256incctx *state);
+
 /* One-stop SHAKE256 call */
 #define shake256 FIPS202_NAMESPACE(shake256)
 void shake256(uint8_t *output, size_t outlen, const uint8_t *input,
@@ -93,4 +93,5 @@ void sha3_256(uint8_t *output, const uint8_t *input, size_t inlen);
 /* One-stop SHA3-512 shop */
 #define sha3_512 FIPS202_NAMESPACE(sha3_512)
 void sha3_512(uint8_t *output, const uint8_t *input, size_t inlen);
+
 #endif

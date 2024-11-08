@@ -210,6 +210,8 @@ void shake256_inc_squeeze(uint8_t *output, size_t outlen,
   keccak_inc_squeeze(output, outlen, state->ctx, SHAKE256_RATE);
 }
 
+void shake256_inc_ctx_release(shake256incctx *state) { (void)state; }
+
 /*************************************************
  * Name:        shake128_absorb
  *
@@ -247,6 +249,9 @@ void shake128_squeezeblocks(uint8_t *output, size_t nblocks,
                             shake128ctx *state) {
   keccak_squeezeblocks(output, nblocks, state->ctx, SHAKE128_RATE);
 }
+
+
+void shake128_ctx_release(shake128ctx *state) { (void)state; }
 
 /*************************************************
  * Name:        shake256

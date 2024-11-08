@@ -29,6 +29,12 @@ void shake256x4_squeezeblocks(uint8_t *out0, uint8_t *out1, uint8_t *out2,
                               uint8_t *out3, size_t nblocks,
                               keccakx4_state *state);
 
+#define shake128x4_ctx_release FIPS202_NAMESPACE(shake128x4_ctx_release)
+void shake128x4_ctx_release(keccakx4_state *state);
+
+#define shake256x4_ctx_release FIPS202_NAMESPACE(shake256x4_ctx_release)
+void shake256x4_ctx_release(keccakx4_state *state);
+
 #define shake256x4 FIPS202_NAMESPACE(shake256x4)
 void shake256x4(uint8_t *out0, uint8_t *out1, uint8_t *out2, uint8_t *out3,
                 size_t outlen, uint8_t *in0, uint8_t *in1, uint8_t *in2,

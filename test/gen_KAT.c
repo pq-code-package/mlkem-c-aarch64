@@ -61,5 +61,7 @@ int main(void) {
     print_hex("ss", ss1, sizeof(ss1));
   }
 
+  shake256_inc_ctx_release(&state);
+
   return 0;
 }

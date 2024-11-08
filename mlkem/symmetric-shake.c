@@ -50,4 +50,5 @@ void mlkem_shake256_rkprf(uint8_t out[MLKEM_SSBYTES],
   shake256_inc_absorb(&s, input, MLKEM_CIPHERTEXTBYTES);
   shake256_inc_finalize(&s);
   shake256_inc_squeeze(out, MLKEM_SSBYTES, &s);
+  shake256_inc_ctx_release(&s);
 }
