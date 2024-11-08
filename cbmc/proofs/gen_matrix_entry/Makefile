@@ -16,7 +16,7 @@ REMOVE_FUNCTION_BODY +=
 UNWINDSET +=
 
 PROOF_SOURCES += $(PROOFDIR)/$(HARNESS_FILE).c
-PROJECT_SOURCES += $(SRCDIR)/mlkem/indcpa.c
+PROJECT_SOURCES += $(SRCDIR)/mlkem/indcpa.c $(SRCDIR)/fips202/fips202.c
 
 CHECK_FUNCTION_CONTRACTS=gen_matrix_entry
 USE_FUNCTION_CONTRACTS=$(FIPS202_NAMESPACE)shake128_absorb $(FIPS202_NAMESPACE)shake128_squeezeblocks $(MLKEM_NAMESPACE)rej_uniform
@@ -36,7 +36,7 @@ FUNCTION_NAME = $(MLKEM_NAMESPACE)gen_matrix_entry
 # EXPENSIVE = true
 
 # This function is large enough to need...
-CBMC_OBJECT_BITS = 8
+CBMC_OBJECT_BITS = 9
 
 # If you require access to a file-local ("static") function or object to conduct
 # your proof, set the following (and do not include the original source file
