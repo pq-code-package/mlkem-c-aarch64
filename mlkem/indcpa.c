@@ -149,7 +149,7 @@ static void unpack_ciphertext(polyvec *b, poly *v,
 // sampling on the output of a XOF.
 // clang-format off
 STATIC_TESTABLE
-void gen_matrix_entry_x4(poly vec[4], uint8_t *seed[4])
+void gen_matrix_entry_x4(poly *vec, uint8_t *seed[4])
   REQUIRES(IS_FRESH(vec, sizeof(poly) * 4))
   REQUIRES(IS_FRESH(seed, sizeof(uint8_t*) * 4))
   REQUIRES(IS_FRESH(seed[0], MLKEM_SYMBYTES + 2))
@@ -299,6 +299,8 @@ void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES],
       }
     }
 
+    // This call writes across polyvec boundaries for K=2 and K=3.
+    // This is intentional and safe.
     gen_matrix_entry_x4(&a[0].vec[0] + i, seedxy);
   }
 
