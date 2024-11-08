@@ -147,7 +147,7 @@ static void unpack_ciphertext(polyvec *b, poly *v,
 
 // Generate four A matrix entries from a seed, using rejection
 // sampling on the output of a XOF.
-static void gen_matrix_entry_x4(poly vec[4], uint8_t seed[4][MLKEM_SYMBYTES + 16]) {
+static void gen_matrix_entry_x4(poly vec[4], uint8_t *seed[4]) {
   // Temporary buffers for XOF output before rejection sampling
   uint8_t bufx[KECCAK_WAY][GEN_MATRIX_NBLOCKS * SHAKE128_RATE];
   // Tracks the number of coefficients we have already sampled
@@ -185,9 +185,9 @@ static void gen_matrix_entry_x4(poly vec[4], uint8_t seed[4][MLKEM_SYMBYTES + 16
 // sampling on the output of a XOF.
 STATIC_TESTABLE
 void gen_matrix_entry(poly *entry,
-                      uint8_t seed[MLKEM_SYMBYTES + 16])  // clang-format off
+                      uint8_t seed[MLKEM_SYMBYTES + 2])  // clang-format off
   REQUIRES(IS_FRESH(entry, sizeof(poly)))
-  REQUIRES(IS_FRESH(seed, MLKEM_SYMBYTES + 16))
+  REQUIRES(IS_FRESH(seed, MLKEM_SYMBYTES + 2))
   ASSIGNS(OBJECT_UPTO(entry, sizeof(poly)))
   ENSURES(ARRAY_IN_BOUNDS(int, k, 0, MLKEM_N - 1, entry->coeffs, 0, (MLKEM_Q - 1)))
 {  // clang-format on
@@ -195,7 +195,6 @@ void gen_matrix_entry(poly *entry,
   uint8_t buf[GEN_MATRIX_NBLOCKS * SHAKE128_RATE];
   unsigned int ctr, buflen;
 
-  // seed is MLKEM_SYMBYTES + 2 bytes long, but padded to MLKEM_SYMBYTES + 16
   shake128_absorb(&state, seed, MLKEM_SYMBYTES + 2);
 
   // Initially, squeeze + sample heuristic number of GEN_MATRIX_NBLOCKS.
@@ -235,8 +234,15 @@ void gen_matrix_entry(poly *entry,
 void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES],
                 int transposed) {
   int i;
-  // We need MLKEM_SYMBYTES + 2 bytes per seed, but add padding for alignment
-  uint8_t seedxy[KECCAK_WAY][MLKEM_SYMBYTES + 16];
+  // We generate four separate seed arrays rather than a single one to work
+  // around limitations in CBMC function contracts dealing with disjoint slices
+  // of the same parent object.
+  uint8_t seed0[MLKEM_SYMBYTES + 2] ALIGN;
+  uint8_t seed1[MLKEM_SYMBYTES + 2] ALIGN;
+  uint8_t seed2[MLKEM_SYMBYTES + 2] ALIGN;
+  uint8_t seed3[MLKEM_SYMBYTES + 2] ALIGN;
+  uint8_t *seedxy[] = {seed0, seed1, seed2, seed3};
+
   for (unsigned j = 0; j < KECCAK_WAY; j++) {
     memcpy(seedxy[j], seed, MLKEM_SYMBYTES);
   }
@@ -272,14 +278,14 @@ void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES],
     y = i % MLKEM_K;
 
     if (transposed) {
-      seedxy[0][MLKEM_SYMBYTES + 0] = x;
-      seedxy[0][MLKEM_SYMBYTES + 1] = y;
+      seed0[MLKEM_SYMBYTES + 0] = x;
+      seed0[MLKEM_SYMBYTES + 1] = y;
     } else {
-      seedxy[0][MLKEM_SYMBYTES + 0] = y;
-      seedxy[0][MLKEM_SYMBYTES + 1] = x;
+      seed0[MLKEM_SYMBYTES + 0] = y;
+      seed0[MLKEM_SYMBYTES + 1] = x;
     }
 
-    gen_matrix_entry(&a[0].vec[0] + i, seedxy[0]);
+    gen_matrix_entry(&a[0].vec[0] + i, seed0);
   }
 
 #if defined(MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER)
