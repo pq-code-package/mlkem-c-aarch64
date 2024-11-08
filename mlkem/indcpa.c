@@ -88,7 +88,16 @@ ASSIGNS(OBJECT_WHOLE(seed))  // clang-format on
  *              - polyvec *sk: pointer to input vector of polynomials (secret
  *key)
  **************************************************/
-static void pack_sk(uint8_t r[MLKEM_INDCPA_SECRETKEYBYTES], polyvec *sk) {
+STATIC_TESTABLE
+void pack_sk(uint8_t r[MLKEM_INDCPA_SECRETKEYBYTES],
+             polyvec *sk)  // clang-format off
+REQUIRES(IS_FRESH(r, MLKEM_INDCPA_SECRETKEYBYTES))
+REQUIRES(IS_FRESH(sk, sizeof(polyvec)))
+REQUIRES(FORALL(int, k0, 0, MLKEM_K - 1,
+  ARRAY_IN_BOUNDS(int, k1, 0, MLKEM_N - 1, sk->vec[k0].coeffs, 0, MLKEM_Q - 1)))
+ASSIGNS(OBJECT_WHOLE(r))
+// clang-format on
+{
   POLYVEC_BOUND(sk, MLKEM_Q);
   polyvec_tobytes(r, sk);
 }
