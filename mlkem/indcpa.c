@@ -147,9 +147,28 @@ static void unpack_ciphertext(polyvec *b, poly *v,
 
 // Generate four A matrix entries from a seed, using rejection
 // sampling on the output of a XOF.
-static void gen_matrix_entry_x4(poly vec[4], uint8_t *seed[4]) {
+// clang-format off
+STATIC_TESTABLE
+void gen_matrix_entry_x4(poly vec[4], uint8_t *seed[4])
+  REQUIRES(IS_FRESH(vec, sizeof(poly) * 4))
+  REQUIRES(IS_FRESH(seed, sizeof(uint8_t*) * 4))
+  REQUIRES(IS_FRESH(seed[0], MLKEM_SYMBYTES + 2))
+  REQUIRES(IS_FRESH(seed[1], MLKEM_SYMBYTES + 2))
+  REQUIRES(IS_FRESH(seed[2], MLKEM_SYMBYTES + 2))
+  REQUIRES(IS_FRESH(seed[3], MLKEM_SYMBYTES + 2))
+  ASSIGNS(OBJECT_UPTO(vec, sizeof(poly) * 4))
+  ENSURES(ARRAY_IN_BOUNDS(int, k0, 0, MLKEM_N - 1, vec[0].coeffs, 0, (MLKEM_Q - 1)))
+  ENSURES(ARRAY_IN_BOUNDS(int, k1, 0, MLKEM_N - 1, vec[1].coeffs, 0, (MLKEM_Q - 1)))
+  ENSURES(ARRAY_IN_BOUNDS(int, k2, 0, MLKEM_N - 1, vec[2].coeffs, 0, (MLKEM_Q - 1)))
+  ENSURES(ARRAY_IN_BOUNDS(int, k3, 0, MLKEM_N - 1, vec[3].coeffs, 0, (MLKEM_Q - 1)))
+// clang-format on
+{
   // Temporary buffers for XOF output before rejection sampling
-  uint8_t bufx[KECCAK_WAY][GEN_MATRIX_NBLOCKS * SHAKE128_RATE];
+  uint8_t buf0[GEN_MATRIX_NBLOCKS * SHAKE128_RATE];
+  uint8_t buf1[GEN_MATRIX_NBLOCKS * SHAKE128_RATE];
+  uint8_t buf2[GEN_MATRIX_NBLOCKS * SHAKE128_RATE];
+  uint8_t buf3[GEN_MATRIX_NBLOCKS * SHAKE128_RATE];
+
   // Tracks the number of coefficients we have already sampled
   unsigned int ctr[KECCAK_WAY];
   keccakx4_state statex;
@@ -161,23 +180,35 @@ static void gen_matrix_entry_x4(poly vec[4], uint8_t *seed[4]) {
 
   // Initially, squeeze heuristic number of GEN_MATRIX_NBLOCKS.
   // This should generate the matrix entries with high probability.
-  shake128x4_squeezeblocks(bufx[0], bufx[1], bufx[2], bufx[3],
-                           GEN_MATRIX_NBLOCKS, &statex);
+  shake128x4_squeezeblocks(buf0, buf1, buf2, buf3, GEN_MATRIX_NBLOCKS, &statex);
   buflen = GEN_MATRIX_NBLOCKS * SHAKE128_RATE;
-  for (unsigned int j = 0; j < KECCAK_WAY; j++) {
-    ctr[j] = rej_uniform(vec[j].coeffs, MLKEM_N, 0, bufx[j], buflen);
-  }
+  ctr[0] = rej_uniform(vec[0].coeffs, MLKEM_N, 0, buf0, buflen);
+  ctr[1] = rej_uniform(vec[1].coeffs, MLKEM_N, 0, buf1, buflen);
+  ctr[2] = rej_uniform(vec[2].coeffs, MLKEM_N, 0, buf2, buflen);
+  ctr[3] = rej_uniform(vec[3].coeffs, MLKEM_N, 0, buf3, buflen);
 
   // So long as not all matrix entries have been generated, squeeze
   // one more block a time until we're done.
   buflen = SHAKE128_RATE;
   while (ctr[0] < MLKEM_N || ctr[1] < MLKEM_N || ctr[2] < MLKEM_N ||
-         ctr[3] < MLKEM_N) {
-    shake128x4_squeezeblocks(bufx[0], bufx[1], bufx[2], bufx[3], 1, &statex);
-    for (unsigned j = 0; j < KECCAK_WAY; j++) {
-      ctr[j] = rej_uniform(vec[j].coeffs, MLKEM_N, ctr[j], bufx[j], buflen);
+         ctr[3] < MLKEM_N)  // clang-format off
+    ASSIGNS(ctr, statex, OBJECT_UPTO(vec, sizeof(poly) * 4), OBJECT_WHOLE(buf0),
+       OBJECT_WHOLE(buf1), OBJECT_WHOLE(buf2), OBJECT_WHOLE(buf3))
+    INVARIANT(ctr[0] <= MLKEM_N && ctr[1] <= MLKEM_N)
+    INVARIANT(ctr[2] <= MLKEM_N && ctr[3] <= MLKEM_N)
+    INVARIANT(ctr[0] > 0 ==> ARRAY_IN_BOUNDS(int, k0, 0, ctr[0] - 1, vec[0].coeffs, 0, (MLKEM_Q - 1)))
+    INVARIANT(ctr[1] > 0 ==> ARRAY_IN_BOUNDS(int, k1, 0, ctr[1] - 1, vec[1].coeffs, 0, (MLKEM_Q - 1)))
+    INVARIANT(ctr[2] > 0 ==> ARRAY_IN_BOUNDS(int, k2, 0, ctr[2] - 1, vec[2].coeffs, 0, (MLKEM_Q - 1)))
+    INVARIANT(ctr[3] > 0 ==> ARRAY_IN_BOUNDS(int, k3, 0, ctr[3] - 1, vec[3].coeffs, 0, (MLKEM_Q - 1)))
+                            // clang-format on
+    {
+      shake128x4_squeezeblocks(buf0, buf1, buf2, buf3, 1, &statex);
+      ctr[0] = rej_uniform(vec[0].coeffs, MLKEM_N, ctr[0], buf0, buflen);
+      ctr[1] = rej_uniform(vec[1].coeffs, MLKEM_N, ctr[1], buf1, buflen);
+      ctr[2] = rej_uniform(vec[2].coeffs, MLKEM_N, ctr[2], buf2, buflen);
+      ctr[3] = rej_uniform(vec[3].coeffs, MLKEM_N, ctr[3], buf3, buflen);
     }
-  }
+
   shake128x4_ctx_release(&statex);
 }
 
