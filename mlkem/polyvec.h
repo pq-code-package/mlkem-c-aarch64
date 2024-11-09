@@ -88,8 +88,16 @@ ENSURES(FORALL(int, k0, 0, MLKEM_K - 1,
                         r->vec[k0].coeffs, 0, 4095)))
 ASSIGNS(OBJECT_WHOLE(r));  // clang-format on
 
+// clang-format off
 #define polyvec_ntt MLKEM_NAMESPACE(polyvec_ntt)
-void polyvec_ntt(polyvec *r);
+void polyvec_ntt(polyvec *r)
+  REQUIRES(IS_FRESH(r, sizeof(polyvec)))
+  ASSIGNS(OBJECT_WHOLE(r))
+  ENSURES(FORALL(int, j, 0, MLKEM_K - 1,
+    ARRAY_IN_BOUNDS(int, k, 0, MLKEM_N - 1,
+                    r->vec[j].coeffs, -NTT_BOUND + 1, NTT_BOUND - 1)));
+// clang-format on
+
 #define polyvec_invntt_tomont MLKEM_NAMESPACE(polyvec_invntt_tomont)
 void polyvec_invntt_tomont(polyvec *r);
 
