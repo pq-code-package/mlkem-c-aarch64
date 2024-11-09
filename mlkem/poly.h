@@ -34,6 +34,8 @@ typedef struct {
 #define scalar_compress_d11 MLKEM_NAMESPACE(scalar_compress_d11)
 #define scalar_decompress_d4 MLKEM_NAMESPACE(scalar_decompress_d4)
 #define scalar_decompress_d5 MLKEM_NAMESPACE(scalar_decompress_d5)
+#define scalar_decompress_d10 MLKEM_NAMESPACE(scalar_decompress_d10)
+#define scalar_decompress_d11 MLKEM_NAMESPACE(scalar_decompress_d11)
 #define scalar_signed_to_unsigned_q MLKEM_NAMESPACE(scalar_signed_to_unsigned_q)
 
 /************************************************************
@@ -179,7 +181,9 @@ static inline uint16_t scalar_decompress_d5(uint32_t u)  // clang-format off
 #pragma CPROVER check push
 #pragma CPROVER check disable "unsigned-overflow"
 #endif
-static inline uint32_t scalar_compress_d10(uint16_t u)  // clang-format off
+// TODO: do the same for the other static inline functions
+STATIC_INLINE_TESTABLE
+uint32_t scalar_compress_d10(uint16_t u)  // clang-format off
   REQUIRES(u <= MLKEM_Q - 1)
   ENSURES(RETURN_VALUE < (1u << 10))
   ENSURES(RETURN_VALUE == (((uint32_t)u * (1u << 10) + MLKEM_Q / 2) / MLKEM_Q) % (1 << 10))
@@ -191,6 +195,24 @@ static inline uint32_t scalar_compress_d10(uint16_t u)  // clang-format off
 #ifdef CBMC
 #pragma CPROVER check pop
 #endif
+
+/************************************************************
+ * Name: scalar_decompress_d10
+ *
+ * Description: Computes round(u * q / 1024)
+ *
+ *              Implements Decompress_d from FIPS203, Eq (4.8),
+ *              for d = 10.
+ *
+ * Arguments: - u: Unsigned canonical modulus modulo 16
+ *                 to be decompressed.
+ ************************************************************/
+static inline uint16_t scalar_decompress_d10(uint32_t u)  // clang-format off
+  REQUIRES(0 <= u && u < 1024)
+  ENSURES(RETURN_VALUE <= (MLKEM_Q - 1))
+{  // clang-format on
+  return ((u * MLKEM_Q) + 512) / 1024;
+}
 
 /************************************************************
  * Name: scalar_compress_d11
@@ -209,7 +231,8 @@ static inline uint32_t scalar_compress_d10(uint16_t u)  // clang-format off
 #pragma CPROVER check push
 #pragma CPROVER check disable "unsigned-overflow"
 #endif
-static inline uint32_t scalar_compress_d11(uint16_t u)  // clang-format off
+STATIC_INLINE_TESTABLE
+uint32_t scalar_compress_d11(uint16_t u)  // clang-format off
   REQUIRES(u <= MLKEM_Q - 1)
   ENSURES(RETURN_VALUE < (1u << 11))
   ENSURES(RETURN_VALUE == (((uint32_t)u * (1u << 11) + MLKEM_Q / 2) / MLKEM_Q) % (1 << 11))
@@ -221,6 +244,25 @@ static inline uint32_t scalar_compress_d11(uint16_t u)  // clang-format off
 #ifdef CBMC
 #pragma CPROVER check pop
 #endif
+
+/************************************************************
+ * Name: scalar_decompress_d11
+ *
+ * Description: Computes round(u * q / 1024)
+ *
+ *              Implements Decompress_d from FIPS203, Eq (4.8),
+ *              for d = 10.
+ *
+ * Arguments: - u: Unsigned canonical modulus modulo 16
+ *                 to be decompressed.
+ ************************************************************/
+STATIC_INLINE_TESTABLE
+uint16_t scalar_decompress_d11(uint32_t u)  // clang-format off
+  REQUIRES(0 <= u && u < 2048)
+  ENSURES(RETURN_VALUE <= (MLKEM_Q - 1))
+{  // clang-format on
+  return ((u * MLKEM_Q) + 1024) / 2048;
+}
 
 /************************************************************
  * Name: scalar_signed_to_unsigned_q
@@ -240,8 +282,8 @@ static inline uint32_t scalar_compress_d11(uint16_t u)  // clang-format off
  *
  * Arguments: c: signed coefficient to be converted
  ************************************************************/
-static inline uint16_t scalar_signed_to_unsigned_q(
-    int16_t c)  // clang-format off
+STATIC_INLINE_TESTABLE
+uint16_t scalar_signed_to_unsigned_q(int16_t c)  // clang-format off
   REQUIRES(c >= -(MLKEM_Q - 1) && c <= (MLKEM_Q - 1))
   ENSURES(RETURN_VALUE >= 0 && RETURN_VALUE <= (MLKEM_Q - 1))
   ENSURES(RETURN_VALUE == (int32_t)c + (((int32_t)c < 0) * MLKEM_Q))
