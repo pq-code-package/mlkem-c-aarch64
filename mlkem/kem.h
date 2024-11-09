@@ -4,6 +4,7 @@
 
 #include <stdint.h>
 #include "params.h"
+#include "cbmc.h"
 
 #define CRYPTO_SECRETKEYBYTES MLKEM_SECRETKEYBYTES
 #define CRYPTO_PUBLICKEYBYTES MLKEM_PUBLICKEYBYTES
@@ -19,7 +20,14 @@
 #endif
 
 #define crypto_kem_keypair_derand MLKEM_NAMESPACE(keypair_derand)
-int crypto_kem_keypair_derand(uint8_t *pk, uint8_t *sk, const uint8_t *coins);
+int crypto_kem_keypair_derand(uint8_t *pk, uint8_t *sk, const uint8_t *coins)
+// clang-format off
+  REQUIRES(IS_FRESH(pk, MLKEM_PUBLICKEYBYTES))
+  REQUIRES(IS_FRESH(sk, MLKEM_SECRETKEYBYTES))
+  REQUIRES(IS_FRESH(coins, 2 * MLKEM_SYMBYTES))
+  ASSIGNS(OBJECT_WHOLE(pk))
+  ASSIGNS(OBJECT_WHOLE(sk));
+// clang-format on
 
 #define crypto_kem_keypair MLKEM_NAMESPACE(keypair)
 int crypto_kem_keypair(uint8_t *pk, uint8_t *sk);
