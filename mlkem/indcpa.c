@@ -421,10 +421,15 @@ void indcpa_keypair_derand(uint8_t pk[MLKEM_INDCPA_PUBLICKEYBYTES],
   poly_getnoise_eta1_4x(skpv.vec + 0, skpv.vec + 1, e.vec + 0, e.vec + 1,
                         noiseseed, 0, 1, 2, 3);
 #elif MLKEM_K == 3
-  poly_getnoise_eta1_4x(skpv.vec + 0, skpv.vec + 1, skpv.vec + 2, e.vec + 0,
-                        noiseseed, 0, 1, 2, 3);
-  poly_getnoise_eta1_4x(e.vec + 1, e.vec + 2, pkpv.vec + 0, pkpv.vec + 1,
-                        noiseseed, 4, 5, 6, 7);
+  // Only the first three output buffers are needed.
+  // The laster parameter is a dummy that's overwritten later.
+  poly_getnoise_eta1_4x(skpv.vec + 0, skpv.vec + 1, skpv.vec + 2,
+                        pkpv.vec + 0 /* irrelevant */, noiseseed, 0, 1, 2,
+                        0xFF /* irrelevant */);
+  // Same here
+  poly_getnoise_eta1_4x(e.vec + 0, e.vec + 1, e.vec + 2,
+                        pkpv.vec + 0 /* irrelevant */, noiseseed, 3, 4, 5,
+                        0xFF /* irrelevant */);
 #elif MLKEM_K == 4
   poly_getnoise_eta1_4x(skpv.vec + 0, skpv.vec + 1, skpv.vec + 2, skpv.vec + 3,
                         noiseseed, 0, 1, 2, 3);
@@ -487,10 +492,13 @@ void indcpa_enc(uint8_t c[MLKEM_INDCPA_BYTES],
                            coins, 0, 1, 2, 3);
   poly_getnoise_eta2(&epp, coins, 4);
 #elif MLKEM_K == 3
-  poly_getnoise_eta1_4x(sp.vec + 0, sp.vec + 1, sp.vec + 2, ep.vec + 0, coins,
-                        0, 1, 2, 3);
-  poly_getnoise_eta1_4x(ep.vec + 1, ep.vec + 2, &epp, b.vec + 0, coins, 4, 5, 6,
-                        7);
+  // In this call, only the first three output buffers are needed.
+  // The last parameter is a dummy that's overwritten later.
+  poly_getnoise_eta1_4x(sp.vec + 0, sp.vec + 1, sp.vec + 2, &b.vec[0], coins, 0,
+                        1, 2, 0xFF);
+  // The fourth output buffer in this call _is_ used.
+  poly_getnoise_eta1_4x(ep.vec + 0, ep.vec + 1, ep.vec + 2, &epp, coins, 3, 4,
+                        5, 6);
 #elif MLKEM_K == 4
   poly_getnoise_eta1_4x(sp.vec + 0, sp.vec + 1, sp.vec + 2, sp.vec + 3, coins,
                         0, 1, 2, 3);
