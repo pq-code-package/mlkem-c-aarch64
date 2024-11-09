@@ -352,6 +352,26 @@ void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES],
 #endif /* MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER */
 }
 
+// clang-format off
+STATIC_TESTABLE
+void matvec_mul(polyvec *out, polyvec const *a, polyvec const *v)
+  REQUIRES(IS_FRESH(out, sizeof(polyvec)))
+  REQUIRES(IS_FRESH(a, sizeof(polyvec) * MLKEM_K))
+  REQUIRES(IS_FRESH(v, sizeof(polyvec)))
+  REQUIRES(FORALL(int, k0, 0, MLKEM_K - 1,
+   FORALL(int, k1, 0, MLKEM_K - 1,
+     ARRAY_IN_BOUNDS(int, k2, 0, MLKEM_N - 1,
+       a[k0].vec[k1].coeffs, -(MLKEM_Q - 1), (MLKEM_Q - 1)))))
+  ASSIGNS(OBJECT_WHOLE(out))
+// clang-format on
+{
+  polyvec_mulcache vc;
+  polyvec_mulcache_compute(&vc, v);
+  for (int i = 0; i < MLKEM_K; i++) {
+    polyvec_basemul_acc_montgomery_cached(&out->vec[i], &a[i], v, &vc);
+  }
+}
+
 /*************************************************
  * Name:        indcpa_keypair_derand
  *
@@ -371,12 +391,10 @@ STATIC_ASSERT(NTT_BOUND + MLKEM_Q < INT16_MAX, indcpa_enc_bound_0)
 void indcpa_keypair_derand(uint8_t pk[MLKEM_INDCPA_PUBLICKEYBYTES],
                            uint8_t sk[MLKEM_INDCPA_SECRETKEYBYTES],
                            const uint8_t coins[MLKEM_SYMBYTES]) {
-  unsigned int i;
   uint8_t buf[2 * MLKEM_SYMBYTES] ALIGN;
   const uint8_t *publicseed = buf;
   const uint8_t *noiseseed = buf + MLKEM_SYMBYTES;
   polyvec a[MLKEM_K], e, pkpv, skpv;
-  polyvec_mulcache skpv_cache;
 
   // Add MLKEM_K for domain separation of security levels
   memcpy(buf, coins, MLKEM_SYMBYTES);
@@ -403,14 +421,8 @@ void indcpa_keypair_derand(uint8_t pk[MLKEM_INDCPA_PUBLICKEYBYTES],
   polyvec_ntt(&skpv);
   polyvec_ntt(&e);
 
-  polyvec_mulcache_compute(&skpv_cache, &skpv);
-
-  // matrix-vector multiplication
-  for (i = 0; i < MLKEM_K; i++) {
-    polyvec_basemul_acc_montgomery_cached(&pkpv.vec[i], &a[i], &skpv,
-                                          &skpv_cache);
-    poly_tomont(&pkpv.vec[i]);
-  }
+  matvec_mul(&pkpv, a, &skpv);
+  polyvec_tomont(&pkpv);
 
   // Arithmetic cannot overflow, see static assertion at the top
   polyvec_add(&pkpv, &e);
@@ -446,10 +458,8 @@ void indcpa_enc(uint8_t c[MLKEM_INDCPA_BYTES],
                 const uint8_t m[MLKEM_INDCPA_MSGBYTES],
                 const uint8_t pk[MLKEM_INDCPA_PUBLICKEYBYTES],
                 const uint8_t coins[MLKEM_SYMBYTES]) {
-  unsigned int i;
   uint8_t seed[MLKEM_SYMBYTES] ALIGN;
   polyvec sp, pkpv, ep, at[MLKEM_K], b;
-  polyvec_mulcache sp_cache;
   poly v, k, epp;
 
   unpack_pk(&pkpv, seed, pk);
@@ -474,13 +484,8 @@ void indcpa_enc(uint8_t c[MLKEM_INDCPA_BYTES],
 #endif
 
   polyvec_ntt(&sp);
-  polyvec_mulcache_compute(&sp_cache, &sp);
 
-  // matrix-vector multiplication
-  for (i = 0; i < MLKEM_K; i++) {
-    polyvec_basemul_acc_montgomery_cached(&b.vec[i], &at[i], &sp, &sp_cache);
-  }
-
+  matvec_mul(&b, at, &sp);
   polyvec_basemul_acc_montgomery_cached(&v, &pkpv, &sp, &sp_cache);
 
   polyvec_invntt_tomont(&b);
