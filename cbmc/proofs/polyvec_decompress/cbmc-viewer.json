@@ -1,7 +1,0 @@
-{ "expected-missing-functions":
-  [
-
-  ],
-  "proof-name": "poly_compress",
-  "proof-root": "cbmc/proofs"
-}
