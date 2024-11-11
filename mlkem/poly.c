@@ -122,11 +122,11 @@ void poly_decompress(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES]) {
 void poly_tobytes(uint8_t r[MLKEM_POLYBYTES], const poly *a) {
   POLY_UBOUND(a, MLKEM_Q);
 
-  for (unsigned int i = 0; i < MLKEM_N / 2; i++)
-      // clang-format off
-  ASSIGNS(i, OBJECT_WHOLE(r))
-  INVARIANT(i >= 0 && i <= MLKEM_N / 2)
-  DECREASES(MLKEM_N / 2 - i)
+
+  for (unsigned int i = 0; i < MLKEM_N / 2; i++)  // clang-format off
+    ASSIGNS(i, OBJECT_WHOLE(r))
+    INVARIANT(i >= 0 && i <= MLKEM_N / 2)
+    DECREASES(MLKEM_N / 2 - i)
     // clang-format on
     {
       const uint16_t t0 = a->coeffs[2 * i];

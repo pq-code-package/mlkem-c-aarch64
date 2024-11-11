@@ -316,8 +316,8 @@ uint16_t scalar_signed_to_unsigned_q(int16_t c)  // clang-format off
  *                  Coefficients must be unsigned canonical,
  *                  i.e. in [0,1,..,MLKEM_Q-1].
  **************************************************/
-void poly_compress(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES], const poly *a)
-    // clang-format off
+void poly_compress(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES],
+                   const poly *a)  // clang-format off
 REQUIRES(IS_FRESH(r, MLKEM_POLYCOMPRESSEDBYTES))
 REQUIRES(IS_FRESH(a, sizeof(poly)))
 REQUIRES(ARRAY_IN_BOUNDS(int, k, 0, (MLKEM_N - 1), a->coeffs, 0, (MLKEM_Q - 1)))
@@ -339,8 +339,8 @@ ASSIGNS(OBJECT_WHOLE(r));
  * (non-negative and smaller than MLKEM_Q).
  *
  **************************************************/
-void poly_decompress(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES])
-    // clang-format off
+void poly_decompress(
+    poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES])  // clang-format off
 REQUIRES(IS_FRESH(a, MLKEM_POLYCOMPRESSEDBYTES))
 REQUIRES(IS_FRESH(r, sizeof(poly)))
 ASSIGNS(OBJECT_WHOLE(r))
@@ -362,8 +362,8 @@ ENSURES(ARRAY_IN_BOUNDS(int, k, 0, (MLKEM_N - 1), r->coeffs, 0, (MLKEM_Q - 1)));
  *              - r: pointer to output byte array
  *                   (of MLKEM_POLYBYTES bytes)
  **************************************************/
-void poly_tobytes(uint8_t r[MLKEM_POLYBYTES], const poly *a)
-    // clang-format off
+void poly_tobytes(uint8_t r[MLKEM_POLYBYTES],
+                  const poly *a)  // clang-format off
 REQUIRES(IS_FRESH(r, MLKEM_POLYBYTES))
 REQUIRES(IS_FRESH(a, sizeof(poly)))
 REQUIRES(ARRAY_IN_BOUNDS(int, k, 0, (MLKEM_N - 1), a->coeffs, 0, (MLKEM_Q - 1)))
@@ -385,8 +385,8 @@ ASSIGNS(OBJECT_WHOLE(r));
  *                   each coefficient unsigned and in the range
  *                   0 .. 4095
  **************************************************/
-void poly_frombytes(poly *r, const uint8_t a[MLKEM_POLYBYTES])
-    // clang-format off
+void poly_frombytes(poly *r,
+                    const uint8_t a[MLKEM_POLYBYTES])  // clang-format off
 REQUIRES(IS_FRESH(a, MLKEM_POLYBYTES))
 REQUIRES(IS_FRESH(r, sizeof(poly)))
 ASSIGNS(OBJECT_UPTO(r, sizeof(poly)))
@@ -403,8 +403,8 @@ ENSURES(ARRAY_IN_BOUNDS(int, k, 0, (MLKEM_N - 1), r->coeffs, 0, 4095));
  * Arguments:   - poly *r: pointer to output polynomial
  *              - const uint8_t *msg: pointer to input message
  **************************************************/
-void poly_frommsg(poly *r, const uint8_t msg[MLKEM_INDCPA_MSGBYTES])
-    // clang-format off
+void poly_frommsg(poly *r,
+                  const uint8_t msg[MLKEM_INDCPA_MSGBYTES])  // clang-format off
 REQUIRES(IS_FRESH(msg, MLKEM_INDCPA_MSGBYTES))
 REQUIRES(IS_FRESH(r, sizeof(poly)))
 ASSIGNS(OBJECT_WHOLE(r))
@@ -422,8 +422,8 @@ ENSURES(ARRAY_IN_BOUNDS(int, k, 0, (MLKEM_N - 1), r->coeffs, 0, (MLKEM_Q - 1)));
  *              - const poly *r: pointer to input polynomial
  *                Coefficients must be unsigned canonical
  **************************************************/
-void poly_tomsg(uint8_t msg[MLKEM_INDCPA_MSGBYTES], const poly *r)
-    // clang-format off
+void poly_tomsg(uint8_t msg[MLKEM_INDCPA_MSGBYTES],
+                const poly *r)  // clang-format off
 REQUIRES(IS_FRESH(msg, MLKEM_INDCPA_MSGBYTES))
 REQUIRES(IS_FRESH(r, sizeof(poly)))
 REQUIRES(ARRAY_IN_BOUNDS(int, k, 0, (MLKEM_N - 1), r->coeffs, 0, (MLKEM_Q - 1)))
@@ -551,9 +551,10 @@ ENSURES(                                                                        
  *                  for second input polynomial. Can be computed
  *                  via poly_mulcache_compute().
  **************************************************/
-void poly_basemul_montgomery_cached(poly *r, const poly *a, const poly *b,
-                                    const poly_mulcache *b_cache)
-    // clang-format off
+
+void poly_basemul_montgomery_cached(
+    poly *r, const poly *a, const poly *b,
+    const poly_mulcache *b_cache)  // clang-format off
 REQUIRES(IS_FRESH(r, sizeof(poly)))
 REQUIRES(IS_FRESH(a, sizeof(poly)))
 REQUIRES(IS_FRESH(b, sizeof(poly)))
@@ -563,7 +564,6 @@ ASSIGNS(OBJECT_WHOLE(r))
 ENSURES(ARRAY_IN_BOUNDS(int, k, 0, MLKEM_N - 1, r->coeffs, -(3 * HALF_Q - 1), (3 * HALF_Q - 1)));
 // clang-format on
 
-// clang-format off
 #define poly_tomont MLKEM_NAMESPACE(poly_tomont)
 /*************************************************
  * Name:        poly_tomont
@@ -575,7 +575,7 @@ ENSURES(ARRAY_IN_BOUNDS(int, k, 0, MLKEM_N - 1, r->coeffs, -(3 * HALF_Q - 1), (3
  *
  * Arguments:   - poly *r: pointer to input/output polynomial
  **************************************************/
-void poly_tomont(poly *r)
+void poly_tomont(poly *r)  // clang-format off
 REQUIRES(IS_FRESH(r, sizeof(poly)))
 ASSIGNS(OBJECT_UPTO(r, sizeof(poly)))
 ENSURES(ARRAY_IN_BOUNDS(int, k, 0, MLKEM_N - 1, r->coeffs, -(MLKEM_Q - 1), (MLKEM_Q - 1)));
@@ -603,8 +603,7 @@ ENSURES(ARRAY_IN_BOUNDS(int, k, 0, MLKEM_N - 1, r->coeffs, -(MLKEM_Q - 1), (MLKE
 // NOTE: The default C implementation of this function populates
 // the mulcache with values in (-q,q), but this is not needed for the
 // higher level safety proofs, and thus not part of the spec.
-void poly_mulcache_compute(poly_mulcache *x, const poly *a)
-    // clang-format off
+void poly_mulcache_compute(poly_mulcache *x, const poly *a)  // clang-format off
 REQUIRES(IS_FRESH(x, sizeof(poly_mulcache)))
 REQUIRES(IS_FRESH(a, sizeof(poly)))
 ASSIGNS(OBJECT_WHOLE(x));
@@ -626,8 +625,7 @@ ASSIGNS(OBJECT_WHOLE(x));
 //             signed canonical output data. Unsigned canonical
 //             outputs are better suited to the only remaining
 //             use of poly_reduce() in the context of (de)serialization.
-void poly_reduce(poly *r)
-    // clang-format off
+void poly_reduce(poly *r)  // clang-format off
 REQUIRES(IS_FRESH(r, sizeof(poly)))
 ASSIGNS(OBJECT_UPTO(r, sizeof(poly)))
 ENSURES(ARRAY_IN_BOUNDS(int, k, 0, MLKEM_N - 1, r->coeffs, 0, (MLKEM_Q - 1)));

@@ -164,9 +164,8 @@ static void unpack_ciphertext(polyvec *b, poly *v,
 
 // Generate four A matrix entries from a seed, using rejection
 // sampling on the output of a XOF.
-// clang-format off
 STATIC_TESTABLE
-void gen_matrix_entry_x4(poly *vec, uint8_t *seed[4])
+void gen_matrix_entry_x4(poly *vec, uint8_t *seed[4])  // clang-format off
   REQUIRES(IS_FRESH(vec, sizeof(poly) * 4))
   REQUIRES(IS_FRESH(seed, sizeof(uint8_t*) * 4))
   REQUIRES(IS_FRESH(seed[0], MLKEM_SYMBYTES + 2))
@@ -365,10 +364,9 @@ void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES],
  *              - polyvec *vc: Mulcache for v, computed via
  *                  polyvec_mulcache_compute().
  **************************************************/
-// clang-format off
 STATIC_TESTABLE
 void matvec_mul(polyvec *out, const polyvec a[MLKEM_K], const polyvec *v,
-    const polyvec_mulcache *vc)
+    const polyvec_mulcache *vc) // clang-format off
   REQUIRES(IS_FRESH(out, sizeof(polyvec)))
   REQUIRES(IS_FRESH(a, sizeof(polyvec) * MLKEM_K))
   REQUIRES(IS_FRESH(v, sizeof(polyvec)))

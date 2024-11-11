@@ -20,8 +20,8 @@
 #endif
 
 #define crypto_kem_keypair_derand MLKEM_NAMESPACE(keypair_derand)
-int crypto_kem_keypair_derand(uint8_t *pk, uint8_t *sk, const uint8_t *coins)
-    // clang-format off
+int crypto_kem_keypair_derand(uint8_t *pk, uint8_t *sk,
+                              const uint8_t *coins)  // clang-format off
   REQUIRES(IS_FRESH(pk, MLKEM_PUBLICKEYBYTES))
   REQUIRES(IS_FRESH(sk, MLKEM_SECRETKEYBYTES))
   REQUIRES(IS_FRESH(coins, 2 * MLKEM_SYMBYTES))
