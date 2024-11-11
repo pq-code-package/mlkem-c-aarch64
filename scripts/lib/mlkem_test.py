@@ -32,6 +32,9 @@ class CompileOptions(object):
         self.auto = auto
         self.verbose = verbose
 
+    def compile_mode(self) -> str:
+        return "Cross" if self.cross_prefix else "Native"
+
 
 class Options(object):
     def __init__(self):
@@ -55,7 +58,7 @@ class Base:
         self.auto = copts.auto
         self.verbose = copts.verbose
         self.opt = opt
-        self.compile_mode = "Cross" if self.cross_prefix else "Native"
+        self.compile_mode = copts.compile_mode()
         self.opt_label = "opt" if self.opt else "no_opt"
 
     def compile_schemes(
@@ -187,6 +190,7 @@ class Base:
 class Test_Implementations:
     def __init__(self, test_type: TEST_TYPES, copts: CompileOptions):
         self.test_type = test_type
+        self.compile_mode = copts.compile_mode()
         self.ts = {}
         self.ts["opt"] = Base(test_type, copts, True)
         self.ts["no_opt"] = Base(test_type, copts, False)
@@ -215,7 +219,7 @@ class Test_Implementations:
         k = "opt" if opt else "no_opt"
 
         if gh_env is not None:
-            print(f"::group::run {self.ts[k].compile_mode} {k} {self.test_type.desc()}")
+            print(f"::group::run {self.compile_mode} {k} {self.test_type.desc()}")
 
         results[k] = {}
         for scheme in SCHEME:
@@ -229,7 +233,7 @@ class Test_Implementations:
 
             results[k][scheme] = result
 
-        title = "## " + (self.ts[k].compile_mode) + " " + (k.capitalize()) + " Tests"
+        title = "## " + (self.compile_mode) + " " + (k.capitalize()) + " Tests"
         github_summary(title, self.test_type, results[k])
 
         if gh_env is not None:
@@ -267,7 +271,7 @@ class Tests:
             TEST_TYPES.BENCH_COMPONENTS, copts
         )
 
-        self.compile_mode = "Cross" if opts.cross_prefix else "Native"
+        self.compile_mode = copts.compile_mode()
         self.compile = opts.compile
         self.run = opts.run
 
