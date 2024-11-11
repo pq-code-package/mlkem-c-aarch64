@@ -48,5 +48,5 @@ runs:
         run: |
           cd cbmc/proofs;
           echo "::group::cbmc_${{ inputs.mlkem_k }}"
-          MLKEM_K=${{ inputs.mlkem_k }} ./run-cbmc-proofs.py --summarize -j8;
+          MLKEM_K=${{ inputs.mlkem_k }} ./run-cbmc-proofs.py --summarize --no-coverage -j8;
           echo "::endgroup::"

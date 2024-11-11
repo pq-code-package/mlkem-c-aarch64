@@ -353,6 +353,39 @@ void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES],
 }
 
 /*************************************************
+ * Name:        matvec_mul
+ *
+ * Description: Computes matrix-vector product in NTT domain,
+ *              via Montgomery multiplication.
+ *
+ * Arguments:   - polyvec *out: Pointer to output polynomial vector
+ *              - polyvec a[MLKEM_K]: Input matrix. Must be in NTT domain
+ *                  and have coefficients of absolute value < MLKEM_Q.
+ *              - polyvec *v: Input polynomial vector. Must be in NTT domain.
+ *              - polyvec *vc: Mulcache for v, computed via
+ *                  polyvec_mulcache_compute().
+ **************************************************/
+// clang-format off
+STATIC_TESTABLE
+void matvec_mul(polyvec *out, const polyvec a[MLKEM_K], const polyvec *v,
+    const polyvec_mulcache *vc)
+  REQUIRES(IS_FRESH(out, sizeof(polyvec)))
+  REQUIRES(IS_FRESH(a, sizeof(polyvec) * MLKEM_K))
+  REQUIRES(IS_FRESH(v, sizeof(polyvec)))
+  REQUIRES(IS_FRESH(vc, sizeof(polyvec_mulcache)))
+  REQUIRES(FORALL(int, k0, 0, MLKEM_K - 1,
+   FORALL(int, k1, 0, MLKEM_K - 1,
+     ARRAY_IN_BOUNDS(int, k2, 0, MLKEM_N - 1,
+       a[k0].vec[k1].coeffs, -(MLKEM_Q - 1), (MLKEM_Q - 1)))))
+  ASSIGNS(OBJECT_WHOLE(out))
+// clang-format on
+{
+  for (int i = 0; i < MLKEM_K; i++) {
+    polyvec_basemul_acc_montgomery_cached(&out->vec[i], &a[i], v, vc);
+  }
+}
+
+/*************************************************
  * Name:        indcpa_keypair_derand
  *
  * Description: Generates public and private key for the CPA-secure
@@ -371,7 +404,6 @@ STATIC_ASSERT(NTT_BOUND + MLKEM_Q < INT16_MAX, indcpa_enc_bound_0)
 void indcpa_keypair_derand(uint8_t pk[MLKEM_INDCPA_PUBLICKEYBYTES],
                            uint8_t sk[MLKEM_INDCPA_SECRETKEYBYTES],
                            const uint8_t coins[MLKEM_SYMBYTES]) {
-  unsigned int i;
   uint8_t buf[2 * MLKEM_SYMBYTES] ALIGN;
   const uint8_t *publicseed = buf;
   const uint8_t *noiseseed = buf + MLKEM_SYMBYTES;
@@ -389,10 +421,15 @@ void indcpa_keypair_derand(uint8_t pk[MLKEM_INDCPA_PUBLICKEYBYTES],
   poly_getnoise_eta1_4x(skpv.vec + 0, skpv.vec + 1, e.vec + 0, e.vec + 1,
                         noiseseed, 0, 1, 2, 3);
 #elif MLKEM_K == 3
-  poly_getnoise_eta1_4x(skpv.vec + 0, skpv.vec + 1, skpv.vec + 2, e.vec + 0,
-                        noiseseed, 0, 1, 2, 3);
-  poly_getnoise_eta1_4x(e.vec + 1, e.vec + 2, pkpv.vec + 0, pkpv.vec + 1,
-                        noiseseed, 4, 5, 6, 7);
+  // Only the first three output buffers are needed.
+  // The laster parameter is a dummy that's overwritten later.
+  poly_getnoise_eta1_4x(skpv.vec + 0, skpv.vec + 1, skpv.vec + 2,
+                        pkpv.vec + 0 /* irrelevant */, noiseseed, 0, 1, 2,
+                        0xFF /* irrelevant */);
+  // Same here
+  poly_getnoise_eta1_4x(e.vec + 0, e.vec + 1, e.vec + 2,
+                        pkpv.vec + 0 /* irrelevant */, noiseseed, 3, 4, 5,
+                        0xFF /* irrelevant */);
 #elif MLKEM_K == 4
   poly_getnoise_eta1_4x(skpv.vec + 0, skpv.vec + 1, skpv.vec + 2, skpv.vec + 3,
                         noiseseed, 0, 1, 2, 3);
@@ -404,13 +441,8 @@ void indcpa_keypair_derand(uint8_t pk[MLKEM_INDCPA_PUBLICKEYBYTES],
   polyvec_ntt(&e);
 
   polyvec_mulcache_compute(&skpv_cache, &skpv);
-
-  // matrix-vector multiplication
-  for (i = 0; i < MLKEM_K; i++) {
-    polyvec_basemul_acc_montgomery_cached(&pkpv.vec[i], &a[i], &skpv,
-                                          &skpv_cache);
-    poly_tomont(&pkpv.vec[i]);
-  }
+  matvec_mul(&pkpv, a, &skpv, &skpv_cache);
+  polyvec_tomont(&pkpv);
 
   // Arithmetic cannot overflow, see static assertion at the top
   polyvec_add(&pkpv, &e);
@@ -446,11 +478,10 @@ void indcpa_enc(uint8_t c[MLKEM_INDCPA_BYTES],
                 const uint8_t m[MLKEM_INDCPA_MSGBYTES],
                 const uint8_t pk[MLKEM_INDCPA_PUBLICKEYBYTES],
                 const uint8_t coins[MLKEM_SYMBYTES]) {
-  unsigned int i;
   uint8_t seed[MLKEM_SYMBYTES] ALIGN;
   polyvec sp, pkpv, ep, at[MLKEM_K], b;
-  polyvec_mulcache sp_cache;
   poly v, k, epp;
+  polyvec_mulcache sp_cache;
 
   unpack_pk(&pkpv, seed, pk);
   poly_frommsg(&k, m);
@@ -461,10 +492,13 @@ void indcpa_enc(uint8_t c[MLKEM_INDCPA_BYTES],
                            coins, 0, 1, 2, 3);
   poly_getnoise_eta2(&epp, coins, 4);
 #elif MLKEM_K == 3
-  poly_getnoise_eta1_4x(sp.vec + 0, sp.vec + 1, sp.vec + 2, ep.vec + 0, coins,
-                        0, 1, 2, 3);
-  poly_getnoise_eta1_4x(ep.vec + 1, ep.vec + 2, &epp, b.vec + 0, coins, 4, 5, 6,
-                        7);
+  // In this call, only the first three output buffers are needed.
+  // The last parameter is a dummy that's overwritten later.
+  poly_getnoise_eta1_4x(sp.vec + 0, sp.vec + 1, sp.vec + 2, &b.vec[0], coins, 0,
+                        1, 2, 0xFF);
+  // The fourth output buffer in this call _is_ used.
+  poly_getnoise_eta1_4x(ep.vec + 0, ep.vec + 1, ep.vec + 2, &epp, coins, 3, 4,
+                        5, 6);
 #elif MLKEM_K == 4
   poly_getnoise_eta1_4x(sp.vec + 0, sp.vec + 1, sp.vec + 2, sp.vec + 3, coins,
                         0, 1, 2, 3);
@@ -474,13 +508,9 @@ void indcpa_enc(uint8_t c[MLKEM_INDCPA_BYTES],
 #endif
 
   polyvec_ntt(&sp);
+
   polyvec_mulcache_compute(&sp_cache, &sp);
-
-  // matrix-vector multiplication
-  for (i = 0; i < MLKEM_K; i++) {
-    polyvec_basemul_acc_montgomery_cached(&b.vec[i], &at[i], &sp, &sp_cache);
-  }
-
+  matvec_mul(&b, at, &sp, &sp_cache);
   polyvec_basemul_acc_montgomery_cached(&v, &pkpv, &sp, &sp_cache);
 
   polyvec_invntt_tomont(&b);
