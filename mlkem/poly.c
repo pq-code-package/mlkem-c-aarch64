@@ -256,32 +256,6 @@ void poly_getnoise_eta2(poly *r, const uint8_t seed[MLKEM_SYMBYTES],
   POLY_BOUND_MSG(r, MLKEM_ETA1 + 1, "poly_getnoise_eta2 output");
 }
 
-void poly_getnoise_eta2_4x(poly *r0, poly *r1, poly *r2, poly *r3,
-                           const uint8_t seed[MLKEM_SYMBYTES], uint8_t nonce0,
-                           uint8_t nonce1, uint8_t nonce2, uint8_t nonce3) {
-  uint8_t buf[KECCAK_WAY][MLKEM_ETA2 * MLKEM_N / 4] ALIGN;
-  uint8_t extkey[KECCAK_WAY][MLKEM_SYMBYTES + 1] ALIGN;
-  memcpy(extkey[0], seed, MLKEM_SYMBYTES);
-  memcpy(extkey[1], seed, MLKEM_SYMBYTES);
-  memcpy(extkey[2], seed, MLKEM_SYMBYTES);
-  memcpy(extkey[3], seed, MLKEM_SYMBYTES);
-  extkey[0][MLKEM_SYMBYTES] = nonce0;
-  extkey[1][MLKEM_SYMBYTES] = nonce1;
-  extkey[2][MLKEM_SYMBYTES] = nonce2;
-  extkey[3][MLKEM_SYMBYTES] = nonce3;
-  shake256x4(buf[0], buf[1], buf[2], buf[3], MLKEM_ETA2 * MLKEM_N / 4,
-             extkey[0], extkey[1], extkey[2], extkey[3], MLKEM_SYMBYTES + 1);
-  poly_cbd_eta2(r0, buf[0]);
-  poly_cbd_eta2(r1, buf[1]);
-  poly_cbd_eta2(r2, buf[2]);
-  poly_cbd_eta2(r3, buf[3]);
-
-  POLY_BOUND_MSG(r0, MLKEM_ETA2 + 1, "poly_getnoise_eta2_4x output 0");
-  POLY_BOUND_MSG(r1, MLKEM_ETA2 + 1, "poly_getnoise_eta2_4x output 1");
-  POLY_BOUND_MSG(r2, MLKEM_ETA2 + 1, "poly_getnoise_eta2_4x output 2");
-  POLY_BOUND_MSG(r3, MLKEM_ETA2 + 1, "poly_getnoise_eta2_4x output 3");
-}
-
 void poly_getnoise_eta1122_4x(poly *r0, poly *r1, poly *r2, poly *r3,
                               const uint8_t seed[MLKEM_SYMBYTES],
                               uint8_t nonce0, uint8_t nonce1, uint8_t nonce2,
