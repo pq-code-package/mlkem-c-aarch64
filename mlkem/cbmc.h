@@ -4,6 +4,8 @@
 // Basic replacements for __CPROVER_XXX contracts
 ///////////////////////////////////////////////////
 
+#include "common.h"
+
 #ifndef CBMC
 
 #define STATIC_TESTABLE static
@@ -134,5 +136,9 @@
      (qvar_lb), (qvar_ub), (array_var), (value_lb), (value_ub))
 
 // clang-format on
+
+// Wrapper around ARRAY_IN_BOUNDS operating on absolute values
+#define ARRAY_ABS_BOUND(arr, lb, ub, k) \
+  ARRAY_IN_BOUNDS((lb), (ub), (arr), (-(k)), (k))
 
 #endif

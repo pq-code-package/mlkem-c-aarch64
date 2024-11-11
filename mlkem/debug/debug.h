@@ -144,7 +144,6 @@ void mlkem_debug_print_error(const char *file, int line, const char *msg);
   } while (0)
 
 // Following AWS-LC to define a C99-compliant static assert
-#define MLKEM_CONCAT(left, right) left##right
 #define MLKEM_STATIC_ASSERT_DEFINE(cond, msg)                            \
   typedef struct {                                                       \
     unsigned int MLKEM_CONCAT(static_assertion_, msg) : (cond) ? 1 : -1; \

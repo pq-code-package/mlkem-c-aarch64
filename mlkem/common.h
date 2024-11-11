@@ -6,4 +6,7 @@
 #define ALIGN __attribute__((aligned(DEFAULT_ALIGN)))
 #define ALWAYS_INLINE __attribute__((always_inline))
 
+#define MLKEM_CONCAT_(left, right) left##right
+#define MLKEM_CONCAT(left, right) MLKEM_CONCAT_(left, right)
+
 #endif
