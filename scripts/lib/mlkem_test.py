@@ -447,9 +447,8 @@ class Tests:
     def all(self, func: bool, kat: bool, nistkat: bool):
         config_logger(self.verbose)
 
-        exit_code = 0
-
         def all(opt: bool):
+            code = 0
             if self.compile:
                 compiles = [
                     *([self._func.compile] if func else []),
@@ -461,7 +460,7 @@ class Tests:
                     try:
                         f(opt)
                     except SystemExit as e:
-                        exit_code = exit_code or e
+                        code = code or e
 
                     sys.stdout.flush()
 
@@ -474,15 +473,18 @@ class Tests:
 
                 for f in runs:
                     try:
-                        f(opt)
+                        code = code or int(f(opt))
                     except SystemExit as e:
-                        exit_code = exit_code or e
+                        code = code or e
 
                     sys.stdout.flush()
+            return code
+
+        exit_code = 0
 
         if self.opt.lower() == "all" or self.opt.lower() == "no_opt":
-            all(False)
+            exit_code = exit_code or all(False)
         if self.opt.lower() == "all" or self.opt.lower() == "opt":
-            all(True)
+            exit_code = exit_code or all(True)
 
         exit(exit_code)
