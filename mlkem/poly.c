@@ -299,7 +299,7 @@ void poly_basemul_montgomery_cached(poly *r, const poly *a, const poly *b,
   for (i = 0; i < MLKEM_N / 4; i++)  // clang-format off
     ASSIGNS(i, OBJECT_WHOLE(r))
     INVARIANT(i >= 0 && i <= MLKEM_N / 4)
-    INVARIANT(ARRAY_IN_BOUNDS(int, k, 0, (4 * i - 1), r->coeffs, -3 * HALF_Q + 1, 3 * HALF_Q - 1))
+    INVARIANT(ARRAY_IN_BOUNDS(int, k, 0, (4 * i - 1), r->coeffs, -(3 * HALF_Q - 1), (3 * HALF_Q - 1)))
     {  // clang-format on
       basemul_cached(&r->coeffs[4 * i], &a->coeffs[4 * i], &b->coeffs[4 * i],
                      b_cache->coeffs[2 * i]);
@@ -335,7 +335,7 @@ void poly_reduce(poly *r) {
   for (i = 0; i < MLKEM_N; i++)  // clang-format off
     ASSIGNS(i, OBJECT_WHOLE(r))
     INVARIANT(i >= 0 && i <= MLKEM_N)
-    INVARIANT(ARRAY_IN_BOUNDS(int, k, 0, (i - 1), r->coeffs, 0, MLKEM_Q - 1))
+    INVARIANT(ARRAY_IN_BOUNDS(int, k, 0, (i - 1), r->coeffs, 0, (MLKEM_Q - 1)))
     {  // clang-format on
       // Barrett reduction, giving signed canonical representative
       int16_t t = barrett_reduce(r->coeffs[i]);

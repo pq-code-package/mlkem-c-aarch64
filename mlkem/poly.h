@@ -560,7 +560,7 @@ REQUIRES(IS_FRESH(b, sizeof(poly)))
 REQUIRES(IS_FRESH(b_cache, sizeof(poly_mulcache)))
 REQUIRES(ARRAY_IN_BOUNDS(int, k, 0, MLKEM_N - 1, a->coeffs, -(MLKEM_Q - 1), (MLKEM_Q - 1)))
 ASSIGNS(OBJECT_WHOLE(r))
-ENSURES(ARRAY_IN_BOUNDS(int, k, 0, MLKEM_N - 1, r->coeffs, -3 * HALF_Q + 1, 3 * HALF_Q - 1));
+ENSURES(ARRAY_IN_BOUNDS(int, k, 0, MLKEM_N - 1, r->coeffs, -(3 * HALF_Q - 1), (3 * HALF_Q - 1)));
 // clang-format on
 
 // clang-format off
@@ -630,7 +630,7 @@ void poly_reduce(poly *r)
     // clang-format off
 REQUIRES(IS_FRESH(r, sizeof(poly)))
 ASSIGNS(OBJECT_UPTO(r, sizeof(poly)))
-ENSURES(ARRAY_IN_BOUNDS(int, k, 0, MLKEM_N - 1, r->coeffs, 0, MLKEM_Q - 1));
+ENSURES(ARRAY_IN_BOUNDS(int, k, 0, MLKEM_N - 1, r->coeffs, 0, (MLKEM_Q - 1)));
 // clang-format on
 
 #define poly_add MLKEM_NAMESPACE(poly_add)

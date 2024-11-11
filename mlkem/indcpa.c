@@ -38,7 +38,7 @@ REQUIRES(IS_FRESH(r, MLKEM_INDCPA_PUBLICKEYBYTES))
 REQUIRES(IS_FRESH(pk, sizeof(polyvec)))
 REQUIRES(IS_FRESH(seed, MLKEM_SYMBYTES))
 REQUIRES(FORALL(int, k0, 0, MLKEM_K - 1,
-  ARRAY_IN_BOUNDS(int, k1, 0, MLKEM_N - 1, pk->vec[k0].coeffs, 0, MLKEM_Q - 1)))
+  ARRAY_IN_BOUNDS(int, k1, 0, MLKEM_N - 1, pk->vec[k0].coeffs, 0, (MLKEM_Q - 1))))
 ASSIGNS(OBJECT_WHOLE(r))  // clang-format on
 {
   POLYVEC_BOUND(pk, MLKEM_Q);
@@ -66,7 +66,7 @@ REQUIRES(IS_FRESH(packedpk, MLKEM_INDCPA_PUBLICKEYBYTES))
 REQUIRES(IS_FRESH(pk, sizeof(polyvec)))
 REQUIRES(IS_FRESH(seed, MLKEM_SYMBYTES))
 ENSURES(FORALL(int, k0, 0, MLKEM_K - 1,
-  ARRAY_IN_BOUNDS(int, k1, 0, MLKEM_N - 1, pk->vec[k0].coeffs, 0, MLKEM_Q - 1)))
+  ARRAY_IN_BOUNDS(int, k1, 0, MLKEM_N - 1, pk->vec[k0].coeffs, 0, (MLKEM_Q - 1))))
 ASSIGNS(OBJECT_WHOLE(pk))
 ASSIGNS(OBJECT_WHOLE(seed))  // clang-format on
 {
@@ -94,7 +94,7 @@ void pack_sk(uint8_t r[MLKEM_INDCPA_SECRETKEYBYTES],
 REQUIRES(IS_FRESH(r, MLKEM_INDCPA_SECRETKEYBYTES))
 REQUIRES(IS_FRESH(sk, sizeof(polyvec)))
 REQUIRES(FORALL(int, k0, 0, MLKEM_K - 1,
-  ARRAY_IN_BOUNDS(int, k1, 0, MLKEM_N - 1, sk->vec[k0].coeffs, 0, MLKEM_Q - 1)))
+  ARRAY_IN_BOUNDS(int, k1, 0, MLKEM_N - 1, sk->vec[k0].coeffs, 0, (MLKEM_Q - 1))))
 ASSIGNS(OBJECT_WHOLE(r))
 // clang-format on
 {
@@ -119,7 +119,7 @@ void unpack_sk(
 REQUIRES(IS_FRESH(packedsk, MLKEM_INDCPA_SECRETKEYBYTES))
 REQUIRES(IS_FRESH(sk, sizeof(polyvec)))
 ENSURES(FORALL(int, k0, 0, MLKEM_K - 1,
-  ARRAY_IN_BOUNDS(int, k1, 0, MLKEM_N - 1, sk->vec[k0].coeffs, 0, MLKEM_Q - 1)))
+  ARRAY_IN_BOUNDS(int, k1, 0, MLKEM_N - 1, sk->vec[k0].coeffs, 0, (MLKEM_Q - 1))))
 ASSIGNS(OBJECT_WHOLE(sk))  // clang-format on
 {
   polyvec_frombytes(sk, packedsk);

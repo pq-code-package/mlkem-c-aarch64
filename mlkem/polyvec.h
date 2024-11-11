@@ -95,7 +95,7 @@ void polyvec_ntt(polyvec *r)
   ASSIGNS(OBJECT_WHOLE(r))
   ENSURES(FORALL(int, j, 0, MLKEM_K - 1,
     ARRAY_IN_BOUNDS(int, k, 0, MLKEM_N - 1,
-                    r->vec[j].coeffs, -NTT_BOUND + 1, NTT_BOUND - 1)));
+                    r->vec[j].coeffs, -(NTT_BOUND - 1), (NTT_BOUND - 1))));
 // clang-format on
 
 #define polyvec_invntt_tomont MLKEM_NAMESPACE(polyvec_invntt_tomont)
@@ -192,7 +192,7 @@ void polyvec_reduce(polyvec *r)  // clang-format off
 REQUIRES(IS_FRESH(r, sizeof(polyvec)))
 ASSIGNS(OBJECT_WHOLE(r))
 ENSURES(FORALL(int, k0, 0, MLKEM_K - 1,
-  ARRAY_IN_BOUNDS(int, k1, 0, MLKEM_N - 1, r->vec[k0].coeffs, 0, MLKEM_Q - 1)));
+  ARRAY_IN_BOUNDS(int, k1, 0, MLKEM_N - 1, r->vec[k0].coeffs, 0, (MLKEM_Q - 1))));
 // clang-format on
 
 #define polyvec_add MLKEM_NAMESPACE(polyvec_add)
