@@ -517,10 +517,9 @@ void poly_getnoise_eta1122_4x(poly *r0, poly *r1, poly *r2, poly *r3,
                               const uint8_t seed[MLKEM_SYMBYTES],
                               uint8_t nonce0, uint8_t nonce1, uint8_t nonce2,
                               uint8_t nonce3)  // clang-format off
-REQUIRES(IS_FRESH(r0, sizeof(poly)))
-REQUIRES(IS_FRESH(r1, sizeof(poly)))
-REQUIRES(IS_FRESH(r2, sizeof(poly)))
-REQUIRES(IS_FRESH(r3, sizeof(poly)))
+REQUIRES( /* r0, r1 consecutive, r2, r3 consecutive */
+ (IS_FRESH(r0, 2 * sizeof(poly)) && IS_FRESH(r2, 2 * sizeof(poly)) &&
+   r1 == r0 + 1 && r3 == r2 + 1 && !SAME_OBJECT(r0, r2)))
 REQUIRES(IS_FRESH(seed, MLKEM_SYMBYTES))
 ASSIGNS(OBJECT_WHOLE(r0), OBJECT_WHOLE(r1), OBJECT_WHOLE(r2), OBJECT_WHOLE(r3))
 ENSURES(                                                                          \

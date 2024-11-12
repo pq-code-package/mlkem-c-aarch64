@@ -36,7 +36,13 @@ void indcpa_keypair_derand(
 void indcpa_enc(uint8_t c[MLKEM_INDCPA_BYTES],
                 const uint8_t m[MLKEM_INDCPA_MSGBYTES],
                 const uint8_t pk[MLKEM_INDCPA_PUBLICKEYBYTES],
-                const uint8_t coins[MLKEM_SYMBYTES]);
+                const uint8_t coins[MLKEM_SYMBYTES])  // clang-format off
+  REQUIRES(IS_FRESH(c, MLKEM_INDCPA_BYTES))
+  REQUIRES(IS_FRESH(m, MLKEM_INDCPA_MSGBYTES))
+  REQUIRES(IS_FRESH(pk, MLKEM_INDCPA_PUBLICKEYBYTES))
+  REQUIRES(IS_FRESH(coins, MLKEM_SYMBYTES))
+  ASSIGNS(OBJECT_WHOLE(c));
+// clang-format on
 
 #define indcpa_dec MLKEM_NAMESPACE(indcpa_dec)
 void indcpa_dec(uint8_t m[MLKEM_INDCPA_MSGBYTES],
