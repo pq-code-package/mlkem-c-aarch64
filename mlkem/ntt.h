@@ -55,7 +55,11 @@ ENSURES(ARRAY_IN_BOUNDS(0, MLKEM_N - 1, r->coeffs, -(NTT_BOUND - 1), NTT_BOUND -
  * Arguments:   - uint16_t *a: pointer to in/output polynomial
  **************************************************/
 #define poly_invntt_tomont MLKEM_NAMESPACE(poly_invntt_tomont)
-void poly_invntt_tomont(poly *r);
+void poly_invntt_tomont(poly *r)  // clang-format off
+REQUIRES(IS_FRESH(r, sizeof(poly)))
+ASSIGNS(OBJECT_UPTO(r, sizeof(poly)))
+ENSURES(ARRAY_IN_BOUNDS(0, MLKEM_N - 1, r->coeffs, -(INVNTT_BOUND - 1), INVNTT_BOUND - 1));
+// clang-format on
 
 #define basemul_cached MLKEM_NAMESPACE(basemul_cached)
 /************************************************************
