@@ -159,7 +159,9 @@ def github_summary(title: str, test: TEST_TYPES, results: TypedDict):
 
 
 def config_logger(verbose):
-    logging.basicConfig(format="%(levelname)-5s > %(name)-40s %(message)s")
+    logging.basicConfig(
+        stream=sys.stdout, format="%(levelname)-5s > %(name)-40s %(message)s"
+    )
 
     logger = logging.getLogger()
 
