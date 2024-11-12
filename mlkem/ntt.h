@@ -4,6 +4,7 @@
 
 #include <stdint.h>
 #include "arith_native.h"
+#include "cbmc.h"
 #include "params.h"
 #include "poly.h"
 #include "reduce.h"
@@ -11,9 +12,48 @@
 #define zetas MLKEM_NAMESPACE(zetas)
 extern const int16_t zetas[128];
 
-#define poly_ntt MLKEM_NAMESPACE(poly_ntt)
-void poly_ntt(poly *r);
+/*************************************************
+ * Name:        poly_ntt
+ *
+ * Description: Computes negacyclic number-theoretic transform (NTT) of
+ *              a polynomial in place.
+ *
+ *              The input is assumed to be in normal order and
+ *              coefficient-wise bound by MLKEM_Q in absolute value.
+ *
+ *              The output polynomial is in bitreversed order, and
+ *              coefficient-wise bound by NTT_BOUND in absolute value.
+ *
+ *              (NOTE: Sometimes the input to the NTT is actually smaller,
+ *               which gives better bounds.)
+ *
+ * Arguments:   - poly *p: pointer to in/output polynomial
+ **************************************************/
 
+#define poly_ntt MLKEM_NAMESPACE(poly_ntt)
+void poly_ntt(poly *r)  // clang-format off
+REQUIRES(IS_FRESH(r, sizeof(poly)))
+REQUIRES(ARRAY_IN_BOUNDS(0, MLKEM_N - 1, r->coeffs, -(MLKEM_Q - 1), MLKEM_Q - 1))
+ASSIGNS(OBJECT_UPTO(r, sizeof(poly)))
+ENSURES(ARRAY_IN_BOUNDS(0, MLKEM_N - 1, r->coeffs, -(NTT_BOUND - 1), NTT_BOUND - 1));
+// clang-format on
+
+/*************************************************
+ * Name:        poly_invntt_tomont
+ *
+ * Description: Computes inverse of negacyclic number-theoretic transform (NTT)
+ *              of a polynomial in place;
+ *              inputs assumed to be in bitreversed order, output in normal
+ *              order
+ *
+ *              The input is assumed to be in bitreversed order, and can
+ *              have arbitrary coefficients in int16_t.
+ *
+ *              The output polynomial is in normal order, and
+ *              coefficient-wise bound by INVNTT_BOUND in absolute value.
+ *
+ * Arguments:   - uint16_t *a: pointer to in/output polynomial
+ **************************************************/
 #define poly_invntt_tomont MLKEM_NAMESPACE(poly_invntt_tomont)
 void poly_invntt_tomont(poly *r);
 

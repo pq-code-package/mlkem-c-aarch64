@@ -55,68 +55,137 @@ const int16_t zetas[128] = {
     -1187, -1659, -1185, -1530, -1278, 794,   -1510, -854, -870,  478,   -108,
     -308,  996,   991,   958,   -1460, 1522,  1628};
 
-/*************************************************
- * Name:        poly_ntt
- *
- * Description: Computes negacyclic number-theoretic transform (NTT) of
- *              a polynomial in place.
- *
- *              The input is assumed to be in normal order and
- *              coefficient-wise bound by MLKEM_Q in absolute value.
- *
- *              The output polynomial is in bitreversed order, and
- *              coefficient-wise bound by NTT_BOUND in absolute value.
- *
- *              (NOTE: Sometimes the input to the NTT is actually smaller,
- *               which gives better bounds.)
- *
- * Arguments:   - poly *p: pointer to in/output polynomial
- **************************************************/
 #if !defined(MLKEM_USE_NATIVE_NTT)
+// Computes a block CT butterflies with a fixed twiddle factor,
+// using Montgomery multiplication.
+//
+// Parameters:
+// - r: Pointer to base of polynomial (_not_ the base of butterfly block)
+// - root: Twiddle factor to use for the butterfly. This must be in
+//         Montgomery form and signed canonical.
+// - start: Offset to the beginning of the butterfly block
+// - len: Index difference between coefficients subject to a butterfly
+// - bound: Ghost variable describing coefficient bound: Prior to `start`,
+//          coefficients must be bound by `bound + MLKEM_Q`. Post `start`,
+//          they must be bound by `bound`.
+//
+// When this function returns, output coefficients in the index range
+// [start, start+2*len) have bound bumped to `bound + MLKEM_Q`.
+//
+// Example:
+// - start=8, len=4
+//   This would compute the following four butterflies
+//
+//          8     --    12
+//             9    --     13
+//                10   --     14
+//                   11   --     15
+//
+// - start=4, len=2
+//   This would compute the following two butterflies
+//
+//          4 -- 6
+//             5 -- 7
+//
+STATIC_TESTABLE
+void ntt_butterfly_block(int16_t r[MLKEM_N], int16_t zeta, int start, int len,
+                         int bound)  // clang-format off
+  REQUIRES(0 <= start && start < MLKEM_N)
+  REQUIRES(1 <= len && len <= MLKEM_N / 2 && start + 2 * len <= MLKEM_N)
+  REQUIRES(0 <= bound && bound < INT16_MAX - MLKEM_Q)
+  REQUIRES(-HALF_Q < zeta && zeta < HALF_Q)
+  REQUIRES(IS_FRESH(r, sizeof(int16_t) * MLKEM_N))
+  REQUIRES(ARRAY_ABS_BOUND(r, 0, start - 1, bound + MLKEM_Q))
+  REQUIRES(ARRAY_ABS_BOUND(r, start, MLKEM_N - 1, bound))
+  ASSIGNS(OBJECT_UPTO(r, sizeof(int16_t) * MLKEM_N))
+  ENSURES(ARRAY_ABS_BOUND(r, 0, start + 2*len - 1, bound + MLKEM_Q))
+  ENSURES(ARRAY_ABS_BOUND(r, start + 2 * len, MLKEM_N - 1, bound))
+// clang-format on
+{
+  // `bound` is a ghost variable only needed in the CBMC specification
+  ((void)bound);
+  for (int j = start; j < start + len; j++)  // clang-format off
+    ASSIGNS(j, OBJECT_UPTO(r, sizeof(int16_t) * MLKEM_N))
+    INVARIANT(start <= j && j <= start + len)
+    // Coefficients are updated in strided pairs, so the bounds for the
+    // intermediate states alternate twice between the old and new bound
+    INVARIANT(ARRAY_ABS_BOUND(r, 0,           j - 1,           bound + MLKEM_Q))
+    INVARIANT(ARRAY_ABS_BOUND(r, j,           start + len - 1, bound))
+    INVARIANT(ARRAY_ABS_BOUND(r, start + len, j + len - 1,     bound + MLKEM_Q))
+    INVARIANT(ARRAY_ABS_BOUND(r, j + len,     MLKEM_N - 1,     bound))
+    // clang-format on
+    {
+      int16_t t;
+      t = fqmul(r[j + len], zeta);
+      r[j + len] = r[j] - t;
+      r[j] = r[j] + t;
+    }
+}
 
-// Check that the specific bound for the reference NTT implies
-// the bound required by the C<->Native interface.
-#define NTT_BOUND_REF (5 * MLKEM_Q)
-STATIC_ASSERT(NTT_BOUND_REF <= NTT_BOUND, ntt_ref_bound)
+// Compute one layer of forward NTT
+//
+// Parameters:
+// - r: Pointer to base of polynomial
+// - len: Stride of butterflies in this layer.
+// - layer: Ghost variable indicating which layer is being applied.
+//          Must match `len` via `len == MLKEM_N >> layer`.
+//
+// Note: `len` could be dropped and computed in the function, but
+//   we are following the structure of the reference NTT from the
+//   official Kyber implementation here, merely adding `layer` as
+//   a ghost variable for the specifications.
+STATIC_TESTABLE
+void ntt_layer(int16_t r[MLKEM_N], int len, int layer)  // clang-format off
+  REQUIRES(IS_FRESH(r, sizeof(int16_t) * MLKEM_N))
+  REQUIRES(1 <= layer && layer <= 7 && len == (MLKEM_N >> layer))
+  REQUIRES(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, layer * MLKEM_Q - 1))
+  ASSIGNS(OBJECT_UPTO(r, sizeof(int16_t) * MLKEM_N))
+  ENSURES(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, (layer + 1) * MLKEM_Q - 1))
+// clang-format on
+{
+  // `layer` is a ghost variable only needed in the specification
+  ((void)layer);
+  // Twiddle factors for layer n start at index 2^(layer-1)
+  int k = MLKEM_N / (2 * len);
+  for (int start = 0; start < MLKEM_N; start += 2 * len)  // clang-format off
+    ASSIGNS(start, k, OBJECT_UPTO(r, sizeof(int16_t) * MLKEM_N))
+    INVARIANT(0 <= start && start < MLKEM_N + 2 * len)
+    INVARIANT(0 <= k && k <= MLKEM_N / 2 && 2 * len * k == start + MLKEM_N)
+    INVARIANT(ARRAY_ABS_BOUND(r, 0, start - 1, (layer * MLKEM_Q - 1) + MLKEM_Q))
+    INVARIANT(ARRAY_ABS_BOUND(r, start, MLKEM_N - 1, layer * MLKEM_Q - 1))
+    // clang-format on
+    {
+      int16_t zeta = zetas[k++];
+      ntt_butterfly_block(r, zeta, start, len, layer * MLKEM_Q - 1);
+    }
+}
 
+// Compute full forward NTT
+//
+// NOTE: This particular implementation satisfies a much tighter
+// bound on the output coefficients (5*q) than the contractual one (8*q),
+// but this is not needed in the calling code. Should we change the
+// base multiplication strategy to require smaller NTT output bounds,
+// the proof may need strengthening.
+//
 // REF-CHANGE: Removed indirection poly_ntt -> ntt()
 // and integrated polynomial reduction into the NTT.
 void poly_ntt(poly *p) {
   POLY_BOUND_MSG(p, MLKEM_Q, "ref ntt input");
-
-  unsigned int len, start, j, k;
-  int16_t t, zeta;
   int16_t *r = p->coeffs;
 
-  k = 1;
-
-  // Bounds reasoning:
-  // - There are 7 layers
-  // - When passing from layer N to layer N+1, each layer-N value
-  //   is modified through the addition/subtraction of a Montgomery
-  //   product of a twiddle of absolute value < q/2 and a layer-N value.
-  // - Recalling that |fqmul(a,t)| < q * (0.0254*C + 1/2) for
-  //   |a| < C*q and |t|<q/2, we see that the coefficients of layer N
-  //   (starting with layer 0 = input data) are bound by q * f^N(1), where
-  //   f(C) = 1/2 + 1.0254*C.
-  //   For N=7, we get the absolute bound by C*q where C = f^7(1) < 5.
-  //
-  // NB: For the contractual bound of 8*q, it's enough to know that
-  // we always have |fqmul(a,t)| < q.
-
-  for (len = 128; len >= 2; len >>= 1) {
-    for (start = 0; start < 256; start = j + len) {
-      zeta = zetas[k++];
-      for (j = start; j < start + len; j++) {
-        t = fqmul(r[j + len], zeta);
-        r[j + len] = r[j] - t;
-        r[j] = r[j] + t;
-      }
+  for (int len = 128, layer = 1; len >= 2;
+       len >>= 1, layer++)  // clang-format off
+    ASSIGNS(len, layer, OBJECT_UPTO(r, sizeof(int16_t) * MLKEM_N))
+    INVARIANT(1 <= layer && layer <= 8 && len == (MLKEM_N >> layer))
+    INVARIANT(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, layer * MLKEM_Q - 1))
+    // clang-format on
+    {
+      ntt_layer(r, len, layer);
     }
-  }
 
   // Check the stronger bound
-  POLY_BOUND_MSG(p, NTT_BOUND_REF, "ref ntt output");
+  POLY_BOUND_MSG(p, NTT_BOUND, "ref ntt output");
 }
 #else  /* MLKEM_USE_NATIVE_NTT */
 
@@ -130,22 +199,6 @@ void poly_ntt(poly *p) {
 }
 #endif /* MLKEM_USE_NATIVE_NTT */
 
-/*************************************************
- * Name:        poly_invntt_tomont
- *
- * Description: Computes inverse of negacyclic number-theoretic transform (NTT)
- *              of a polynomial in place;
- *              inputs assumed to be in bitreversed order, output in normal
- *              order
- *
- *              The input is assumed to be in bitreversed order, and can
- *              have arbitrary coefficients in int16_t.
- *
- *              The output polynomial is in normal order, and
- *              coefficient-wise bound by INVNTT_BOUND in absolute value.
- *
- * Arguments:   - uint16_t *a: pointer to in/output polynomial
- **************************************************/
 #if !defined(MLKEM_USE_NATIVE_INTT)
 
 // Check that bound for reference invNTT implies contractual bound
