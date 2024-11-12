@@ -45,7 +45,7 @@ static unsigned int rej_uniform_scalar(int16_t *r, unsigned int target,
   while (ctr < target && pos + 3 <= buflen)  // clang-format off
     ASSIGNS(ctr, val0, val1, pos, OBJECT_WHOLE(r))
     INVARIANT(offset <= ctr && ctr <= target && pos <= buflen)
-    INVARIANT(ctr > 0 ==> ARRAY_IN_BOUNDS(int, k, 0, ctr - 1, r, 0, (MLKEM_Q - 1)))  // clang-format on
+    INVARIANT(ctr > 0 ==> ARRAY_IN_BOUNDS(0, ctr - 1, r, 0, (MLKEM_Q - 1)))  // clang-format on
     {
       val0 = ((buf[pos + 0] >> 0) | ((uint16_t)buf[pos + 1] << 8)) & 0xFFF;
       val1 = ((buf[pos + 1] >> 4) | ((uint16_t)buf[pos + 2] << 4)) & 0xFFF;

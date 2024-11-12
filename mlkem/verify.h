@@ -25,8 +25,9 @@ void cmov(uint8_t *r, const uint8_t *x, size_t len, uint8_t b);
  *              int16_t v:        input int16_t. Must not be NULL
  *              uint16_t b:       Condition bit; has to be in {0,1}
  **************************************************/
-void cmov_int16(int16_t *r, const int16_t v, const uint16_t b)
-    // clang-format off
+
+void cmov_int16(int16_t *r, const int16_t v,
+                const uint16_t b)  // clang-format off
 REQUIRES(b == 0 || b == 1)
 REQUIRES(IS_FRESH(r, sizeof(int16_t)))
 ASSIGNS(OBJECT_UPTO(r, sizeof(int16_t)))

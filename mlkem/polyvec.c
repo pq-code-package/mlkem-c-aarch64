@@ -110,14 +110,14 @@ void polyvec_decompress(polyvec *r,
     ASSIGNS(i, OBJECT_WHOLE(r))
     INVARIANT(0 <= i && i <= MLKEM_K)
     INVARIANT(FORALL(int, r0, 0, i - 1,
-      ARRAY_IN_BOUNDS(int, r1, 0, MLKEM_N - 1, r->vec[r0].coeffs, 0, MLKEM_Q - 1)))
-    {           // clang-format on
+      ARRAY_IN_BOUNDS(0, MLKEM_N - 1, r->vec[r0].coeffs, 0, (MLKEM_Q - 1))))
+    {  // clang-format on
       for (int j = 0; j < MLKEM_N / 8; j++)  // clang-format off
         ASSIGNS(j, OBJECT_WHOLE(r))
         INVARIANT(0 <= j && j <= MLKEM_N / 8)
         INVARIANT(FORALL(int, r0, 0, i - 1,
-          ARRAY_IN_BOUNDS(int, r1, 0, MLKEM_N - 1, r->vec[r0].coeffs, 0, MLKEM_Q - 1)))
-        INVARIANT(ARRAY_IN_BOUNDS(int, r0, 0, 8 * j - 1, r->vec[i].coeffs, 0, MLKEM_Q - 1))
+          ARRAY_IN_BOUNDS(0, MLKEM_N - 1, r->vec[r0].coeffs, 0, (MLKEM_Q - 1))))
+        INVARIANT(ARRAY_IN_BOUNDS(0, 8 * j - 1, r->vec[i].coeffs, 0, (MLKEM_Q - 1)))
         {  // clang-format on
           uint16_t t[8];
           uint8_t const *base = &a[11 * (i * (MLKEM_N / 8) + j)];
@@ -136,10 +136,10 @@ void polyvec_decompress(polyvec *r,
             ASSIGNS(k, OBJECT_WHOLE(r))
             INVARIANT(0 <= k && k <= 8)
             INVARIANT(FORALL(int, r0, 0, i - 1,
-              ARRAY_IN_BOUNDS(int, r1, 0, MLKEM_N - 1,
-                r->vec[r0].coeffs, 0, MLKEM_Q - 1)))
-            INVARIANT(ARRAY_IN_BOUNDS(int, r0, 0, 8 * j + k - 1,
-              r->vec[i].coeffs, 0, MLKEM_Q - 1))
+              ARRAY_IN_BOUNDS(0, MLKEM_N - 1,
+                r->vec[r0].coeffs, 0, (MLKEM_Q - 1))))
+            INVARIANT(ARRAY_IN_BOUNDS(0, 8 * j + k - 1,
+              r->vec[i].coeffs, 0, (MLKEM_Q - 1)))
             {  // clang-format on
               r->vec[i].coeffs[8 * j + k] = scalar_decompress_d11(t[k]);
             }
@@ -150,14 +150,14 @@ void polyvec_decompress(polyvec *r,
     ASSIGNS(i, OBJECT_WHOLE(r))
     INVARIANT(0 <= i && i <= MLKEM_K)
     INVARIANT(FORALL(int, r0, 0, i - 1,
-    ARRAY_IN_BOUNDS(int, r1, 0, MLKEM_N - 1, r->vec[r0].coeffs, 0, MLKEM_Q - 1)))
-    {           // clang-format on
+    ARRAY_IN_BOUNDS(0, MLKEM_N - 1, r->vec[r0].coeffs, 0, (MLKEM_Q - 1))))
+    {  // clang-format on
       for (int j = 0; j < MLKEM_N / 4; j++)  // clang-format off
         ASSIGNS(j, OBJECT_WHOLE(r))
         INVARIANT(0 <= j && j <= MLKEM_N / 4)
         INVARIANT(FORALL(int, r0, 0, i - 1,
-          ARRAY_IN_BOUNDS(int, r1, 0, MLKEM_N - 1, r->vec[r0].coeffs, 0, MLKEM_Q - 1)))
-        INVARIANT(ARRAY_IN_BOUNDS(int, r0, 0, 4 * j - 1, r->vec[i].coeffs, 0, MLKEM_Q - 1))
+          ARRAY_IN_BOUNDS(0, MLKEM_N - 1, r->vec[r0].coeffs, 0, (MLKEM_Q - 1))))
+        INVARIANT(ARRAY_IN_BOUNDS(0, 4 * j - 1, r->vec[i].coeffs, 0, (MLKEM_Q - 1)))
         {  // clang-format on
           uint16_t t[4];
           uint8_t const *base = &a[5 * (i * (MLKEM_N / 4) + j)];
@@ -171,8 +171,8 @@ void polyvec_decompress(polyvec *r,
             ASSIGNS(k, OBJECT_WHOLE(r))
             INVARIANT(0 <= k && k <= 4)
             INVARIANT(FORALL(int, r0, 0, i - 1,
-              ARRAY_IN_BOUNDS(int, r1, 0, MLKEM_N - 1, r->vec[r0].coeffs, 0, MLKEM_Q - 1)))
-            INVARIANT(ARRAY_IN_BOUNDS(int, r0, 0, 4 * j + k - 1, r->vec[i].coeffs, 0, MLKEM_Q - 1))
+              ARRAY_IN_BOUNDS(0, MLKEM_N - 1, r->vec[r0].coeffs, 0, (MLKEM_Q - 1))))
+            INVARIANT(ARRAY_IN_BOUNDS(0, 4 * j + k - 1, r->vec[i].coeffs, 0, (MLKEM_Q - 1)))
             {  // clang-format on
               r->vec[i].coeffs[4 * j + k] = scalar_decompress_d10(t[k]);
             }
@@ -261,13 +261,11 @@ void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a,
   poly t;
 
   poly_basemul_montgomery_cached(r, &a->vec[0], &b->vec[0], &b_cache->vec[0]);
-
-  for (i = 1; i < MLKEM_K; i++)
-      // clang-format off
+  for (i = 1; i < MLKEM_K; i++)  // clang-format off
     ASSIGNS(i, t, OBJECT_WHOLE(r))
     INVARIANT(i >= 1 && i <= MLKEM_K)
-    INVARIANT(ARRAY_IN_BOUNDS(int, k, 0, MLKEM_N - 1, r->coeffs,
-                              i * (-3 * HALF_Q + 1), i * (3 * HALF_Q - 1)))
+    INVARIANT(ARRAY_IN_BOUNDS(0, MLKEM_N - 1, r->coeffs,
+                              i * (-(3 * HALF_Q - 1)), i * (3 * HALF_Q - 1)))
     DECREASES(MLKEM_K - i)
     // clang-format on
     {
@@ -281,8 +279,8 @@ void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a,
   // in the higher level bounds reasoning. It is thus best to omit
   // them from the spec to not unnecessarily constraint native implementations.
   ASSERT(
-      ARRAY_IN_BOUNDS(int, k, 0, MLKEM_N - 1, r->coeffs,
-                      MLKEM_K * (-3 * HALF_Q + 1), MLKEM_K * (3 * HALF_Q - 1)),
+      ARRAY_IN_BOUNDS(0, MLKEM_N - 1, r->coeffs, MLKEM_K * (-(3 * HALF_Q - 1)),
+                      MLKEM_K * (3 * HALF_Q - 1)),
       "polyvec_basemul_acc_montgomery_cached output bounds");
   // TODO: Integrate CBMC assertion into POLY_BOUND if CBMC is set
   POLY_BOUND(r, MLKEM_K * 3 * HALF_Q);

@@ -22,16 +22,14 @@
  *              smaller than 3/2 q in absolute value.
  **************************************************/
 #define montgomery_reduce MLKEM_NAMESPACE(montgomery_reduce)
-int16_t montgomery_reduce(int32_t a)
-    // clang-format off
+int16_t montgomery_reduce(int32_t a)  // clang-format off
 REQUIRES(a > -(2 * MLKEM_Q * 32768))
 REQUIRES(a <  (2 * MLKEM_Q * 32768))
 ENSURES(RETURN_VALUE > -(3 * HALF_Q) && RETURN_VALUE < (3 * HALF_Q));
 // clang-format on
 
 #define barrett_reduce MLKEM_NAMESPACE(barrett_reduce)
-int16_t barrett_reduce(int16_t a)
-    // clang-format off
+int16_t barrett_reduce(int16_t a)  // clang-format off
 ENSURES(RETURN_VALUE > -HALF_Q && RETURN_VALUE < HALF_Q);
 // clang-format on
 
@@ -50,8 +48,8 @@ ENSURES(RETURN_VALUE > -HALF_Q && RETURN_VALUE < HALF_Q);
  *
  **************************************************/
 #define fqmul MLKEM_NAMESPACE(fqmul)
-int16_t fqmul(int16_t a, int16_t b)
-    // clang-format off
+
+int16_t fqmul(int16_t a, int16_t b)  // clang-format off
 REQUIRES(b > -HALF_Q)
 REQUIRES(b < HALF_Q)
 ENSURES(RETURN_VALUE > -MLKEM_Q && RETURN_VALUE < MLKEM_Q);

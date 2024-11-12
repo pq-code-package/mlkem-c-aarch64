@@ -1,7 +1,0 @@
-{ "expected-missing-functions":
-  [
-
-  ],
-  "proof-name": "scalar_compress_d11",
-  "proof-root": "cbmc/proofs"
-}

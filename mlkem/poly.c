@@ -26,7 +26,7 @@ void poly_compress(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES], const poly *a) {
       for (int j = 0; j < 8; j++)  // clang-format off
         ASSIGNS(j, OBJECT_WHOLE(t))
         INVARIANT(i >= 0 && i <= MLKEM_N / 8 && j >= 0 && j <= 8)
-        INVARIANT(ARRAY_IN_BOUNDS(int, k2, 0, (j-1), t, 0, 15))
+        INVARIANT(ARRAY_IN_BOUNDS(0, (j-1), t, 0, 15))
         {  // clang-format on
           // REF-CHANGE: Precondition change, we assume unsigned canonical data
           t[j] = scalar_compress_d4(a->coeffs[8 * i + j]);
@@ -47,7 +47,7 @@ void poly_compress(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES], const poly *a) {
       for (int j = 0; j < 8; j++)  // clang-format off
         ASSIGNS(j, OBJECT_WHOLE(t))
         INVARIANT(i >= 0 && i <= MLKEM_N / 8 && j >= 0 && j <= 8)
-        INVARIANT(ARRAY_IN_BOUNDS(int, k2, 0, (j-1), t, 0, 31))
+        INVARIANT(ARRAY_IN_BOUNDS(0, (j-1), t, 0, 31))
         {  // clang-format on
           // REF-CHANGE: Precondition change, we assume unsigned canonical data
           t[j] = scalar_compress_d5(a->coeffs[8 * i + j]);
@@ -72,7 +72,7 @@ void poly_decompress(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES]) {
   for (int i = 0; i < MLKEM_N / 2; i++)  // clang-format off
         ASSIGNS(i, OBJECT_WHOLE(r))
         INVARIANT(i >= 0 && i <= MLKEM_N / 2)
-        INVARIANT(ARRAY_IN_BOUNDS(int, k, 0, (2 * i - 1), r->coeffs, 0, (MLKEM_Q - 1)))
+        INVARIANT(ARRAY_IN_BOUNDS(0, (2 * i - 1), r->coeffs, 0, (MLKEM_Q - 1)))
     {  // clang-format on
       // REF-CHANGE: Hoist scalar decompression into separate function
       r->coeffs[2 * i + 0] = scalar_decompress_d4((a[i] >> 0) & 0xF);
@@ -82,7 +82,7 @@ void poly_decompress(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES]) {
   for (int i = 0; i < MLKEM_N / 8; i++)  // clang-format off
     ASSIGNS(i, OBJECT_WHOLE(r))
     INVARIANT(i >= 0 && i <= MLKEM_N / 8)
-    INVARIANT(ARRAY_IN_BOUNDS(int, k, 0, (8 * i - 1), r->coeffs, 0, (MLKEM_Q - 1)))
+    INVARIANT(ARRAY_IN_BOUNDS(0, (8 * i - 1), r->coeffs, 0, (MLKEM_Q - 1)))
     {  // clang-format on
       uint8_t t[8];
       const int offset = i * 5;
@@ -105,7 +105,7 @@ void poly_decompress(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES]) {
       for (int j = 0; j < 8; j++)  // clang-format off
         ASSIGNS(j, OBJECT_WHOLE(r))
         INVARIANT(j >= 0 && j <= 8 && i >= 0 && i <= MLKEM_N / 8)
-        INVARIANT(ARRAY_IN_BOUNDS(int, k, 0, (8 * i + j - 1), r->coeffs, 0, (MLKEM_Q - 1)))
+        INVARIANT(ARRAY_IN_BOUNDS(0, (8 * i + j - 1), r->coeffs, 0, (MLKEM_Q - 1)))
         {  // clang-format on
           // REF-CHANGE: Hoist scalar decompression into separate function
           r->coeffs[8 * i + j] = scalar_decompress_d5(t[j]);
@@ -122,11 +122,11 @@ void poly_decompress(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES]) {
 void poly_tobytes(uint8_t r[MLKEM_POLYBYTES], const poly *a) {
   POLY_UBOUND(a, MLKEM_Q);
 
-  for (unsigned int i = 0; i < MLKEM_N / 2; i++)
-      // clang-format off
-  ASSIGNS(i, OBJECT_WHOLE(r))
-  INVARIANT(i >= 0 && i <= MLKEM_N / 2)
-  DECREASES(MLKEM_N / 2 - i)
+
+  for (unsigned int i = 0; i < MLKEM_N / 2; i++)  // clang-format off
+    ASSIGNS(i, OBJECT_WHOLE(r))
+    INVARIANT(i >= 0 && i <= MLKEM_N / 2)
+    DECREASES(MLKEM_N / 2 - i)
     // clang-format on
     {
       const uint16_t t0 = a->coeffs[2 * i];
@@ -162,7 +162,7 @@ void poly_frombytes(poly *r, const uint8_t a[MLKEM_POLYBYTES]) {
   for (i = 0; i < MLKEM_N / 2; i++)  // clang-format off
     ASSIGNS(i, OBJECT_WHOLE(r))
     INVARIANT(i >= 0 && i <= MLKEM_N / 2)
-    INVARIANT(ARRAY_IN_BOUNDS(int, k, 0, (2 * i - 1), r->coeffs, 0, 4095))
+    INVARIANT(ARRAY_IN_BOUNDS(0, (2 * i - 1), r->coeffs, 0, 4095))
     {  // clang-format on
       // REF-CHANGE: Introduce some locals for better readability
       const uint8_t t0 = a[3 * i + 0];
@@ -189,12 +189,12 @@ void poly_frommsg(poly *r, const uint8_t msg[MLKEM_INDCPA_MSGBYTES]) {
   for (int i = 0; i < MLKEM_N / 8; i++)  // clang-format off
     ASSIGNS(i, OBJECT_WHOLE(r))
     INVARIANT(i >= 0 && i <= MLKEM_N / 8)
-    INVARIANT(ARRAY_IN_BOUNDS(int, k, 0, (8 * i - 1), r->coeffs, 0, (MLKEM_Q - 1)))
-    {      // clang-format on
+    INVARIANT(ARRAY_IN_BOUNDS(0, (8 * i - 1), r->coeffs, 0, (MLKEM_Q - 1)))
+    {          // clang-format on
       for (int j = 0; j < 8; j++)  // clang-format off
         ASSIGNS(j, OBJECT_WHOLE(r))
         INVARIANT(i >= 0 && i <  MLKEM_N / 8 && j >= 0 && j <= 8)
-        INVARIANT(ARRAY_IN_BOUNDS(int, k, 0, (8 * i + j - 1), r->coeffs, 0, (MLKEM_Q - 1)))
+        INVARIANT(ARRAY_IN_BOUNDS(0, (8 * i + j - 1), r->coeffs, 0, (MLKEM_Q - 1)))
         {  // clang-format on
           r->coeffs[8 * i + j] = 0;
           cmov_int16(&r->coeffs[8 * i + j], HALF_Q, (msg[i] >> j) & 1);
@@ -256,32 +256,6 @@ void poly_getnoise_eta2(poly *r, const uint8_t seed[MLKEM_SYMBYTES],
   POLY_BOUND_MSG(r, MLKEM_ETA1 + 1, "poly_getnoise_eta2 output");
 }
 
-void poly_getnoise_eta2_4x(poly *r0, poly *r1, poly *r2, poly *r3,
-                           const uint8_t seed[MLKEM_SYMBYTES], uint8_t nonce0,
-                           uint8_t nonce1, uint8_t nonce2, uint8_t nonce3) {
-  uint8_t buf[KECCAK_WAY][MLKEM_ETA2 * MLKEM_N / 4] ALIGN;
-  uint8_t extkey[KECCAK_WAY][MLKEM_SYMBYTES + 1] ALIGN;
-  memcpy(extkey[0], seed, MLKEM_SYMBYTES);
-  memcpy(extkey[1], seed, MLKEM_SYMBYTES);
-  memcpy(extkey[2], seed, MLKEM_SYMBYTES);
-  memcpy(extkey[3], seed, MLKEM_SYMBYTES);
-  extkey[0][MLKEM_SYMBYTES] = nonce0;
-  extkey[1][MLKEM_SYMBYTES] = nonce1;
-  extkey[2][MLKEM_SYMBYTES] = nonce2;
-  extkey[3][MLKEM_SYMBYTES] = nonce3;
-  shake256x4(buf[0], buf[1], buf[2], buf[3], MLKEM_ETA2 * MLKEM_N / 4,
-             extkey[0], extkey[1], extkey[2], extkey[3], MLKEM_SYMBYTES + 1);
-  poly_cbd_eta2(r0, buf[0]);
-  poly_cbd_eta2(r1, buf[1]);
-  poly_cbd_eta2(r2, buf[2]);
-  poly_cbd_eta2(r3, buf[3]);
-
-  POLY_BOUND_MSG(r0, MLKEM_ETA2 + 1, "poly_getnoise_eta2_4x output 0");
-  POLY_BOUND_MSG(r1, MLKEM_ETA2 + 1, "poly_getnoise_eta2_4x output 1");
-  POLY_BOUND_MSG(r2, MLKEM_ETA2 + 1, "poly_getnoise_eta2_4x output 2");
-  POLY_BOUND_MSG(r3, MLKEM_ETA2 + 1, "poly_getnoise_eta2_4x output 3");
-}
-
 void poly_getnoise_eta1122_4x(poly *r0, poly *r1, poly *r2, poly *r3,
                               const uint8_t seed[MLKEM_SYMBYTES],
                               uint8_t nonce0, uint8_t nonce1, uint8_t nonce2,
@@ -325,7 +299,7 @@ void poly_basemul_montgomery_cached(poly *r, const poly *a, const poly *b,
   for (i = 0; i < MLKEM_N / 4; i++)  // clang-format off
     ASSIGNS(i, OBJECT_WHOLE(r))
     INVARIANT(i >= 0 && i <= MLKEM_N / 4)
-    INVARIANT(ARRAY_IN_BOUNDS(int, k, 0, (4 * i - 1), r->coeffs, -3 * HALF_Q + 1, 3 * HALF_Q - 1))
+    INVARIANT(ARRAY_IN_BOUNDS(0, (4 * i - 1), r->coeffs, -(3 * HALF_Q - 1), (3 * HALF_Q - 1)))
     {  // clang-format on
       basemul_cached(&r->coeffs[4 * i], &a->coeffs[4 * i], &b->coeffs[4 * i],
                      b_cache->coeffs[2 * i]);
@@ -341,7 +315,7 @@ void poly_tomont(poly *r) {
   for (i = 0; i < MLKEM_N; i++)  // clang-format off
     ASSIGNS(i, OBJECT_WHOLE(r))
     INVARIANT(i >= 0 && i <= MLKEM_N)
-    INVARIANT(ARRAY_IN_BOUNDS(int, k, 0, (i - 1), r->coeffs, -(MLKEM_Q - 1), (MLKEM_Q - 1)))
+    INVARIANT(ARRAY_IN_BOUNDS(0, (i - 1), r->coeffs, -(MLKEM_Q - 1), (MLKEM_Q - 1)))
     {  // clang-format on
       r->coeffs[i] = fqmul(r->coeffs[i], f);
     }
@@ -361,7 +335,7 @@ void poly_reduce(poly *r) {
   for (i = 0; i < MLKEM_N; i++)  // clang-format off
     ASSIGNS(i, OBJECT_WHOLE(r))
     INVARIANT(i >= 0 && i <= MLKEM_N)
-    INVARIANT(ARRAY_IN_BOUNDS(int, k, 0, (i - 1), r->coeffs, 0, MLKEM_Q - 1))
+    INVARIANT(ARRAY_IN_BOUNDS(0, (i - 1), r->coeffs, 0, (MLKEM_Q - 1)))
     {  // clang-format on
       // Barrett reduction, giving signed canonical representative
       int16_t t = barrett_reduce(r->coeffs[i]);

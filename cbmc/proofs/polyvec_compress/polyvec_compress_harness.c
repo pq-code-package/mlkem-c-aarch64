@@ -26,8 +26,5 @@ void harness(void) {
   polyvec *r;
   uint8_t *a;
 
-  // TODO: remove cbmc-viewer.json
-  // TODO: remove the README for all proofs
-
   polyvec_compress(a, r);
 }
