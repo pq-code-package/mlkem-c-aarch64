@@ -48,9 +48,9 @@ unsigned int rej_uniform(int16_t *r, unsigned int target, unsigned int offset,
 REQUIRES(offset <= target && target <= 4096 && buflen <= 4096 && buflen % 3 == 0)
 REQUIRES(IS_FRESH(r, sizeof(int16_t) * target))
 REQUIRES(IS_FRESH(buf, buflen))
-REQUIRES(offset > 0 ==> ARRAY_IN_BOUNDS(int, k, 0, offset - 1, r, 0, (MLKEM_Q - 1)))
+REQUIRES(offset > 0 ==> ARRAY_IN_BOUNDS(0, offset - 1, r, 0, (MLKEM_Q - 1)))
 ASSIGNS(OBJECT_UPTO(r, sizeof(int16_t) * target))
 ENSURES(offset <= RETURN_VALUE && RETURN_VALUE <= target)
-ENSURES(RETURN_VALUE > 0 ==> ARRAY_IN_BOUNDS(int, k, 0, RETURN_VALUE - 1, r, 0, (MLKEM_Q - 1)));
+ENSURES(RETURN_VALUE > 0 ==> ARRAY_IN_BOUNDS(0, RETURN_VALUE - 1, r, 0, (MLKEM_Q - 1)));
 // clang-format on
 #endif
