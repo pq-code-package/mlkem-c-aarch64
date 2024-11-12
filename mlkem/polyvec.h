@@ -89,8 +89,25 @@ ENSURES(FORALL(int, k0, 0, MLKEM_K - 1,
 ASSIGNS(OBJECT_WHOLE(r));  // clang-format on
 
 #define polyvec_ntt MLKEM_NAMESPACE(polyvec_ntt)
+/*************************************************
+ * Name:        polyvec_ntt
+ *
+ * Description: Apply forward NTT to all elements of a vector of polynomials.
+ *
+ *              The input is assumed to be in normal order and
+ *              coefficient-wise bound by MLKEM_Q in absolute value.
+ *
+ *              The output polynomial is in bitreversed order, and
+ *              coefficient-wise bound by NTT_BOUND in absolute value.
+ *
+ * Arguments:   - polyvec *r: pointer to in/output vector of polynomials
+ *
+ **************************************************/
 void polyvec_ntt(polyvec *r)  // clang-format off
   REQUIRES(IS_FRESH(r, sizeof(polyvec)))
+  REQUIRES(FORALL(int, j, 0, MLKEM_K - 1,
+    ARRAY_IN_BOUNDS(0, MLKEM_N - 1,
+                    r->vec[j].coeffs, -(MLKEM_Q - 1), (MLKEM_Q - 1))))
   ASSIGNS(OBJECT_WHOLE(r))
   ENSURES(FORALL(int, j, 0, MLKEM_K - 1,
     ARRAY_IN_BOUNDS(0, MLKEM_N - 1,
@@ -98,7 +115,28 @@ void polyvec_ntt(polyvec *r)  // clang-format off
 // clang-format on
 
 #define polyvec_invntt_tomont MLKEM_NAMESPACE(polyvec_invntt_tomont)
-void polyvec_invntt_tomont(polyvec *r);
+/*************************************************
+ * Name:        polyvec_invntt_tomont
+ *
+ * Description: Apply inverse NTT to all elements of a vector of polynomials
+ *              and multiply by Montgomery factor 2^16
+ *
+ *              The input is assumed to be in bitreversed order, and can
+ *              have arbitrary coefficients in int16_t.
+ *
+ *              The output polynomial is in normal order, and
+ *              coefficient-wise bound by INVNTT_BOUND in absolute value.
+ *
+ *
+ * Arguments:   - polyvec *r: pointer to in/output vector of polynomials
+ **************************************************/
+void polyvec_invntt_tomont(polyvec *r)  // clang-format off
+  REQUIRES(IS_FRESH(r, sizeof(polyvec)))
+  ASSIGNS(OBJECT_WHOLE(r))
+  ENSURES(FORALL(int, j, 0, MLKEM_K - 1,
+    ARRAY_IN_BOUNDS(0, MLKEM_N - 1,
+                    r->vec[j].coeffs, -(INVNTT_BOUND - 1), (INVNTT_BOUND - 1))));
+// clang-format on
 
 #define polyvec_basemul_acc_montgomery \
   MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery)
