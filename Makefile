@@ -18,7 +18,7 @@ quickcheck: buildall
 	$(MLKEM512_DIR)/bin/test_mlkem512
 	$(MLKEM768_DIR)/bin/test_mlkem768
 	$(MLKEM1024_DIR)/bin/test_mlkem1024
-	python3 ./test/acvp_client.py
+	./scripts/acvp
 	$(Q)echo "  Functionality and ACVP tests passed!"
 
 mlkem: \

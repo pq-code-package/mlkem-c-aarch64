@@ -37,6 +37,9 @@ inputs:
   nistkat:
     description: Determine whether to run nistkat test or not
     default: "true"
+  acvp:
+    description: Determine whether to run acvp test or not
+    default: "true"
 runs:
   using: composite
   steps:
@@ -55,6 +58,7 @@ runs:
           echo FUNC="${{ inputs.func == 'true' && 'func' || 'no-func' }}" >> $GITHUB_ENV
           echo KAT="${{ inputs.kat == 'true' && 'kat' || 'no-kat' }}" >> $GITHUB_ENV
           echo NISTKAT="${{ inputs.nistkat == 'true' && 'nistkat' || 'no-nistkat' }}" >> $GITHUB_ENV
+          echo ACVP="${{ inputs.acvp == 'true' && 'acvp' || 'no-acvp' }}" >> $GITHUB_ENV
       - name: Setup nix
         uses: ./.github/actions/setup-shell
         with:
@@ -86,7 +90,7 @@ runs:
       - name: ${{ inputs.mode }} ${{ inputs.opt }} tests (${{ env.FUNC }}, ${{ env.KAT }}, ${{ env.NISTKAT }})
         shell: ${{ env.SHELL }}
         run: |
-          tests all  --cross-prefix="${{ env._CROSS_PREFIX }}" --cflags="${{ inputs.cflags }}" --opt=${{ inputs.opt }} --${{ env.FUNC }} --${{ env.KAT }} --${{ env.NISTKAT }} -v
+          tests all  --cross-prefix="${{ env._CROSS_PREFIX }}" --cflags="${{ inputs.cflags }}" --opt=${{ inputs.opt }} --${{ env.FUNC }} --${{ env.KAT }} --${{ env.NISTKAT }} --${{ env.ACVP }} -v
       - name: Check namespacing ${{ inputs.mode }} ${{ inputs.opt }} tests (${{ env.FUNC }}, ${{ env.KAT }}, ${{ env.NISTKAT }})
         shell: ${{ env.SHELL }}
         run: |
