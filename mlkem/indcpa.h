@@ -33,6 +33,19 @@ void indcpa_keypair_derand(
 // clang-format on
 
 #define indcpa_enc MLKEM_NAMESPACE(indcpa_enc)
+/*************************************************
+ * Name:        indcpa_dec
+ *
+ * Description: Decryption function of the CPA-secure
+ *              public-key encryption scheme underlying Kyber.
+ *
+ * Arguments:   - uint8_t *m: pointer to output decrypted message
+ *                            (of length MLKEM_INDCPA_MSGBYTES)
+ *              - const uint8_t *c: pointer to input ciphertext
+ *                                  (of length MLKEM_INDCPA_BYTES)
+ *              - const uint8_t *sk: pointer to input secret key
+ *                                   (of length MLKEM_INDCPA_SECRETKEYBYTES)
+ **************************************************/
 void indcpa_enc(uint8_t c[MLKEM_INDCPA_BYTES],
                 const uint8_t m[MLKEM_INDCPA_MSGBYTES],
                 const uint8_t pk[MLKEM_INDCPA_PUBLICKEYBYTES],
@@ -45,8 +58,13 @@ void indcpa_enc(uint8_t c[MLKEM_INDCPA_BYTES],
 // clang-format on
 
 #define indcpa_dec MLKEM_NAMESPACE(indcpa_dec)
-void indcpa_dec(uint8_t m[MLKEM_INDCPA_MSGBYTES],
-                const uint8_t c[MLKEM_INDCPA_BYTES],
-                const uint8_t sk[MLKEM_INDCPA_SECRETKEYBYTES]);
+void indcpa_dec(
+    uint8_t m[MLKEM_INDCPA_MSGBYTES], const uint8_t c[MLKEM_INDCPA_BYTES],
+    const uint8_t sk[MLKEM_INDCPA_SECRETKEYBYTES])  // clang-format off
+  REQUIRES(IS_FRESH(c, MLKEM_INDCPA_BYTES))
+  REQUIRES(IS_FRESH(m, MLKEM_INDCPA_MSGBYTES))
+  REQUIRES(IS_FRESH(sk, MLKEM_INDCPA_SECRETKEYBYTES))
+  ASSIGNS(OBJECT_WHOLE(m));
+// clang-format on
 
 #endif

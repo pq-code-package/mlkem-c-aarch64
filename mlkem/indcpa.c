@@ -153,8 +153,19 @@ static void pack_ciphertext(uint8_t r[MLKEM_INDCPA_BYTES], polyvec *b,
  *              - poly *v: pointer to the output polynomial v
  *              - const uint8_t *c: pointer to the input serialized ciphertext
  **************************************************/
-static void unpack_ciphertext(polyvec *b, poly *v,
-                              const uint8_t c[MLKEM_INDCPA_BYTES]) {
+STATIC_TESTABLE
+void unpack_ciphertext(polyvec *b, poly *v,
+                       const uint8_t c[MLKEM_INDCPA_BYTES])  // clang-format off
+REQUIRES(IS_FRESH(b, sizeof(polyvec)))
+REQUIRES(IS_FRESH(v, sizeof(poly)))
+REQUIRES(IS_FRESH(c, MLKEM_INDCPA_BYTES))
+ASSIGNS(OBJECT_WHOLE(b))
+ASSIGNS(OBJECT_WHOLE(v))
+ENSURES(FORALL(int, k0, 0, MLKEM_K - 1,
+         ARRAY_IN_BOUNDS(0, (MLKEM_N - 1), b->vec[k0].coeffs, 0, (MLKEM_Q - 1))))
+ENSURES(ARRAY_IN_BOUNDS(0, (MLKEM_N - 1), v->coeffs, 0, (MLKEM_Q - 1)))
+// clang-format on
+{
   polyvec_decompress(b, c);
   poly_decompress(v, c + MLKEM_POLYVECCOMPRESSEDBYTES);
 }
@@ -524,20 +535,6 @@ void indcpa_enc(uint8_t c[MLKEM_INDCPA_BYTES],
 
   pack_ciphertext(c, &b, &v);
 }
-
-/*************************************************
- * Name:        indcpa_dec
- *
- * Description: Decryption function of the CPA-secure
- *              public-key encryption scheme underlying Kyber.
- *
- * Arguments:   - uint8_t *m: pointer to output decrypted message
- *                            (of length MLKEM_INDCPA_MSGBYTES)
- *              - const uint8_t *c: pointer to input ciphertext
- *                                  (of length MLKEM_INDCPA_BYTES)
- *              - const uint8_t *sk: pointer to input secret key
- *                                   (of length MLKEM_INDCPA_SECRETKEYBYTES)
- **************************************************/
 
 // Check that the arithmetic in indcpa_dec() does not overflow
 STATIC_ASSERT(INVNTT_BOUND + MLKEM_Q < INT16_MAX, indcpa_dec_bound_0)
