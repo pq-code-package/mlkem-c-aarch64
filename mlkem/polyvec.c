@@ -110,14 +110,14 @@ void polyvec_decompress(polyvec *r,
     ASSIGNS(i, OBJECT_WHOLE(r))
     INVARIANT(0 <= i && i <= MLKEM_K)
     INVARIANT(FORALL(int, r0, 0, i - 1,
-      ARRAY_IN_BOUNDS(0, MLKEM_N - 1, r->vec[r0].coeffs, 0, (MLKEM_Q - 1))))
+      ARRAY_BOUND(r->vec[r0].coeffs,0, MLKEM_N - 1, 0, (MLKEM_Q - 1))))
     {  // clang-format on
       for (int j = 0; j < MLKEM_N / 8; j++)  // clang-format off
         ASSIGNS(j, OBJECT_WHOLE(r))
         INVARIANT(0 <= j && j <= MLKEM_N / 8)
         INVARIANT(FORALL(int, r0, 0, i - 1,
-          ARRAY_IN_BOUNDS(0, MLKEM_N - 1, r->vec[r0].coeffs, 0, (MLKEM_Q - 1))))
-        INVARIANT(ARRAY_IN_BOUNDS(0, 8 * j - 1, r->vec[i].coeffs, 0, (MLKEM_Q - 1)))
+          ARRAY_BOUND(r->vec[r0].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1))))
+        INVARIANT(ARRAY_BOUND(r->vec[i].coeffs, 0, 8 * j - 1, 0, (MLKEM_Q - 1)))
         {  // clang-format on
           uint16_t t[8];
           uint8_t const *base = &a[11 * (i * (MLKEM_N / 8) + j)];
@@ -136,10 +136,10 @@ void polyvec_decompress(polyvec *r,
             ASSIGNS(k, OBJECT_WHOLE(r))
             INVARIANT(0 <= k && k <= 8)
             INVARIANT(FORALL(int, r0, 0, i - 1,
-              ARRAY_IN_BOUNDS(0, MLKEM_N - 1,
-                r->vec[r0].coeffs, 0, (MLKEM_Q - 1))))
-            INVARIANT(ARRAY_IN_BOUNDS(0, 8 * j + k - 1,
-              r->vec[i].coeffs, 0, (MLKEM_Q - 1)))
+              ARRAY_BOUND(r->vec[r0].coeffs, 0, MLKEM_N - 1,
+                0, (MLKEM_Q - 1))))
+            INVARIANT(ARRAY_BOUND(r->vec[i].coeffs, 0, 8 * j + k - 1,
+              0, (MLKEM_Q - 1)))
             {  // clang-format on
               r->vec[i].coeffs[8 * j + k] = scalar_decompress_d11(t[k]);
             }
@@ -150,14 +150,14 @@ void polyvec_decompress(polyvec *r,
     ASSIGNS(i, OBJECT_WHOLE(r))
     INVARIANT(0 <= i && i <= MLKEM_K)
     INVARIANT(FORALL(int, r0, 0, i - 1,
-    ARRAY_IN_BOUNDS(0, MLKEM_N - 1, r->vec[r0].coeffs, 0, (MLKEM_Q - 1))))
+    ARRAY_BOUND(r->vec[r0].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1))))
     {  // clang-format on
       for (int j = 0; j < MLKEM_N / 4; j++)  // clang-format off
         ASSIGNS(j, OBJECT_WHOLE(r))
         INVARIANT(0 <= j && j <= MLKEM_N / 4)
         INVARIANT(FORALL(int, r0, 0, i - 1,
-          ARRAY_IN_BOUNDS(0, MLKEM_N - 1, r->vec[r0].coeffs, 0, (MLKEM_Q - 1))))
-        INVARIANT(ARRAY_IN_BOUNDS(0, 4 * j - 1, r->vec[i].coeffs, 0, (MLKEM_Q - 1)))
+          ARRAY_BOUND(r->vec[r0].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1))))
+        INVARIANT(ARRAY_BOUND(r->vec[i].coeffs, 0, 4 * j - 1, 0, (MLKEM_Q - 1)))
         {  // clang-format on
           uint16_t t[4];
           uint8_t const *base = &a[5 * (i * (MLKEM_N / 4) + j)];
@@ -171,8 +171,8 @@ void polyvec_decompress(polyvec *r,
             ASSIGNS(k, OBJECT_WHOLE(r))
             INVARIANT(0 <= k && k <= 4)
             INVARIANT(FORALL(int, r0, 0, i - 1,
-              ARRAY_IN_BOUNDS(0, MLKEM_N - 1, r->vec[r0].coeffs, 0, (MLKEM_Q - 1))))
-            INVARIANT(ARRAY_IN_BOUNDS(0, 4 * j + k - 1, r->vec[i].coeffs, 0, (MLKEM_Q - 1)))
+              ARRAY_BOUND(r->vec[r0].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1))))
+            INVARIANT(ARRAY_BOUND(r->vec[i].coeffs, 0, 4 * j + k - 1, 0, (MLKEM_Q - 1)))
             {  // clang-format on
               r->vec[i].coeffs[4 * j + k] = scalar_decompress_d10(t[k]);
             }

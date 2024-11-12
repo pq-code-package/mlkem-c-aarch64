@@ -33,7 +33,7 @@ REQUIRES(IS_FRESH(r, MLKEM_POLYVECCOMPRESSEDBYTES))
 REQUIRES(IS_FRESH(a, sizeof(polyvec)))
 ASSIGNS(OBJECT_WHOLE(r))
 REQUIRES(FORALL(int, k0, 0, MLKEM_K - 1,
-         ARRAY_IN_BOUNDS(0, (MLKEM_N - 1), a->vec[k0].coeffs, 0, (MLKEM_Q - 1))));
+         ARRAY_BOUND(a->vec[k0].coeffs, 0, (MLKEM_N - 1), 0, (MLKEM_Q - 1))));
 // clang-format on
 
 #define polyvec_decompress MLKEM_NAMESPACE(polyvec_decompress)
@@ -44,7 +44,7 @@ REQUIRES(IS_FRESH(a, MLKEM_POLYVECCOMPRESSEDBYTES))
 REQUIRES(IS_FRESH(r, sizeof(polyvec)))
 ASSIGNS(OBJECT_WHOLE(r))
 ENSURES(FORALL(int, k0, 0, MLKEM_K - 1,
-         ARRAY_IN_BOUNDS(0, (MLKEM_N - 1), r->vec[k0].coeffs, 0, (MLKEM_Q - 1))));
+         ARRAY_BOUND(r->vec[k0].coeffs, 0, (MLKEM_N - 1), 0, (MLKEM_Q - 1))));
 // clang-format on
 
 #define polyvec_tobytes MLKEM_NAMESPACE(polyvec_tobytes)
@@ -63,7 +63,7 @@ void polyvec_tobytes(uint8_t r[MLKEM_POLYVECBYTES],
 REQUIRES(IS_FRESH(a, sizeof(polyvec)))
 REQUIRES(IS_FRESH(r, MLKEM_POLYVECBYTES))
 REQUIRES(FORALL(int, k0, 0, MLKEM_K - 1,
-         ARRAY_IN_BOUNDS(0, (MLKEM_N - 1), a->vec[k0].coeffs, 0, (MLKEM_Q - 1))))
+         ARRAY_BOUND(a->vec[k0].coeffs, 0, (MLKEM_N - 1), 0, (MLKEM_Q - 1))))
 ASSIGNS(OBJECT_WHOLE(r));
 // clang-format on
 
@@ -84,8 +84,7 @@ void polyvec_frombytes(polyvec *r,
 REQUIRES(IS_FRESH(r, sizeof(polyvec)))
 REQUIRES(IS_FRESH(a, MLKEM_POLYVECBYTES))
 ENSURES(FORALL(int, k0, 0, MLKEM_K - 1,
-        ARRAY_IN_BOUNDS(0, (MLKEM_N - 1),
-                        r->vec[k0].coeffs, 0, 4095)))
+        ARRAY_BOUND(r->vec[k0].coeffs, 0, (MLKEM_N - 1), 0, 4095)))
 ASSIGNS(OBJECT_WHOLE(r));  // clang-format on
 
 #define polyvec_ntt MLKEM_NAMESPACE(polyvec_ntt)
@@ -224,7 +223,7 @@ void polyvec_reduce(polyvec *r)  // clang-format off
 REQUIRES(IS_FRESH(r, sizeof(polyvec)))
 ASSIGNS(OBJECT_WHOLE(r))
 ENSURES(FORALL(int, k0, 0, MLKEM_K - 1,
-  ARRAY_IN_BOUNDS(0, MLKEM_N - 1, r->vec[k0].coeffs, 0, (MLKEM_Q - 1))));
+  ARRAY_BOUND(r->vec[k0].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1))));
 // clang-format on
 
 #define polyvec_add MLKEM_NAMESPACE(polyvec_add)
