@@ -202,13 +202,6 @@ void polyvec_frombytes(polyvec *r, const uint8_t a[MLKEM_POLYVECBYTES]) {
   }
 }
 
-/*************************************************
- * Name:        polyvec_ntt
- *
- * Description: Apply forward NTT to all elements of a vector of polynomials
- *
- * Arguments:   - polyvec *r: pointer to in/output vector of polynomials
- **************************************************/
 void polyvec_ntt(polyvec *r) {
   unsigned int i;
   for (i = 0; i < MLKEM_K; i++) {
