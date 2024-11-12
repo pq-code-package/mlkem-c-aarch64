@@ -419,10 +419,12 @@ void indcpa_keypair_derand(uint8_t pk[MLKEM_INDCPA_PUBLICKEYBYTES],
   polyvec a[MLKEM_K], e, pkpv, skpv;
   polyvec_mulcache skpv_cache;
 
-  // Add MLKEM_K for domain separation of security levels
-  memcpy(buf, coins, MLKEM_SYMBYTES);
-  buf[MLKEM_SYMBYTES] = MLKEM_K;
-  hash_g(buf, buf, MLKEM_SYMBYTES + 1);
+  uint8_t coins_with_domain_separator[MLKEM_SYMBYTES + 1] ALIGN;
+  // Concatenate coins with MLKEM_K for domain separation of security levels
+  memcpy(coins_with_domain_separator, coins, MLKEM_SYMBYTES);
+  coins_with_domain_separator[MLKEM_SYMBYTES] = MLKEM_K;
+
+  hash_g(buf, coins_with_domain_separator, MLKEM_SYMBYTES + 1);
 
   gen_matrix(a, publicseed, 0 /* no transpose */);
 
