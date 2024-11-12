@@ -644,7 +644,7 @@ class Tests:
                             )
                     f.write(json.dumps(v))
 
-    def all(self, func: bool, kat: bool, nistkat: bool):
+    def all(self, func: bool, kat: bool, nistkat: bool, acvp: bool):
         config_logger(self.verbose)
 
         def all(opt: bool):
@@ -654,6 +654,7 @@ class Tests:
                     *([self._func.compile] if func else []),
                     *([self._nistkat.compile] if nistkat else []),
                     *([self._kat.compile] if kat else []),
+                    *([self._acvp.compile] if kat else []),
                 ]
 
                 for f in compiles:
@@ -669,6 +670,7 @@ class Tests:
                     *([self._run_func] if func else []),
                     *([self._run_nistkat] if nistkat else []),
                     *([self._run_kat] if kat else []),
+                    *([self._run_acvp] if acvp else []),
                 ]
 
                 for f in runs:

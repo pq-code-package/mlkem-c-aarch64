@@ -37,6 +37,9 @@ inputs:
   nistkat:
     description: Determine whether to run nistkat test or not
     default: "true"
+  acvp:
+    description: Determine whether to run acvp test or not
+    default: "true"
 runs:
   using: composite
   steps:
@@ -55,6 +58,7 @@ runs:
           func: ${{ inputs.func }}
           kat: ${{ inputs.kat }}
           nistkat: ${{ inputs.nistkat }}
+          acvp: ${{ inputs.acvp }}
       - name: Cross Tests
         if: ${{ (inputs.compile_mode == 'all' || inputs.compile_mode == 'cross') && (success() || failure()) }}
         uses: ./.github/actions/functest
@@ -70,3 +74,4 @@ runs:
           func: ${{ inputs.func }}
           kat: ${{ inputs.kat }}
           nistkat: ${{ inputs.nistkat }}
+          acvp: ${{ inputs.acvp }}

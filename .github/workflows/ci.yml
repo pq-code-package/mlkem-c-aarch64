@@ -83,9 +83,6 @@ jobs:
         with:
           gh_token: ${{ secrets.GITHUB_TOKEN }}
           compile_mode: native
-          func: true
-          nistkat: true
-          kat: true
       - name: native tests (+debug+memsan+ubsan)
         uses: ./.github/actions/multi-functest
         with:
@@ -101,9 +98,6 @@ jobs:
           gh_token: ${{ secrets.GITHUB_TOKEN }}
           compile_mode: cross
           opt: opt
-          func: true
-          nistkat: true
-          kat: true
   compiler_tests:
     name: Compiler tests (${{ matrix.target.name }})
     strategy:
@@ -133,6 +127,7 @@ jobs:
           func: true
           nistkat: false
           kat: false
+          acvp: false
           nix-shell: "ci_gcc48"
       - name: native build+functest (gcc-4.9)
         uses: ./.github/actions/multi-functest
@@ -142,6 +137,7 @@ jobs:
           func: true
           nistkat: false
           kat: false
+          acvp: false
           nix-shell: "ci_gcc49"
       - name: native build+functest (gcc-7)
         uses: ./.github/actions/multi-functest
@@ -151,6 +147,7 @@ jobs:
           func: true
           nistkat: false
           kat: false
+          acvp: false
           nix-shell: "ci_gcc7"
       - name: native build+functest (gcc-11)
         uses: ./.github/actions/multi-functest
@@ -160,6 +157,7 @@ jobs:
           func: true
           nistkat: false
           kat: false
+          acvp: false
           nix-shell: "ci_gcc11"
       - name: native build+functest (clang-18)
         uses: ./.github/actions/multi-functest
@@ -169,6 +167,7 @@ jobs:
           func: true
           nistkat: false
           kat: false
+          acvp: false
           nix-shell: "ci_clang18"
   lint:
     strategy:
@@ -230,6 +229,7 @@ jobs:
       functest: true
       kattest: true
       nistkattest: true
+      acvptest: true
       lint: false
       verbose: true
     secrets: inherit
@@ -252,6 +252,7 @@ jobs:
       functest: true
       kattest: false
       nistkattest: false
+      acvptest: false
       cbmc: true
       cbmc_mlkem_k: 2
     secrets: inherit
@@ -274,6 +275,7 @@ jobs:
       functest: true
       kattest: false
       nistkattest: false
+      acvptest: false
       cbmc: true
       cbmc_mlkem_k: 3
     secrets: inherit
@@ -296,6 +298,7 @@ jobs:
       functest: true
       kattest: false
       nistkattest: false
+      acvptest: false
       cbmc: true
       cbmc_mlkem_k: 4
     secrets: inherit

@@ -47,6 +47,9 @@ on:
       nistkattest:
         type: boolean
         default: true
+      acvptest:
+        type: boolean
+        default: true
       lint:
         type: boolean
         default: true
@@ -136,6 +139,7 @@ jobs:
           func: ${{ inputs.functest }}
           kat: ${{ inputs.kattest }}
           nistkat: ${{ inputs.nistkattest }}
+          acvp: ${{ inputs.acvptest }}
       - name: CBMC
         if: ${{ inputs.cbmc && (success() || failure()) }}
         uses: ./.github/actions/cbmc
