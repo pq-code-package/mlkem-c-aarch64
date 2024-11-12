@@ -384,8 +384,7 @@ void matvec_mul(polyvec *out, const polyvec a[MLKEM_K], const polyvec *v,
   REQUIRES(IS_FRESH(vc, sizeof(polyvec_mulcache)))
   REQUIRES(FORALL(int, k0, 0, MLKEM_K - 1,
    FORALL(int, k1, 0, MLKEM_K - 1,
-     ARRAY_IN_BOUNDS(0, MLKEM_N - 1,
-       a[k0].vec[k1].coeffs, -(MLKEM_Q - 1), (MLKEM_Q - 1)))))
+     ARRAY_ABS_BOUND(a[k0].vec[k1].coeffs, 0, MLKEM_N - 1, (MLKEM_Q - 1)))))
   ASSIGNS(OBJECT_WHOLE(out))
 // clang-format on
 {

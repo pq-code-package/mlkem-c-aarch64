@@ -106,12 +106,10 @@ ASSIGNS(OBJECT_WHOLE(r));  // clang-format on
 void polyvec_ntt(polyvec *r)  // clang-format off
   REQUIRES(IS_FRESH(r, sizeof(polyvec)))
   REQUIRES(FORALL(int, j, 0, MLKEM_K - 1,
-    ARRAY_IN_BOUNDS(0, MLKEM_N - 1,
-                    r->vec[j].coeffs, -(MLKEM_Q - 1), (MLKEM_Q - 1))))
+    ARRAY_ABS_BOUND(r->vec[j].coeffs, 0, MLKEM_N - 1, (MLKEM_Q - 1))))
   ASSIGNS(OBJECT_WHOLE(r))
   ENSURES(FORALL(int, j, 0, MLKEM_K - 1,
-    ARRAY_IN_BOUNDS(0, MLKEM_N - 1,
-                    r->vec[j].coeffs, -(NTT_BOUND - 1), (NTT_BOUND - 1))));
+    ARRAY_ABS_BOUND(r->vec[j].coeffs, 0, MLKEM_N - 1, (NTT_BOUND - 1))));
 // clang-format on
 
 #define polyvec_invntt_tomont MLKEM_NAMESPACE(polyvec_invntt_tomont)
@@ -134,8 +132,7 @@ void polyvec_invntt_tomont(polyvec *r)  // clang-format off
   REQUIRES(IS_FRESH(r, sizeof(polyvec)))
   ASSIGNS(OBJECT_WHOLE(r))
   ENSURES(FORALL(int, j, 0, MLKEM_K - 1,
-    ARRAY_IN_BOUNDS(0, MLKEM_N - 1,
-                    r->vec[j].coeffs, -(INVNTT_BOUND - 1), (INVNTT_BOUND - 1))));
+    ARRAY_ABS_BOUND(r->vec[j].coeffs, 0, MLKEM_N - 1, (INVNTT_BOUND - 1))));
 // clang-format on
 
 #define polyvec_basemul_acc_montgomery \
@@ -172,8 +169,7 @@ REQUIRES(IS_FRESH(b, sizeof(polyvec)))
 REQUIRES(IS_FRESH(b_cache, sizeof(polyvec_mulcache)))
 // Input is coefficient-wise < q in absolute value
 REQUIRES(FORALL(int, k1, 0, MLKEM_K - 1,
- ARRAY_IN_BOUNDS(0, MLKEM_N - 1,
-   a->vec[k1].coeffs, -(MLKEM_Q - 1), (MLKEM_Q - 1))))
+ ARRAY_ABS_BOUND(a->vec[k1].coeffs, 0, MLKEM_N - 1, (MLKEM_Q - 1))))
 ASSIGNS(OBJECT_UPTO(r, sizeof(poly)));
 // clang-format on
 
@@ -274,8 +270,7 @@ void polyvec_tomont(polyvec *r)  // clang-format off
   REQUIRES(IS_FRESH(r, sizeof(polyvec)))
   ASSIGNS(OBJECT_UPTO(r, sizeof(polyvec)))
   ENSURES(FORALL(int, j, 0, MLKEM_K - 1,
-    ARRAY_IN_BOUNDS(0, MLKEM_N - 1,
-                    r->vec[j].coeffs, -(MLKEM_Q - 1), (MLKEM_Q - 1))))
+    ARRAY_ABS_BOUND(r->vec[j].coeffs, 0, MLKEM_N - 1, (MLKEM_Q - 1))))
   ASSIGNS(OBJECT_WHOLE(r));
 // clang-format on
 

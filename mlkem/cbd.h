@@ -23,7 +23,7 @@ void poly_cbd_eta1(
 REQUIRES(IS_FRESH(r, sizeof(poly)))
 REQUIRES(IS_FRESH(buf, MLKEM_ETA1 * MLKEM_N / 4))
 ASSIGNS(OBJECT_UPTO(r, sizeof(poly)))
-ENSURES(ARRAY_IN_BOUNDS(0, MLKEM_N - 1, r->coeffs, -MLKEM_ETA1, MLKEM_ETA1));
+ENSURES(ARRAY_ABS_BOUND(r->coeffs, 0, MLKEM_N - 1, MLKEM_ETA1));
 // clang-format on
 
 #define poly_cbd_eta2 MLKEM_NAMESPACE(poly_cbd_eta2)
@@ -43,7 +43,7 @@ void poly_cbd_eta2(
 REQUIRES(IS_FRESH(r, sizeof(poly)))
 REQUIRES(IS_FRESH(buf, MLKEM_ETA2 * MLKEM_N / 4))
 ASSIGNS(OBJECT_UPTO(r, sizeof(poly)))
-ENSURES(ARRAY_IN_BOUNDS(0, MLKEM_N - 1, r->coeffs, -MLKEM_ETA2, MLKEM_ETA2));
+ENSURES(ARRAY_ABS_BOUND(r->coeffs, 0, MLKEM_N - 1, MLKEM_ETA2));
 // clang-format on
 
 #endif
