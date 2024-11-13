@@ -2,6 +2,7 @@
 #ifndef VERIFY_H
 #define VERIFY_H
 
+#include <limits.h>
 #include <stddef.h>
 #include <stdint.h>
 #include "cbmc.h"
@@ -19,10 +20,12 @@
  *
  * Returns 0 if the byte arrays are equal, 1 otherwise
  **************************************************/
-int verify(const uint8_t *a, const uint8_t *b, size_t len)  // clang-format off
-  REQUIRES(IS_FRESH(a, len))
-  REQUIRES(IS_FRESH(b, len))
-  ENSURES(RETURN_VALUE == 0 || RETURN_VALUE == 1);
+int verify(const uint8_t *a, const uint8_t *b,
+           const size_t len)  // clang-format off
+REQUIRES(IS_FRESH(a, len))
+REQUIRES(IS_FRESH(b, len))
+REQUIRES(len <= INT_MAX)
+ENSURES(RETURN_VALUE == (1 - FORALL(int, i, 0, ((int)len - 1), (a[i] == b[i]))));
 // clang-format on
 
 #define cmov MLKEM_NAMESPACE(cmov)

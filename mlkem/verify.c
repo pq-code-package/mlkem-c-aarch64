@@ -3,33 +3,33 @@
 #include <stddef.h>
 #include <stdint.h>
 
-int verify(const uint8_t *a, const uint8_t *b, size_t len) {
-  size_t i;
+int verify(const uint8_t *a, const uint8_t *b, const size_t len) {
   uint8_t r = 0;
+  uint64_t u;
 
-  for (i = 0; i < len; i++)  // clang-format off
+  // Switch to a _signed_ ilen value, so that our loop counter
+  // can also be signed, and thus (i - 1) in the loop invariant
+  // can yield -1 as required.
+  const int ilen = (int)len;
+
+  for (int i = 0; i < ilen; i++)  // clang-format off
     ASSIGNS(i, r)
-    INVARIANT(i <= len)
-    // clang-format on
+    INVARIANT(i >= 0 && i <= ilen)
+    INVARIANT((r == 0) == (FORALL(int, k, 0, (i - 1), (a[k] == b[k]))))  // clang-format on
     {
       r |= a[i] ^ b[i];
     }
 
-    // Our CBMC setup rejects the conversion of negative signed
-    // numbers to unsigned numbers, even though it's fully defined
-    // by the standard. Disable the check for this check which
-    // requires signed-to-unsigned conversion.
 #ifdef CBMC
 #pragma CPROVER check push
-#pragma CPROVER check disable "conversion"
+#pragma CPROVER check disable "unsigned-overflow"
 #endif
-  int res = (((uint64_t)-r) >> 63);
+  u = (-(uint64_t)r) >> 63;
 #ifdef CBMC
 #pragma CPROVER check pop
 #endif
-  ASSERT((r != 0) == (res == 1), "verify bitfiddling gone wrong");
-  ASSERT((r == 0) == (res == 0), "verify bitfiddling gone wrong");
-  return res;
+
+  return (int)u;
 }
 
 void cmov(uint8_t *r, const uint8_t *x, size_t len, uint8_t b) {
