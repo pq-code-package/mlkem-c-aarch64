@@ -35,10 +35,14 @@ int verify(const uint8_t *a, const uint8_t *b, const size_t len) {
 void cmov(uint8_t *r, const uint8_t *x, size_t len, uint8_t b) {
   size_t i;
 
-  b = -b;
-  for (i = 0; i < len; i++) {
-    r[i] ^= b & (r[i] ^ x[i]);
-  }
+  b = (-b) & 0xFF;
+  for (i = 0; i < len; i++)  // clang-format off
+    ASSIGNS(i, OBJECT_UPTO(r, len))
+    INVARIANT(i <= len)
+    // clang-format on
+    {
+      r[i] ^= b & (r[i] ^ x[i]);
+    }
 }
 
 /*************************************************

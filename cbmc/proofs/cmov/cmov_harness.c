@@ -6,8 +6,8 @@
  */
 
 /**
- * @file verify_harness.c
- * @brief Implements the proof harness for verify function.
+ * @file cmov_harness.c
+ * @brief Implements the proof harness for cmov function.
  */
 #include "verify.h"
 
@@ -22,9 +22,8 @@
  *
  */
 void harness(void) {
-  uint8_t *a;
-  uint8_t *b;
+  uint8_t *x, *y;
   size_t len;
-  int r;
-  r = verify(a, b, len);
+  uint8_t b;
+  cmov(x, y, len, b);
 }
