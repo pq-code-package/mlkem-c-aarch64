@@ -4,17 +4,18 @@
 
 **mlkem-native** is a C99 implementation of [ML-KEM](https://doi.org/10.6028/NIST.FIPS.203.ipd) targeting
 PC, mobile and server platforms. It is a fork of the ML-KEM [reference
-implementation](https://github.com/pq-crystals/kyber/tree/main/ref) and remains very close to it, adding a simple
-interface for native code (e.g. assembler) as well as implementations of that interface in C, AArch64, and x86_64.
+implementation](https://github.com/pq-crystals/kyber/tree/main/ref), deviating only to (a) accommodate an
+interface for native code (e.g. assembler), and (b) facilitate formal verification. **mlkem-native** provides
+native code backends in C, AArch64 and x86_64, offering state of the art performance on most Arm, Intel and AMD
+platforms.
 
 If you need an ML-KEM implementation suitable for embedded systems, see
 [**mlkem-c-embedded**](https://github.com/pq-code-package/mlkem-c-embedded/).
 
-
 ### Goals
 
-**mlkem-native** aims for _assurance_, _ease of use_, and _performance_. We only include implementations into
-**mlkem-native** which are manually auditable or for which we see a path towards formal verification. All assembly aims
+**mlkem-native** aims for _assurance_, _ease of use_, and _performance_. We seek implementations
+which are manually auditable or for which we see a path towards formal verification. All assembly aims
 to be readable and micro-optimization deferred to automated tooling such as
 [SLOTHY](https://slothy-optimizer.github.io/slothy/). Ultimately, **mlkem-native** strives for constant-time
 implementations for which the C-code is verified to be free of undefined behaviour, and where all assembly is
@@ -32,11 +33,12 @@ ENVIRONMENT OR TO PROTECT ANY SENSITIVE DATA.** Once we have the first stable ve
 
 #### Verification
 
-Mostly TODO. We apply [CBMC](https://github.com/diffblue/cbmc) to verify type-safety and the absence of
-UB in a few basic C routines, but the bulk of the C verification
-is outstanding. No formal verification has yet been applied to the backends.
+All C code in [mlkem/*](mlkem) is verified to be memory and type safe using CBMC. This excludes, for example, out of
+bounds accesses, as well as integer overflows during optimized modular arithmetic. See the [CBMC
+Readme](cbmc/proofs/README.md) and the [CBMC Proof Guide](cbmc/proofs/proof_guide.md) for more information and how to
+reproduce the proofs. The code in [fips202/*](fips202) has not yet been verified using CBMC.
 
-See the [Proof README](cbmc/proofs/README.md) and [Proof Guide](cbmc/proofs/proof_guide.md) for more details.
+Initial experiments are underway to verify AArch64 using [HOL-Light](https://hol-light.github.io/).
 
 ### Getting started
 
