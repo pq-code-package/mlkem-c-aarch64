@@ -16,7 +16,7 @@
  *
  * Arguments:   const uint8_t *a: pointer to first byte array
  *              const uint8_t *b: pointer to second byte array
- *              int len:          length of the byte arrays
+ *              size_t len:       length of the byte arrays
  *
  * Returns 0 if the byte arrays are equal, 1 otherwise
  **************************************************/
@@ -28,9 +28,25 @@ REQUIRES(len <= INT_MAX)
 ENSURES(RETURN_VALUE == (1 - FORALL(int, i, 0, ((int)len - 1), (a[i] == b[i]))));
 // clang-format on
 
-
 #define cmov MLKEM_NAMESPACE(cmov)
-void cmov(uint8_t *r, const uint8_t *x, size_t len, uint8_t b);
+/*************************************************
+ * Name:        cmov
+ *
+ * Description: Copy len bytes from x to r if b is 1;
+ *              don't modify x if b is 0. Requires b to be in {0,1};
+ *              assumes two's complement representation of negative integers.
+ *              Runs in constant time.
+ *
+ * Arguments:   uint8_t *r:       pointer to output byte array
+ *              const uint8_t *x: pointer to input byte array
+ *              size_t len:       Amount of bytes to be copied
+ *              uint8_t b:        Condition bit; has to be in {0,1}
+ **************************************************/
+void cmov(uint8_t *r, const uint8_t *x, size_t len,
+          uint8_t b)  // clang-format on
+    REQUIRES(IS_FRESH(r, len)) REQUIRES(IS_FRESH(x, len))
+        REQUIRES(b == 0 || b == 1) ASSIGNS(OBJECT_UPTO(r, len));
+// clang-format off
 
 #define cmov_int16 MLKEM_NAMESPACE(cmov_int16)
 /*************************************************
