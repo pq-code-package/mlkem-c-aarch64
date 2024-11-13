@@ -26,7 +26,9 @@ USED_FUNCTIONS += poly_invntt_tomont
 USED_FUNCTIONS += poly_sub
 USED_FUNCTIONS += poly_reduce
 USED_FUNCTIONS += poly_tomsg
-USE_FUNCTION_CONTRACTS=unpack_ciphertext unpack_sk $(addprefix $(MLKEM_NAMESPACE),$(USED_FUNCTIONS))
+USED_FUNCTIONS += polyvec_decompress
+USED_FUNCTIONS += poly_decompress
+USE_FUNCTION_CONTRACTS=unpack_sk $(addprefix $(MLKEM_NAMESPACE),$(USED_FUNCTIONS))
 APPLY_LOOP_CONTRACTS=on
 USE_DYNAMIC_FRAMES=1
 

@@ -153,19 +153,8 @@ static void pack_ciphertext(uint8_t r[MLKEM_INDCPA_BYTES], polyvec *b,
  *              - poly *v: pointer to the output polynomial v
  *              - const uint8_t *c: pointer to the input serialized ciphertext
  **************************************************/
-STATIC_TESTABLE
-void unpack_ciphertext(polyvec *b, poly *v,
-                       const uint8_t c[MLKEM_INDCPA_BYTES])  // clang-format off
-REQUIRES(IS_FRESH(b, sizeof(polyvec)))
-REQUIRES(IS_FRESH(v, sizeof(poly)))
-REQUIRES(IS_FRESH(c, MLKEM_INDCPA_BYTES))
-ASSIGNS(OBJECT_WHOLE(b))
-ASSIGNS(OBJECT_WHOLE(v))
-ENSURES(FORALL(int, k0, 0, MLKEM_K - 1,
-         ARRAY_BOUND(b->vec[k0].coeffs, 0, (MLKEM_N - 1), 0, (MLKEM_Q - 1))))
-ENSURES(ARRAY_BOUND(v->coeffs, 0, (MLKEM_N - 1), 0, (MLKEM_Q - 1)))
-// clang-format on
-{
+static void unpack_ciphertext(polyvec *b, poly *v,
+                              const uint8_t c[MLKEM_INDCPA_BYTES]) {
   polyvec_decompress(b, c);
   poly_decompress(v, c + MLKEM_POLYVECCOMPRESSEDBYTES);
 }
