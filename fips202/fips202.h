@@ -34,7 +34,8 @@ typedef struct {
 void shake128_absorb(shake128ctx *state, const uint8_t *input,
                      size_t inlen)  // clang-format off
 REQUIRES(IS_FRESH(state, sizeof(shake128ctx)))
-REQUIRES(IS_FRESH(input, inlen)) ASSIGNS(OBJECT_WHOLE(state));
+REQUIRES(IS_FRESH(input, inlen))
+ASSIGNS(OBJECT_UPTO(state, sizeof(shake128ctx)));
 // clang-format on
 
 /* Squeeze output out of the sponge.
@@ -45,8 +46,8 @@ REQUIRES(IS_FRESH(input, inlen)) ASSIGNS(OBJECT_WHOLE(state));
 void shake128_squeezeblocks(uint8_t *output, size_t nblocks,
                             shake128ctx *state)  // clang-format off
 REQUIRES(IS_FRESH(state, sizeof(shake128ctx)))
-REQUIRES(IS_FRESH(output, nblocks *SHAKE128_RATE))
-ASSIGNS(OBJECT_WHOLE(output), OBJECT_WHOLE(state));
+REQUIRES(IS_FRESH(output, nblocks * SHAKE128_RATE))
+ASSIGNS(OBJECT_UPTO(output, nblocks * SHAKE128_RATE), OBJECT_UPTO(state, sizeof(shake128ctx)));
 // clang-format on
 
 
@@ -76,37 +77,36 @@ void shake256_inc_squeeze(uint8_t *output, size_t outlen,
 #define shake256_inc_ctx_release FIPS202_NAMESPACE(shake256_inc_ctx_release)
 void shake256_inc_ctx_release(shake256incctx *state);
 
-/* One-stop SHAKE256 call */
+/* One-stop SHAKE256 call. Aliasing between input and
+ * output is not permitted */
 #define shake256 FIPS202_NAMESPACE(shake256)
 void shake256(uint8_t *output, size_t outlen, const uint8_t *input,
               size_t inlen)  // clang-format off
-// Refine +prove this spec, e.g. add disjointness constraints?
-REQUIRES(READABLE(input, inlen))
-REQUIRES(WRITEABLE(output, outlen))
+REQUIRES(IS_FRESH(input, inlen))
+REQUIRES(IS_FRESH(output, outlen))
 ASSIGNS(OBJECT_UPTO(output, outlen));
 // clang-format on
 
-/* One-stop SHA3-256 shop */
+/* One-stop SHA3_256 call. Aliasing between input and
+ * output is not permitted */
+#define SHA3_256_HASHBYTES 32
 #define sha3_256 FIPS202_NAMESPACE(sha3_256)
 void sha3_256(uint8_t *output, const uint8_t *input,
               size_t inlen)  // clang-format off
 REQUIRES(IS_FRESH(input, inlen))
-REQUIRES(IS_FRESH(output, 32))
-ASSIGNS(OBJECT_WHOLE(output));
+REQUIRES(IS_FRESH(output, SHA3_256_HASHBYTES))
+ASSIGNS(OBJECT_UPTO(output, SHA3_256_HASHBYTES));
 // clang-format on
 
-/* One-stop SHA3-512 shop */
+/* One-stop SHA3_512 call. Aliasing between input and
+ * output is not permitted */
+#define SHA3_512_HASHBYTES 64
 #define sha3_512 FIPS202_NAMESPACE(sha3_512)
 void sha3_512(uint8_t *output, const uint8_t *input,
               size_t inlen)  // clang-format off
-REQUIRES(
-    /* Case A: Aliasing between input and output */
-    (output == input && inlen <= 64 && IS_FRESH(output, 64))
- ||
-    /* Case B: Disjoint input and output */
-    (IS_FRESH(input, inlen) && IS_FRESH(output, 64))
-)
-ASSIGNS(OBJECT_WHOLE(output));
+REQUIRES(IS_FRESH(input, inlen))
+REQUIRES(IS_FRESH(output, SHA3_512_HASHBYTES))
+ASSIGNS(OBJECT_UPTO(output, SHA3_512_HASHBYTES));
 // clang-format on
 
 #endif
