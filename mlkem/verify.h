@@ -2,13 +2,32 @@
 #ifndef VERIFY_H
 #define VERIFY_H
 
+#include <limits.h>
 #include <stddef.h>
 #include <stdint.h>
 #include "cbmc.h"
 #include "params.h"
 
 #define verify MLKEM_NAMESPACE(verify)
-int verify(const uint8_t *a, const uint8_t *b, size_t len);
+/*************************************************
+ * Name:        verify
+ *
+ * Description: Compare two arrays for equality in constant time.
+ *
+ * Arguments:   const uint8_t *a: pointer to first byte array
+ *              const uint8_t *b: pointer to second byte array
+ *              int len:          length of the byte arrays
+ *
+ * Returns 0 if the byte arrays are equal, 1 otherwise
+ **************************************************/
+int verify(const uint8_t *a, const uint8_t *b,
+           const size_t len)  // clang-format off
+REQUIRES(IS_FRESH(a, len))
+REQUIRES(IS_FRESH(b, len))
+REQUIRES(len <= INT_MAX)
+ENSURES(RETURN_VALUE == (1 - FORALL(int, i, 0, ((int)len - 1), (a[i] == b[i]))));
+// clang-format on
+
 
 #define cmov MLKEM_NAMESPACE(cmov)
 void cmov(uint8_t *r, const uint8_t *x, size_t len, uint8_t b);

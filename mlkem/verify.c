@@ -3,26 +3,33 @@
 #include <stddef.h>
 #include <stdint.h>
 
-/*************************************************
- * Name:        verify
- *
- * Description: Compare two arrays for equality in constant time.
- *
- * Arguments:   const uint8_t *a: pointer to first byte array
- *              const uint8_t *b: pointer to second byte array
- *              size_t len:       length of the byte arrays
- *
- * Returns 0 if the byte arrays are equal, 1 otherwise
- **************************************************/
-int verify(const uint8_t *a, const uint8_t *b, size_t len) {
-  size_t i;
+int verify(const uint8_t *a, const uint8_t *b, const size_t len) {
   uint8_t r = 0;
+  uint64_t u;
 
-  for (i = 0; i < len; i++) {
-    r |= a[i] ^ b[i];
-  }
+  // Switch to a _signed_ ilen value, so that our loop counter
+  // can also be signed, and thus (i - 1) in the loop invariant
+  // can yield -1 as required.
+  const int ilen = (int)len;
 
-  return (-(uint64_t)r) >> 63;
+  for (int i = 0; i < ilen; i++)  // clang-format off
+    ASSIGNS(i, r)
+    INVARIANT(i >= 0 && i <= ilen)
+    INVARIANT((r == 0) == (FORALL(int, k, 0, (i - 1), (a[k] == b[k]))))  // clang-format on
+    {
+      r |= a[i] ^ b[i];
+    }
+
+#ifdef CBMC
+#pragma CPROVER check push
+#pragma CPROVER check disable "unsigned-overflow"
+#endif
+  u = (-(uint64_t)r) >> 63;
+#ifdef CBMC
+#pragma CPROVER check pop
+#endif
+
+  return (int)u;
 }
 
 /*************************************************
