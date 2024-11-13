@@ -9,6 +9,18 @@
 #include "symmetric.h"
 #include "verify.h"
 
+// This helper function is only to prevent CBMC from inlining
+// `memcmp`, and is expected to be inlined by the compiler.
+static int pk_cmp_polyvec(
+    const uint8_t pk[MLKEM_PUBLICKEYBYTES],
+    const uint8_t pv[MLKEM_POLYVECBYTES])  // clang-format off
+  REQUIRES(IS_FRESH(pk, MLKEM_PUBLICKEYBYTES))
+  REQUIRES(IS_FRESH(pv, MLKEM_POLYVECBYTES))
+// clang-format on
+{
+  return memcmp(pk, pv, MLKEM_POLYVECBYTES);
+}
+
 /*************************************************
  * Name:        check_pk
  *
@@ -28,7 +40,7 @@ static int check_pk(const uint8_t pk[MLKEM_PUBLICKEYBYTES]) {
   polyvec_reduce(&p);
   polyvec_tobytes(p_reencoded, &p);
   // Data is public, so a variable-time memcmp() is OK
-  if (memcmp(pk, p_reencoded, MLKEM_POLYVECBYTES)) {
+  if (pk_cmp_polyvec(pk, p_reencoded)) {
     return -1;
   }
   return 0;
@@ -107,25 +119,6 @@ int crypto_kem_keypair(uint8_t *pk, uint8_t *sk) {
   return 0;
 }
 
-/*************************************************
- * Name:        crypto_kem_enc_derand
- *
- * Description: Generates cipher text and shared
- *              secret for given public key
- *
- * Arguments:   - uint8_t *ct: pointer to output cipher text
- *                (an already allocated array of MLKEM_CIPHERTEXTBYTES bytes)
- *              - uint8_t *ss: pointer to output shared secret
- *                (an already allocated array of MLKEM_SSBYTES bytes)
- *              - const uint8_t *pk: pointer to input public key
- *                (an already allocated array of MLKEM_PUBLICKEYBYTES bytes)
- *              - const uint8_t *coins: pointer to input randomness
- *                (an already allocated array filled with MLKEM_SYMBYTES random
- *bytes)
- **
- * Returns 0 on success, and -1 if the public key modulus check (see Section 7.2
- * of FIPS203) fails.
- **************************************************/
 int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss, const uint8_t *pk,
                           const uint8_t *coins) {
   uint8_t buf[2 * MLKEM_SYMBYTES] ALIGN;
@@ -149,22 +142,6 @@ int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss, const uint8_t *pk,
   return 0;
 }
 
-/*************************************************
- * Name:        crypto_kem_enc
- *
- * Description: Generates cipher text and shared
- *              secret for given public key
- *
- * Arguments:   - uint8_t *ct: pointer to output cipher text
- *                (an already allocated array of MLKEM_CIPHERTEXTBYTES bytes)
- *              - uint8_t *ss: pointer to output shared secret
- *                (an already allocated array of MLKEM_SSBYTES bytes)
- *              - const uint8_t *pk: pointer to input public key
- *                (an already allocated array of MLKEM_PUBLICKEYBYTES bytes)
- *
- * Returns 0 on success, and -1 if the public key modulus check (see Section 7.2
- * of FIPS203) fails.
- **************************************************/
 int crypto_kem_enc(uint8_t *ct, uint8_t *ss, const uint8_t *pk) {
   uint8_t coins[MLKEM_SYMBYTES] ALIGN;
   randombytes(coins, MLKEM_SYMBYTES);
