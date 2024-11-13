@@ -58,18 +58,8 @@ ASSIGNS(OBJECT_WHOLE(r))  // clang-format on
  *              - const uint8_t *packedpk: pointer to input serialized public
  *                  key.
  **************************************************/
-STATIC_TESTABLE
-void unpack_pk(
-    polyvec *pk, uint8_t seed[MLKEM_SYMBYTES],
-    const uint8_t packedpk[MLKEM_INDCPA_PUBLICKEYBYTES])  // clang-format off
-REQUIRES(IS_FRESH(packedpk, MLKEM_INDCPA_PUBLICKEYBYTES))
-REQUIRES(IS_FRESH(pk, sizeof(polyvec)))
-REQUIRES(IS_FRESH(seed, MLKEM_SYMBYTES))
-ENSURES(FORALL(int, k0, 0, MLKEM_K - 1,
-  ARRAY_BOUND(pk->vec[k0].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1))))
-ASSIGNS(OBJECT_WHOLE(pk))
-ASSIGNS(OBJECT_WHOLE(seed))  // clang-format on
-{
+static void unpack_pk(polyvec *pk, uint8_t seed[MLKEM_SYMBYTES],
+                      const uint8_t packedpk[MLKEM_INDCPA_PUBLICKEYBYTES]) {
   polyvec_frombytes(pk, packedpk);
   memcpy(seed, packedpk + MLKEM_POLYVECBYTES, MLKEM_SYMBYTES);
 
@@ -112,9 +102,8 @@ ASSIGNS(OBJECT_WHOLE(r))
  *              - const uint8_t *packedsk: pointer to input serialized secret
  *key
  **************************************************/
-static void unpack_sk(
-    polyvec *sk,
-    const uint8_t packedsk[MLKEM_INDCPA_SECRETKEYBYTES]) {
+static void unpack_sk(polyvec *sk,
+                      const uint8_t packedsk[MLKEM_INDCPA_SECRETKEYBYTES]) {
   polyvec_frombytes(sk, packedsk);
   polyvec_reduce(sk);
 }
