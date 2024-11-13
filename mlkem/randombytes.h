@@ -5,6 +5,11 @@
 #include <stddef.h>
 #include <stdint.h>
 
-void randombytes(uint8_t *out, size_t outlen);
+#include "cbmc.h"
+
+void randombytes(uint8_t *out, size_t outlen)  // clang-format off
+  REQUIRES(IS_FRESH(out, outlen))
+  ASSIGNS(OBJECT_UPTO(out, outlen));
+// clang-format on
 
 #endif
