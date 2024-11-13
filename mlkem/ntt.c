@@ -208,28 +208,42 @@ STATIC_ASSERT(INVNTT_BOUND_REF <= INVNTT_BOUND, invntt_bound)
 // REF-CHANGE: Removed indirection poly_invntt_tomont -> invntt()
 // REF-CHANGE: Moved scalar multiplication with f ahead of the core invNTT
 void poly_invntt_tomont(poly *p) {
-  unsigned int start, len, j, k;
-  int16_t t, zeta;
+  int k;
   const int16_t f = 1441;  // mont^2/128
   int16_t *r = p->coeffs;
 
-  for (j = 0; j < 256; j++) {
-    r[j] = fqmul(r[j], f);
-  }
-
-  POLY_BOUND(p, (3 * MLKEM_Q) / 4);
+  for (int j = 0; j < MLKEM_N; j++)  // clang-format off
+    ASSIGNS(j, OBJECT_UPTO(r, sizeof(poly)))
+    INVARIANT(0 <= j && j <= MLKEM_N && ARRAY_ABS_BOUND(r, 0, j - 1, MLKEM_Q))
+    // clang-format on
+    {
+      r[j] = fqmul(r[j], f);
+    }
 
   k = 127;
-  for (len = 2; len <= 128; len <<= 1) {
-    for (start = 0; start < 256; start = j + len) {
-      zeta = zetas[k--];
-      for (j = start; j < start + len; j++) {
-        t = r[j];
-        r[j] = barrett_reduce(t + r[j + len]);  // abs < q/2
-        r[j + len] = r[j + len] - t;
-        r[j + len] = fqmul(r[j + len], zeta);  // abs < 3/4 q
+  // No loop invariant for the outer loop because it's unrolled
+  for (int len = 2; len <= 128; len <<= 1) {
+    for (int start = 0; start < MLKEM_N; start += 2 * len)  // clang-format off
+      ASSIGNS(start, k, OBJECT_UPTO(r, sizeof(int16_t) * MLKEM_N))
+      INVARIANT(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, MLKEM_Q))
+      INVARIANT(0 <= start && start <= MLKEM_N && 0 <= k && k <= 127)
+      // Normalised form of k == MLKEM_N / len - 1 - start / (2 * len)
+      INVARIANT(2 * len * k + start == 2 * MLKEM_N - 2 * len)
+      // clang-format on
+      {
+        int16_t zeta = zetas[k--];
+        for (int j = start; j < start + len; j++)  // clang-format off
+          ASSIGNS(j, OBJECT_UPTO(r, sizeof(int16_t) * MLKEM_N))
+          INVARIANT(start <= j && j <= start + len)
+          INVARIANT(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, MLKEM_Q))
+          // clang-format on
+          {
+            int16_t t = r[j];
+            r[j] = barrett_reduce(t + r[j + len]);
+            r[j + len] = r[j + len] - t;
+            r[j + len] = fqmul(r[j + len], zeta);
+          }
       }
-    }
   }
 
   POLY_BOUND_MSG(p, INVNTT_BOUND_REF, "ref intt output");
