@@ -109,7 +109,7 @@
 // range value_lb .. value_ub (inclusive)"
 //
 // Example:
-//  ARRAY_IN_BOUNDS(0, MLKEM_N-1, a->coeffs, -(MLKEM_Q - 1), MLKEM_Q - 1)
+//  ARRAY_BOUND(a->coeffs, 0, MLKEM_N-1, -(MLKEM_Q - 1), MLKEM_Q - 1)
 // expands to
 //  __CPROVER_forall { int k; (0 <= k && k <= MLKEM_N-1) ==> ( (-(MLKEM_Q -
 //  1) <= a->coeffs[k]) && (a->coeffs[k] <= (MLKEM_Q - 1))) }
@@ -120,7 +120,7 @@
 #define CBMC_CONCAT_(left, right) left##right
 #define CBMC_CONCAT(left, right) CBMC_CONCAT_(left,right)
 
-#define ARRAY_IN_BOUNDS_CORE(indextype, qvar, qvar_lb, qvar_ub, array_var, \
+#define ARRAY_BOUND_CORE(indextype, qvar, qvar_lb, qvar_ub, array_var, \
                         value_lb, value_ub)                           \
   __CPROVER_forall                                                    \
   {                                                                   \
@@ -130,15 +130,15 @@
            ((array_var[(qvar)]) <= (value_ub)))                       \
   }
 
-#define ARRAY_IN_BOUNDS(qvar_lb, qvar_ub, array_var,            \
-                        value_lb, value_ub)                     \
-    ARRAY_IN_BOUNDS_CORE(int, CBMC_CONCAT(_cbmc_idx,__LINE__),  \
+#define ARRAY_BOUND(array_var, qvar_lb, qvar_ub,                  \
+                        value_lb, value_ub)                           \
+    ARRAY_BOUND_CORE(int, CBMC_CONCAT(_cbmc_idx,__LINE__),        \
      (qvar_lb), (qvar_ub), (array_var), (value_lb), (value_ub))
 
 // clang-format on
 
-// Wrapper around ARRAY_IN_BOUNDS operating on absolute values
+// Wrapper around ARRAY_BOUND operating on absolute values
 #define ARRAY_ABS_BOUND(arr, lb, ub, k) \
-  ARRAY_IN_BOUNDS((lb), (ub), (arr), (-(k)), (k))
+  ARRAY_BOUND((arr), (lb), (ub), (-(k)), (k))
 
 #endif

@@ -33,9 +33,9 @@ extern const int16_t zetas[128];
 #define poly_ntt MLKEM_NAMESPACE(poly_ntt)
 void poly_ntt(poly *r)  // clang-format off
 REQUIRES(IS_FRESH(r, sizeof(poly)))
-REQUIRES(ARRAY_IN_BOUNDS(0, MLKEM_N - 1, r->coeffs, -(MLKEM_Q - 1), MLKEM_Q - 1))
+REQUIRES(ARRAY_ABS_BOUND(r->coeffs, 0, MLKEM_N - 1, MLKEM_Q - 1))
 ASSIGNS(OBJECT_UPTO(r, sizeof(poly)))
-ENSURES(ARRAY_IN_BOUNDS(0, MLKEM_N - 1, r->coeffs, -(NTT_BOUND - 1), NTT_BOUND - 1));
+ENSURES(ARRAY_ABS_BOUND(r->coeffs, 0, MLKEM_N - 1, NTT_BOUND - 1));
 // clang-format on
 
 /*************************************************
@@ -58,7 +58,7 @@ ENSURES(ARRAY_IN_BOUNDS(0, MLKEM_N - 1, r->coeffs, -(NTT_BOUND - 1), NTT_BOUND -
 void poly_invntt_tomont(poly *r)  // clang-format off
 REQUIRES(IS_FRESH(r, sizeof(poly)))
 ASSIGNS(OBJECT_UPTO(r, sizeof(poly)))
-ENSURES(ARRAY_IN_BOUNDS(0, MLKEM_N - 1, r->coeffs, -(INVNTT_BOUND - 1), INVNTT_BOUND - 1));
+ENSURES(ARRAY_ABS_BOUND(r->coeffs, 0, MLKEM_N - 1, INVNTT_BOUND - 1));
 // clang-format on
 
 #define basemul_cached MLKEM_NAMESPACE(basemul_cached)
@@ -87,9 +87,9 @@ void basemul_cached(int16_t r[2], const int16_t a[2], const int16_t b[2],
 REQUIRES(IS_FRESH(r, 2 * sizeof(int16_t)))
 REQUIRES(IS_FRESH(a, 2 * sizeof(int16_t)))
 REQUIRES(IS_FRESH(b, 2 * sizeof(int16_t)))
-REQUIRES(ARRAY_IN_BOUNDS(0, 1, a, -(MLKEM_Q - 1), (MLKEM_Q - 1)))
+REQUIRES(ARRAY_ABS_BOUND(a, 0, 1, MLKEM_Q - 1))
 ASSIGNS(OBJECT_UPTO(r, 2 * sizeof(int16_t)))
-ENSURES(ARRAY_IN_BOUNDS(0, 1, r, -(3 * HALF_Q - 1), (3 * HALF_Q - 1)));
+ENSURES(ARRAY_ABS_BOUND(r, 0, 1, (3 * HALF_Q - 1)));
 // clang-format on
 
 

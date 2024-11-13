@@ -374,12 +374,12 @@ We can use the macros in `cbmc.h` to help, thus:
 void poly_tobytes(uint8_t r[MLKEM_POLYBYTES], const poly *a)
      // clang-format off
 REQUIRES(IS_FRESH(a, sizeof(poly)))
-REQUIRES(ARRAY_IN_BOUNDS(int, k, 0, (MLKEM_N - 1), a->coeffs, 0, (MLKEM_Q - 1)))
+REQUIRES(ARRAY_BOUND(a->coeffs, 0, (MLKEM_N - 1), 0, (MLKEM_Q - 1)))
 ASSIGNS(OBJECT_WHOLE(r));
 // clang-format on
 ```
 
-`ARRAY_IN_BOUNDS` is a macro that expands to a quantified expression that expresses that the elemtns of `a->coeffs` between index values `0` and `(MLKEM_N - 1)` (inclusive) are in the range `0` through `(MLKEM_Q - 1)` (also inclusive). See the macro definition in `mlkem/cbmc.h` for details.
+`ARRAY_BOUND` is a macro that expands to a quantified expression that expresses that the elemtns of `a->coeffs` between index values `0` and `(MLKEM_N - 1)` (inclusive) are in the range `0` through `(MLKEM_Q - 1)` (also inclusive). See the macro definition in `mlkem/cbmc.h` for details.
 
 ### Interior contracts and loop invariants
 

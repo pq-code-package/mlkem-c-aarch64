@@ -38,7 +38,7 @@ REQUIRES(IS_FRESH(r, MLKEM_INDCPA_PUBLICKEYBYTES))
 REQUIRES(IS_FRESH(pk, sizeof(polyvec)))
 REQUIRES(IS_FRESH(seed, MLKEM_SYMBYTES))
 REQUIRES(FORALL(int, k0, 0, MLKEM_K - 1,
-  ARRAY_IN_BOUNDS(0, MLKEM_N - 1, pk->vec[k0].coeffs, 0, (MLKEM_Q - 1))))
+  ARRAY_BOUND(pk->vec[k0].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1))))
 ASSIGNS(OBJECT_WHOLE(r))  // clang-format on
 {
   POLYVEC_BOUND(pk, MLKEM_Q);
@@ -66,7 +66,7 @@ REQUIRES(IS_FRESH(packedpk, MLKEM_INDCPA_PUBLICKEYBYTES))
 REQUIRES(IS_FRESH(pk, sizeof(polyvec)))
 REQUIRES(IS_FRESH(seed, MLKEM_SYMBYTES))
 ENSURES(FORALL(int, k0, 0, MLKEM_K - 1,
-  ARRAY_IN_BOUNDS(0, MLKEM_N - 1, pk->vec[k0].coeffs, 0, (MLKEM_Q - 1))))
+  ARRAY_BOUND(pk->vec[k0].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1))))
 ASSIGNS(OBJECT_WHOLE(pk))
 ASSIGNS(OBJECT_WHOLE(seed))  // clang-format on
 {
@@ -94,7 +94,7 @@ void pack_sk(uint8_t r[MLKEM_INDCPA_SECRETKEYBYTES],
 REQUIRES(IS_FRESH(r, MLKEM_INDCPA_SECRETKEYBYTES))
 REQUIRES(IS_FRESH(sk, sizeof(polyvec)))
 REQUIRES(FORALL(int, k0, 0, MLKEM_K - 1,
-  ARRAY_IN_BOUNDS(0, MLKEM_N - 1, sk->vec[k0].coeffs, 0, (MLKEM_Q - 1))))
+  ARRAY_BOUND(sk->vec[k0].coeffs, 0, MLKEM_N - 1,  0, (MLKEM_Q - 1))))
 ASSIGNS(OBJECT_WHOLE(r))
 // clang-format on
 {
@@ -119,7 +119,7 @@ void unpack_sk(
 REQUIRES(IS_FRESH(packedsk, MLKEM_INDCPA_SECRETKEYBYTES))
 REQUIRES(IS_FRESH(sk, sizeof(polyvec)))
 ENSURES(FORALL(int, k0, 0, MLKEM_K - 1,
-  ARRAY_IN_BOUNDS(0, MLKEM_N - 1, sk->vec[k0].coeffs, 0, (MLKEM_Q - 1))))
+  ARRAY_BOUND(sk->vec[k0].coeffs, 0, MLKEM_N - 1,  0, (MLKEM_Q - 1))))
 ASSIGNS(OBJECT_WHOLE(sk))  // clang-format on
 {
   polyvec_frombytes(sk, packedsk);
@@ -162,8 +162,8 @@ REQUIRES(IS_FRESH(c, MLKEM_INDCPA_BYTES))
 ASSIGNS(OBJECT_WHOLE(b))
 ASSIGNS(OBJECT_WHOLE(v))
 ENSURES(FORALL(int, k0, 0, MLKEM_K - 1,
-         ARRAY_IN_BOUNDS(0, (MLKEM_N - 1), b->vec[k0].coeffs, 0, (MLKEM_Q - 1))))
-ENSURES(ARRAY_IN_BOUNDS(0, (MLKEM_N - 1), v->coeffs, 0, (MLKEM_Q - 1)))
+         ARRAY_BOUND(b->vec[k0].coeffs, 0, (MLKEM_N - 1), 0, (MLKEM_Q - 1))))
+ENSURES(ARRAY_BOUND(v->coeffs, 0, (MLKEM_N - 1), 0, (MLKEM_Q - 1)))
 // clang-format on
 {
   polyvec_decompress(b, c);
@@ -184,10 +184,10 @@ void gen_matrix_entry_x4(poly *vec, uint8_t *seed[4])  // clang-format off
   REQUIRES(IS_FRESH(seed[2], MLKEM_SYMBYTES + 2))
   REQUIRES(IS_FRESH(seed[3], MLKEM_SYMBYTES + 2))
   ASSIGNS(OBJECT_UPTO(vec, sizeof(poly) * 4))
-  ENSURES(ARRAY_IN_BOUNDS(0, MLKEM_N - 1, vec[0].coeffs, 0, (MLKEM_Q - 1)))
-  ENSURES(ARRAY_IN_BOUNDS(0, MLKEM_N - 1, vec[1].coeffs, 0, (MLKEM_Q - 1)))
-  ENSURES(ARRAY_IN_BOUNDS(0, MLKEM_N - 1, vec[2].coeffs, 0, (MLKEM_Q - 1)))
-  ENSURES(ARRAY_IN_BOUNDS(0, MLKEM_N - 1, vec[3].coeffs, 0, (MLKEM_Q - 1)))
+  ENSURES(ARRAY_BOUND(vec[0].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))
+  ENSURES(ARRAY_BOUND(vec[1].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))
+  ENSURES(ARRAY_BOUND(vec[2].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))
+  ENSURES(ARRAY_BOUND(vec[3].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))
 // clang-format on
 {
   // Temporary buffers for XOF output before rejection sampling
@@ -223,10 +223,10 @@ void gen_matrix_entry_x4(poly *vec, uint8_t *seed[4])  // clang-format off
        OBJECT_WHOLE(buf1), OBJECT_WHOLE(buf2), OBJECT_WHOLE(buf3))
     INVARIANT(ctr[0] <= MLKEM_N && ctr[1] <= MLKEM_N)
     INVARIANT(ctr[2] <= MLKEM_N && ctr[3] <= MLKEM_N)
-    INVARIANT(ctr[0] > 0 ==> ARRAY_IN_BOUNDS(0, ctr[0] - 1, vec[0].coeffs, 0, (MLKEM_Q - 1)))
-    INVARIANT(ctr[1] > 0 ==> ARRAY_IN_BOUNDS(0, ctr[1] - 1, vec[1].coeffs, 0, (MLKEM_Q - 1)))
-    INVARIANT(ctr[2] > 0 ==> ARRAY_IN_BOUNDS(0, ctr[2] - 1, vec[2].coeffs, 0, (MLKEM_Q - 1)))
-    INVARIANT(ctr[3] > 0 ==> ARRAY_IN_BOUNDS(0, ctr[3] - 1, vec[3].coeffs, 0, (MLKEM_Q - 1)))
+    INVARIANT(ctr[0] > 0 ==> ARRAY_BOUND(vec[0].coeffs, 0, ctr[0] - 1, 0, (MLKEM_Q - 1)))
+    INVARIANT(ctr[1] > 0 ==> ARRAY_BOUND(vec[1].coeffs, 0, ctr[1] - 1, 0, (MLKEM_Q - 1)))
+    INVARIANT(ctr[2] > 0 ==> ARRAY_BOUND(vec[2].coeffs, 0, ctr[2] - 1, 0, (MLKEM_Q - 1)))
+    INVARIANT(ctr[3] > 0 ==> ARRAY_BOUND(vec[3].coeffs, 0, ctr[3] - 1, 0, (MLKEM_Q - 1)))
                             // clang-format on
     {
       shake128x4_squeezeblocks(buf0, buf1, buf2, buf3, 1, &statex);
@@ -247,7 +247,7 @@ void gen_matrix_entry(poly *entry,
   REQUIRES(IS_FRESH(entry, sizeof(poly)))
   REQUIRES(IS_FRESH(seed, MLKEM_SYMBYTES + 2))
   ASSIGNS(OBJECT_UPTO(entry, sizeof(poly)))
-  ENSURES(ARRAY_IN_BOUNDS(0, MLKEM_N - 1, entry->coeffs, 0, (MLKEM_Q - 1)))
+  ENSURES(ARRAY_BOUND(entry->coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))
 {  // clang-format on
   shake128ctx state;
   uint8_t buf[GEN_MATRIX_NBLOCKS * SHAKE128_RATE];
@@ -266,7 +266,7 @@ void gen_matrix_entry(poly *entry,
   while (ctr < MLKEM_N)  // clang-format off
     ASSIGNS(ctr, state, OBJECT_UPTO(entry, sizeof(poly)), OBJECT_WHOLE(buf))
     INVARIANT(0 <= ctr && ctr <= MLKEM_N)
-    INVARIANT(ctr > 0 ==> ARRAY_IN_BOUNDS(0, ctr - 1, entry->coeffs,
+    INVARIANT(ctr > 0 ==> ARRAY_BOUND(entry->coeffs, 0, ctr - 1, 
                                           0, (MLKEM_Q - 1)))  // clang-format on
     {
       shake128_squeezeblocks(buf, 1, &state);
@@ -384,8 +384,7 @@ void matvec_mul(polyvec *out, const polyvec a[MLKEM_K], const polyvec *v,
   REQUIRES(IS_FRESH(vc, sizeof(polyvec_mulcache)))
   REQUIRES(FORALL(int, k0, 0, MLKEM_K - 1,
    FORALL(int, k1, 0, MLKEM_K - 1,
-     ARRAY_IN_BOUNDS(0, MLKEM_N - 1,
-       a[k0].vec[k1].coeffs, -(MLKEM_Q - 1), (MLKEM_Q - 1)))))
+     ARRAY_ABS_BOUND(a[k0].vec[k1].coeffs, 0, MLKEM_N - 1, (MLKEM_Q - 1)))))
   ASSIGNS(OBJECT_WHOLE(out))
 // clang-format on
 {
