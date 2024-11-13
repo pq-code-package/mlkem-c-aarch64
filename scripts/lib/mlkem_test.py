@@ -594,15 +594,23 @@ class Tests:
             else:
                 exec_wrapper = f"taskpolicy -c {mac_taskpolicy}"
 
-        if self.compile:
-            t.compile(self.opt, extra_make_args=[f"CYCLES={cycles}"])
-
-        if self.run:
-            if self.opt.lower() == "all":
-                # NOTE: We haven't yet decided how to output both opt/no-opt benchmark results
+        # NOTE: We haven't yet decided how to output both opt/no-opt benchmark results
+        if self.opt.lower() == "all":
+            if self.compile:
+                t.compile(False, extra_make_args=[f"CYCLES={cycles}"])
+            if self.run:
                 self._run_bench(t, False, run_as_root, exec_wrapper)
+            if self.compile:
+                t.compile(True, extra_make_args=[f"CYCLES={cycles}"])
+            if self.run:
                 resultss = self._run_bench(t, True, run_as_root, exec_wrapper)
-            else:
+        else:
+            if self.compile:
+                t.compile(
+                    True if self.opt.lower() == "opt" else False,
+                    extra_make_args=[f"CYCLES={cycles}"],
+                )
+            if self.run:
                 resultss = self._run_bench(
                     t,
                     True if self.opt.lower() == "opt" else False,
@@ -654,7 +662,7 @@ class Tests:
                     *([self._func.compile] if func else []),
                     *([self._nistkat.compile] if nistkat else []),
                     *([self._kat.compile] if kat else []),
-                    *([self._acvp.compile] if kat else []),
+                    *([self._acvp.compile] if acvp else []),
                 ]
 
                 for f in compiles:
