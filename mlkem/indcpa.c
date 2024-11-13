@@ -31,16 +31,8 @@
  *                Must have coefficients within [0,..,q-1].
  *              const uint8_t *seed: pointer to the input public seed
  **************************************************/
-STATIC_TESTABLE
-void pack_pk(uint8_t r[MLKEM_INDCPA_PUBLICKEYBYTES], polyvec *pk,
-             const uint8_t seed[MLKEM_SYMBYTES])  // clang-format off
-REQUIRES(IS_FRESH(r, MLKEM_INDCPA_PUBLICKEYBYTES))
-REQUIRES(IS_FRESH(pk, sizeof(polyvec)))
-REQUIRES(IS_FRESH(seed, MLKEM_SYMBYTES))
-REQUIRES(FORALL(int, k0, 0, MLKEM_K - 1,
-  ARRAY_BOUND(pk->vec[k0].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1))))
-ASSIGNS(OBJECT_WHOLE(r))  // clang-format on
-{
+static void pack_pk(uint8_t r[MLKEM_INDCPA_PUBLICKEYBYTES], polyvec *pk,
+                    const uint8_t seed[MLKEM_SYMBYTES]) {
   POLYVEC_BOUND(pk, MLKEM_Q);
   polyvec_tobytes(r, pk);
   memcpy(r + MLKEM_POLYVECBYTES, seed, MLKEM_SYMBYTES);
@@ -78,16 +70,7 @@ static void unpack_pk(polyvec *pk, uint8_t seed[MLKEM_SYMBYTES],
  *              - polyvec *sk: pointer to input vector of polynomials (secret
  *key)
  **************************************************/
-STATIC_TESTABLE
-void pack_sk(uint8_t r[MLKEM_INDCPA_SECRETKEYBYTES],
-             polyvec *sk)  // clang-format off
-REQUIRES(IS_FRESH(r, MLKEM_INDCPA_SECRETKEYBYTES))
-REQUIRES(IS_FRESH(sk, sizeof(polyvec)))
-REQUIRES(FORALL(int, k0, 0, MLKEM_K - 1,
-  ARRAY_BOUND(sk->vec[k0].coeffs, 0, MLKEM_N - 1,  0, (MLKEM_Q - 1))))
-ASSIGNS(OBJECT_WHOLE(r))
-// clang-format on
-{
+static void pack_sk(uint8_t r[MLKEM_INDCPA_SECRETKEYBYTES], polyvec *sk) {
   POLYVEC_BOUND(sk, MLKEM_Q);
   polyvec_tobytes(r, sk);
 }
