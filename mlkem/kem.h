@@ -30,7 +30,25 @@ int crypto_kem_keypair_derand(uint8_t *pk, uint8_t *sk,
 // clang-format on
 
 #define crypto_kem_keypair MLKEM_NAMESPACE(keypair)
-int crypto_kem_keypair(uint8_t *pk, uint8_t *sk);
+/*************************************************
+ * Name:        crypto_kem_keypair
+ *
+ * Description: Generates public and private key
+ *              for CCA-secure ML-KEM key encapsulation mechanism
+ *
+ * Arguments:   - uint8_t *pk: pointer to output public key
+ *                (an already allocated array of MLKEM_PUBLICKEYBYTES bytes)
+ *              - uint8_t *sk: pointer to output private key
+ *                (an already allocated array of MLKEM_SECRETKEYBYTES bytes)
+ *
+ * Returns 0 (success)
+ **************************************************/
+int crypto_kem_keypair(uint8_t *pk, uint8_t *sk)  // clang-format off
+  REQUIRES(IS_FRESH(pk, MLKEM_PUBLICKEYBYTES))
+  REQUIRES(IS_FRESH(sk, MLKEM_SECRETKEYBYTES))
+  ASSIGNS(OBJECT_WHOLE(pk))
+  ASSIGNS(OBJECT_WHOLE(sk));
+// clang-format on
 
 #define crypto_kem_enc_derand MLKEM_NAMESPACE(enc_derand)
 /*************************************************

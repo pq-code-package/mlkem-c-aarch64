@@ -9,17 +9,13 @@
 #include "symmetric.h"
 #include "verify.h"
 
-// This helper function is only to prevent CBMC from inlining
-// `memcmp`, and is expected to be inlined by the compiler.
-static int pk_cmp_polyvec(
-    const uint8_t pk[MLKEM_PUBLICKEYBYTES],
-    const uint8_t pv[MLKEM_POLYVECBYTES])  // clang-format off
-  REQUIRES(IS_FRESH(pk, MLKEM_PUBLICKEYBYTES))
-  REQUIRES(IS_FRESH(pv, MLKEM_POLYVECBYTES))
+#if defined(CBMC)
+// Redeclaration with contract needed for CBMC only
+int memcmp(const void *str1, const void *str2, size_t n)  // clang-format off
+  REQUIRES(IS_FRESH(str1, n))
+  REQUIRES(IS_FRESH(str2, n));
 // clang-format on
-{
-  return memcmp(pk, pv, MLKEM_POLYVECBYTES);
-}
+#endif
 
 /*************************************************
  * Name:        check_pk
@@ -40,7 +36,7 @@ static int check_pk(const uint8_t pk[MLKEM_PUBLICKEYBYTES]) {
   polyvec_reduce(&p);
   polyvec_tobytes(p_reencoded, &p);
   // Data is public, so a variable-time memcmp() is OK
-  if (pk_cmp_polyvec(pk, p_reencoded)) {
+  if (memcmp(pk, p_reencoded, MLKEM_POLYVECBYTES)) {
     return -1;
   }
   return 0;
@@ -99,19 +95,6 @@ int crypto_kem_keypair_derand(uint8_t *pk, uint8_t *sk, const uint8_t *coins) {
   return 0;
 }
 
-/*************************************************
- * Name:        crypto_kem_keypair
- *
- * Description: Generates public and private key
- *              for CCA-secure ML-KEM key encapsulation mechanism
- *
- * Arguments:   - uint8_t *pk: pointer to output public key
- *                (an already allocated array of MLKEM_PUBLICKEYBYTES bytes)
- *              - uint8_t *sk: pointer to output private key
- *                (an already allocated array of MLKEM_SECRETKEYBYTES bytes)
- *
- * Returns 0 (success)
- **************************************************/
 int crypto_kem_keypair(uint8_t *pk, uint8_t *sk) {
   uint8_t coins[2 * MLKEM_SYMBYTES] ALIGN;
   randombytes(coins, 2 * MLKEM_SYMBYTES);
