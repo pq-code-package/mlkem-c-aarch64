@@ -3,48 +3,46 @@
 #include <stddef.h>
 #include <stdint.h>
 
-/*************************************************
- * Name:        verify
- *
- * Description: Compare two arrays for equality in constant time.
- *
- * Arguments:   const uint8_t *a: pointer to first byte array
- *              const uint8_t *b: pointer to second byte array
- *              size_t len:       length of the byte arrays
- *
- * Returns 0 if the byte arrays are equal, 1 otherwise
- **************************************************/
 int verify(const uint8_t *a, const uint8_t *b, size_t len) {
   size_t i;
   uint8_t r = 0;
 
-  for (i = 0; i < len; i++) {
-    r |= a[i] ^ b[i];
-  }
+  for (i = 0; i < len; i++)  // clang-format off
+    ASSIGNS(i, r)
+    INVARIANT(i <= len)
+    // clang-format on
+    {
+      r |= a[i] ^ b[i];
+    }
 
-  return (-(uint64_t)r) >> 63;
+    // Our CBMC setup rejects the conversion of negative signed
+    // numbers to unsigned numbers, even though it's fully defined
+    // by the standard. Disable the check for this check which
+    // requires signed-to-unsigned conversion.
+#ifdef CBMC
+#pragma CPROVER check push
+#pragma CPROVER check disable "conversion"
+#endif
+  int res = (((uint64_t)-r) >> 63);
+#ifdef CBMC
+#pragma CPROVER check pop
+#endif
+  ASSERT((r != 0) == (res == 1), "verify bitfiddling gone wrong");
+  ASSERT((r == 0) == (res == 0), "verify bitfiddling gone wrong");
+  return res;
 }
 
-/*************************************************
- * Name:        cmov
- *
- * Description: Copy len bytes from x to r if b is 1;
- *              don't modify x if b is 0. Requires b to be in {0,1};
- *              assumes two's complement representation of negative integers.
- *              Runs in constant time.
- *
- * Arguments:   uint8_t *r:       pointer to output byte array
- *              const uint8_t *x: pointer to input byte array
- *              size_t len:       Amount of bytes to be copied
- *              uint8_t b:        Condition bit; has to be in {0,1}
- **************************************************/
 void cmov(uint8_t *r, const uint8_t *x, size_t len, uint8_t b) {
   size_t i;
 
-  b = -b;
-  for (i = 0; i < len; i++) {
-    r[i] ^= b & (r[i] ^ x[i]);
-  }
+  b = (-b) & 0xFF;
+  for (i = 0; i < len; i++)  // clang-format off
+    ASSIGNS(i, OBJECT_UPTO(r, len))
+    INVARIANT(i <= len)
+    // clang-format on
+    {
+      r[i] ^= b & (r[i] ^ x[i]);
+    }
 }
 
 /*************************************************

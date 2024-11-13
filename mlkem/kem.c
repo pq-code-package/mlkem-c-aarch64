@@ -9,6 +9,14 @@
 #include "symmetric.h"
 #include "verify.h"
 
+#if defined(CBMC)
+// Redeclaration with contract needed for CBMC only
+int memcmp(const void *str1, const void *str2, size_t n)  // clang-format off
+  REQUIRES(IS_FRESH(str1, n))
+  REQUIRES(IS_FRESH(str2, n));
+// clang-format on
+#endif
+
 /*************************************************
  * Name:        check_pk
  *
@@ -87,19 +95,6 @@ int crypto_kem_keypair_derand(uint8_t *pk, uint8_t *sk, const uint8_t *coins) {
   return 0;
 }
 
-/*************************************************
- * Name:        crypto_kem_keypair
- *
- * Description: Generates public and private key
- *              for CCA-secure ML-KEM key encapsulation mechanism
- *
- * Arguments:   - uint8_t *pk: pointer to output public key
- *                (an already allocated array of MLKEM_PUBLICKEYBYTES bytes)
- *              - uint8_t *sk: pointer to output private key
- *                (an already allocated array of MLKEM_SECRETKEYBYTES bytes)
- *
- * Returns 0 (success)
- **************************************************/
 int crypto_kem_keypair(uint8_t *pk, uint8_t *sk) {
   uint8_t coins[2 * MLKEM_SYMBYTES] ALIGN;
   randombytes(coins, 2 * MLKEM_SYMBYTES);
@@ -107,25 +102,6 @@ int crypto_kem_keypair(uint8_t *pk, uint8_t *sk) {
   return 0;
 }
 
-/*************************************************
- * Name:        crypto_kem_enc_derand
- *
- * Description: Generates cipher text and shared
- *              secret for given public key
- *
- * Arguments:   - uint8_t *ct: pointer to output cipher text
- *                (an already allocated array of MLKEM_CIPHERTEXTBYTES bytes)
- *              - uint8_t *ss: pointer to output shared secret
- *                (an already allocated array of MLKEM_SSBYTES bytes)
- *              - const uint8_t *pk: pointer to input public key
- *                (an already allocated array of MLKEM_PUBLICKEYBYTES bytes)
- *              - const uint8_t *coins: pointer to input randomness
- *                (an already allocated array filled with MLKEM_SYMBYTES random
- *bytes)
- **
- * Returns 0 on success, and -1 if the public key modulus check (see Section 7.2
- * of FIPS203) fails.
- **************************************************/
 int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss, const uint8_t *pk,
                           const uint8_t *coins) {
   uint8_t buf[2 * MLKEM_SYMBYTES] ALIGN;
@@ -149,46 +125,12 @@ int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss, const uint8_t *pk,
   return 0;
 }
 
-/*************************************************
- * Name:        crypto_kem_enc
- *
- * Description: Generates cipher text and shared
- *              secret for given public key
- *
- * Arguments:   - uint8_t *ct: pointer to output cipher text
- *                (an already allocated array of MLKEM_CIPHERTEXTBYTES bytes)
- *              - uint8_t *ss: pointer to output shared secret
- *                (an already allocated array of MLKEM_SSBYTES bytes)
- *              - const uint8_t *pk: pointer to input public key
- *                (an already allocated array of MLKEM_PUBLICKEYBYTES bytes)
- *
- * Returns 0 on success, and -1 if the public key modulus check (see Section 7.2
- * of FIPS203) fails.
- **************************************************/
 int crypto_kem_enc(uint8_t *ct, uint8_t *ss, const uint8_t *pk) {
   uint8_t coins[MLKEM_SYMBYTES] ALIGN;
   randombytes(coins, MLKEM_SYMBYTES);
   return crypto_kem_enc_derand(ct, ss, pk, coins);
 }
 
-/*************************************************
- * Name:        crypto_kem_dec
- *
- * Description: Generates shared secret for given
- *              cipher text and private key
- *
- * Arguments:   - uint8_t *ss: pointer to output shared secret
- *                (an already allocated array of MLKEM_SSBYTES bytes)
- *              - const uint8_t *ct: pointer to input cipher text
- *                (an already allocated array of MLKEM_CIPHERTEXTBYTES bytes)
- *              - const uint8_t *sk: pointer to input private key
- *                (an already allocated array of MLKEM_SECRETKEYBYTES bytes)
- *
- * Returns 0 on success, and -1 if the secret key hash check (see Section 7.3 of
- * FIPS203) fails.
- *
- * On failure, ss will contain a pseudo-random value.
- **************************************************/
 int crypto_kem_dec(uint8_t *ss, const uint8_t *ct, const uint8_t *sk) {
   int fail;
   uint8_t buf[2 * MLKEM_SYMBYTES] ALIGN;
