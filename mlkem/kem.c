@@ -131,24 +131,6 @@ int crypto_kem_enc(uint8_t *ct, uint8_t *ss, const uint8_t *pk) {
   return crypto_kem_enc_derand(ct, ss, pk, coins);
 }
 
-/*************************************************
- * Name:        crypto_kem_dec
- *
- * Description: Generates shared secret for given
- *              cipher text and private key
- *
- * Arguments:   - uint8_t *ss: pointer to output shared secret
- *                (an already allocated array of MLKEM_SSBYTES bytes)
- *              - const uint8_t *ct: pointer to input cipher text
- *                (an already allocated array of MLKEM_CIPHERTEXTBYTES bytes)
- *              - const uint8_t *sk: pointer to input private key
- *                (an already allocated array of MLKEM_SECRETKEYBYTES bytes)
- *
- * Returns 0 on success, and -1 if the secret key hash check (see Section 7.3 of
- * FIPS203) fails.
- *
- * On failure, ss will contain a pseudo-random value.
- **************************************************/
 int crypto_kem_dec(uint8_t *ss, const uint8_t *ct, const uint8_t *sk) {
   int fail;
   uint8_t buf[2 * MLKEM_SYMBYTES] ALIGN;
