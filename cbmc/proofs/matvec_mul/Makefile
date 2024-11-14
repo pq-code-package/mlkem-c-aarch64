@@ -13,19 +13,18 @@ DEFINES +=
 INCLUDES +=
 
 REMOVE_FUNCTION_BODY +=
-UNWINDSET += matvec_mul.0:4 # Maximum value of MLKEM_K
 
 PROOF_SOURCES += $(PROOFDIR)/$(HARNESS_FILE).c
 PROJECT_SOURCES += $(SRCDIR)/mlkem/indcpa.c
 
 CHECK_FUNCTION_CONTRACTS=matvec_mul
-USE_FUNCTION_CONTRACTS=$(MLKEM_NAMESPACE)polyvec_mulcache_compute $(MLKEM_NAMESPACE)polyvec_basemul_acc_montgomery_cached
+USE_FUNCTION_CONTRACTS=$(MLKEM_NAMESPACE)polyvec_basemul_acc_montgomery_cached
 APPLY_LOOP_CONTRACTS=on
 USE_DYNAMIC_FRAMES=1
 
 # Disable any setting of EXTERNAL_SAT_SOLVER, and choose SMT backend instead
 EXTERNAL_SAT_SOLVER=
-CBMCFLAGS=--smt2
+CBMCFLAGS=--smt2 --no-array-field-sensitivity --arrays-uf-always --slice-formula
 
 FUNCTION_NAME = $(MLKEM_NAMESPACE)matvec_mul
 
@@ -36,7 +35,7 @@ FUNCTION_NAME = $(MLKEM_NAMESPACE)matvec_mul
 # EXPENSIVE = true
 
 # This function is large enough to need...
-CBMC_OBJECT_BITS = 10
+CBMC_OBJECT_BITS = 8
 
 # If you require access to a file-local ("static") function or object to conduct
 # your proof, set the following (and do not include the original source file

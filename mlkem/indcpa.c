@@ -220,7 +220,7 @@ void gen_matrix_entry(poly *entry,
   while (ctr < MLKEM_N)  // clang-format off
     ASSIGNS(ctr, state, OBJECT_UPTO(entry, sizeof(poly)), OBJECT_WHOLE(buf))
     INVARIANT(0 <= ctr && ctr <= MLKEM_N)
-    INVARIANT(ctr > 0 ==> ARRAY_BOUND(entry->coeffs, 0, ctr - 1, 
+    INVARIANT(ctr > 0 ==> ARRAY_BOUND(entry->coeffs, 0, ctr - 1,
                                           0, (MLKEM_Q - 1)))  // clang-format on
     {
       shake128_squeezeblocks(buf, 1, &state);
@@ -342,9 +342,12 @@ void matvec_mul(polyvec *out, const polyvec a[MLKEM_K], const polyvec *v,
   ASSIGNS(OBJECT_WHOLE(out))
 // clang-format on
 {
-  for (int i = 0; i < MLKEM_K; i++) {
-    polyvec_basemul_acc_montgomery_cached(&out->vec[i], &a[i], v, vc);
-  }
+  for (int i = 0; i < MLKEM_K; i++)  // clang-format off
+    ASSIGNS(i, OBJECT_WHOLE(out))
+    INVARIANT(i >= 0 && i <= MLKEM_K)  // clang-format on
+    {
+      polyvec_basemul_acc_montgomery_cached(&out->vec[i], &a[i], v, vc);
+    }
 }
 
 /*************************************************
