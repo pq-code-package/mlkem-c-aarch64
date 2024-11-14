@@ -482,9 +482,7 @@ class Tests:
             print(f"::endgroup::")
 
         for k, result in results.items():
-            title = (
-                "## " + (self._acvp.compile_mode) + " " + (k.capitalize()) + " Tests"
-            )
+            title = "## " + (self.compile_mode) + " " + (k.capitalize()) + " Tests"
             github_summary(title, f"{TEST_TYPES.ACVP.desc()} encapDecap", result)
 
             fail = reduce(lambda acc, c: acc or c, result.values(), fail)
@@ -521,13 +519,7 @@ class Tests:
             print(f"::endgroup::")
 
         for k, result in results.items():
-            title = (
-                "## "
-                + (self._acvp.ts[k].compile_mode)
-                + " "
-                + (k.capitalize())
-                + " Tests"
-            )
+            title = "## " + (self.compile_mode) + " " + (k.capitalize()) + " Tests"
             github_summary(title, f"{TEST_TYPES.ACVP.desc()} keyGen", result)
 
             fail = reduce(lambda acc, c: acc or c, result.values(), fail)
