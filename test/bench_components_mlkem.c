@@ -168,6 +168,11 @@ static int bench(void) {
   BENCH("gen_matrix", gen_matrix((polyvec *)data0, (uint8_t *)data1, 0))
 
 
+  BENCH("polyvec-compress",
+        polyvec_compress((uint8_t *)data0, (polyvec *)data1));
+  BENCH("polyvec-decompress",
+        polyvec_decompress((polyvec *)data0, (uint8_t *)data1));
+
 #if defined(MLKEM_USE_NATIVE_AARCH64)
   BENCH("ntt-clean", ntt_asm_clean((int16_t *)data0));
   BENCH("intt-clean", intt_asm_clean((int16_t *)data0));
