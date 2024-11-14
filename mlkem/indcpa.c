@@ -31,16 +31,8 @@
  *                Must have coefficients within [0,..,q-1].
  *              const uint8_t *seed: pointer to the input public seed
  **************************************************/
-STATIC_TESTABLE
-void pack_pk(uint8_t r[MLKEM_INDCPA_PUBLICKEYBYTES], polyvec *pk,
-             const uint8_t seed[MLKEM_SYMBYTES])  // clang-format off
-REQUIRES(IS_FRESH(r, MLKEM_INDCPA_PUBLICKEYBYTES))
-REQUIRES(IS_FRESH(pk, sizeof(polyvec)))
-REQUIRES(IS_FRESH(seed, MLKEM_SYMBYTES))
-REQUIRES(FORALL(int, k0, 0, MLKEM_K - 1,
-  ARRAY_BOUND(pk->vec[k0].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1))))
-ASSIGNS(OBJECT_WHOLE(r))  // clang-format on
-{
+static void pack_pk(uint8_t r[MLKEM_INDCPA_PUBLICKEYBYTES], polyvec *pk,
+                    const uint8_t seed[MLKEM_SYMBYTES]) {
   POLYVEC_BOUND(pk, MLKEM_Q);
   polyvec_tobytes(r, pk);
   memcpy(r + MLKEM_POLYVECBYTES, seed, MLKEM_SYMBYTES);
@@ -58,18 +50,8 @@ ASSIGNS(OBJECT_WHOLE(r))  // clang-format on
  *              - const uint8_t *packedpk: pointer to input serialized public
  *                  key.
  **************************************************/
-STATIC_TESTABLE
-void unpack_pk(
-    polyvec *pk, uint8_t seed[MLKEM_SYMBYTES],
-    const uint8_t packedpk[MLKEM_INDCPA_PUBLICKEYBYTES])  // clang-format off
-REQUIRES(IS_FRESH(packedpk, MLKEM_INDCPA_PUBLICKEYBYTES))
-REQUIRES(IS_FRESH(pk, sizeof(polyvec)))
-REQUIRES(IS_FRESH(seed, MLKEM_SYMBYTES))
-ENSURES(FORALL(int, k0, 0, MLKEM_K - 1,
-  ARRAY_BOUND(pk->vec[k0].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1))))
-ASSIGNS(OBJECT_WHOLE(pk))
-ASSIGNS(OBJECT_WHOLE(seed))  // clang-format on
-{
+static void unpack_pk(polyvec *pk, uint8_t seed[MLKEM_SYMBYTES],
+                      const uint8_t packedpk[MLKEM_INDCPA_PUBLICKEYBYTES]) {
   polyvec_frombytes(pk, packedpk);
   memcpy(seed, packedpk + MLKEM_POLYVECBYTES, MLKEM_SYMBYTES);
 
@@ -88,16 +70,7 @@ ASSIGNS(OBJECT_WHOLE(seed))  // clang-format on
  *              - polyvec *sk: pointer to input vector of polynomials (secret
  *key)
  **************************************************/
-STATIC_TESTABLE
-void pack_sk(uint8_t r[MLKEM_INDCPA_SECRETKEYBYTES],
-             polyvec *sk)  // clang-format off
-REQUIRES(IS_FRESH(r, MLKEM_INDCPA_SECRETKEYBYTES))
-REQUIRES(IS_FRESH(sk, sizeof(polyvec)))
-REQUIRES(FORALL(int, k0, 0, MLKEM_K - 1,
-  ARRAY_BOUND(sk->vec[k0].coeffs, 0, MLKEM_N - 1,  0, (MLKEM_Q - 1))))
-ASSIGNS(OBJECT_WHOLE(r))
-// clang-format on
-{
+static void pack_sk(uint8_t r[MLKEM_INDCPA_SECRETKEYBYTES], polyvec *sk) {
   POLYVEC_BOUND(sk, MLKEM_Q);
   polyvec_tobytes(r, sk);
 }
@@ -112,16 +85,8 @@ ASSIGNS(OBJECT_WHOLE(r))
  *              - const uint8_t *packedsk: pointer to input serialized secret
  *key
  **************************************************/
-STATIC_TESTABLE
-void unpack_sk(
-    polyvec *sk,
-    const uint8_t packedsk[MLKEM_INDCPA_SECRETKEYBYTES])  // clang-format off
-REQUIRES(IS_FRESH(packedsk, MLKEM_INDCPA_SECRETKEYBYTES))
-REQUIRES(IS_FRESH(sk, sizeof(polyvec)))
-ENSURES(FORALL(int, k0, 0, MLKEM_K - 1,
-  ARRAY_BOUND(sk->vec[k0].coeffs, 0, MLKEM_N - 1,  0, (MLKEM_Q - 1))))
-ASSIGNS(OBJECT_WHOLE(sk))  // clang-format on
-{
+static void unpack_sk(polyvec *sk,
+                      const uint8_t packedsk[MLKEM_INDCPA_SECRETKEYBYTES]) {
   polyvec_frombytes(sk, packedsk);
   polyvec_reduce(sk);
 }
@@ -153,19 +118,8 @@ static void pack_ciphertext(uint8_t r[MLKEM_INDCPA_BYTES], polyvec *b,
  *              - poly *v: pointer to the output polynomial v
  *              - const uint8_t *c: pointer to the input serialized ciphertext
  **************************************************/
-STATIC_TESTABLE
-void unpack_ciphertext(polyvec *b, poly *v,
-                       const uint8_t c[MLKEM_INDCPA_BYTES])  // clang-format off
-REQUIRES(IS_FRESH(b, sizeof(polyvec)))
-REQUIRES(IS_FRESH(v, sizeof(poly)))
-REQUIRES(IS_FRESH(c, MLKEM_INDCPA_BYTES))
-ASSIGNS(OBJECT_WHOLE(b))
-ASSIGNS(OBJECT_WHOLE(v))
-ENSURES(FORALL(int, k0, 0, MLKEM_K - 1,
-         ARRAY_BOUND(b->vec[k0].coeffs, 0, (MLKEM_N - 1), 0, (MLKEM_Q - 1))))
-ENSURES(ARRAY_BOUND(v->coeffs, 0, (MLKEM_N - 1), 0, (MLKEM_Q - 1)))
-// clang-format on
-{
+static void unpack_ciphertext(polyvec *b, poly *v,
+                              const uint8_t c[MLKEM_INDCPA_BYTES]) {
   polyvec_decompress(b, c);
   poly_decompress(v, c + MLKEM_POLYVECCOMPRESSEDBYTES);
 }

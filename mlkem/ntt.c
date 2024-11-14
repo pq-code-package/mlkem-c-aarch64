@@ -205,12 +205,51 @@ void poly_ntt(poly *p) {
 #define INVNTT_BOUND_REF (3 * MLKEM_Q / 4)
 STATIC_ASSERT(INVNTT_BOUND_REF <= INVNTT_BOUND, invntt_bound)
 
-// REF-CHANGE: Removed indirection poly_invntt_tomont -> invntt()
-// REF-CHANGE: Moved scalar multiplication with f ahead of the core invNTT
+// Compute one layer of inverse NTT
+STATIC_TESTABLE
+void invntt_layer(int16_t *r, int len, int layer)  // clang-format off
+  REQUIRES(IS_FRESH(r, sizeof(poly)))
+  REQUIRES(2 <= len && len <= 128 && 1 <= layer && layer <= 7)
+  REQUIRES(len == (1 << (8 - layer)))
+  REQUIRES(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, MLKEM_Q))
+  ASSIGNS(OBJECT_UPTO(r, sizeof(poly)))
+  ENSURES(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, MLKEM_Q))
+// clang-format on
+{
+  // `layer` is a ghost variable used only in the specification
+  ((void)layer);
+  int k = MLKEM_N / len - 1;
+  for (int start = 0; start < MLKEM_N; start += 2 * len)  // clang-format off
+    ASSIGNS(start, k, OBJECT_UPTO(r, sizeof(int16_t) * MLKEM_N))
+    INVARIANT(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, MLKEM_Q))
+    INVARIANT(0 <= start && start <= MLKEM_N && 0 <= k && k <= 127)
+    // Normalised form of k == MLKEM_N / len - 1 - start / (2 * len)
+    INVARIANT(2 * len * k + start == 2 * MLKEM_N - 2 * len)
+    // clang-format on
+    {
+      int16_t zeta = zetas[k--];
+      for (int j = start; j < start + len; j++)  // clang-format off
+        ASSIGNS(j, OBJECT_UPTO(r, sizeof(int16_t) * MLKEM_N))
+        INVARIANT(start <= j && j <= start + len)
+        INVARIANT(0 <= start && start <= MLKEM_N && 0 <= k && k <= 127)
+        INVARIANT(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, MLKEM_Q))
+        // clang-format on
+        {
+          int16_t t = r[j];
+          r[j] = barrett_reduce(t + r[j + len]);
+          r[j + len] = r[j + len] - t;
+          r[j + len] = fqmul(r[j + len], zeta);
+        }
+    }
+}
+
 void poly_invntt_tomont(poly *p) {
-  int k;
   const int16_t f = 1441;  // mont^2/128
   int16_t *r = p->coeffs;
+
+  // Scale input polynomial to account for Montgomery factor
+  // and NTT twist. This also brings coefficients down to
+  // absolute value < MLKEM_Q.
 
   for (int j = 0; j < MLKEM_N; j++)  // clang-format off
     ASSIGNS(j, OBJECT_UPTO(r, sizeof(poly)))
@@ -220,31 +259,16 @@ void poly_invntt_tomont(poly *p) {
       r[j] = fqmul(r[j], f);
     }
 
-  k = 127;
-  // No loop invariant for the outer loop because it's unrolled
-  for (int len = 2; len <= 128; len <<= 1) {
-    for (int start = 0; start < MLKEM_N; start += 2 * len)  // clang-format off
-      ASSIGNS(start, k, OBJECT_UPTO(r, sizeof(int16_t) * MLKEM_N))
-      INVARIANT(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, MLKEM_Q))
-      INVARIANT(0 <= start && start <= MLKEM_N && 0 <= k && k <= 127)
-      // Normalised form of k == MLKEM_N / len - 1 - start / (2 * len)
-      INVARIANT(2 * len * k + start == 2 * MLKEM_N - 2 * len)
-      // clang-format on
-      {
-        int16_t zeta = zetas[k--];
-        for (int j = start; j < start + len; j++)  // clang-format off
-          ASSIGNS(j, OBJECT_UPTO(r, sizeof(int16_t) * MLKEM_N))
-          INVARIANT(start <= j && j <= start + len)
-          INVARIANT(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, MLKEM_Q))
-          // clang-format on
-          {
-            int16_t t = r[j];
-            r[j] = barrett_reduce(t + r[j + len]);
-            r[j + len] = r[j + len] - t;
-            r[j + len] = fqmul(r[j + len], zeta);
-          }
-      }
-  }
+  // Run the invNTT layers
+  for (int len = 2, layer = 7; len <= 128;
+       len <<= 1, layer--)  // clang-format off
+    ASSIGNS(len, layer, OBJECT_UPTO(r, sizeof(poly)))
+    INVARIANT(2 <= len && len <= 256 && 0 <= layer && layer <= 7 && len == (1 << (8 - layer)))
+    INVARIANT(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, MLKEM_Q))
+    // clang-format on
+    {
+      invntt_layer(p->coeffs, len, layer);
+    }
 
   POLY_BOUND_MSG(p, INVNTT_BOUND_REF, "ref intt output");
 }
