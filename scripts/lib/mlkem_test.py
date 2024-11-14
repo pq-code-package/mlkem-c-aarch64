@@ -546,7 +546,12 @@ class Tests:
             exit(1)
 
     def _run_bench(
-        self, t: Test_Implementations, opt: bool, run_as_root: bool, exec_wrapper: str
+        self,
+        t: Test_Implementations,
+        opt: bool,
+        run_as_root: bool,
+        exec_wrapper: str,
+        mac_taskpolicy,
     ) -> TypedDict:
         cmd_prefix = []
         if run_as_root:
@@ -554,6 +559,13 @@ class Tests:
                 f"Running {bin} as root -- you may need to enter your root password.",
             )
             cmd_prefix.append("sudo")
+
+        if mac_taskpolicy:
+            if exec_wrapper:
+                logging.error(f"cannot set both --mac-taskpolicy and --exec-wrapper")
+                sys.exit(1)
+            else:
+                exec_wrapper = f"taskpolicy -c {mac_taskpolicy}"
 
         if exec_wrapper:
             logging.info(f"Running with customized wrapper.")
@@ -578,13 +590,6 @@ class Tests:
         else:
             t = self._bench_components
             output = False
-
-        if mac_taskpolicy:
-            if exec_wrapper:
-                logging.error(f"cannot set both --mac-taskpolicy and --exec-wrapper")
-                sys.exit(1)
-            else:
-                exec_wrapper = f"taskpolicy -c {mac_taskpolicy}"
 
         # NOTE: We haven't yet decided how to output both opt/no-opt benchmark results
         if self.opt.lower() == "all":
