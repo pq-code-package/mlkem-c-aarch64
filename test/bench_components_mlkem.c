@@ -12,6 +12,7 @@
 #include "../mlkem/native/arith_native.h"
 #include "fips202.h"
 #include "keccakf1600.h"
+#include "polyvec.h"
 
 #define NWARMUP 50
 #define NITERERATIONS 300
@@ -59,6 +60,11 @@ static int bench(void) {
   BENCH("rej_uniform (residue)",
         rej_uniform((int16_t *)data0, MLKEM_N / 2, 0, (const uint8_t *)data1,
                     1 * SHAKE128_RATE));
+
+  BENCH("polyvec-compress",
+        polyvec_compress((uint8_t *)data0, (polyvec *)data1));
+  BENCH("polyvec-decompress",
+        polyvec_decompress((polyvec *)data0, (uint8_t *)data1));
 
 #if defined(MLKEM_USE_NATIVE_AARCH64)
   BENCH("ntt-clean", ntt_asm_clean((int16_t *)data0));
