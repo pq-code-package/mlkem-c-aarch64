@@ -8,6 +8,8 @@
 #include "poly.h"
 
 #include "debug/debug.h"
+
+#if !defined(MLKEM_USE_NATIVE_POLYVEC_COMPRESS)
 void polyvec_compress(uint8_t r[MLKEM_POLYVECCOMPRESSEDBYTES],
                       const polyvec *a) {
   POLYVEC_UBOUND(a, MLKEM_Q);
@@ -92,7 +94,15 @@ void polyvec_compress(uint8_t r[MLKEM_POLYVECCOMPRESSEDBYTES],
 #error "MLKEM_POLYVECCOMPRESSEDBYTES needs to be in {320*MLKEM_K, 352*MLKEM_K}"
 #endif
 }
+#else  /* MLKEM_USE_NATIVE_POLYVEC_COMPRESS */
+void polyvec_compress(uint8_t r[MLKEM_POLYVECCOMPRESSEDBYTES],
+                      const polyvec *a) {
+  POLYVEC_UBOUND(a, MLKEM_Q);
+  polyvec_compress_native(r, a);
+}
+#endif /* MLKEM_USE_NATIVE_POLYVEC_COMPRESS */
 
+#if !defined(MLKEM_USE_NATIVE_POLYVEC_DECOMPRESS)
 void polyvec_decompress(polyvec *r,
                         const uint8_t a[MLKEM_POLYVECCOMPRESSEDBYTES]) {
 #if (MLKEM_POLYVECCOMPRESSEDBYTES == (MLKEM_K * 352))
@@ -174,6 +184,14 @@ void polyvec_decompress(polyvec *r,
 
   POLYVEC_UBOUND(r, MLKEM_Q);
 }
+#else  /* MLKEM_USE_NATIVE_POLYVEC_DECOMPRESS */
+void polyvec_decompress(polyvec *r,
+                        const uint8_t a[MLKEM_POLYVECCOMPRESSEDBYTES]) {
+  polyvec_decompress_native(r, a);
+  POLYVEC_UBOUND(r, MLKEM_Q);
+}
+#endif /* MLKEM_USE_NATIVE_POLYVEC_DECOMPRESS */
+
 
 void polyvec_tobytes(uint8_t r[MLKEM_POLYVECBYTES], const polyvec *a) {
   unsigned int i;

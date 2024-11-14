@@ -240,5 +240,38 @@ static inline int rej_uniform_native(int16_t *r, unsigned int len,
                                      const uint8_t *buf, unsigned int buflen);
 #endif /* MLKEM_USE_NATIVE_REJ_UNIFORM */
 
+#if defined(MLKEM_USE_NATIVE_POLYVEC_COMPRESS)
+/*************************************************
+ * Name:        polyvec_compress_native
+ *
+ * Description: Compress and serialize vector of polynomials
+ *
+ * Arguments:   - uint8_t *r: pointer to output byte array
+ *                            (needs space for MLKEM_POLYVECCOMPRESSEDBYTES)
+ *              - const polyvec *a: pointer to input vector of polynomials.
+ *                                  Coefficients must be unsigned canonical,
+ *                                  i.e. in [0,1,..,MLKEM_Q-1].
+ **************************************************/
+static inline void polyvec_compress_native(
+    uint8_t r[MLKEM_POLYVECCOMPRESSEDBYTES], const polyvec *a);
+#endif /* MLKEM_USE_NATIVE_POLYVEC_COMPRESS */
+
+#if defined(MLKEM_USE_NATIVE_POLYVEC_DECOMPRESS)
+/*************************************************
+ * Name:        polyvec_decompress_native
+ *
+ * Description: De-serialize and decompress vector of polynomials;
+ *              approximate inverse of polyvec_compress
+ *
+ * Arguments:   - polyvec *r:       pointer to output vector of polynomials.
+ *                Output will have coefficients normalized to [0,..,q-1].
+ *              - const uint8_t *a: pointer to input byte array
+ *                                  (of length MLKEM_POLYVECCOMPRESSEDBYTES)
+ **************************************************/
+static inline void polyvec_decompress_native(
+    polyvec *r, const uint8_t a[MLKEM_POLYVECCOMPRESSEDBYTES]);
+
+#endif /* MLKEM_USE_NATIVE_POLYVEC_DECOMPRESS */
+
 #endif /* MLKEM_USE_NATIVE */
 #endif /* MLKEM_ARITH_NATIVE_H */

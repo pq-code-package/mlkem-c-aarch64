@@ -13,7 +13,9 @@
 #include "../arith_native_x86_64.h"
 #include "../consts.h"
 
+#include "params.h"
 #include "poly.h"
+#include "polyvec.h"
 
 #define MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER
 
@@ -26,6 +28,8 @@
 #define MLKEM_USE_NATIVE_POLY_MULCACHE_COMPUTE
 #define MLKEM_USE_NATIVE_POLY_TOBYTES
 #define MLKEM_USE_NATIVE_POLY_FROMBYTES
+#define MLKEM_USE_NATIVE_POLYVEC_COMPRESS
+#define MLKEM_USE_NATIVE_POLYVEC_DECOMPRESS
 
 #define INVNTT_BOUND_NATIVE \
   (14870 + 1)  // Bound from the official Kyber repository
@@ -89,4 +93,13 @@ static inline void poly_frombytes_native(poly *r,
   nttfrombytes_avx2((__m256i *)r->coeffs, a, qdata.vec);
 }
 
-#endif /* MLKEM_ARITH_NATIVE_PROFILE_H */
+static inline void polyvec_compress_native(
+    uint8_t r[MLKEM_POLYVECCOMPRESSEDBYTES], const polyvec *a) {
+  polyvec_compress_avx2(r, a);
+}
+
+static inline void polyvec_decompress_native(
+    polyvec *r, const uint8_t a[MLKEM_POLYVECCOMPRESSEDBYTES]) {
+  polyvec_decompress_avx2(r, a);
+}
+#endif         /* MLKEM_ARITH_NATIVE_PROFILE_H */
