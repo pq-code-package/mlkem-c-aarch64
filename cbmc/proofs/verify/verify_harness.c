@@ -22,7 +22,9 @@
  *
  */
 void harness(void) {
-  uint8_t *x, *y;
+  uint8_t *a;
+  uint8_t *b;
   size_t len;
-  verify(x, y, len);
+  int r;
+  r = verify(a, b, len);
 }
