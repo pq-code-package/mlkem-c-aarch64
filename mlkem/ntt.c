@@ -143,7 +143,7 @@ void ntt_layer(int16_t r[MLKEM_N], int len, int layer)  // clang-format off
   ENSURES(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, (layer + 1) * MLKEM_Q - 1))
 // clang-format on
 {
-  // `layer` is a ghost variable only needed in the specification
+  // `layer` is a ghost variable only needed in the CBMC specification
   ((void)layer);
   // Twiddle factors for layer n start at index 2^(layer-1)
   int k = MLKEM_N / (2 * len);
@@ -208,11 +208,11 @@ STATIC_ASSERT(INVNTT_BOUND_REF <= INVNTT_BOUND, invntt_bound)
 // Compute one layer of inverse NTT
 STATIC_TESTABLE
 void invntt_layer(int16_t *r, int len, int layer)  // clang-format off
-  REQUIRES(IS_FRESH(r, sizeof(poly)))
+  REQUIRES(IS_FRESH(r, sizeof(int16_t) * MLKEM_N))
   REQUIRES(2 <= len && len <= 128 && 1 <= layer && layer <= 7)
   REQUIRES(len == (1 << (8 - layer)))
   REQUIRES(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, MLKEM_Q))
-  ASSIGNS(OBJECT_UPTO(r, sizeof(poly)))
+  ASSIGNS(OBJECT_UPTO(r, sizeof(int16_t) * MLKEM_N))
   ENSURES(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, MLKEM_Q))
 // clang-format on
 {
@@ -252,7 +252,7 @@ void poly_invntt_tomont(poly *p) {
   // absolute value < MLKEM_Q.
 
   for (int j = 0; j < MLKEM_N; j++)  // clang-format off
-    ASSIGNS(j, OBJECT_UPTO(r, sizeof(poly)))
+    ASSIGNS(j, OBJECT_UPTO(r, sizeof(int16_t) * MLKEM_N))
     INVARIANT(0 <= j && j <= MLKEM_N && ARRAY_ABS_BOUND(r, 0, j - 1, MLKEM_Q))
     // clang-format on
     {
@@ -262,7 +262,7 @@ void poly_invntt_tomont(poly *p) {
   // Run the invNTT layers
   for (int len = 2, layer = 7; len <= 128;
        len <<= 1, layer--)  // clang-format off
-    ASSIGNS(len, layer, OBJECT_UPTO(r, sizeof(poly)))
+    ASSIGNS(len, layer, OBJECT_UPTO(r, sizeof(int16_t) * MLKEM_N))
     INVARIANT(2 <= len && len <= 256 && 0 <= layer && layer <= 7 && len == (1 << (8 - layer)))
     INVARIANT(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, MLKEM_Q))
     // clang-format on
