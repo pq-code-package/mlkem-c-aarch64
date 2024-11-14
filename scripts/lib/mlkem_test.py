@@ -260,6 +260,25 @@ class Test_Implementations:
         else:
             return results
 
+    def test(
+        self,
+        opt: bool,
+        compile: bool,
+        run: bool,
+        extra_make_envs={},
+        extra_make_args=[],
+        actual_proc: Callable[[bytes], str] = None,
+        expect_proc: Callable[[SCHEME, str], tuple[bool, str]] = None,
+        cmd_prefix: [str] = [],
+        extra_args: [str] = [],
+    ) -> TypedDict:
+        if compile:
+            self.compile(opt, extra_make_envs, extra_make_args)
+        if run:
+            return self.run_schemes(
+                opt, actual_proc, expect_proc, cmd_prefix, extra_args
+            )
+
 
 """
 Underlying functional tests
@@ -283,12 +302,11 @@ class Tests:
         self._bench_components = Test_Implementations(
             TEST_TYPES.BENCH_COMPONENTS, copts
         )
-
         self.compile_mode = copts.compile_mode()
         self.compile = opts.compile
         self.run = opts.run
 
-    def _run_func(self, opt: bool):
+    def _test_func(self, opt: bool, compile: bool, run: bool) -> TypedDict:
         """Underlying function for functional test"""
 
         def expect(scheme: SCHEME, actual: str) -> tuple[bool, str]:
@@ -307,8 +325,10 @@ class Tests:
                 f"Failed, expecting {expect}, but getting {actual}" if fail else "",
             )
 
-        return self._func.run_schemes(
+        return self._func.test(
             opt,
+            compile,
+            run,
             actual_proc=lambda result: str(result, encoding="utf-8"),
             expect_proc=expect,
         )
@@ -316,23 +336,16 @@ class Tests:
     def func(self):
         config_logger(self.verbose)
 
-        def _func(opt: bool):
-
-            if self.compile:
-                self._func.compile(opt)
-            if self.run:
-                return self._run_func(opt)
-
         fail = False
         if self.opt.lower() == "all" or self.opt.lower() == "no_opt":
-            fail = fail or _func(False)
+            fail = fail or self._test_func(False, self.compile, self.run)
         if self.opt.lower() == "all" or self.opt.lower() == "opt":
-            fail = fail or _func(True)
+            fail = fail or self._test_func(True, self.compile, self.run)
 
         if fail:
             exit(1)
 
-    def _run_nistkat(self, opt: bool):
+    def _test_nistkat(self, opt: bool, compile: bool, run: bool) -> TypedDict:
         def expect_proc(scheme: SCHEME, actual: str) -> tuple[bool, str]:
             expect = parse_meta(scheme, "nistkat-sha256")
             fail = expect != actual
@@ -342,8 +355,10 @@ class Tests:
                 f"Failed, expecting {expect}, but getting {actual}" if fail else "",
             )
 
-        return self._nistkat.run_schemes(
+        return self._nistkat.test(
             opt,
+            compile,
+            run,
             actual_proc=sha256sum,
             expect_proc=expect_proc,
         )
@@ -351,22 +366,16 @@ class Tests:
     def nistkat(self):
         config_logger(self.verbose)
 
-        def _nistkat(opt: bool):
-            if self.compile:
-                self._nistkat.compile(opt)
-            if self.run:
-                return self._run_nistkat(opt)
-
         fail = False
         if self.opt.lower() == "all" or self.opt.lower() == "no_opt":
-            fail = fail or _nistkat(False)
+            fail = fail or self._test_nistkat(False, self.compile, self.run)
         if self.opt.lower() == "all" or self.opt.lower() == "opt":
-            fail = fail or _nistkat(True)
+            fail = fail or self._test_nistkat(True, self.compile, self.run)
 
         if fail:
             exit(1)
 
-    def _run_kat(self, opt: bool):
+    def _test_kat(self, opt: bool, compile: bool, run: bool) -> TypedDict:
         def expect_proc(scheme: SCHEME, actual: str) -> tuple[bool, str]:
             expect = parse_meta(scheme, "kat-sha256")
             fail = expect != actual
@@ -376,8 +385,10 @@ class Tests:
                 f"Failed, expecting {expect}, but getting {actual}" if fail else "",
             )
 
-        return self._kat.run_schemes(
+        return self._kat.test(
             opt,
+            compile,
+            run,
             actual_proc=sha256sum,
             expect_proc=expect_proc,
         )
@@ -385,23 +396,17 @@ class Tests:
     def kat(self):
         config_logger(self.verbose)
 
-        def _kat(opt: bool):
-            if self.compile:
-                self._kat.compile(opt)
-            if self.run:
-                return self._run_kat(opt)
-
         fail = False
 
         if self.opt.lower() == "all" or self.opt.lower() == "no_opt":
-            fail = fail or _kat(False)
+            fail = fail or self._test_kat(False, self.compile, self.run)
         if self.opt.lower() == "all" or self.opt.lower() == "opt":
-            fail = fail or _kat(True)
+            fail = fail or self._test_kat(True, self.compile, self.run)
 
         if fail:
             exit(1)
 
-    def _run_acvp(self, opt: bool, acvp_dir: str = "test/acvp_data"):
+    def _run_acvp(self, opt: bool, acvp_dir: str = "test/acvp_data") -> bool:
         acvp_keygen_json = f"{acvp_dir}/acvp_keygen_internalProjection.json"
         acvp_encapDecap_json = f"{acvp_dir}/acvp_encapDecap_internalProjection.json"
 
@@ -526,29 +531,34 @@ class Tests:
 
         return fail
 
+    def _test_acvp(
+        self, opt: bool, compmile: bool, run: bool, acvp_dir: str = "test/acvp_data/"
+    ) -> bool:
+        if compile:
+            self._acvp.compile(opt)
+        if run:
+            return self._run_acvp(opt, acvp_dir)
+
     def acvp(self, acvp_dir: str):
         config_logger(self.verbose)
-
-        def _acvp(opt: bool):
-            if self.compile:
-                self._acvp.compile(opt)
-            if self.run:
-                return self._run_acvp(opt, acvp_dir)
 
         fail = False
 
         if self.opt.lower() == "all" or self.opt.lower() == "no_opt":
-            fail = fail or _acvp(False)
+            fail = fail or self._test_acvp(False, self.compile, self.run, acvp_dir)
         if self.opt.lower() == "all" or self.opt.lower() == "opt":
-            fail = fail or _acvp(True)
+            fail = fail or self._test_acvp(True, self.compile, self.run, acvp_dir)
 
         if fail:
             exit(1)
 
-    def _run_bench(
+    def _test_bench(
         self,
         t: Test_Implementations,
         opt: bool,
+        compile: bool,
+        run: bool,
+        cycles,
         run_as_root: bool,
         exec_wrapper: str,
         mac_taskpolicy,
@@ -572,7 +582,13 @@ class Tests:
             exec_wrapper = exec_wrapper.split(" ")
             cmd_prefix = cmd_prefix + exec_wrapper
 
-        return t.run_schemes(opt, cmd_prefix=cmd_prefix)
+        return t.test(
+            opt,
+            compile,
+            run,
+            extra_make_args=[f"CYCLES={cycles}"],
+            cmd_prefix=cmd_prefix,
+        )
 
     def bench(
         self,
@@ -591,29 +607,37 @@ class Tests:
             t = self._bench_components
             output = False
 
-        # NOTE: We haven't yet decided how to output both opt/no-opt benchmark results
         if self.opt.lower() == "all":
-            if self.compile:
-                t.compile(False, extra_make_args=[f"CYCLES={cycles}"])
-            if self.run:
-                self._run_bench(t, False, run_as_root, exec_wrapper)
-            if self.compile:
-                t.compile(True, extra_make_args=[f"CYCLES={cycles}"])
-            if self.run:
-                resultss = self._run_bench(t, True, run_as_root, exec_wrapper)
+            # NOTE: We haven't yet decided how to output both opt/no-opt benchmark results
+            self._test_bench(
+                t,
+                False,
+                self.compile,
+                self.run,
+                cycles,
+                run_as_root,
+                exec_wrapper,
+                mac_taskpolicy,
+            )
+            resultss = self._test_bench(
+                t,
+                True,
+                self.compile,
+                self.run,
+                cycles,
+                run_as_root,
+                exec_wrapper,
+                mac_taskpolicy,
+            )
         else:
-            if self.compile:
-                t.compile(
-                    True if self.opt.lower() == "opt" else False,
-                    extra_make_args=[f"CYCLES={cycles}"],
-                )
-            if self.run:
-                resultss = self._run_bench(
-                    t,
-                    True if self.opt.lower() == "opt" else False,
-                    run_as_root,
-                    exec_wrapper,
-                )
+            resultss = self._test_bench(
+                t,
+                self.compile,
+                self.run,
+                True if self.opt.lower() == "opt" else False,
+                run_as_root,
+                exec_wrapper,
+            )
 
         if resultss is None:
             exit(0)
@@ -654,33 +678,26 @@ class Tests:
 
         def all(opt: bool):
             code = 0
-            if self.compile:
-                compiles = [
-                    *([self._func.compile] if func else []),
-                    *([self._nistkat.compile] if nistkat else []),
-                    *([self._kat.compile] if kat else []),
-                    *([self._acvp.compile] if acvp else []),
-                ]
+            fs = [
+                *([self._test_func] if func else []),
+                *([self._test_nistkat] if nistkat else []),
+                *([self._test_kat] if kat else []),
+                *([self._test_acvp] if acvp else []),
+            ]
 
-                for f in compiles:
+            if self.compile:
+                for f in fs:
                     try:
-                        f(opt)
+                        f(opt, True, False)
                     except SystemExit as e:
                         code = code or e
 
                     sys.stdout.flush()
 
             if self.run:
-                runs = [
-                    *([self._run_func] if func else []),
-                    *([self._run_nistkat] if nistkat else []),
-                    *([self._run_kat] if kat else []),
-                    *([self._run_acvp] if acvp else []),
-                ]
-
-                for f in runs:
+                for f in fs:
                     try:
-                        code = code or int(f(opt))
+                        code = code or int(f(opt, False, True))
                     except SystemExit as e:
                         code = code or e
 
