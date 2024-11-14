@@ -93,16 +93,6 @@ void polyvec_compress(uint8_t r[MLKEM_POLYVECCOMPRESSEDBYTES],
 #endif
 }
 
-/*************************************************
- * Name:        polyvec_decompress
- *
- * Description: De-serialize and decompress vector of polynomials;
- *              approximate inverse of polyvec_compress
- *
- * Arguments:   - polyvec *r:       pointer to output vector of polynomials
- *              - const uint8_t *a: pointer to input byte array
- *                                  (of length MLKEM_POLYVECCOMPRESSEDBYTES)
- **************************************************/
 void polyvec_decompress(polyvec *r,
                         const uint8_t a[MLKEM_POLYVECCOMPRESSEDBYTES]) {
 #if (MLKEM_POLYVECCOMPRESSEDBYTES == (MLKEM_K * 352))
