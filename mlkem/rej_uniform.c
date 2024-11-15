@@ -61,12 +61,12 @@ static unsigned int rej_uniform_scalar(int16_t *r, unsigned int target,
   return ctr;
 }
 
-#if !defined(MLKEM_USE_NATIVE_AARCH64)
+#if !defined(MLKEM_USE_NATIVE_REJ_UNIFORM)
 unsigned int rej_uniform(int16_t *r, unsigned int target, unsigned int offset,
                          const uint8_t *buf, unsigned int buflen) {
   return rej_uniform_scalar(r, target, offset, buf, buflen);
 }
-#else  /* MLKEM_USE_NATIVE_AARCH64 */
+#else  /* MLKEM_USE_NATIVE_REJ_UNIFORM */
 
 unsigned int rej_uniform(int16_t *r, unsigned int target, unsigned int offset,
                          const uint8_t *buf, unsigned int buflen) {
@@ -79,4 +79,4 @@ unsigned int rej_uniform(int16_t *r, unsigned int target, unsigned int offset,
 
   return rej_uniform_scalar(r, target, offset, buf, buflen);
 }
-#endif /* MLKEM_USE_NATIVE_AARCH64 */
+#endif /* MLKEM_USE_NATIVE_REJ_UNIFORM */
