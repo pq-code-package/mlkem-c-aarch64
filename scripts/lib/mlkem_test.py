@@ -194,6 +194,9 @@ class Test_Implementations:
         extra_make_envs={},
         extra_make_args=[],
     ):
+        """
+        opt: determine to compile/run the opt or non-opt implementation
+        """
         self.ts["opt" if opt else "no_opt"].compile_schemes(
             extra_make_envs,
             extra_make_args,
@@ -208,6 +211,15 @@ class Test_Implementations:
         prefix: [str] = [],
         extra_args: [str] = [],
     ) -> TypedDict:
+        """
+        opt: determine to run the opt or non-opt implementation
+        actual_proc: a function for processing the actual test output into string
+        expect_proc: a function for comparing the actual_proc output with some desried behaviour which depends on SCHEME
+        prefix: cmd prefix for running the testing binaries
+        extra_args: extra arguments for running the testing binaries
+
+        output: {opt/no_opt: {scheme: result}}
+        """
         k = "opt" if opt else "no_opt"
 
         results = {}
@@ -226,6 +238,15 @@ class Test_Implementations:
         cmd_prefix: [str] = [],
         extra_args: [str] = [],
     ) -> TypedDict:
+        """
+        opt: determine to run the opt or non-opt implementation
+        actual_proc: a function for processing the actual test output into string
+        expect_proc: a function for comparing the actual_proc output with some desried behaviour which depends on SCHEME
+        cmd_prefix: cmd prefix for running the testing binaries
+        extra_args: extra arguments for running the testing binaries
+
+        output: {opt/no_opt: {scheme: result}}
+        """
         results = {}
 
         k = "opt" if opt else "no_opt"
@@ -272,6 +293,17 @@ class Test_Implementations:
         cmd_prefix: [str] = [],
         extra_args: [str] = [],
     ) -> TypedDict:
+        """
+        opt: determine to compile/run the opt or non-opt implementation
+        compile: compile the test binary if true
+        run: run the binaries and check if output is as expected if true
+        actual_proc: a function for processing the actual test output into string
+        expect_proc: a function for comparing the actual_proc output with some desried behaviour which depends on SCHEME
+        cmd_prefix: cmd prefix for running the testing binaries
+        extra_args: extra arguments for running the testing binaries
+
+        output: {opt/no_opt: {scheme: result}}
+        """
         if compile:
             self.compile(opt, extra_make_envs, extra_make_args)
         if run:
