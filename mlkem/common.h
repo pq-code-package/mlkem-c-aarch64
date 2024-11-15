@@ -3,8 +3,12 @@
 #define COMMON_H
 
 #define DEFAULT_ALIGN 32
+#if defined(_WIN32)
+#define ALWAYS_INLINE __forceinline
+#else
 #define ALIGN __attribute__((aligned(DEFAULT_ALIGN)))
 #define ALWAYS_INLINE __attribute__((always_inline))
+#endif
 
 #define MLKEM_CONCAT_(left, right) left##right
 #define MLKEM_CONCAT(left, right) MLKEM_CONCAT_(left, right)
