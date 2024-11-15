@@ -215,7 +215,7 @@ void gen_matrix_entry(poly *entry,
   buflen = GEN_MATRIX_NBLOCKS * SHAKE128_RATE;
   ctr = rej_uniform(entry->coeffs, MLKEM_N, 0, buf, buflen);
 
-  // Squeeze + sampel one more block a time until we're done
+  // Squeeze + sample one more block a time until we're done
   buflen = SHAKE128_RATE;
   while (ctr < MLKEM_N)  // clang-format off
     ASSIGNS(ctr, state, OBJECT_UPTO(entry, sizeof(poly)), OBJECT_WHOLE(buf))
@@ -249,10 +249,10 @@ void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES],
   // We generate four separate seed arrays rather than a single one to work
   // around limitations in CBMC function contracts dealing with disjoint slices
   // of the same parent object.
-  uint8_t seed0[MLKEM_SYMBYTES + 2] ALIGN;
-  uint8_t seed1[MLKEM_SYMBYTES + 2] ALIGN;
-  uint8_t seed2[MLKEM_SYMBYTES + 2] ALIGN;
-  uint8_t seed3[MLKEM_SYMBYTES + 2] ALIGN;
+  ALIGN uint8_t seed0[MLKEM_SYMBYTES + 2];
+  ALIGN uint8_t seed1[MLKEM_SYMBYTES + 2];
+  ALIGN uint8_t seed2[MLKEM_SYMBYTES + 2];
+  ALIGN uint8_t seed3[MLKEM_SYMBYTES + 2];
   uint8_t *seedxy[] = {seed0, seed1, seed2, seed3};
 
   for (unsigned j = 0; j < KECCAK_WAY; j++) {
@@ -369,13 +369,13 @@ STATIC_ASSERT(NTT_BOUND + MLKEM_Q < INT16_MAX, indcpa_enc_bound_0)
 void indcpa_keypair_derand(uint8_t pk[MLKEM_INDCPA_PUBLICKEYBYTES],
                            uint8_t sk[MLKEM_INDCPA_SECRETKEYBYTES],
                            const uint8_t coins[MLKEM_SYMBYTES]) {
-  uint8_t buf[2 * MLKEM_SYMBYTES] ALIGN;
+  ALIGN uint8_t buf[2 * MLKEM_SYMBYTES];
   const uint8_t *publicseed = buf;
   const uint8_t *noiseseed = buf + MLKEM_SYMBYTES;
   polyvec a[MLKEM_K], e, pkpv, skpv;
   polyvec_mulcache skpv_cache;
 
-  uint8_t coins_with_domain_separator[MLKEM_SYMBYTES + 1] ALIGN;
+  ALIGN uint8_t coins_with_domain_separator[MLKEM_SYMBYTES + 1];
   // Concatenate coins with MLKEM_K for domain separation of security levels
   memcpy(coins_with_domain_separator, coins, MLKEM_SYMBYTES);
   coins_with_domain_separator[MLKEM_SYMBYTES] = MLKEM_K;
@@ -445,7 +445,7 @@ void indcpa_enc(uint8_t c[MLKEM_INDCPA_BYTES],
                 const uint8_t m[MLKEM_INDCPA_MSGBYTES],
                 const uint8_t pk[MLKEM_INDCPA_PUBLICKEYBYTES],
                 const uint8_t coins[MLKEM_SYMBYTES]) {
-  uint8_t seed[MLKEM_SYMBYTES] ALIGN;
+  ALIGN uint8_t seed[MLKEM_SYMBYTES];
   polyvec sp, pkpv, ep, at[MLKEM_K], b;
   poly v, k, epp;
   polyvec_mulcache sp_cache;

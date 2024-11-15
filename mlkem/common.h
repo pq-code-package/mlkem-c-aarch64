@@ -4,6 +4,7 @@
 
 #define DEFAULT_ALIGN 32
 #if defined(_WIN32)
+#define ALIGN __declspec(align(DEFAULT_ALIGN))
 #define ALWAYS_INLINE __forceinline
 #else
 #define ALIGN __attribute__((aligned(DEFAULT_ALIGN)))

@@ -96,7 +96,7 @@ int crypto_kem_keypair_derand(uint8_t *pk, uint8_t *sk, const uint8_t *coins) {
 }
 
 int crypto_kem_keypair(uint8_t *pk, uint8_t *sk) {
-  uint8_t coins[2 * MLKEM_SYMBYTES] ALIGN;
+  ALIGN uint8_t coins[2 * MLKEM_SYMBYTES];
   randombytes(coins, 2 * MLKEM_SYMBYTES);
   crypto_kem_keypair_derand(pk, sk, coins);
   return 0;
@@ -104,9 +104,9 @@ int crypto_kem_keypair(uint8_t *pk, uint8_t *sk) {
 
 int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss, const uint8_t *pk,
                           const uint8_t *coins) {
-  uint8_t buf[2 * MLKEM_SYMBYTES] ALIGN;
+  ALIGN uint8_t buf[2 * MLKEM_SYMBYTES];
   /* Will contain key, coins */
-  uint8_t kr[2 * MLKEM_SYMBYTES] ALIGN;
+  ALIGN uint8_t kr[2 * MLKEM_SYMBYTES];
 
   if (check_pk(pk)) {
     return -1;
@@ -126,17 +126,17 @@ int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss, const uint8_t *pk,
 }
 
 int crypto_kem_enc(uint8_t *ct, uint8_t *ss, const uint8_t *pk) {
-  uint8_t coins[MLKEM_SYMBYTES] ALIGN;
+  ALIGN uint8_t coins[MLKEM_SYMBYTES];
   randombytes(coins, MLKEM_SYMBYTES);
   return crypto_kem_enc_derand(ct, ss, pk, coins);
 }
 
 int crypto_kem_dec(uint8_t *ss, const uint8_t *ct, const uint8_t *sk) {
   int fail;
-  uint8_t buf[2 * MLKEM_SYMBYTES] ALIGN;
+  ALIGN uint8_t buf[2 * MLKEM_SYMBYTES];
   /* Will contain key, coins */
-  uint8_t kr[2 * MLKEM_SYMBYTES] ALIGN;
-  uint8_t cmp[MLKEM_CIPHERTEXTBYTES + MLKEM_SYMBYTES] ALIGN;
+  ALIGN uint8_t kr[2 * MLKEM_SYMBYTES];
+  ALIGN uint8_t cmp[MLKEM_CIPHERTEXTBYTES + MLKEM_SYMBYTES];
   const uint8_t *pk = sk + MLKEM_INDCPA_SECRETKEYBYTES;
 
   if (check_sk(sk)) {
