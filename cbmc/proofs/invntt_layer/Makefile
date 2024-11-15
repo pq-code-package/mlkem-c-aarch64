@@ -27,6 +27,11 @@ USE_DYNAMIC_FRAMES=1
 EXTERNAL_SAT_SOLVER=
 CBMCFLAGS=--smt2
 
+# For this proof we tell CBMC to remove constraints that are not in the cone of
+# influcence of the proof obligations. Experiment shows this reduces proof
+# time for this subprogram from about 40s to about 12s on a developer's laptop.
+CBMCFLAGS += --slice-formula
+
 FUNCTION_NAME = invntt_layer
 
 # If this proof is found to consume huge amounts of RAM, you can set the
