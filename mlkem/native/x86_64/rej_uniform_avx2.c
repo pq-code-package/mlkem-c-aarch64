@@ -171,9 +171,10 @@ unsigned int rej_uniform_avx2(int16_t *restrict r, const uint8_t *buf) {
   ctr = pos = 0;
   while (ctr <= MLKEM_N - 32 && pos <= REJ_UNIFORM_AVX_BUFLEN - 48) {
     f0 = _mm256_loadu_si256((__m256i *)&buf[pos]);
-    f1 = _mm256_loadu_si256((__m256i *)&buf[pos + 24]);
-    f0 = _mm256_permute4x64_epi64(f0, 0x94);
-    f1 = _mm256_permute4x64_epi64(f1, 0x94);
+    // Don't load from offset 24, as this would over-read the buffer
+    f1 = _mm256_loadu_si256((__m256i *)&buf[pos + 16]);
+    f0 = _mm256_permute4x64_epi64(f0, 0x94 /* 0b10010100 ~= (2,1,1,0) */);
+    f1 = _mm256_permute4x64_epi64(f1, 0xe9 /* 0x11101001 ~= (3,2,2,1) */);
     f0 = _mm256_shuffle_epi8(f0, idx8);
     f1 = _mm256_shuffle_epi8(f1, idx8);
     g0 = _mm256_srli_epi16(f0, 4);
@@ -237,7 +238,7 @@ unsigned int rej_uniform_avx2(int16_t *restrict r, const uint8_t *buf) {
     ctr += _mm_popcnt_u32((good >> 24) & 0xFF);
   }
 
-  while (ctr <= MLKEM_N - 8 && pos <= REJ_UNIFORM_AVX_BUFLEN - 12) {
+  while (ctr <= MLKEM_N - 8 && pos <= REJ_UNIFORM_AVX_BUFLEN - 24) {
     f = _mm_loadu_si128((__m128i *)&buf[pos]);
     f = _mm_shuffle_epi8(f, _mm256_castsi256_si128(idx8));
     t = _mm_srli_epi16(f, 4);

@@ -145,11 +145,10 @@ void gen_matrix_entry_x4(poly *vec, uint8_t *seed[4])  // clang-format off
 // clang-format on
 {
   // Temporary buffers for XOF output before rejection sampling
-  // padding so we can load full 16-byte vectors in native implementations
-  uint8_t buf0[GEN_MATRIX_NBLOCKS * SHAKE128_RATE + 8];
-  uint8_t buf1[GEN_MATRIX_NBLOCKS * SHAKE128_RATE + 8];
-  uint8_t buf2[GEN_MATRIX_NBLOCKS * SHAKE128_RATE + 8];
-  uint8_t buf3[GEN_MATRIX_NBLOCKS * SHAKE128_RATE + 8];
+  uint8_t buf0[GEN_MATRIX_NBLOCKS * SHAKE128_RATE];
+  uint8_t buf1[GEN_MATRIX_NBLOCKS * SHAKE128_RATE];
+  uint8_t buf2[GEN_MATRIX_NBLOCKS * SHAKE128_RATE];
+  uint8_t buf3[GEN_MATRIX_NBLOCKS * SHAKE128_RATE];
 
   // Tracks the number of coefficients we have already sampled
   unsigned int ctr[KECCAK_WAY];
@@ -205,8 +204,7 @@ void gen_matrix_entry(poly *entry,
   ENSURES(ARRAY_BOUND(entry->coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))
 {  // clang-format on
   shake128ctx state;
-  // padding so we can load full 16-byte vectors in native implementations
-  uint8_t buf[GEN_MATRIX_NBLOCKS * SHAKE128_RATE + 8];
+  uint8_t buf[GEN_MATRIX_NBLOCKS * SHAKE128_RATE];
   unsigned int ctr, buflen;
 
   shake128_absorb(&state, seed, MLKEM_SYMBYTES + 2);
