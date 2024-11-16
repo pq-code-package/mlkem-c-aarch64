@@ -66,6 +66,9 @@ jobs:
       contents: 'read'
       id-token: 'write'
     runs-on: ubuntu-latest
+    if: ${{ always() }} # The point is to make this step non-cancellable,
+                        # avoiding race conditions where an instance is started,
+                        # but isn't yet done registering as a runner and reporting back.
     outputs:
       label: ${{ steps.start-ec2-runner.outputs.label }}
       ec2-instance-id: ${{ steps.start-ec2-runner.outputs.ec2-instance-id }}
