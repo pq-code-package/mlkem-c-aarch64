@@ -224,8 +224,8 @@ void poly_tomsg(uint8_t msg[MLKEM_INDCPA_MSGBYTES], const poly *a) {
 void poly_getnoise_eta1_4x(poly *r0, poly *r1, poly *r2, poly *r3,
                            const uint8_t seed[MLKEM_SYMBYTES], uint8_t nonce0,
                            uint8_t nonce1, uint8_t nonce2, uint8_t nonce3) {
-  uint8_t buf[KECCAK_WAY][MLKEM_ETA1 * MLKEM_N / 4] ALIGN;
-  uint8_t extkey[KECCAK_WAY][MLKEM_SYMBYTES + 1] ALIGN;
+  ALIGN uint8_t buf[KECCAK_WAY][MLKEM_ETA1 * MLKEM_N / 4];
+  ALIGN uint8_t extkey[KECCAK_WAY][MLKEM_SYMBYTES + 1];
   memcpy(extkey[0], seed, MLKEM_SYMBYTES);
   memcpy(extkey[1], seed, MLKEM_SYMBYTES);
   memcpy(extkey[2], seed, MLKEM_SYMBYTES);
@@ -249,7 +249,7 @@ void poly_getnoise_eta1_4x(poly *r0, poly *r1, poly *r2, poly *r3,
 
 void poly_getnoise_eta2(poly *r, const uint8_t seed[MLKEM_SYMBYTES],
                         uint8_t nonce) {
-  uint8_t buf[MLKEM_ETA2 * MLKEM_N / 4] ALIGN;
+  ALIGN uint8_t buf[MLKEM_ETA2 * MLKEM_N / 4];
   prf(buf, sizeof(buf), seed, nonce);
   poly_cbd_eta2(r, buf);
 
@@ -260,9 +260,9 @@ void poly_getnoise_eta1122_4x(poly *r0, poly *r1, poly *r2, poly *r3,
                               const uint8_t seed[MLKEM_SYMBYTES],
                               uint8_t nonce0, uint8_t nonce1, uint8_t nonce2,
                               uint8_t nonce3) {
-  uint8_t buf1[KECCAK_WAY / 2][MLKEM_ETA1 * MLKEM_N / 4] ALIGN;
-  uint8_t buf2[KECCAK_WAY / 2][MLKEM_ETA2 * MLKEM_N / 4] ALIGN;
-  uint8_t extkey[KECCAK_WAY][MLKEM_SYMBYTES + 1] ALIGN;
+  ALIGN uint8_t buf1[KECCAK_WAY / 2][MLKEM_ETA1 * MLKEM_N / 4];
+  ALIGN uint8_t buf2[KECCAK_WAY / 2][MLKEM_ETA2 * MLKEM_N / 4];
+  ALIGN uint8_t extkey[KECCAK_WAY][MLKEM_SYMBYTES + 1];
   memcpy(extkey[0], seed, MLKEM_SYMBYTES);
   memcpy(extkey[1], seed, MLKEM_SYMBYTES);
   memcpy(extkey[2], seed, MLKEM_SYMBYTES);

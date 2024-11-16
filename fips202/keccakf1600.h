@@ -16,7 +16,7 @@
 //
 // The struct is only exposed here to allow its construction on the stack.
 //
-typedef uint64_t keccakx4_state[KECCAK_WAY * KECCAK_LANES] ALIGN;
+typedef ALIGN uint64_t keccakx4_state[KECCAK_WAY * KECCAK_LANES];
 
 #define KeccakF1600_StateExtractBytes \
   FIPS202_NAMESPACE(KeccakF1600_StateExtractBytes)

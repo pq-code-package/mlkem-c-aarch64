@@ -77,6 +77,15 @@ make kat
 
 The resulting binaries can be found in [test/build](test/build).
 
+### Windows
+
+You can also build **mlkem-native** on Windows using `nmake` and an MSVC compiler.
+
+To build and run the tests (only support functional testing for non-opt implementation for now), use the following `nmake` targets:
+```powershell
+nmke /f .\Makefile.Microsoft_nmake quickcheck
+```
+
 ### Using `tests` script
 
 We recommend compiling and running tests and benchmarks using the [`./scripts/tests`](scripts/tests) script. For
