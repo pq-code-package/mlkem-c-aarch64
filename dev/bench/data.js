@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1731773218915,
+  "lastUpdate": 1731785249985,
   "repoUrl": "https://github.com/pq-code-package/mlkem-native",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -49969,6 +49969,73 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 104939,
+            "unit": "cycles"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Hanno Becker",
+            "username": "hanno-becker",
+            "email": "beckphan@amazon.co.uk"
+          },
+          "committer": {
+            "name": "Hanno Becker",
+            "username": "hanno-becker",
+            "email": "beckphan@amazon.co.uk"
+          },
+          "id": "fb88e028178a8489d28f26e9a649e2f4a68cdcef",
+          "message": "CI: Push benchmark results of ad-hoc benchmarks to dedicated JSON\n\nThis commit modifies the manually triggered benchmarking workflow\n`bench_ec2_any.yml` to push the benchmarking results in a special\nfile `adhoc_bench.json`.\n\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>",
+          "timestamp": "2024-11-16T17:50:13Z",
+          "url": "https://github.com/pq-code-package/mlkem-native/commit/fb88e028178a8489d28f26e9a649e2f4a68cdcef"
+        },
+        "date": 1731785249439,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ML-KEM-512 keypair",
+            "value": 91814,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 encaps",
+            "value": 122612,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 decaps",
+            "value": 166461,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 keypair",
+            "value": 152592,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 encaps",
+            "value": 191630,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 decaps",
+            "value": 249992,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 keypair",
+            "value": 224523,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 encaps",
+            "value": 273861,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 decaps",
+            "value": 347389,
             "unit": "cycles"
           }
         ]
