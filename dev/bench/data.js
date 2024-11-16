@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1731787222928,
+  "lastUpdate": 1731773218915,
   "repoUrl": "https://github.com/pq-code-package/mlkem-native",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -98609,75 +98609,6 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 79556,
-            "unit": "cycles"
-          }
-        ]
-      }
-    ],
-    "Graviton2 (no-opt)": [
-      {
-        "commit": {
-          "author": {
-            "name": "Hanno Becker",
-            "username": "hanno-becker",
-            "email": "beckphan@amazon.co.uk"
-          },
-          "committer": {
-            "name": "Hanno Becker",
-            "username": "hanno-becker",
-            "email": "beckphan@amazon.co.uk"
-          },
-          "id": "f2cf9c8360967ce32a8ed0b9636b0bf3417221c3",
-          "message": "CI: Make commit and storage of results flexible in ad-hoc bench flow\n\nThis commit generalizes the manually triggerable benchmarking workflow\n`bench_ec2_any.yml` to allow an arbitary commit hash. It also allows to\nspecify whether the benchmark results should be pushed to mlkem-native's\nGH pages repository.\n\nDue to the maximum of 10 configuration options in a manually triggered\nworkflow, we have to remove the `ec2_ami` and `archflags` options.\nThis is only a restriction in convenience, not generality, since archflags\nis subsumed by cflags, and the ec2_ami can still be specified manually.\n\nSigned-off-by: Hanno Becker <beckphan@amazon.co.uk>",
-          "timestamp": "2024-11-16T17:45:25Z",
-          "url": "https://github.com/pq-code-package/mlkem-native/commit/f2cf9c8360967ce32a8ed0b9636b0bf3417221c3"
-        },
-        "date": 1731787222348,
-        "tool": "customSmallerIsBetter",
-        "benches": [
-          {
-            "name": "ML-KEM-512 keypair",
-            "value": 114192,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 encaps",
-            "value": 138863,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 decaps",
-            "value": 180542,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 keypair",
-            "value": 193880,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 encaps",
-            "value": 216374,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 decaps",
-            "value": 268938,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 keypair",
-            "value": 291306,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 encaps",
-            "value": 318572,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 decaps",
-            "value": 384240,
             "unit": "cycles"
           }
         ]
