@@ -194,7 +194,64 @@ jobs:
           nix-shell: ci-linter
           gh_token: ${{ secrets.GITHUB_TOKEN }}
           cross-prefix: "aarch64-unknown-linux-gnu-"
-
+  # The purpose of this job is to test non-default yet valid configurations
+  config_variations:
+    name: Non-standard configurations
+    needs: quickcheck
+    strategy:
+      fail-fast: false
+      matrix:
+        external:
+         - ${{ github.repository_owner != 'pq-code-package' }}
+        target:
+         - runner: pqcp-arm64
+           name: 'ubuntu-latest (aarch64)'
+         - runner: pqcp-x64
+           name: 'ubuntu-latest (x86_64)'
+        exclude:
+          - {external: true,
+             target: {
+               runner: pqcp-arm64,
+               name: 'ubuntu-latest (aarch64)',
+             }}
+          - {external: true,
+             target: {
+               runner: pqcp-x64,
+               name: 'ubuntu-latest (x86_64)',
+             }}
+    runs-on: ${{ matrix.target.runner }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: "GEN_MATRIX_NBLOCKS=1"
+        uses: ./.github/actions/multi-functest
+        with:
+          gh_token: ${{ secrets.GITHUB_TOKEN }}
+          compile_mode: native
+          cflags: "-fsanitize=address -fsanitize=undefined -fno-sanitize-recover=all -DGEN_MATRIX_NBLOCKS=1"
+          func: true
+          nistkat: true
+          kat: false
+          acvp: false
+      - name: "GEN_MATRIX_NBLOCKS=2"
+        uses: ./.github/actions/multi-functest
+        with:
+          gh_token: ${{ secrets.GITHUB_TOKEN }}
+          compile_mode: native
+          cflags: "-fsanitize=address -fsanitize=undefined -fno-sanitize-recover=all -DGEN_MATRIX_NBLOCKS=2"
+          func: true
+          nistkat: true
+          kat: false
+          acvp: false
+      - name: "GEN_MATRIX_NBLOCKS=4"
+        uses: ./.github/actions/multi-functest
+        with:
+          gh_token: ${{ secrets.GITHUB_TOKEN }}
+          compile_mode: native
+          cflags: "-fsanitize=address -fsanitize=undefined -fno-sanitize-recover=all -DGEN_MATRIX_NBLOCKS=4"
+          func: true
+          nistkat: true
+          kat: false
+          acvp: false
   ec2_functests:
     needs: quickcheck
     strategy:

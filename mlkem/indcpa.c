@@ -124,8 +124,10 @@ static void unpack_ciphertext(polyvec *b, poly *v,
   poly_decompress(v, c + MLKEM_POLYVECCOMPRESSEDBYTES);
 }
 
+#ifndef GEN_MATRIX_NBLOCKS
 #define GEN_MATRIX_NBLOCKS \
   ((12 * MLKEM_N / 8 * (1 << 12) / MLKEM_Q + SHAKE128_RATE) / SHAKE128_RATE)
+#endif
 
 // Generate four A matrix entries from a seed, using rejection
 // sampling on the output of a XOF.
