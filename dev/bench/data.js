@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1731858308421,
+  "lastUpdate": 1731837669361,
   "repoUrl": "https://github.com/pq-code-package/mlkem-native",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -50524,71 +50524,6 @@ window.BENCHMARK_DATA = {
             "unit": "cycles"
           }
         ]
-      },
-      {
-        "commit": {
-          "author": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "committer": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "id": "c2d42b75ded1414738f3cb6bb79f378acccce774",
-          "message": "Makefile: Compile mlkem/* in a single step",
-          "timestamp": "2024-11-17T09:51:27Z",
-          "url": "https://github.com/pq-code-package/mlkem-native/pull/420/commits/c2d42b75ded1414738f3cb6bb79f378acccce774"
-        },
-        "date": 1731858302336,
-        "tool": "customSmallerIsBetter",
-        "benches": [
-          {
-            "name": "ML-KEM-512 keypair",
-            "value": 29799,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 encaps",
-            "value": 37629,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 decaps",
-            "value": 48506,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 keypair",
-            "value": 50234,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 encaps",
-            "value": 58114,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 decaps",
-            "value": 73478,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 keypair",
-            "value": 73606,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 encaps",
-            "value": 84263,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 decaps",
-            "value": 105040,
-            "unit": "cycles"
-          }
-        ]
       }
     ],
     "Graviton3": [
@@ -63901,71 +63836,6 @@ window.BENCHMARK_DATA = {
             "unit": "cycles"
           }
         ]
-      },
-      {
-        "commit": {
-          "author": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "committer": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "id": "c2d42b75ded1414738f3cb6bb79f378acccce774",
-          "message": "Makefile: Compile mlkem/* in a single step",
-          "timestamp": "2024-11-17T09:51:27Z",
-          "url": "https://github.com/pq-code-package/mlkem-native/pull/420/commits/c2d42b75ded1414738f3cb6bb79f378acccce774"
-        },
-        "date": 1731858209326,
-        "tool": "customSmallerIsBetter",
-        "benches": [
-          {
-            "name": "ML-KEM-512 keypair",
-            "value": 19437,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 encaps",
-            "value": 24873,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 decaps",
-            "value": 32296,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 keypair",
-            "value": 33159,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 encaps",
-            "value": 37548,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 decaps",
-            "value": 48113,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 keypair",
-            "value": 47938,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 encaps",
-            "value": 55368,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 decaps",
-            "value": 69741,
-            "unit": "cycles"
-          }
-        ]
       }
     ],
     "Graviton4": [
@@ -71487,71 +71357,6 @@ window.BENCHMARK_DATA = {
             "unit": "cycles"
           }
         ]
-      },
-      {
-        "commit": {
-          "author": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "committer": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "id": "c2d42b75ded1414738f3cb6bb79f378acccce774",
-          "message": "Makefile: Compile mlkem/* in a single step",
-          "timestamp": "2024-11-17T09:51:27Z",
-          "url": "https://github.com/pq-code-package/mlkem-native/pull/420/commits/c2d42b75ded1414738f3cb6bb79f378acccce774"
-        },
-        "date": 1731858125873,
-        "tool": "customSmallerIsBetter",
-        "benches": [
-          {
-            "name": "ML-KEM-512 keypair",
-            "value": 18735,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 encaps",
-            "value": 23594,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 decaps",
-            "value": 30567,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 keypair",
-            "value": 31550,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 encaps",
-            "value": 35548,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 decaps",
-            "value": 45515,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 keypair",
-            "value": 45666,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 encaps",
-            "value": 52041,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 decaps",
-            "value": 65482,
-            "unit": "cycles"
-          }
-        ]
       }
     ],
     "Intel Xeon 4th gen (c7i)": [
@@ -78725,71 +78530,6 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 75635,
-            "unit": "cycles"
-          }
-        ]
-      },
-      {
-        "commit": {
-          "author": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "committer": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "id": "c2d42b75ded1414738f3cb6bb79f378acccce774",
-          "message": "Makefile: Compile mlkem/* in a single step",
-          "timestamp": "2024-11-17T09:51:27Z",
-          "url": "https://github.com/pq-code-package/mlkem-native/pull/420/commits/c2d42b75ded1414738f3cb6bb79f378acccce774"
-        },
-        "date": 1731858078388,
-        "tool": "customSmallerIsBetter",
-        "benches": [
-          {
-            "name": "ML-KEM-512 keypair",
-            "value": 22168,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 encaps",
-            "value": 28545,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 decaps",
-            "value": 37616,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 keypair",
-            "value": 38996,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 encaps",
-            "value": 42477,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 decaps",
-            "value": 56339,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 keypair",
-            "value": 52070,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 encaps",
-            "value": 58157,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 decaps",
-            "value": 75675,
             "unit": "cycles"
           }
         ]
@@ -86038,71 +85778,6 @@ window.BENCHMARK_DATA = {
             "unit": "cycles"
           }
         ]
-      },
-      {
-        "commit": {
-          "author": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "committer": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "id": "c2d42b75ded1414738f3cb6bb79f378acccce774",
-          "message": "Makefile: Compile mlkem/* in a single step",
-          "timestamp": "2024-11-17T09:51:27Z",
-          "url": "https://github.com/pq-code-package/mlkem-native/pull/420/commits/c2d42b75ded1414738f3cb6bb79f378acccce774"
-        },
-        "date": 1731858049576,
-        "tool": "customSmallerIsBetter",
-        "benches": [
-          {
-            "name": "ML-KEM-512 keypair",
-            "value": 22308,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 encaps",
-            "value": 28482,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 decaps",
-            "value": 37546,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 keypair",
-            "value": 38954,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 encaps",
-            "value": 42575,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 decaps",
-            "value": 56367,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 keypair",
-            "value": 52052,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 encaps",
-            "value": 58214,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 decaps",
-            "value": 75651,
-            "unit": "cycles"
-          }
-        ]
       }
     ],
     "AMD EPYC 3rd gen (c6a)": [
@@ -93138,71 +92813,6 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 79540,
-            "unit": "cycles"
-          }
-        ]
-      },
-      {
-        "commit": {
-          "author": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "committer": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "id": "c2d42b75ded1414738f3cb6bb79f378acccce774",
-          "message": "Makefile: Compile mlkem/* in a single step",
-          "timestamp": "2024-11-17T09:51:27Z",
-          "url": "https://github.com/pq-code-package/mlkem-native/pull/420/commits/c2d42b75ded1414738f3cb6bb79f378acccce774"
-        },
-        "date": 1731858101617,
-        "tool": "customSmallerIsBetter",
-        "benches": [
-          {
-            "name": "ML-KEM-512 keypair",
-            "value": 22031,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 encaps",
-            "value": 29891,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 decaps",
-            "value": 39437,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 keypair",
-            "value": 37291,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 encaps",
-            "value": 42657,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 decaps",
-            "value": 56687,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 keypair",
-            "value": 52953,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 encaps",
-            "value": 60935,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 decaps",
-            "value": 79538,
             "unit": "cycles"
           }
         ]
@@ -100382,71 +99992,6 @@ window.BENCHMARK_DATA = {
             "unit": "cycles"
           }
         ]
-      },
-      {
-        "commit": {
-          "author": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "committer": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "id": "c2d42b75ded1414738f3cb6bb79f378acccce774",
-          "message": "Makefile: Compile mlkem/* in a single step",
-          "timestamp": "2024-11-17T09:51:27Z",
-          "url": "https://github.com/pq-code-package/mlkem-native/pull/420/commits/c2d42b75ded1414738f3cb6bb79f378acccce774"
-        },
-        "date": 1731858093998,
-        "tool": "customSmallerIsBetter",
-        "benches": [
-          {
-            "name": "ML-KEM-512 keypair",
-            "value": 22148,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 encaps",
-            "value": 29984,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 decaps",
-            "value": 39549,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 keypair",
-            "value": 37312,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 encaps",
-            "value": 42649,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 decaps",
-            "value": 56671,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 keypair",
-            "value": 53084,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 encaps",
-            "value": 60972,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 decaps",
-            "value": 79551,
-            "unit": "cycles"
-          }
-        ]
       }
     ],
     "Intel Xeon 3rd gen (c6i) (no-opt)": [
@@ -100515,71 +100060,6 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 280635,
-            "unit": "cycles"
-          }
-        ]
-      },
-      {
-        "commit": {
-          "author": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "committer": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "id": "c2d42b75ded1414738f3cb6bb79f378acccce774",
-          "message": "Makefile: Compile mlkem/* in a single step",
-          "timestamp": "2024-11-17T09:51:27Z",
-          "url": "https://github.com/pq-code-package/mlkem-native/pull/420/commits/c2d42b75ded1414738f3cb6bb79f378acccce774"
-        },
-        "date": 1731858097917,
-        "tool": "customSmallerIsBetter",
-        "benches": [
-          {
-            "name": "ML-KEM-512 keypair",
-            "value": 75653,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 encaps",
-            "value": 96839,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 decaps",
-            "value": 132598,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 keypair",
-            "value": 121211,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 encaps",
-            "value": 153082,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 decaps",
-            "value": 198886,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 keypair",
-            "value": 183050,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 encaps",
-            "value": 219855,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 decaps",
-            "value": 280679,
             "unit": "cycles"
           }
         ]
@@ -100654,71 +100134,6 @@ window.BENCHMARK_DATA = {
             "unit": "cycles"
           }
         ]
-      },
-      {
-        "commit": {
-          "author": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "committer": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "id": "c2d42b75ded1414738f3cb6bb79f378acccce774",
-          "message": "Makefile: Compile mlkem/* in a single step",
-          "timestamp": "2024-11-17T09:51:27Z",
-          "url": "https://github.com/pq-code-package/mlkem-native/pull/420/commits/c2d42b75ded1414738f3cb6bb79f378acccce774"
-        },
-        "date": 1731858114775,
-        "tool": "customSmallerIsBetter",
-        "benches": [
-          {
-            "name": "ML-KEM-512 keypair",
-            "value": 75621,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 encaps",
-            "value": 96769,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 decaps",
-            "value": 132553,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 keypair",
-            "value": 121196,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 encaps",
-            "value": 153016,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 decaps",
-            "value": 198764,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 keypair",
-            "value": 182897,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 encaps",
-            "value": 219559,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 decaps",
-            "value": 279954,
-            "unit": "cycles"
-          }
-        ]
       }
     ],
     "Graviton4 (no-opt)": [
@@ -100787,71 +100202,6 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 200525,
-            "unit": "cycles"
-          }
-        ]
-      },
-      {
-        "commit": {
-          "author": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "committer": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "id": "c2d42b75ded1414738f3cb6bb79f378acccce774",
-          "message": "Makefile: Compile mlkem/* in a single step",
-          "timestamp": "2024-11-17T09:51:27Z",
-          "url": "https://github.com/pq-code-package/mlkem-native/pull/420/commits/c2d42b75ded1414738f3cb6bb79f378acccce774"
-        },
-        "date": 1731858147632,
-        "tool": "customSmallerIsBetter",
-        "benches": [
-          {
-            "name": "ML-KEM-512 keypair",
-            "value": 53741,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 encaps",
-            "value": 70486,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 decaps",
-            "value": 94630,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 keypair",
-            "value": 88496,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 encaps",
-            "value": 110085,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 decaps",
-            "value": 142632,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 keypair",
-            "value": 131111,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 encaps",
-            "value": 159082,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 decaps",
-            "value": 205537,
             "unit": "cycles"
           }
         ]
@@ -100926,71 +100276,6 @@ window.BENCHMARK_DATA = {
             "unit": "cycles"
           }
         ]
-      },
-      {
-        "commit": {
-          "author": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "committer": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "id": "c2d42b75ded1414738f3cb6bb79f378acccce774",
-          "message": "Makefile: Compile mlkem/* in a single step",
-          "timestamp": "2024-11-17T09:51:27Z",
-          "url": "https://github.com/pq-code-package/mlkem-native/pull/420/commits/c2d42b75ded1414738f3cb6bb79f378acccce774"
-        },
-        "date": 1731858150052,
-        "tool": "customSmallerIsBetter",
-        "benches": [
-          {
-            "name": "ML-KEM-512 keypair",
-            "value": 90231,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 encaps",
-            "value": 120177,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 decaps",
-            "value": 165028,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 keypair",
-            "value": 148662,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 encaps",
-            "value": 187856,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 decaps",
-            "value": 247700,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 keypair",
-            "value": 217616,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 encaps",
-            "value": 264987,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 decaps",
-            "value": 339775,
-            "unit": "cycles"
-          }
-        ]
       }
     ],
     "AMD EPYC 4th gen (c7a) (no-opt)": [
@@ -101059,71 +100344,6 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 339640,
-            "unit": "cycles"
-          }
-        ]
-      },
-      {
-        "commit": {
-          "author": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "committer": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "id": "c2d42b75ded1414738f3cb6bb79f378acccce774",
-          "message": "Makefile: Compile mlkem/* in a single step",
-          "timestamp": "2024-11-17T09:51:27Z",
-          "url": "https://github.com/pq-code-package/mlkem-native/pull/420/commits/c2d42b75ded1414738f3cb6bb79f378acccce774"
-        },
-        "date": 1731858143589,
-        "tool": "customSmallerIsBetter",
-        "benches": [
-          {
-            "name": "ML-KEM-512 keypair",
-            "value": 90231,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 encaps",
-            "value": 120203,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 decaps",
-            "value": 165062,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 keypair",
-            "value": 148590,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 encaps",
-            "value": 187807,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 decaps",
-            "value": 247501,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 keypair",
-            "value": 217621,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 encaps",
-            "value": 264991,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 decaps",
-            "value": 339763,
             "unit": "cycles"
           }
         ]
@@ -101198,71 +100418,6 @@ window.BENCHMARK_DATA = {
             "unit": "cycles"
           }
         ]
-      },
-      {
-        "commit": {
-          "author": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "committer": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "id": "c2d42b75ded1414738f3cb6bb79f378acccce774",
-          "message": "Makefile: Compile mlkem/* in a single step",
-          "timestamp": "2024-11-17T09:51:27Z",
-          "url": "https://github.com/pq-code-package/mlkem-native/pull/420/commits/c2d42b75ded1414738f3cb6bb79f378acccce774"
-        },
-        "date": 1731858190478,
-        "tool": "customSmallerIsBetter",
-        "benches": [
-          {
-            "name": "ML-KEM-512 keypair",
-            "value": 59761,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 encaps",
-            "value": 78058,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 decaps",
-            "value": 105664,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 keypair",
-            "value": 98875,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 encaps",
-            "value": 122387,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 decaps",
-            "value": 159373,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 keypair",
-            "value": 146952,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 encaps",
-            "value": 176686,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 decaps",
-            "value": 224070,
-            "unit": "cycles"
-          }
-        ]
       }
     ],
     "Graviton2 (no-opt)": [
@@ -101331,71 +100486,6 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 370979,
-            "unit": "cycles"
-          }
-        ]
-      },
-      {
-        "commit": {
-          "author": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "committer": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "id": "c2d42b75ded1414738f3cb6bb79f378acccce774",
-          "message": "Makefile: Compile mlkem/* in a single step",
-          "timestamp": "2024-11-17T09:51:27Z",
-          "url": "https://github.com/pq-code-package/mlkem-native/pull/420/commits/c2d42b75ded1414738f3cb6bb79f378acccce774"
-        },
-        "date": 1731858260173,
-        "tool": "customSmallerIsBetter",
-        "benches": [
-          {
-            "name": "ML-KEM-512 keypair",
-            "value": 96240,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 encaps",
-            "value": 127181,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 decaps",
-            "value": 172290,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 keypair",
-            "value": 159142,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 encaps",
-            "value": 204281,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 decaps",
-            "value": 265821,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 keypair",
-            "value": 235218,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 encaps",
-            "value": 290443,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 decaps",
-            "value": 368241,
             "unit": "cycles"
           }
         ]
