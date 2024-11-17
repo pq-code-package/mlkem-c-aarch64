@@ -7,7 +7,7 @@ $(BUILD_DIR)/mlkem512/bin/%: $(LINKDEPS) $(CONFIG)
 $(BUILD_DIR)/mlkem768/bin/%: $(LINKDEPS) $(CONFIG)
 	$(Q)echo "  LD      $@"
 	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
-	$(LD) $(CFLAGS) -o $@ $(filter %.o,$^) $(LDLIBS)
+	$(Q)$(CC) $(CFLAGS) -o $@ $(filter %.c,$^) $(filter %.o,$^) $(filter %.S,$^) $(LDLIBS)
 
 $(BUILD_DIR)/mlkem1024/bin/%: $(LINKDEPS) $(CONFIG)
 	$(Q)echo "  LD      $@"
