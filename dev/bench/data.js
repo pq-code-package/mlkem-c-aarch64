@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1731873781703,
+  "lastUpdate": 1731873803446,
   "repoUrl": "https://github.com/pq-code-package/mlkem-native",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -63963,6 +63963,71 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 69753,
+            "unit": "cycles"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "pq-code-package",
+            "username": "pq-code-package"
+          },
+          "committer": {
+            "name": "pq-code-package",
+            "username": "pq-code-package"
+          },
+          "id": "f1cc59837a8604a4b38f5e44441d56ef862c613d",
+          "message": "Bench: Use PMU instead of PERF for x86_64 benchmarking",
+          "timestamp": "2024-11-17T09:51:27Z",
+          "url": "https://github.com/pq-code-package/mlkem-native/pull/421/commits/f1cc59837a8604a4b38f5e44441d56ef862c613d"
+        },
+        "date": 1731873794462,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ML-KEM-512 keypair",
+            "value": 19437,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 encaps",
+            "value": 24874,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 decaps",
+            "value": 32299,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 keypair",
+            "value": 33144,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 encaps",
+            "value": 37551,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 decaps",
+            "value": 48156,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 keypair",
+            "value": 47936,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 encaps",
+            "value": 55395,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 decaps",
+            "value": 69767,
             "unit": "cycles"
           }
         ]
