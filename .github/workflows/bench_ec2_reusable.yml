@@ -34,6 +34,10 @@ on:
         type: boolean
         description: Runs with optimized code if enabled.
         default: true
+      perf:
+        type: string
+        description: Method by which clock cycles should be measured (PMU | PERF)
+        default: PERF
       store_results:
         type: boolean
         description: Indicates if results should be pushed to github pages
@@ -121,7 +125,7 @@ jobs:
           cflags: ${{ inputs.cflags }}
           archflags: ${{ inputs.archflags }}
           opt: ${{ inputs.opt }}
-          perf: PERF
+          perf: ${{ inputs.perf }}
           store_results: ${{ inputs.store_results }}
           bench_extra_args: ${{ inputs.bench_extra_args }}
           gh_token: ${{ secrets.AWS_GITHUB_TOKEN }}
@@ -148,7 +152,7 @@ jobs:
           cflags: ${{ inputs.cflags }}
           archflags: ${{ inputs.archflags }}
           opt: ${{ inputs.opt }}
-          perf: PERF
+          perf: ${{ inputs.perf }}
           store_results: ${{ inputs.store_results }}
           bench_extra_args: ${{ inputs.bench_extra_args }}
           gh_token: ${{ secrets.AWS_GITHUB_TOKEN }}
