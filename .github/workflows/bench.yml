@@ -110,6 +110,6 @@ jobs:
       archflags: ${{ matrix.target.archflags }}
       cflags: ${{ matrix.target.cflags }}
       opt: ${{ matrix.opt.value }}
-      store_results: ${{ matrix.opt.value && github.repository_owner == 'pq-code-package' && github.ref == 'refs/heads/main' }} # Only store optimized results
-      name: ${{ matrix.target.name }}
+      store_results: ${{ github.repository_owner == 'pq-code-package' && github.ref == 'refs/heads/main' }} # Only store optimized results
+      name: ${{ matrix.target.name }}${{ !matrix.opt.value && " (no-opt)" }}
     secrets: inherit

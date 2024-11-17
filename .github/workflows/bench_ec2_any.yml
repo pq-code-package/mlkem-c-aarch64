@@ -46,6 +46,9 @@ on:
 jobs:
   bench-ec2-any:
     name: Ad-hoc benchmark on $${{ inputs.ec2_instance_type }}
+    permissions:
+      contents: 'read'
+      id-token: 'write'
     uses: ./.github/workflows/bench_ec2_reusable.yml
     with:
       ec2_instance_type: ${{ inputs.ec2_instance_type }}
