@@ -41,8 +41,6 @@ CFLAGS += \
 	-MMD \
 	$(CPPFLAGS)
 
-LINKDEPS += $(LIBDEPS)
-
 ##################
 # Some Variables #
 ##################
@@ -83,7 +81,6 @@ include mk/auto.mk
 endif
 
 BUILD_DIR := test/build
-LIB_DIR := $(BUILD_DIR)/lib
 
 MAKE_OBJS = $(2:%=$(1)/%.o)
 OBJS = $(call MAKE_OBJS,$(BUILD_DIR),$(1))

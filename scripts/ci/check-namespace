@@ -65,7 +65,9 @@ def run():
     check_folder("test/build/mlkem512/mlkem", "PQCP_MLKEM_NATIVE_MLKEM512_")
     check_folder("test/build/mlkem768/mlkem", "PQCP_MLKEM_NATIVE_MLKEM768_")
     check_folder("test/build/mlkem1024/mlkem", "PQCP_MLKEM_NATIVE_MLKEM1024_")
-    check_folder("test/build/fips202", "PQCP_MLKEM_NATIVE_FIPS202_")
+    check_folder("test/build/mlkem512/fips202", "PQCP_MLKEM_NATIVE_FIPS202_")
+    check_folder("test/build/mlkem768/fips202", "PQCP_MLKEM_NATIVE_FIPS202_")
+    check_folder("test/build/mlkem1024/fips202", "PQCP_MLKEM_NATIVE_FIPS202_")
 
 if __name__ == "__main__":
     run()
