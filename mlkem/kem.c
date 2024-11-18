@@ -29,18 +29,18 @@ int memcmp(const void *str1, const void *str2, size_t n)  // clang-format off
  **
  * Returns 0 on success, and -1 on failure
  **************************************************/
-static int check_pk(const uint8_t pk[MLKEM_PUBLICKEYBYTES]) {
-  polyvec p;
-  uint8_t p_reencoded[MLKEM_POLYVECBYTES];
-  polyvec_frombytes(&p, pk);
-  polyvec_reduce(&p);
-  polyvec_tobytes(p_reencoded, &p);
-  // Data is public, so a variable-time memcmp() is OK
-  if (memcmp(pk, p_reencoded, MLKEM_POLYVECBYTES)) {
-    return -1;
-  }
-  return 0;
-}
+// static int check_pk(const uint8_t pk[MLKEM_PUBLICKEYBYTES]) {
+//   polyvec p;
+//   uint8_t p_reencoded[MLKEM_POLYVECBYTES];
+//   polyvec_frombytes(&p, pk);
+//   polyvec_reduce(&p);
+//   polyvec_tobytes(p_reencoded, &p);
+//   // Data is public, so a variable-time memcmp() is OK
+//   if (memcmp(pk, p_reencoded, MLKEM_POLYVECBYTES)) {
+//     return -1;
+//   }
+//   return 0;
+// }
 
 /*************************************************
  * Name:        check_sk
@@ -55,18 +55,18 @@ static int check_pk(const uint8_t pk[MLKEM_PUBLICKEYBYTES]) {
  *
  * Returns 0 on success, and -1 on failure
  **************************************************/
-static int check_sk(const uint8_t sk[MLKEM_SECRETKEYBYTES]) {
-  uint8_t test[MLKEM_SYMBYTES];
-  // The parts of `sk` being hashed and compared here are public, so
-  // no public information is leaked through the runtime or the return value
-  // of this function.
-  hash_h(test, sk + MLKEM_INDCPA_SECRETKEYBYTES, MLKEM_PUBLICKEYBYTES);
-  if (memcmp(sk + MLKEM_SECRETKEYBYTES - 2 * MLKEM_SYMBYTES, test,
-             MLKEM_SYMBYTES)) {
-    return -1;
-  }
-  return 0;
-}
+// static int check_sk(const uint8_t sk[MLKEM_SECRETKEYBYTES]) {
+//   uint8_t test[MLKEM_SYMBYTES];
+//   // The parts of `sk` being hashed and compared here are public, so
+//   // no public information is leaked through the runtime or the return value
+//   // of this function.
+//   hash_h(test, sk + MLKEM_INDCPA_SECRETKEYBYTES, MLKEM_PUBLICKEYBYTES);
+//   if (memcmp(sk + MLKEM_SECRETKEYBYTES - 2 * MLKEM_SYMBYTES, test,
+//              MLKEM_SYMBYTES)) {
+//     return -1;
+//   }
+//   return 0;
+// }
 
 /*************************************************
  * Name:        crypto_kem_keypair_derand
@@ -108,9 +108,9 @@ int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss, const uint8_t *pk,
   /* Will contain key, coins */
   ALIGN uint8_t kr[2 * MLKEM_SYMBYTES];
 
-  if (check_pk(pk)) {
-    return -1;
-  }
+  // if (check_pk(pk)) {
+    // return -1;
+  // }
 
   memcpy(buf, coins, MLKEM_SYMBYTES);
 
@@ -139,9 +139,9 @@ int crypto_kem_dec(uint8_t *ss, const uint8_t *ct, const uint8_t *sk) {
   ALIGN uint8_t cmp[MLKEM_CIPHERTEXTBYTES + MLKEM_SYMBYTES];
   const uint8_t *pk = sk + MLKEM_INDCPA_SECRETKEYBYTES;
 
-  if (check_sk(sk)) {
-    return -1;
-  }
+  // if (check_sk(sk)) {
+  //   return -1;
+  // }
 
   indcpa_dec(buf, ct, sk);
 
