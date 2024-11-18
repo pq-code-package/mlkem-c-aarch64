@@ -26,19 +26,19 @@ jobs:
           name: Arm Cortex-A72 (Raspberry Pi 4) benchmarks
           bench_pmu: PMU
           archflags: -mcpu=cortex-a72 -DSYS_AARCH64_SLOW_BARREL_SHIFTER
-          cflags: -DFORCE_AARCH64
+          cflags: "-flto -DFORCE_AARCH64"
           bench_extra_args: ""
         - system: rpi5
           name: Arm Cortex-A76 (Raspberry Pi 5) benchmarks
           bench_pmu: PERF
           archflags: "-mcpu=cortex-a76 -march=armv8.2-a"
-          cflags: -DFORCE_AARCH64
+          cflags: "-flto -DFORCE_AARCH64"
           bench_extra_args: ""
         - system: a55
           name: Arm Cortex-A55 (Snapdragon 888) benchmarks
           bench_pmu: PERF
           archflags: "-mcpu=cortex-a55 -march=armv8.2-a"
-          cflags: "-static -DFORCE_AARCH64 -DFIPS202_NATIVE_PROFILE=\"aarch64/profiles/cortex_a55.h\""
+          cflags: "-flto -static -DFORCE_AARCH64 -DFIPS202_NATIVE_PROFILE=\"aarch64/profiles/cortex_a55.h\""
           bench_extra_args: -w exec-on-a55
     if: github.repository_owner == 'pq-code-package' && (github.event.label.name == 'benchmark' || github.ref == 'refs/heads/main')
     runs-on: self-hosted-${{ matrix.target.system }}
@@ -71,43 +71,43 @@ jobs:
             ec2_instance_type: t4g.small
             ec2_ami: ubuntu-latest (aarch64)
             archflags: -mcpu=cortex-a76 -march=armv8.2-a
-            cflags: -DFORCE_AARCH64
+            cflags: "-flto -DFORCE_AARCH64"
             perf: PERF
           - name: Graviton3
             ec2_instance_type: c7g.medium
             ec2_ami: ubuntu-latest (aarch64)
             archflags: -march=armv8.4-a+sha3
-            cflags: -DFORCE_AARCH64
+            cflags: "-flto -DFORCE_AARCH64"
             perf: PERF
           - name: Graviton4
             ec2_instance_type: c8g.medium
             ec2_ami: ubuntu-latest (aarch64)
             archflags: -march=armv9-a+sha3
-            cflags: -DFORCE_AARCH64
+            cflags: "-flto -DFORCE_AARCH64"
             perf: PERF
           - name: AMD EPYC 4th gen (c7a)
             ec2_instance_type: c7a.medium
             ec2_ami: ubuntu-latest (x86_64)
             archflags: -mavx2 -mbmi2 -mpopcnt -maes
-            cflags: -DFORCE_X86_64
+            cflags: "-flto -DFORCE_X86_64"
             perf: PMU
           - name: Intel Xeon 4th gen (c7i)
             ec2_instance_type: c7i.large
             ec2_ami: ubuntu-latest (x86_64)
             archflags: -mavx2 -mbmi2 -mpopcnt -maes
-            cflags: -DFORCE_X86_64
+            cflags: "-flto -DFORCE_X86_64"
             perf: PMU
           - name: AMD EPYC 3rd gen (c6a)
             ec2_instance_type: c7a.medium
             ec2_ami: ubuntu-latest (x86_64)
             archflags: -mavx2 -mbmi2 -mpopcnt -maes
-            cflags: -DFORCE_X86_64
+            cflags: "-flto -DFORCE_X86_64"
             perf: PMU
           - name: Intel Xeon 3rd gen (c6i)
             ec2_instance_type: c7i.large
             ec2_ami: ubuntu-latest (x86_64)
             archflags: -mavx2 -mbmi2 -mpopcnt -maes
-            cflags: -DFORCE_X86_64
+            cflags: "-flto -DFORCE_X86_64"
             perf: PMU
     uses: ./.github/workflows/bench_ec2_reusable.yml
     if: github.repository_owner == 'pq-code-package' && (github.event.label.name == 'benchmark' || github.ref == 'refs/heads/main')
