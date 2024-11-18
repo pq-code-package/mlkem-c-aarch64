@@ -84,11 +84,13 @@ runs:
       run: |
         check-namespace
     - name: Store benchmark result
-      if: ${{ inputs.store_results == 'true' }}
       uses: benchmark-action/github-action-benchmark@v1
       with:
         name: ${{ inputs.name }}
         tool: "customSmallerIsBetter"
         output-file-path: output.json
         github-token: ${{ inputs.gh_token }}
-        auto-push: true
+        auto-push: ${{ inputs.store_results == 'true' }}
+        comment-on-alert: true
+        summary-always: true
+        alert-threshold: 103%
