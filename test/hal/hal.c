@@ -34,6 +34,25 @@
 
 #if defined(PMU_CYCLES)
 
+#if defined(__x86_64__)
+
+void enable_cyclecounter(void) {}
+
+void disable_cyclecounter(void) {}
+
+uint64_t get_cyclecounter(void) {
+  uint64_t result;
+
+  __asm__ volatile("rdtsc; shlq $32,%%rdx; orq %%rdx,%%rax"
+                   : "=a"(result)
+                   :
+                   : "%rdx");
+
+  return result;
+}
+
+#elif defined(__AARCH64EL__) || defined(_M_ARM64)
+
 void enable_cyclecounter(void) {
   uint64_t tmp;
   __asm __volatile(
@@ -60,6 +79,10 @@ uint64_t get_cyclecounter(void) {
   __asm __volatile("mrs    %[retval], pmccntr_el0\n" : [retval] "=r"(retval));
   return retval;
 }
+
+#else
+#error PMU_CYCLES option only supported on x86_64 and AArch64
+#endif
 
 #elif defined(PERF_CYCLES)
 
