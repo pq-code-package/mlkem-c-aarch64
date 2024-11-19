@@ -124,8 +124,10 @@ static void unpack_ciphertext(polyvec *b, poly *v,
   poly_decompress(v, c + MLKEM_POLYVECCOMPRESSEDBYTES);
 }
 
-#define GEN_MATRIX_NBLOCKS \
+#ifndef MLKEM_GEN_MATRIX_NBLOCKS
+#define MLKEM_GEN_MATRIX_NBLOCKS \
   ((12 * MLKEM_N / 8 * (1 << 12) / MLKEM_Q + SHAKE128_RATE) / SHAKE128_RATE)
+#endif
 
 // Generate four A matrix entries from a seed, using rejection
 // sampling on the output of a XOF.
@@ -145,10 +147,10 @@ void gen_matrix_entry_x4(poly *vec, uint8_t *seed[4])  // clang-format off
 // clang-format on
 {
   // Temporary buffers for XOF output before rejection sampling
-  uint8_t buf0[GEN_MATRIX_NBLOCKS * SHAKE128_RATE];
-  uint8_t buf1[GEN_MATRIX_NBLOCKS * SHAKE128_RATE];
-  uint8_t buf2[GEN_MATRIX_NBLOCKS * SHAKE128_RATE];
-  uint8_t buf3[GEN_MATRIX_NBLOCKS * SHAKE128_RATE];
+  uint8_t buf0[MLKEM_GEN_MATRIX_NBLOCKS * SHAKE128_RATE];
+  uint8_t buf1[MLKEM_GEN_MATRIX_NBLOCKS * SHAKE128_RATE];
+  uint8_t buf2[MLKEM_GEN_MATRIX_NBLOCKS * SHAKE128_RATE];
+  uint8_t buf3[MLKEM_GEN_MATRIX_NBLOCKS * SHAKE128_RATE];
 
   // Tracks the number of coefficients we have already sampled
   unsigned int ctr[KECCAK_WAY];
@@ -159,10 +161,11 @@ void gen_matrix_entry_x4(poly *vec, uint8_t *seed[4])  // clang-format off
   shake128x4_absorb(&statex, seed[0], seed[1], seed[2], seed[3],
                     MLKEM_SYMBYTES + 2);
 
-  // Initially, squeeze heuristic number of GEN_MATRIX_NBLOCKS.
+  // Initially, squeeze heuristic number of MLKEM_GEN_MATRIX_NBLOCKS.
   // This should generate the matrix entries with high probability.
-  shake128x4_squeezeblocks(buf0, buf1, buf2, buf3, GEN_MATRIX_NBLOCKS, &statex);
-  buflen = GEN_MATRIX_NBLOCKS * SHAKE128_RATE;
+  shake128x4_squeezeblocks(buf0, buf1, buf2, buf3, MLKEM_GEN_MATRIX_NBLOCKS,
+                           &statex);
+  buflen = MLKEM_GEN_MATRIX_NBLOCKS * SHAKE128_RATE;
   ctr[0] = rej_uniform(vec[0].coeffs, MLKEM_N, 0, buf0, buflen);
   ctr[1] = rej_uniform(vec[1].coeffs, MLKEM_N, 0, buf1, buflen);
   ctr[2] = rej_uniform(vec[2].coeffs, MLKEM_N, 0, buf2, buflen);
@@ -204,15 +207,15 @@ void gen_matrix_entry(poly *entry,
   ENSURES(ARRAY_BOUND(entry->coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))
 {  // clang-format on
   shake128ctx state;
-  uint8_t buf[GEN_MATRIX_NBLOCKS * SHAKE128_RATE];
+  uint8_t buf[MLKEM_GEN_MATRIX_NBLOCKS * SHAKE128_RATE];
   unsigned int ctr, buflen;
 
   shake128_absorb(&state, seed, MLKEM_SYMBYTES + 2);
 
-  // Initially, squeeze + sample heuristic number of GEN_MATRIX_NBLOCKS.
+  // Initially, squeeze + sample heuristic number of MLKEM_GEN_MATRIX_NBLOCKS.
   // This should generate the matrix entry with high probability.
-  shake128_squeezeblocks(buf, GEN_MATRIX_NBLOCKS, &state);
-  buflen = GEN_MATRIX_NBLOCKS * SHAKE128_RATE;
+  shake128_squeezeblocks(buf, MLKEM_GEN_MATRIX_NBLOCKS, &state);
+  buflen = MLKEM_GEN_MATRIX_NBLOCKS * SHAKE128_RATE;
   ctr = rej_uniform(entry->coeffs, MLKEM_N, 0, buf, buflen);
 
   // Squeeze + sample one more block a time until we're done
