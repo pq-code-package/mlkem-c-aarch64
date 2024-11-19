@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1732033884326,
+  "lastUpdate": 1732033895508,
   "repoUrl": "https://github.com/pq-code-package/mlkem-native",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -66007,6 +66007,75 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 keypair",
             "value": 47112,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 encaps",
+            "value": 52920,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 decaps",
+            "value": 67168,
+            "unit": "cycles"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "beckphan@amazon.co.uk",
+            "name": "Hanno Becker",
+            "username": "hanno-becker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "798844cdb57b12c6c1eec67734fec417b71e0587",
+          "message": "Merge pull request #416 from pq-code-package/gen_nmatrix_blocks_test\n\nCI: Add test for non-standard values of GEN_MATRIX_NBLOCKS",
+          "timestamp": "2024-11-19T16:25:04Z",
+          "tree_id": "60c65f3a34ced4000e848b84515538d809238da1",
+          "url": "https://github.com/pq-code-package/mlkem-native/commit/798844cdb57b12c6c1eec67734fec417b71e0587"
+        },
+        "date": 1732033884938,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ML-KEM-512 keypair",
+            "value": 19106,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 encaps",
+            "value": 23579,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 decaps",
+            "value": 30932,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 keypair",
+            "value": 32415,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 encaps",
+            "value": 35799,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 decaps",
+            "value": 46194,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 keypair",
+            "value": 47110,
             "unit": "cycles"
           },
           {
