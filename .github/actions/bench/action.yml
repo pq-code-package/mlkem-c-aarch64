@@ -44,6 +44,9 @@ inputs:
   cross_prefix:
     description: "Binary prefix for cross-compilation builds"
     default: ""
+  alert_threshold:
+    description: "Set alert threshold in percentage for benchmark result"
+    default: "103%"
 runs:
   using: composite
   steps:
@@ -93,4 +96,4 @@ runs:
         auto-push: ${{ inputs.store_results == 'true' }}
         comment-on-alert: true
         summary-always: true
-        alert-threshold: 103%
+        alert-threshold: ${{ inputs.alert_threshold }}
