@@ -1,8 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 name: bench-ec2-reusable
-permissions:
-  contents: read
 on:
   workflow_call:
     inputs:
@@ -115,6 +113,9 @@ jobs:
           security-group-id: sg-0ab2e297196c8c381
   bench_nix:
     name: Bench (nix)
+    permissions:
+      contents: write
+      pull-requests: write
     runs-on: ${{ needs.start-ec2-runner.outputs.label }}
     needs: start-ec2-runner # required to start the main job when the runner is ready
     if: ${{ inputs.compiler == '' }}
@@ -146,6 +147,9 @@ jobs:
           gh_token: ${{ secrets.AWS_GITHUB_TOKEN }}
   bench_custom:
     name: Bench (custom compiler)
+    permissions:
+      contents: write
+      pull-requests: write
     runs-on: ${{ needs.start-ec2-runner.outputs.label }}
     needs: start-ec2-runner # required to start the main job when the runner is ready
     if: ${{ inputs.compiler != '' }}
