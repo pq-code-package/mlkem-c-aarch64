@@ -222,32 +222,32 @@ jobs:
     runs-on: ${{ matrix.target.runner }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - name: "GEN_MATRIX_NBLOCKS=1"
+      - name: "MLKEM_GEN_MATRIX_NBLOCKS=1"
         uses: ./.github/actions/multi-functest
         with:
           gh_token: ${{ secrets.GITHUB_TOKEN }}
           compile_mode: native
-          cflags: "-fsanitize=address -fsanitize=undefined -fno-sanitize-recover=all -DGEN_MATRIX_NBLOCKS=1"
+          cflags: "-fsanitize=address -fsanitize=undefined -fno-sanitize-recover=all -DMLKEM_GEN_MATRIX_NBLOCKS=1"
           func: true
           nistkat: true
           kat: false
           acvp: false
-      - name: "GEN_MATRIX_NBLOCKS=2"
+      - name: "MLKEM_GEN_MATRIX_NBLOCKS=2"
         uses: ./.github/actions/multi-functest
         with:
           gh_token: ${{ secrets.GITHUB_TOKEN }}
           compile_mode: native
-          cflags: "-fsanitize=address -fsanitize=undefined -fno-sanitize-recover=all -DGEN_MATRIX_NBLOCKS=2"
+          cflags: "-fsanitize=address -fsanitize=undefined -fno-sanitize-recover=all -DMLKEM_GEN_MATRIX_NBLOCKS=2"
           func: true
           nistkat: true
           kat: false
           acvp: false
-      - name: "GEN_MATRIX_NBLOCKS=4"
+      - name: "MLKEM_GEN_MATRIX_NBLOCKS=4"
         uses: ./.github/actions/multi-functest
         with:
           gh_token: ${{ secrets.GITHUB_TOKEN }}
           compile_mode: native
-          cflags: "-fsanitize=address -fsanitize=undefined -fno-sanitize-recover=all -DGEN_MATRIX_NBLOCKS=4"
+          cflags: "-fsanitize=address -fsanitize=undefined -fno-sanitize-recover=all -DMLKEM_GEN_MATRIX_NBLOCKS=4"
           func: true
           nistkat: true
           kat: false
