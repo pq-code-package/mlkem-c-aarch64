@@ -171,7 +171,7 @@ class Base:
             else:
                 log.info(f"passed")
         else:
-            log.info(f"{p.stdout.decode()}")
+            log.info(f"\n{p.stdout.decode()}")
             result = p.stdout.decode()
 
         if p.returncode != 0:
