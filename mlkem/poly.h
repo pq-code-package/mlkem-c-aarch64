@@ -304,6 +304,53 @@ uint16_t scalar_signed_to_unsigned_q(int16_t c)  // clang-format off
   return (uint16_t)c;
 }
 
+
+#define poly_compress_du MLKEM_NAMESPACE(poly_compress_du)
+/*************************************************
+ * Name:        poly_compress_du
+ *
+ * Description: Compression (du bits) and subsequent serialization of a
+ *polynomial
+ *
+ * Arguments:   - uint8_t *r: pointer to output byte array
+ *                            (of length MLKEM_POLYCOMPRESSEDBYTES)
+ *              - const poly *a: pointer to input polynomial
+ *                  Coefficients must be unsigned canonical,
+ *                  i.e. in [0,1,..,MLKEM_Q-1].
+ **************************************************/
+void poly_compress_du(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES_DU],
+                      const poly *a)  // clang-format off
+REQUIRES(IS_FRESH(r, MLKEM_POLYCOMPRESSEDBYTES_DU))
+REQUIRES(IS_FRESH(a, sizeof(poly)))
+REQUIRES(ARRAY_BOUND(a->coeffs, 0, (MLKEM_N - 1), 0, (MLKEM_Q - 1)))
+ASSIGNS(OBJECT_UPTO(r, MLKEM_POLYCOMPRESSEDBYTES_DU));
+// clang-format on
+
+
+#define poly_decompress_du MLKEM_NAMESPACE(poly_decompress_du)
+/*************************************************
+ * Name:        poly_decompress_du
+ *
+ * Description: De-serialization and subsequent decompression (du bits) of a
+ *polynomial; approximate inverse of poly_compress_du
+ *
+ * Arguments:   - poly *r: pointer to output polynomial
+ *              - const uint8_t *a: pointer to input byte array
+ *                                  (of length MLKEM_POLYCOMPRESSEDBYTES bytes)
+ *
+ * Upon return, the coefficients of the output polynomial are unsigned-canonical
+ * (non-negative and smaller than MLKEM_Q).
+ *
+ **************************************************/
+void poly_decompress_du(
+    poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES_DU])  // clang-format off
+REQUIRES(IS_FRESH(a, MLKEM_POLYCOMPRESSEDBYTES_DU))
+REQUIRES(IS_FRESH(r, sizeof(poly)))
+ASSIGNS(OBJECT_UPTO(r, sizeof(poly)))
+ENSURES(ARRAY_BOUND(r->coeffs, 0, (MLKEM_N - 1), 0, (MLKEM_Q - 1)));
+// clang-format on
+
+
 #define poly_compress MLKEM_NAMESPACE(poly_compress)
 /*************************************************
  * Name:        poly_compress

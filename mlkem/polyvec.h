@@ -37,6 +37,17 @@ REQUIRES(FORALL(int, k0, 0, MLKEM_K - 1,
 // clang-format on
 
 #define polyvec_decompress MLKEM_NAMESPACE(polyvec_decompress)
+/*************************************************
+ * Name:        polyvec_decompress
+ *
+ * Description: De-serialize and decompress vector of polynomials;
+ *              approximate inverse of polyvec_compress
+ *
+ * Arguments:   - polyvec *r:       pointer to output vector of polynomials.
+ *                Output will have coefficients normalized to [0,..,q-1].
+ *              - const uint8_t *a: pointer to input byte array
+ *                                  (of length MLKEM_POLYVECCOMPRESSEDBYTES)
+ **************************************************/
 void polyvec_decompress(
     polyvec *r,
     const uint8_t a[MLKEM_POLYVECCOMPRESSEDBYTES])  // clang-format off
