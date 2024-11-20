@@ -6,11 +6,10 @@
  */
 
 /**
- * @file polyvec_decompress_du_harness.c
- * @brief Implements the proof harness for polyvec_decompress_du function.
+ * @file poly_compress_du_harness.c
+ * @brief Implements the proof harness for poly_compress_du function.
  */
 #include "poly.h"
-#include "polyvec.h"
 
 /*
  * Insert project header files that
@@ -23,8 +22,8 @@
  *
  */
 void harness(void) {
-  polyvec *a;
-  uint8_t *r;
+  poly *r;
+  uint8_t *a;
 
-  polyvec_decompress_du(a, r);
+  poly_compress_du(a, r);
 }
