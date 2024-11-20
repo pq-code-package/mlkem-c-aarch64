@@ -134,11 +134,11 @@ void poly_decompress_du(poly *r,
 #endif
 }
 
-void poly_compress(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES], const poly *a) {
+void poly_compress_dv(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES_DV], const poly *a) {
   POLY_UBOUND(a, MLKEM_Q);
   uint8_t t[8] = {0};
 
-#if (MLKEM_POLYCOMPRESSEDBYTES == 128)
+#if (MLKEM_POLYCOMPRESSEDBYTES_DV == 128)
   for (int i = 0; i < MLKEM_N / 8; i++)  // clang-format off
     ASSIGNS(i, OBJECT_WHOLE(t), OBJECT_WHOLE(r))
     INVARIANT(i >= 0 && i <= MLKEM_N / 8)  // clang-format on
@@ -159,7 +159,7 @@ void poly_compress(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES], const poly *a) {
       r[i * 4 + 2] = t[4] | (t[5] << 4);
       r[i * 4 + 3] = t[6] | (t[7] << 4);
     }
-#elif (MLKEM_POLYCOMPRESSEDBYTES == 160)
+#elif (MLKEM_POLYCOMPRESSEDBYTES_DV == 160)
   for (int i = 0; i < MLKEM_N / 8; i++)  // clang-format off
     ASSIGNS(i, OBJECT_WHOLE(t), OBJECT_WHOLE(r))
     INVARIANT(i >= 0 && i <= MLKEM_N / 8)  // clang-format on
@@ -183,12 +183,13 @@ void poly_compress(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES], const poly *a) {
       r[i * 5 + 4] = 0xFF & ((t[6] >> 2) | (t[7] << 3));
     }
 #else
-#error "MLKEM_POLYCOMPRESSEDBYTES needs to be in {128, 160}"
+#error "MLKEM_POLYCOMPRESSEDBYTES_DV needs to be in {128, 160}"
 #endif
 }
 
-void poly_decompress(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES]) {
-#if (MLKEM_POLYCOMPRESSEDBYTES == 128)
+void poly_decompress_dv(poly *r,
+                        const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES_DV]) {
+#if (MLKEM_POLYCOMPRESSEDBYTES_DV == 128)
   for (int i = 0; i < MLKEM_N / 2; i++)  // clang-format off
         ASSIGNS(i, OBJECT_WHOLE(r))
         INVARIANT(i >= 0 && i <= MLKEM_N / 2)
@@ -198,7 +199,7 @@ void poly_decompress(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES]) {
       r->coeffs[2 * i + 0] = scalar_decompress_d4((a[i] >> 0) & 0xF);
       r->coeffs[2 * i + 1] = scalar_decompress_d4((a[i] >> 4) & 0xF);
     }
-#elif (MLKEM_POLYCOMPRESSEDBYTES == 160)
+#elif (MLKEM_POLYCOMPRESSEDBYTES_DV == 160)
   for (int i = 0; i < MLKEM_N / 8; i++)  // clang-format off
     ASSIGNS(i, OBJECT_WHOLE(r))
     INVARIANT(i >= 0 && i <= MLKEM_N / 8)
@@ -232,7 +233,7 @@ void poly_decompress(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES]) {
         }
     }
 #else
-#error "MLKEM_POLYCOMPRESSEDBYTES needs to be in {128, 160}"
+#error "MLKEM_POLYCOMPRESSEDBYTES_DV needs to be in {128, 160}"
 #endif
 
   POLY_UBOUND(r, MLKEM_Q);

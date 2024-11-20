@@ -3,11 +3,11 @@
 include ../Makefile_params.common
 
 HARNESS_ENTRY = harness
-HARNESS_FILE = poly_decompress_harness
+HARNESS_FILE = poly_decompress_dv_harness
 
 # This should be a unique identifier for this proof, and will appear on the
 # Litani dashboard. It can be human-readable and contain spaces if you wish.
-PROOF_UID = poly_decompress
+PROOF_UID = poly_decompress_dv
 
 DEFINES +=
 INCLUDES +=
@@ -19,7 +19,7 @@ PROOF_SOURCES += $(PROOFDIR)/$(HARNESS_FILE).c
 PROJECT_SOURCES += $(SRCDIR)/mlkem/poly.c
 PROJECT_SOURCES += $(SRCDIR)/mlkem/verify.c
 
-CHECK_FUNCTION_CONTRACTS=$(MLKEM_NAMESPACE)poly_decompress
+CHECK_FUNCTION_CONTRACTS=$(MLKEM_NAMESPACE)poly_decompress_dv
 
 # For K = 2 or 3, the code calls scalar_decompress_d4, so
 ifeq ($(MLKEM_K),4)
@@ -35,7 +35,7 @@ USE_DYNAMIC_FRAMES=1
 EXTERNAL_SAT_SOLVER=
 CBMCFLAGS=--bitwuzla
 
-FUNCTION_NAME = $(MLKEM_NAMESPACE)poly_decompress
+FUNCTION_NAME = $(MLKEM_NAMESPACE)poly_decompress_dv
 
 # If this proof is found to consume huge amounts of RAM, you can set the
 # EXPENSIVE variable. With new enough versions of the proof tools, this will

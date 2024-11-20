@@ -42,7 +42,7 @@ USED_FUNCTIONS += poly_add
 USED_FUNCTIONS += polyvec_reduce
 USED_FUNCTIONS += poly_reduce
 USED_FUNCTIONS += polyvec_compress
-USED_FUNCTIONS += poly_compress
+USED_FUNCTIONS += poly_compress_dv
 USED_FUNCTIONS += polyvec_frombytes
 
 USE_FUNCTION_CONTRACTS=matvec_mul $(addprefix $(MLKEM_NAMESPACE),$(USED_FUNCTIONS))

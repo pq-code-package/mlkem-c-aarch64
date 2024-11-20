@@ -6,8 +6,8 @@
  */
 
 /**
- * @file poly_compress_harness.c
- * @brief Implements the proof harness for poly_compress function.
+ * @file poly_compress_dv_harness.c
+ * @brief Implements the proof harness for poly_compress_dv function.
  */
 #include "poly.h"
 
@@ -25,5 +25,5 @@ void harness(void) {
   poly *r;
   uint8_t *a;
 
-  poly_compress(a, r);
+  poly_compress_dv(a, r);
 }

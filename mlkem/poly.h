@@ -350,45 +350,46 @@ ASSIGNS(OBJECT_UPTO(r, sizeof(poly)))
 ENSURES(ARRAY_BOUND(r->coeffs, 0, (MLKEM_N - 1), 0, (MLKEM_Q - 1)));
 // clang-format on
 
-
-#define poly_compress MLKEM_NAMESPACE(poly_compress)
+#define poly_compress_dv MLKEM_NAMESPACE(poly_compress_dv)
 /*************************************************
- * Name:        poly_compress
+ * Name:        poly_compress_dv
  *
- * Description: Compression and subsequent serialization of a polynomial
+ * Description: Compression (dv bits) and subsequent serialization of a
+ *polynomial
  *
  * Arguments:   - uint8_t *r: pointer to output byte array
- *                            (of length MLKEM_POLYCOMPRESSEDBYTES)
+ *                            (of length MLKEM_POLYCOMPRESSEDBYTES_DV)
  *              - const poly *a: pointer to input polynomial
  *                  Coefficients must be unsigned canonical,
  *                  i.e. in [0,1,..,MLKEM_Q-1].
  **************************************************/
-void poly_compress(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES],
-                   const poly *a)  // clang-format off
-REQUIRES(IS_FRESH(r, MLKEM_POLYCOMPRESSEDBYTES))
+void poly_compress_dv(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES_DV],
+                      const poly *a)  // clang-format off
+REQUIRES(IS_FRESH(r, MLKEM_POLYCOMPRESSEDBYTES_DV))
 REQUIRES(IS_FRESH(a, sizeof(poly)))
 REQUIRES(ARRAY_BOUND(a->coeffs, 0, (MLKEM_N - 1), 0, (MLKEM_Q - 1)))
 ASSIGNS(OBJECT_WHOLE(r));
 // clang-format on
 
-#define poly_decompress MLKEM_NAMESPACE(poly_decompress)
+#define poly_decompress_dv MLKEM_NAMESPACE(poly_decompress_dv)
 /*************************************************
- * Name:        poly_decompress
+ * Name:        poly_decompress_dv
  *
- * Description: De-serialization and subsequent decompression of a polynomial;
- *              approximate inverse of poly_compress
+ * Description: De-serialization and subsequent decompression (dv bits) of a
+ *polynomial; approximate inverse of poly_compress
  *
  * Arguments:   - poly *r: pointer to output polynomial
  *              - const uint8_t *a: pointer to input byte array
- *                                  (of length MLKEM_POLYCOMPRESSEDBYTES bytes)
+ *                                  (of length MLKEM_POLYCOMPRESSEDBYTES_DV
+ *bytes)
  *
  * Upon return, the coefficients of the output polynomial are unsigned-canonical
  * (non-negative and smaller than MLKEM_Q).
  *
  **************************************************/
-void poly_decompress(
-    poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES])  // clang-format off
-REQUIRES(IS_FRESH(a, MLKEM_POLYCOMPRESSEDBYTES))
+void poly_decompress_dv(
+    poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES_DV])  // clang-format off
+REQUIRES(IS_FRESH(a, MLKEM_POLYCOMPRESSEDBYTES_DV))
 REQUIRES(IS_FRESH(r, sizeof(poly)))
 ASSIGNS(OBJECT_WHOLE(r))
 ENSURES(ARRAY_BOUND(r->coeffs, 0, (MLKEM_N - 1), 0, (MLKEM_Q - 1)));

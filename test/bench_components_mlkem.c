@@ -67,11 +67,12 @@ static int bench(void) {
                     1 * SHAKE128_RATE))
 
   /* poly */
-  // poly_compress
-  BENCH("poly_compress", poly_compress((uint8_t *)data0, (poly *)data1))
+  // poly_compress_dv
+  BENCH("poly_compress_dv", poly_compress_dv((uint8_t *)data0, (poly *)data1))
 
-  // poly_decompress
-  BENCH("poly_decompress", poly_decompress((poly *)data0, (uint8_t *)data1))
+  // poly_decompress_dv
+  BENCH("poly_decompress_dv",
+        poly_decompress_dv((poly *)data0, (uint8_t *)data1))
 
   // poly_tobytes
   BENCH("poly_tobytes", poly_tobytes((uint8_t *)data0, (poly *)data1))

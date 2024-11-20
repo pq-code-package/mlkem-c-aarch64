@@ -105,7 +105,7 @@ static void unpack_sk(polyvec *sk,
 static void pack_ciphertext(uint8_t r[MLKEM_INDCPA_BYTES], polyvec *b,
                             poly *v) {
   polyvec_compress(r, b);
-  poly_compress(r + MLKEM_POLYVECCOMPRESSEDBYTES, v);
+  poly_compress_dv(r + MLKEM_POLYVECCOMPRESSEDBYTES, v);
 }
 
 /*************************************************
@@ -121,7 +121,7 @@ static void pack_ciphertext(uint8_t r[MLKEM_INDCPA_BYTES], polyvec *b,
 static void unpack_ciphertext(polyvec *b, poly *v,
                               const uint8_t c[MLKEM_INDCPA_BYTES]) {
   polyvec_decompress(b, c);
-  poly_decompress(v, c + MLKEM_POLYVECCOMPRESSEDBYTES);
+  poly_decompress_dv(v, c + MLKEM_POLYVECCOMPRESSEDBYTES);
 }
 
 #ifndef MLKEM_GEN_MATRIX_NBLOCKS
