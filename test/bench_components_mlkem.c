@@ -67,6 +67,13 @@ static int bench(void) {
                     1 * SHAKE128_RATE))
 
   /* poly */
+  // poly_compress_du
+  BENCH("poly_compress_du", poly_compress_du((uint8_t *)data0, (poly *)data1))
+
+  // poly_decompress_du
+  BENCH("poly_decompress_du",
+        poly_decompress_du((poly *)data0, (uint8_t *)data1))
+
   // poly_compress_dv
   BENCH("poly_compress_dv", poly_compress_dv((uint8_t *)data0, (poly *)data1))
 
