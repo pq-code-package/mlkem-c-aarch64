@@ -3,11 +3,11 @@
 include ../Makefile_params.common
 
 HARNESS_ENTRY = harness
-HARNESS_FILE = poly_getnoise_eta1122_4x_harness
+HARNESS_FILE = poly_compress_du_harness
 
 # This should be a unique identifier for this proof, and will appear on the
 # Litani dashboard. It can be human-readable and contain spaces if you wish.
-PROOF_UID = poly_getnoise_eta1122_4x
+PROOF_UID = poly_compress_du
 
 DEFINES +=
 INCLUDES +=
@@ -17,16 +17,16 @@ UNWINDSET +=
 
 PROOF_SOURCES += $(PROOFDIR)/$(HARNESS_FILE).c
 PROJECT_SOURCES += $(SRCDIR)/mlkem/poly.c
+PROJECT_SOURCES += $(SRCDIR)/mlkem/verify.c
 
-CHECK_FUNCTION_CONTRACTS=$(MLKEM_NAMESPACE)poly_getnoise_eta1122_4x
-# Depending on MLKEM_K, the code uses shake256 or shake256x4.
-# Unfortunately, CBMC complains about unused function contracts,
-# so we have to distinguish along MLKEM_K here.
-ifeq ($(MLKEM_K),2)
-USE_FUNCTION_CONTRACTS=$(MLKEM_NAMESPACE)poly_cbd_eta1 $(MLKEM_NAMESPACE)poly_cbd_eta2 $(FIPS202_NAMESPACE)shake256
+CHECK_FUNCTION_CONTRACTS=$(MLKEM_NAMESPACE)poly_compress_du
+# For K = 2 or 3, the code calls scalar_compress_d10, so
+ifeq ($(MLKEM_K),4)
+USE_FUNCTION_CONTRACTS = $(MLKEM_NAMESPACE)scalar_compress_d11
 else
-USE_FUNCTION_CONTRACTS=$(MLKEM_NAMESPACE)poly_cbd_eta1 $(MLKEM_NAMESPACE)poly_cbd_eta2 $(FIPS202_NAMESPACE)shake256x4
+USE_FUNCTION_CONTRACTS = $(MLKEM_NAMESPACE)scalar_compress_d10
 endif
+
 APPLY_LOOP_CONTRACTS=on
 USE_DYNAMIC_FRAMES=1
 
@@ -34,7 +34,7 @@ USE_DYNAMIC_FRAMES=1
 EXTERNAL_SAT_SOLVER=
 CBMCFLAGS=--smt2
 
-FUNCTION_NAME = $(MLKEM_NAMESPACE)poly_getnoise_eta1122_4x
+FUNCTION_NAME = $(MLKEM_NAMESPACE)poly_compress_du
 
 # If this proof is found to consume huge amounts of RAM, you can set the
 # EXPENSIVE variable. With new enough versions of the proof tools, this will
@@ -43,7 +43,7 @@ FUNCTION_NAME = $(MLKEM_NAMESPACE)poly_getnoise_eta1122_4x
 # EXPENSIVE = true
 
 # This function is large enough to need...
-CBMC_OBJECT_BITS = 9
+CBMC_OBJECT_BITS = 10
 
 # If you require access to a file-local ("static") function or object to conduct
 # your proof, set the following (and do not include the original source file

@@ -3,11 +3,11 @@
 include ../Makefile_params.common
 
 HARNESS_ENTRY = harness
-HARNESS_FILE = poly_compress_harness
+HARNESS_FILE = poly_decompress_du_harness
 
 # This should be a unique identifier for this proof, and will appear on the
 # Litani dashboard. It can be human-readable and contain spaces if you wish.
-PROOF_UID = poly_compress
+PROOF_UID = poly_decompress_du
 
 DEFINES +=
 INCLUDES +=
@@ -19,8 +19,15 @@ PROOF_SOURCES += $(PROOFDIR)/$(HARNESS_FILE).c
 PROJECT_SOURCES += $(SRCDIR)/mlkem/poly.c
 PROJECT_SOURCES += $(SRCDIR)/mlkem/verify.c
 
-CHECK_FUNCTION_CONTRACTS=$(MLKEM_NAMESPACE)poly_compress
-USE_FUNCTION_CONTRACTS=
+CHECK_FUNCTION_CONTRACTS=$(MLKEM_NAMESPACE)poly_decompress_du
+
+# For K = 2 or 3, the code calls scalar_decompress_d10, so
+ifeq ($(MLKEM_K),4)
+USE_FUNCTION_CONTRACTS = $(MLKEM_NAMESPACE)scalar_decompress_d11
+else
+USE_FUNCTION_CONTRACTS = $(MLKEM_NAMESPACE)scalar_decompress_d10
+endif
+
 APPLY_LOOP_CONTRACTS=on
 USE_DYNAMIC_FRAMES=1
 
@@ -28,7 +35,7 @@ USE_DYNAMIC_FRAMES=1
 EXTERNAL_SAT_SOLVER=
 CBMCFLAGS=--smt2
 
-FUNCTION_NAME = $(MLKEM_NAMESPACE)poly_compress
+FUNCTION_NAME = $(MLKEM_NAMESPACE)poly_decompress_du
 
 # If this proof is found to consume huge amounts of RAM, you can set the
 # EXPENSIVE variable. With new enough versions of the proof tools, this will
@@ -37,7 +44,7 @@ FUNCTION_NAME = $(MLKEM_NAMESPACE)poly_compress
 # EXPENSIVE = true
 
 # This function is large enough to need...
-CBMC_OBJECT_BITS = 10
+CBMC_OBJECT_BITS = 12
 
 # If you require access to a file-local ("static") function or object to conduct
 # your proof, set the following (and do not include the original source file

@@ -3,28 +3,24 @@
 include ../Makefile_params.common
 
 HARNESS_ENTRY = harness
-HARNESS_FILE = polyvec_decompress_harness
+HARNESS_FILE = polyvec_decompress_du_harness
 
 # This should be a unique identifier for this proof, and will appear on the
 # Litani dashboard. It can be human-readable and contain spaces if you wish.
-PROOF_UID = polyvec_decompress
+PROOF_UID = polyvec_decompress_du
 
 DEFINES +=
 INCLUDES +=
 
 REMOVE_FUNCTION_BODY +=
-UNWINDSET +=
+UNWINDSET += $(MLKEM_NAMESPACE)polyvec_decompress_du.0:4 # Largest value of MLKEM_K
 
 PROOF_SOURCES += $(PROOFDIR)/$(HARNESS_FILE).c
 PROJECT_SOURCES += $(SRCDIR)/mlkem/polyvec.c
 
-CHECK_FUNCTION_CONTRACTS=$(MLKEM_NAMESPACE)polyvec_decompress
+CHECK_FUNCTION_CONTRACTS=$(MLKEM_NAMESPACE)polyvec_decompress_du
 
-ifeq ($(MLKEM_K),4)
-USE_FUNCTION_CONTRACTS=$(MLKEM_NAMESPACE)scalar_decompress_d11
-else
-USE_FUNCTION_CONTRACTS=$(MLKEM_NAMESPACE)scalar_decompress_d10
-endif
+USE_FUNCTION_CONTRACTS=$(MLKEM_NAMESPACE)poly_decompress_du
 APPLY_LOOP_CONTRACTS=on
 USE_DYNAMIC_FRAMES=1
 
@@ -32,7 +28,7 @@ USE_DYNAMIC_FRAMES=1
 EXTERNAL_SAT_SOLVER=
 CBMCFLAGS=--smt2
 
-FUNCTION_NAME = $(MLKEM_NAMESPACE)polyvec_decompress
+FUNCTION_NAME = $(MLKEM_NAMESPACE)polyvec_decompress_du
 
 # If this proof is found to consume huge amounts of RAM, you can set the
 # EXPENSIVE variable. With new enough versions of the proof tools, this will

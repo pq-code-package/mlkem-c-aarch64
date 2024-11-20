@@ -15,32 +15,43 @@ typedef struct {
   poly_mulcache vec[MLKEM_K];
 } polyvec_mulcache;
 
-#define polyvec_compress MLKEM_NAMESPACE(polyvec_compress)
+#define polyvec_compress_du MLKEM_NAMESPACE(polyvec_compress_du)
 /*************************************************
- * Name:        polyvec_compress
+ * Name:        polyvec_compress_du
  *
  * Description: Compress and serialize vector of polynomials
  *
  * Arguments:   - uint8_t *r: pointer to output byte array
- *                            (needs space for MLKEM_POLYVECCOMPRESSEDBYTES)
+ *                            (needs space for MLKEM_POLYVECCOMPRESSEDBYTES_DU)
  *              - const polyvec *a: pointer to input vector of polynomials.
  *                                  Coefficients must be unsigned canonical,
  *                                  i.e. in [0,1,..,MLKEM_Q-1].
  **************************************************/
-void polyvec_compress(uint8_t r[MLKEM_POLYVECCOMPRESSEDBYTES],
-                      const polyvec *a)  // clang-format off
-REQUIRES(IS_FRESH(r, MLKEM_POLYVECCOMPRESSEDBYTES))
+void polyvec_compress_du(uint8_t r[MLKEM_POLYVECCOMPRESSEDBYTES_DU],
+                         const polyvec *a)  // clang-format off
+REQUIRES(IS_FRESH(r, MLKEM_POLYVECCOMPRESSEDBYTES_DU))
 REQUIRES(IS_FRESH(a, sizeof(polyvec)))
 ASSIGNS(OBJECT_WHOLE(r))
 REQUIRES(FORALL(int, k0, 0, MLKEM_K - 1,
          ARRAY_BOUND(a->vec[k0].coeffs, 0, (MLKEM_N - 1), 0, (MLKEM_Q - 1))));
 // clang-format on
 
-#define polyvec_decompress MLKEM_NAMESPACE(polyvec_decompress)
-void polyvec_decompress(
+#define polyvec_decompress_du MLKEM_NAMESPACE(polyvec_decompress_du)
+/*************************************************
+ * Name:        polyvec_decompress_du
+ *
+ * Description: De-serialize and decompress vector of polynomials;
+ *              approximate inverse of polyvec_compress_du
+ *
+ * Arguments:   - polyvec *r:       pointer to output vector of polynomials.
+ *                Output will have coefficients normalized to [0,..,q-1].
+ *              - const uint8_t *a: pointer to input byte array
+ *                                  (of length MLKEM_POLYVECCOMPRESSEDBYTES_DU)
+ **************************************************/
+void polyvec_decompress_du(
     polyvec *r,
-    const uint8_t a[MLKEM_POLYVECCOMPRESSEDBYTES])  // clang-format off
-REQUIRES(IS_FRESH(a, MLKEM_POLYVECCOMPRESSEDBYTES))
+    const uint8_t a[MLKEM_POLYVECCOMPRESSEDBYTES_DU])  // clang-format off
+REQUIRES(IS_FRESH(a, MLKEM_POLYVECCOMPRESSEDBYTES_DU))
 REQUIRES(IS_FRESH(r, sizeof(polyvec)))
 ASSIGNS(OBJECT_WHOLE(r))
 ENSURES(FORALL(int, k0, 0, MLKEM_K - 1,

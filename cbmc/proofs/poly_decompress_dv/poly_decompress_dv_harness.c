@@ -6,25 +6,24 @@
  */
 
 /**
- * @file polyvec_compress_harness.c
- * @brief Implements the proof harness for polyvec_compress function.
+ * @file poly_decompress_dv_harness.c
+ * @brief Implements the proof harness for poly_decompress_dv function.
  */
-#include "poly.h"
-#include "polyvec.h"
 
 /*
  * Insert project header files that
  *   - include the declaration of the function
  *   - include the types needed to declare function arguments
  */
+#include "poly.h"
 
 /**
  * @brief Starting point for formal analysis
  *
  */
 void harness(void) {
-  polyvec *r;
+  poly *r;
   uint8_t *a;
 
-  polyvec_compress(a, r);
+  poly_decompress_dv(r, a);
 }

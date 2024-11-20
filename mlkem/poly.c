@@ -14,11 +14,131 @@
 #include "arith_native.h"
 #include "debug/debug.h"
 
-void poly_compress(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES], const poly *a) {
+void poly_compress_du(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES_DU], const poly *a) {
+#if (MLKEM_POLYCOMPRESSEDBYTES_DU == 352)
+  uint16_t t[8];
+  for (int j = 0; j < MLKEM_N / 8; j++)  // clang-format off
+        ASSIGNS(j, OBJECT_WHOLE(t), OBJECT_WHOLE(r))
+        INVARIANT(j >= 0 && j <= MLKEM_N / 8)
+        {     // clang-format on
+      for (int k = 0; k < 8; k++)  // clang-format off
+            ASSIGNS(k, OBJECT_WHOLE(t), OBJECT_WHOLE(r))
+            INVARIANT(k >= 0 && k <= 8)
+            INVARIANT(FORALL(int, r, 0, k - 1, t[r] < (1u << 11)))
+            {  // clang-format on
+          t[k] = scalar_compress_d11(a->coeffs[8 * j + k]);
+        }
+
+      // REF-CHANGE: Use array indexing into
+      // r rather than pointer-arithmetic to simplify verification
+      //
+      // Make all implicit truncation explicit. No data is being
+      // truncated for the LHS's since each t[i] is 11-bit in size.
+      r[11 * j + 0] = (t[0] >> 0) & 0xFF;
+      r[11 * j + 1] = (t[0] >> 8) | ((t[1] << 3) & 0xFF);
+      r[11 * j + 2] = (t[1] >> 5) | ((t[2] << 6) & 0xFF);
+      r[11 * j + 3] = (t[2] >> 2) & 0xFF;
+      r[11 * j + 4] = (t[2] >> 10) | ((t[3] << 1) & 0xFF);
+      r[11 * j + 5] = (t[3] >> 7) | ((t[4] << 4) & 0xFF);
+      r[11 * j + 6] = (t[4] >> 4) | ((t[5] << 7) & 0xFF);
+      r[11 * j + 7] = (t[5] >> 1) & 0xFF;
+      r[11 * j + 8] = (t[5] >> 9) | ((t[6] << 2) & 0xFF);
+      r[11 * j + 9] = (t[6] >> 6) | ((t[7] << 5) & 0xFF);
+      r[11 * j + 10] = (t[7] >> 3);
+    }
+#elif (MLKEM_POLYCOMPRESSEDBYTES_DU == 320)
+  uint16_t t[4];
+  for (int j = 0; j < MLKEM_N / 4; j++)  // clang-format off
+        ASSIGNS(j, OBJECT_WHOLE(t), OBJECT_WHOLE(r))
+        INVARIANT(j >= 0 && j <= MLKEM_N / 4)
+        {             // clang-format on
+      for (int k = 0; k < 4; k++)  // clang-format off
+            ASSIGNS(k, OBJECT_WHOLE(t))
+            INVARIANT(k >= 0 && k <= 4)
+            INVARIANT(FORALL(int, r, 0, k - 1, t[r] < (1u << 10)))
+            {  // clang-format on
+          t[k] = scalar_compress_d10(a->coeffs[4 * j + k]);
+        }
+
+      // REF-CHANGE: Use array indexing into
+      // r rather than pointer-arithmetic to simplify verification
+      //
+      // Make all implicit truncation explicit. No data is being
+      // truncated for the LHS's since each t[i] is 10-bit in size.
+      r[5 * j + 0] = (t[0] >> 0) & 0xFF;
+      r[5 * j + 1] = (t[0] >> 8) | ((t[1] << 2) & 0xFF);
+      r[5 * j + 2] = (t[1] >> 6) | ((t[2] << 4) & 0xFF);
+      r[5 * j + 3] = (t[2] >> 4) | ((t[3] << 6) & 0xFF);
+      r[5 * j + 4] = (t[3] >> 2);
+    }
+#else
+#error "MLKEM_POLYCOMPRESSEDBYTES_DU needs to be in {320,352}"
+#endif
+}
+
+
+void poly_decompress_du(poly *r,
+                        const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES_DU]) {
+#if (MLKEM_POLYCOMPRESSEDBYTES_DU == 352)
+  for (int j = 0; j < MLKEM_N / 8; j++)  // clang-format off
+        ASSIGNS(j, OBJECT_WHOLE(r))
+        INVARIANT(0 <= j && j <= MLKEM_N / 8)
+        INVARIANT(ARRAY_BOUND(r->coeffs, 0, 8 * j - 1, 0, (MLKEM_Q - 1)))
+        {  // clang-format on
+      uint16_t t[8];
+      uint8_t const *base = &a[11 * j];
+      t[0] = 0x7FF & ((base[0] >> 0) | ((uint16_t)base[1] << 8));
+      t[1] = 0x7FF & ((base[1] >> 3) | ((uint16_t)base[2] << 5));
+      t[2] = 0x7FF & ((base[2] >> 6) | ((uint16_t)base[3] << 2) |
+                      ((uint16_t)base[4] << 10));
+      t[3] = 0x7FF & ((base[4] >> 1) | ((uint16_t)base[5] << 7));
+      t[4] = 0x7FF & ((base[5] >> 4) | ((uint16_t)base[6] << 4));
+      t[5] = 0x7FF & ((base[6] >> 7) | ((uint16_t)base[7] << 1) |
+                      ((uint16_t)base[8] << 9));
+      t[6] = 0x7FF & ((base[8] >> 2) | ((uint16_t)base[9] << 6));
+      t[7] = 0x7FF & ((base[9] >> 5) | ((uint16_t)base[10] << 3));
+
+      for (int k = 0; k < 8; k++)  // clang-format off
+            ASSIGNS(k, OBJECT_WHOLE(r))
+            INVARIANT(0 <= k && k <= 8)
+            INVARIANT(ARRAY_BOUND(r->coeffs, 0, 8 * j + k - 1, 0, (MLKEM_Q - 1)))
+            {  // clang-format on
+          r->coeffs[8 * j + k] = scalar_decompress_d11(t[k]);
+        }
+    }
+#elif (MLKEM_POLYCOMPRESSEDBYTES_DU == 320)
+  for (int j = 0; j < MLKEM_N / 4; j++)  // clang-format off
+        ASSIGNS(j, OBJECT_WHOLE(r))
+        INVARIANT(0 <= j && j <= MLKEM_N / 4)
+        INVARIANT(ARRAY_BOUND(r->coeffs, 0, 4 * j - 1, 0, (MLKEM_Q - 1)))
+        {  // clang-format on
+      uint16_t t[4];
+      uint8_t const *base = &a[5 * j];
+
+      t[0] = 0x3FF & ((base[0] >> 0) | ((uint16_t)base[1] << 8));
+      t[1] = 0x3FF & ((base[1] >> 2) | ((uint16_t)base[2] << 6));
+      t[2] = 0x3FF & ((base[2] >> 4) | ((uint16_t)base[3] << 4));
+      t[3] = 0x3FF & ((base[3] >> 6) | ((uint16_t)base[4] << 2));
+
+      for (int k = 0; k < 4; k++)  // clang-format off
+            ASSIGNS(k, OBJECT_WHOLE(r))
+            INVARIANT(0 <= k && k <= 4)
+            INVARIANT(ARRAY_BOUND(r->coeffs, 0, 4 * j + k - 1, 0, (MLKEM_Q - 1)))
+                                   // clang-format on
+        {
+          r->coeffs[4 * j + k] = scalar_decompress_d10(t[k]);
+        }
+    }
+#else
+#error "MLKEM_POLYCOMPRESSEDBYTES_DU needs to be in {320,352}"
+#endif
+}
+
+void poly_compress_dv(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES_DV], const poly *a) {
   POLY_UBOUND(a, MLKEM_Q);
   uint8_t t[8] = {0};
 
-#if (MLKEM_POLYCOMPRESSEDBYTES == 128)
+#if (MLKEM_POLYCOMPRESSEDBYTES_DV == 128)
   for (int i = 0; i < MLKEM_N / 8; i++)  // clang-format off
     ASSIGNS(i, OBJECT_WHOLE(t), OBJECT_WHOLE(r))
     INVARIANT(i >= 0 && i <= MLKEM_N / 8)  // clang-format on
@@ -39,7 +159,7 @@ void poly_compress(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES], const poly *a) {
       r[i * 4 + 2] = t[4] | (t[5] << 4);
       r[i * 4 + 3] = t[6] | (t[7] << 4);
     }
-#elif (MLKEM_POLYCOMPRESSEDBYTES == 160)
+#elif (MLKEM_POLYCOMPRESSEDBYTES_DV == 160)
   for (int i = 0; i < MLKEM_N / 8; i++)  // clang-format off
     ASSIGNS(i, OBJECT_WHOLE(t), OBJECT_WHOLE(r))
     INVARIANT(i >= 0 && i <= MLKEM_N / 8)  // clang-format on
@@ -63,12 +183,13 @@ void poly_compress(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES], const poly *a) {
       r[i * 5 + 4] = 0xFF & ((t[6] >> 2) | (t[7] << 3));
     }
 #else
-#error "MLKEM_POLYCOMPRESSEDBYTES needs to be in {128, 160}"
+#error "MLKEM_POLYCOMPRESSEDBYTES_DV needs to be in {128, 160}"
 #endif
 }
 
-void poly_decompress(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES]) {
-#if (MLKEM_POLYCOMPRESSEDBYTES == 128)
+void poly_decompress_dv(poly *r,
+                        const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES_DV]) {
+#if (MLKEM_POLYCOMPRESSEDBYTES_DV == 128)
   for (int i = 0; i < MLKEM_N / 2; i++)  // clang-format off
         ASSIGNS(i, OBJECT_WHOLE(r))
         INVARIANT(i >= 0 && i <= MLKEM_N / 2)
@@ -78,7 +199,7 @@ void poly_decompress(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES]) {
       r->coeffs[2 * i + 0] = scalar_decompress_d4((a[i] >> 0) & 0xF);
       r->coeffs[2 * i + 1] = scalar_decompress_d4((a[i] >> 4) & 0xF);
     }
-#elif (MLKEM_POLYCOMPRESSEDBYTES == 160)
+#elif (MLKEM_POLYCOMPRESSEDBYTES_DV == 160)
   for (int i = 0; i < MLKEM_N / 8; i++)  // clang-format off
     ASSIGNS(i, OBJECT_WHOLE(r))
     INVARIANT(i >= 0 && i <= MLKEM_N / 8)
@@ -112,7 +233,7 @@ void poly_decompress(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES]) {
         }
     }
 #else
-#error "MLKEM_POLYCOMPRESSEDBYTES needs to be in {128, 160}"
+#error "MLKEM_POLYCOMPRESSEDBYTES_DV needs to be in {128, 160}"
 #endif
 
   POLY_UBOUND(r, MLKEM_Q);
