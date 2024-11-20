@@ -96,7 +96,7 @@ jobs:
             ec2_ami: ubuntu-latest (x86_64)
             archflags: -mavx2 -mbmi2 -mpopcnt -maes
             cflags: "-flto -DFORCE_X86_64"
-            perf: PMU
+            perf: PERF
           - name: AMD EPYC 3rd gen (c6a)
             ec2_instance_type: c7a.medium
             ec2_ami: ubuntu-latest (x86_64)
@@ -108,7 +108,7 @@ jobs:
             ec2_ami: ubuntu-latest (x86_64)
             archflags: -mavx2 -mbmi2 -mpopcnt -maes
             cflags: "-flto -DFORCE_X86_64"
-            perf: PMU
+            perf: PERF
     uses: ./.github/workflows/bench_ec2_reusable.yml
     if: github.repository_owner == 'pq-code-package' && (github.event.label.name == 'benchmark' || github.ref == 'refs/heads/main')
     with:
