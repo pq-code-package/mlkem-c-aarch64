@@ -41,7 +41,7 @@ USED_FUNCTIONS += polyvec_add
 USED_FUNCTIONS += poly_add
 USED_FUNCTIONS += polyvec_reduce
 USED_FUNCTIONS += poly_reduce
-USED_FUNCTIONS += polyvec_compress
+USED_FUNCTIONS += polyvec_compress_du
 USED_FUNCTIONS += poly_compress_dv
 USED_FUNCTIONS += polyvec_frombytes
 

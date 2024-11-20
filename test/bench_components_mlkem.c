@@ -124,13 +124,13 @@ static int bench(void) {
   BENCH("poly_sub", poly_sub((poly *)data0, (poly *)data1))
 
   /* polyvec */
-  // polyvec_compress
-  BENCH("polyvec_compress",
-        polyvec_compress((uint8_t *)data0, (polyvec *)data1))
+  // polyvec_compress_du
+  BENCH("polyvec_compress_du",
+        polyvec_compress_du((uint8_t *)data0, (polyvec *)data1))
 
-  // polyvec_decompress
-  BENCH("polyvec_decompress",
-        polyvec_decompress((polyvec *)data0, (uint8_t *)data1))
+  // polyvec_decompress_du
+  BENCH("polyvec_decompress_du",
+        polyvec_decompress_du((polyvec *)data0, (uint8_t *)data1))
 
   // polyvec_tobytes
   BENCH("polyvec_tobytes", polyvec_tobytes((uint8_t *)data0, (polyvec *)data1))

@@ -6,8 +6,8 @@
  */
 
 /**
- * @file polyvec_decompress_harness.c
- * @brief Implements the proof harness for polyvec_decompress function.
+ * @file polyvec_compress_du_harness.c
+ * @brief Implements the proof harness for polyvec_compress_du function.
  */
 #include "poly.h"
 #include "polyvec.h"
@@ -23,11 +23,8 @@
  *
  */
 void harness(void) {
-  polyvec *a;
-  uint8_t *r;
+  polyvec *r;
+  uint8_t *a;
 
-  // TODO: remove cbmc-viewer.json
-  // TODO: remove the README for all proofs
-
-  polyvec_decompress(a, r);
+  polyvec_compress_du(a, r);
 }

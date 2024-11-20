@@ -8,8 +8,8 @@
 #include "poly.h"
 
 #include "debug/debug.h"
-void polyvec_compress(uint8_t r[MLKEM_POLYVECCOMPRESSEDBYTES],
-                      const polyvec *a) {
+void polyvec_compress_du(uint8_t r[MLKEM_POLYVECCOMPRESSEDBYTES_DU],
+                         const polyvec *a) {
   unsigned int i;
   POLYVEC_UBOUND(a, MLKEM_Q);
 
@@ -22,8 +22,8 @@ void polyvec_compress(uint8_t r[MLKEM_POLYVECCOMPRESSEDBYTES],
     }
 }
 
-void polyvec_decompress(polyvec *r,
-                        const uint8_t a[MLKEM_POLYVECCOMPRESSEDBYTES]) {
+void polyvec_decompress_du(polyvec *r,
+                           const uint8_t a[MLKEM_POLYVECCOMPRESSEDBYTES_DU]) {
   unsigned int i;
   for (i = 0; i < MLKEM_K; i++)  // clang-format off
     ASSIGNS(i, OBJECT_WHOLE(r))
