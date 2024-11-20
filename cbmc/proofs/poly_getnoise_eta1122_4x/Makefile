@@ -43,7 +43,7 @@ FUNCTION_NAME = $(MLKEM_NAMESPACE)poly_getnoise_eta1122_4x
 # EXPENSIVE = true
 
 # This function is large enough to need...
-CBMC_OBJECT_BITS = 8
+CBMC_OBJECT_BITS = 9
 
 # If you require access to a file-local ("static") function or object to conduct
 # your proof, set the following (and do not include the original source file
