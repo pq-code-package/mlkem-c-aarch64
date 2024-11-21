@@ -115,12 +115,12 @@ ENSURES(FORALL(int, k0, 0, MLKEM_K - 1,
  *
  **************************************************/
 void polyvec_ntt(polyvec *r)  // clang-format off
-  REQUIRES(IS_FRESH(r, sizeof(polyvec)))
-  REQUIRES(FORALL(int, j, 0, MLKEM_K - 1,
-    ARRAY_ABS_BOUND(r->vec[j].coeffs, 0, MLKEM_N - 1, (MLKEM_Q - 1))))
-  ASSIGNS(OBJECT_WHOLE(r))
-  ENSURES(FORALL(int, j, 0, MLKEM_K - 1,
-    ARRAY_ABS_BOUND(r->vec[j].coeffs, 0, MLKEM_N - 1, (NTT_BOUND - 1))));
+REQUIRES(IS_FRESH(r, sizeof(polyvec)))
+REQUIRES(FORALL(int, j, 0, MLKEM_K - 1,
+  ARRAY_ABS_BOUND(r->vec[j].coeffs, 0, MLKEM_N - 1, (MLKEM_Q - 1))))
+ASSIGNS(OBJECT_WHOLE(r))
+ENSURES(FORALL(int, j, 0, MLKEM_K - 1,
+  ARRAY_ABS_BOUND(r->vec[j].coeffs, 0, MLKEM_N - 1, (NTT_BOUND - 1))));
 // clang-format on
 
 #define polyvec_invntt_tomont MLKEM_NAMESPACE(polyvec_invntt_tomont)
@@ -140,10 +140,10 @@ void polyvec_ntt(polyvec *r)  // clang-format off
  * Arguments:   - polyvec *r: pointer to in/output vector of polynomials
  **************************************************/
 void polyvec_invntt_tomont(polyvec *r)  // clang-format off
-  REQUIRES(IS_FRESH(r, sizeof(polyvec)))
-  ASSIGNS(OBJECT_WHOLE(r))
-  ENSURES(FORALL(int, j, 0, MLKEM_K - 1,
-    ARRAY_ABS_BOUND(r->vec[j].coeffs, 0, MLKEM_N - 1, (INVNTT_BOUND - 1))));
+REQUIRES(IS_FRESH(r, sizeof(polyvec)))
+ASSIGNS(OBJECT_WHOLE(r))
+ENSURES(FORALL(int, j, 0, MLKEM_K - 1,
+  ARRAY_ABS_BOUND(r->vec[j].coeffs, 0, MLKEM_N - 1, (INVNTT_BOUND - 1))));
 // clang-format on
 
 #define polyvec_basemul_acc_montgomery \

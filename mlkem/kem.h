@@ -22,11 +22,11 @@
 #define crypto_kem_keypair_derand MLKEM_NAMESPACE(keypair_derand)
 int crypto_kem_keypair_derand(uint8_t *pk, uint8_t *sk,
                               const uint8_t *coins)  // clang-format off
-  REQUIRES(IS_FRESH(pk, MLKEM_PUBLICKEYBYTES))
-  REQUIRES(IS_FRESH(sk, MLKEM_SECRETKEYBYTES))
-  REQUIRES(IS_FRESH(coins, 2 * MLKEM_SYMBYTES))
-  ASSIGNS(OBJECT_WHOLE(pk))
-  ASSIGNS(OBJECT_WHOLE(sk));
+REQUIRES(IS_FRESH(pk, MLKEM_PUBLICKEYBYTES))
+REQUIRES(IS_FRESH(sk, MLKEM_SECRETKEYBYTES))
+REQUIRES(IS_FRESH(coins, 2 * MLKEM_SYMBYTES))
+ASSIGNS(OBJECT_WHOLE(pk))
+ASSIGNS(OBJECT_WHOLE(sk));
 // clang-format on
 
 #define crypto_kem_keypair MLKEM_NAMESPACE(keypair)
@@ -44,10 +44,10 @@ int crypto_kem_keypair_derand(uint8_t *pk, uint8_t *sk,
  * Returns 0 (success)
  **************************************************/
 int crypto_kem_keypair(uint8_t *pk, uint8_t *sk)  // clang-format off
-  REQUIRES(IS_FRESH(pk, MLKEM_PUBLICKEYBYTES))
-  REQUIRES(IS_FRESH(sk, MLKEM_SECRETKEYBYTES))
-  ASSIGNS(OBJECT_WHOLE(pk))
-  ASSIGNS(OBJECT_WHOLE(sk));
+REQUIRES(IS_FRESH(pk, MLKEM_PUBLICKEYBYTES))
+REQUIRES(IS_FRESH(sk, MLKEM_SECRETKEYBYTES))
+ASSIGNS(OBJECT_WHOLE(pk))
+ASSIGNS(OBJECT_WHOLE(sk));
 // clang-format on
 
 #define crypto_kem_enc_derand MLKEM_NAMESPACE(enc_derand)
@@ -72,12 +72,12 @@ int crypto_kem_keypair(uint8_t *pk, uint8_t *sk)  // clang-format off
  **************************************************/
 int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss, const uint8_t *pk,
                           const uint8_t *coins)  // clang-format off
-  REQUIRES(IS_FRESH(ct, MLKEM_CIPHERTEXTBYTES))
-  REQUIRES(IS_FRESH(ss, MLKEM_SSBYTES))
-  REQUIRES(IS_FRESH(pk, MLKEM_PUBLICKEYBYTES))
-  REQUIRES(IS_FRESH(coins, MLKEM_SYMBYTES))
-  ASSIGNS(OBJECT_WHOLE(ct))
-  ASSIGNS(OBJECT_WHOLE(ss));
+REQUIRES(IS_FRESH(ct, MLKEM_CIPHERTEXTBYTES))
+REQUIRES(IS_FRESH(ss, MLKEM_SSBYTES))
+REQUIRES(IS_FRESH(pk, MLKEM_PUBLICKEYBYTES))
+REQUIRES(IS_FRESH(coins, MLKEM_SYMBYTES))
+ASSIGNS(OBJECT_WHOLE(ct))
+ASSIGNS(OBJECT_WHOLE(ss));
 // clang-format on
 
 #define crypto_kem_enc MLKEM_NAMESPACE(enc)
@@ -99,11 +99,11 @@ int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss, const uint8_t *pk,
  **************************************************/
 int crypto_kem_enc(uint8_t *ct, uint8_t *ss,
                    const uint8_t *pk)  // clang-format off
-  REQUIRES(IS_FRESH(ct, MLKEM_CIPHERTEXTBYTES))
-  REQUIRES(IS_FRESH(ss, MLKEM_SSBYTES))
-  REQUIRES(IS_FRESH(pk, MLKEM_PUBLICKEYBYTES))
-  ASSIGNS(OBJECT_WHOLE(ct))
-  ASSIGNS(OBJECT_WHOLE(ss));
+REQUIRES(IS_FRESH(ct, MLKEM_CIPHERTEXTBYTES))
+REQUIRES(IS_FRESH(ss, MLKEM_SSBYTES))
+REQUIRES(IS_FRESH(pk, MLKEM_PUBLICKEYBYTES))
+ASSIGNS(OBJECT_WHOLE(ct))
+ASSIGNS(OBJECT_WHOLE(ss));
 // clang-format on
 
 #define crypto_kem_dec MLKEM_NAMESPACE(dec)
@@ -127,10 +127,10 @@ int crypto_kem_enc(uint8_t *ct, uint8_t *ss,
  **************************************************/
 int crypto_kem_dec(uint8_t *ss, const uint8_t *ct,
                    const uint8_t *sk)  // clang-format off
-  REQUIRES(IS_FRESH(ss, MLKEM_SSBYTES))
-  REQUIRES(IS_FRESH(ct, MLKEM_CIPHERTEXTBYTES))
-  REQUIRES(IS_FRESH(sk, MLKEM_SECRETKEYBYTES))
-  ASSIGNS(OBJECT_WHOLE(ss));
+REQUIRES(IS_FRESH(ss, MLKEM_SSBYTES))
+REQUIRES(IS_FRESH(ct, MLKEM_CIPHERTEXTBYTES))
+REQUIRES(IS_FRESH(sk, MLKEM_SECRETKEYBYTES))
+ASSIGNS(OBJECT_WHOLE(ss));
 // clang-format on
 
 #endif
