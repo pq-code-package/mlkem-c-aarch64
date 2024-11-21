@@ -69,6 +69,7 @@
               '';
             });
 
+          # NOTE: idiomatic nix way of properly setting the $CC in a nix shell
           mkShellWithCC = cc: pkgs.mkShellNoCC.override { stdenv = pkgs.overrideCC pkgs.stdenv cc; };
           mkShell = mkShellWithCC native-gcc;
         in
@@ -128,11 +129,11 @@
           devShells.ci-cbmc-cross = wrapShell mkShell { packages = core { } ++ [ config.packages.cbmc ]; };
           devShells.ci-linter = wrapShell pkgs.mkShellNoCC { packages = [ config.packages.linters ]; };
 
-          devShells.ci_clang18 = wrapShell pkgs.mkShellNoCC { packages = [ config.packages.base pkgs.clang_18 ]; };
-          devShells.ci_gcc48 = wrapShell pkgs.mkShellNoCC { packages = [ config.packages.base pkgs.gcc48 ]; };
-          devShells.ci_gcc49 = wrapShell pkgs.mkShellNoCC { packages = [ config.packages.base pkgs.gcc49 ]; };
-          devShells.ci_gcc7 = wrapShell pkgs.mkShellNoCC { packages = [ config.packages.base pkgs.gcc7 ]; };
-          devShells.ci_gcc11 = wrapShell pkgs.mkShellNoCC { packages = [ config.packages.base pkgs.gcc11 ]; };
+          devShells.ci_clang18 = wrapShell (mkShellWithCC pkgs.clang_18) { packages = [ config.packages.base ]; };
+          devShells.ci_gcc48 = wrapShell (mkShellWithCC pkgs.gcc48) { packages = [ config.packages.base ]; };
+          devShells.ci_gcc49 = wrapShell (mkShellWithCC pkgs.gcc49) { packages = [ config.packages.base ]; };
+          devShells.ci_gcc7 = wrapShell (mkShellWithCC pkgs.gcc7) { packages = [ config.packages.base ]; };
+          devShells.ci_gcc11 = wrapShell (mkShellWithCC pkgs.gcc11) { packages = [ config.packages.base ]; };
         };
       flake = {
         # The usual flake attributes can be defined here, including system-
