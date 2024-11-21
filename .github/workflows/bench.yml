@@ -11,13 +11,12 @@ on:
     branches: ["main"]
     types: [ "labeled" ]
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   bench:
     name: ${{ matrix.target.name }}
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
     strategy:
       fail-fast: true
       matrix:
@@ -58,6 +57,9 @@ jobs:
     permissions:
       contents: 'read'
       id-token: 'write'
+    concurrency:
+      group: ec2-bench
+      cancel-in-progress: false
     strategy:
       fail-fast: false
       matrix:
