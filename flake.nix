@@ -43,10 +43,16 @@
               x86_64-gcc = wrap-gcc pkgs.pkgsCross.gnu64;
               aarch64-gcc = wrap-gcc pkgs.pkgsCross.aarch64-multiplatform;
             in
-            if (cross && !pkgs.stdenv.isDarwin)
-            then [ x86_64-gcc aarch64-gcc ]
-            else [ native-gcc ]
-              ++ builtins.attrValues {
+            # NOTE:
+              # - native toolchain should be equipped in the shell via `mkShellWithCC` (see `mkShell`)
+              # - only install extra cross-compiled toolchains if not on darwin or `cross` is specifally set to true
+              # - providing cross compilation toolchain (x86_64/aarch64-linux) for darwin can be cumbersome 
+              #   and won't just work for now
+              # - equip all toolchains if cross is explicitly set to true
+              # - one of the toolchains in the list is exactly the same as the toolchain in `native-gcc`, 
+              #   nix should be able to handle this properly, so it won't be an issue
+            pkgs.lib.optionals (cross && !pkgs.stdenv.isDarwin) [ x86_64-gcc aarch64-gcc ]
+            ++ builtins.attrValues {
               inherit (config.packages) base;
               inherit (pkgs)
                 qemu; # 8.2.4
@@ -56,8 +62,15 @@
             mkShell (attrs // {
               shellHook = ''
                 export PATH=$PWD/scripts:$PWD/scripts/ci:$PATH
+              '' +
+              # NOTE: we don't support nix gcc toolchains for darwin system, therefore explicitly setting CC is required
+              pkgs.lib.optionalString pkgs.stdenv.isDarwin ''
+                export CC=gcc
               '';
             });
+
+          mkShellWithCC = cc: pkgs.mkShellNoCC.override { stdenv = pkgs.overrideCC pkgs.stdenv cc; };
+          mkShell = mkShellWithCC native-gcc;
         in
         {
           # NOTE: hack for replacing bitwuzla in nixos-24.05 (0.4.0) to the one in nixos-unstable (0.6.0) by nix overlays
@@ -97,8 +110,7 @@
             };
           };
 
-
-          devShells.default = wrapShell pkgs.mkShellNoCC {
+          devShells.default = wrapShell mkShell {
             packages =
               core { } ++
               builtins.attrValues
@@ -110,10 +122,10 @@
                 };
           };
 
-          devShells.ci = wrapShell pkgs.mkShellNoCC { packages = core { cross = false; }; };
-          devShells.ci-cross = wrapShell pkgs.mkShellNoCC { packages = core { }; };
-          devShells.ci-cbmc = wrapShell pkgs.mkShellNoCC { packages = core { cross = false; } ++ [ config.packages.cbmc ]; };
-          devShells.ci-cbmc-cross = wrapShell pkgs.mkShellNoCC { packages = core { } ++ [ config.packages.cbmc ]; };
+          devShells.ci = wrapShell mkShell { packages = core { cross = false; }; };
+          devShells.ci-cross = wrapShell mkShell { packages = core { }; };
+          devShells.ci-cbmc = wrapShell mkShell { packages = core { cross = false; } ++ [ config.packages.cbmc ]; };
+          devShells.ci-cbmc-cross = wrapShell mkShell { packages = core { } ++ [ config.packages.cbmc ]; };
           devShells.ci-linter = wrapShell pkgs.mkShellNoCC { packages = [ config.packages.linters ]; };
 
           devShells.ci_clang18 = wrapShell pkgs.mkShellNoCC { packages = [ config.packages.base pkgs.clang_18 ]; };
