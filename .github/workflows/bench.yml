@@ -86,25 +86,25 @@ jobs:
             cflags: "-flto -DFORCE_AARCH64"
             perf: PERF
           - name: AMD EPYC 4th gen (c7a)
-            ec2_instance_type: c7a.medium
+            ec2_instance_type: c7a.metal-48xl
             ec2_ami: ubuntu-latest (x86_64)
             archflags: -mavx2 -mbmi2 -mpopcnt -maes
             cflags: "-flto -DFORCE_X86_64"
             perf: PMU
           - name: Intel Xeon 4th gen (c7i)
-            ec2_instance_type: c7i.large
+            ec2_instance_type: c7i.metal-24xl
             ec2_ami: ubuntu-latest (x86_64)
             archflags: -mavx2 -mbmi2 -mpopcnt -maes
             cflags: "-flto -DFORCE_X86_64"
             perf: PMU
           - name: AMD EPYC 3rd gen (c6a)
-            ec2_instance_type: c6a.large
+            ec2_instance_type: c6a.metal
             ec2_ami: ubuntu-latest (x86_64)
             archflags: -mavx2 -mbmi2 -mpopcnt -maes
             cflags: "-flto -DFORCE_X86_64"
             perf: PMU
           - name: Intel Xeon 3rd gen (c6i)
-            ec2_instance_type: c6i.large
+            ec2_instance_type: c6i.metal
             ec2_ami: ubuntu-latest (x86_64)
             archflags: -mavx2 -mbmi2 -mpopcnt -maes
             cflags: "-flto -DFORCE_X86_64"
