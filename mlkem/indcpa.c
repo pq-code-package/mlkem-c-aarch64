@@ -133,17 +133,17 @@ static void unpack_ciphertext(polyvec *b, poly *v,
 // sampling on the output of a XOF.
 STATIC_TESTABLE
 void gen_matrix_entry_x4(poly *vec, uint8_t *seed[4])  // clang-format off
-  REQUIRES(IS_FRESH(vec, sizeof(poly) * 4))
-  REQUIRES(IS_FRESH(seed, sizeof(uint8_t*) * 4))
-  REQUIRES(IS_FRESH(seed[0], MLKEM_SYMBYTES + 2))
-  REQUIRES(IS_FRESH(seed[1], MLKEM_SYMBYTES + 2))
-  REQUIRES(IS_FRESH(seed[2], MLKEM_SYMBYTES + 2))
-  REQUIRES(IS_FRESH(seed[3], MLKEM_SYMBYTES + 2))
-  ASSIGNS(OBJECT_UPTO(vec, sizeof(poly) * 4))
-  ENSURES(ARRAY_BOUND(vec[0].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))
-  ENSURES(ARRAY_BOUND(vec[1].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))
-  ENSURES(ARRAY_BOUND(vec[2].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))
-  ENSURES(ARRAY_BOUND(vec[3].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))
+REQUIRES(IS_FRESH(vec, sizeof(poly) * 4))
+REQUIRES(IS_FRESH(seed, sizeof(uint8_t*) * 4))
+REQUIRES(IS_FRESH(seed[0], MLKEM_SYMBYTES + 2))
+REQUIRES(IS_FRESH(seed[1], MLKEM_SYMBYTES + 2))
+REQUIRES(IS_FRESH(seed[2], MLKEM_SYMBYTES + 2))
+REQUIRES(IS_FRESH(seed[3], MLKEM_SYMBYTES + 2))
+ASSIGNS(OBJECT_UPTO(vec, sizeof(poly) * 4))
+ENSURES(ARRAY_BOUND(vec[0].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))
+ENSURES(ARRAY_BOUND(vec[1].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))
+ENSURES(ARRAY_BOUND(vec[2].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))
+ENSURES(ARRAY_BOUND(vec[3].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))
 // clang-format on
 {
   // Temporary buffers for XOF output before rejection sampling
@@ -201,10 +201,10 @@ void gen_matrix_entry_x4(poly *vec, uint8_t *seed[4])  // clang-format off
 STATIC_TESTABLE
 void gen_matrix_entry(poly *entry,
                       uint8_t seed[MLKEM_SYMBYTES + 2])  // clang-format off
-  REQUIRES(IS_FRESH(entry, sizeof(poly)))
-  REQUIRES(IS_FRESH(seed, MLKEM_SYMBYTES + 2))
-  ASSIGNS(OBJECT_UPTO(entry, sizeof(poly)))
-  ENSURES(ARRAY_BOUND(entry->coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))
+REQUIRES(IS_FRESH(entry, sizeof(poly)))
+REQUIRES(IS_FRESH(seed, MLKEM_SYMBYTES + 2))
+ASSIGNS(OBJECT_UPTO(entry, sizeof(poly)))
+ENSURES(ARRAY_BOUND(entry->coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))
 {  // clang-format on
   shake128ctx state;
   uint8_t buf[MLKEM_GEN_MATRIX_NBLOCKS * SHAKE128_RATE];
@@ -335,14 +335,14 @@ void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES],
 STATIC_TESTABLE
 void matvec_mul(polyvec *out, const polyvec a[MLKEM_K], const polyvec *v,
                 const polyvec_mulcache *vc)  // clang-format off
-  REQUIRES(IS_FRESH(out, sizeof(polyvec)))
-  REQUIRES(IS_FRESH(a, sizeof(polyvec) * MLKEM_K))
-  REQUIRES(IS_FRESH(v, sizeof(polyvec)))
-  REQUIRES(IS_FRESH(vc, sizeof(polyvec_mulcache)))
-  REQUIRES(FORALL(int, k0, 0, MLKEM_K - 1,
-   FORALL(int, k1, 0, MLKEM_K - 1,
-     ARRAY_ABS_BOUND(a[k0].vec[k1].coeffs, 0, MLKEM_N - 1, (MLKEM_Q - 1)))))
-  ASSIGNS(OBJECT_WHOLE(out))
+REQUIRES(IS_FRESH(out, sizeof(polyvec)))
+REQUIRES(IS_FRESH(a, sizeof(polyvec) * MLKEM_K))
+REQUIRES(IS_FRESH(v, sizeof(polyvec)))
+REQUIRES(IS_FRESH(vc, sizeof(polyvec_mulcache)))
+REQUIRES(FORALL(int, k0, 0, MLKEM_K - 1,
+ FORALL(int, k1, 0, MLKEM_K - 1,
+   ARRAY_ABS_BOUND(a[k0].vec[k1].coeffs, 0, MLKEM_N - 1, (MLKEM_Q - 1)))))
+ASSIGNS(OBJECT_WHOLE(out))
 // clang-format on
 {
   for (int i = 0; i < MLKEM_K; i++)  // clang-format off

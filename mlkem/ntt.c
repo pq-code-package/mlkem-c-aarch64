@@ -90,16 +90,16 @@ const int16_t zetas[128] = {
 STATIC_TESTABLE
 void ntt_butterfly_block(int16_t r[MLKEM_N], int16_t zeta, int start, int len,
                          int bound)  // clang-format off
-  REQUIRES(0 <= start && start < MLKEM_N)
-  REQUIRES(1 <= len && len <= MLKEM_N / 2 && start + 2 * len <= MLKEM_N)
-  REQUIRES(0 <= bound && bound < INT16_MAX - MLKEM_Q)
-  REQUIRES(-HALF_Q < zeta && zeta < HALF_Q)
-  REQUIRES(IS_FRESH(r, sizeof(int16_t) * MLKEM_N))
-  REQUIRES(ARRAY_ABS_BOUND(r, 0, start - 1, bound + MLKEM_Q))
-  REQUIRES(ARRAY_ABS_BOUND(r, start, MLKEM_N - 1, bound))
-  ASSIGNS(OBJECT_UPTO(r, sizeof(int16_t) * MLKEM_N))
-  ENSURES(ARRAY_ABS_BOUND(r, 0, start + 2*len - 1, bound + MLKEM_Q))
-  ENSURES(ARRAY_ABS_BOUND(r, start + 2 * len, MLKEM_N - 1, bound))
+REQUIRES(0 <= start && start < MLKEM_N)
+REQUIRES(1 <= len && len <= MLKEM_N / 2 && start + 2 * len <= MLKEM_N)
+REQUIRES(0 <= bound && bound < INT16_MAX - MLKEM_Q)
+REQUIRES(-HALF_Q < zeta && zeta < HALF_Q)
+REQUIRES(IS_FRESH(r, sizeof(int16_t) * MLKEM_N))
+REQUIRES(ARRAY_ABS_BOUND(r, 0, start - 1, bound + MLKEM_Q))
+REQUIRES(ARRAY_ABS_BOUND(r, start, MLKEM_N - 1, bound))
+ASSIGNS(OBJECT_UPTO(r, sizeof(int16_t) * MLKEM_N))
+ENSURES(ARRAY_ABS_BOUND(r, 0, start + 2*len - 1, bound + MLKEM_Q))
+ENSURES(ARRAY_ABS_BOUND(r, start + 2 * len, MLKEM_N - 1, bound))
 // clang-format on
 {
   // `bound` is a ghost variable only needed in the CBMC specification
@@ -136,11 +136,11 @@ void ntt_butterfly_block(int16_t r[MLKEM_N], int16_t zeta, int start, int len,
 //   a ghost variable for the specifications.
 STATIC_TESTABLE
 void ntt_layer(int16_t r[MLKEM_N], int len, int layer)  // clang-format off
-  REQUIRES(IS_FRESH(r, sizeof(int16_t) * MLKEM_N))
-  REQUIRES(1 <= layer && layer <= 7 && len == (MLKEM_N >> layer))
-  REQUIRES(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, layer * MLKEM_Q - 1))
-  ASSIGNS(OBJECT_UPTO(r, sizeof(int16_t) * MLKEM_N))
-  ENSURES(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, (layer + 1) * MLKEM_Q - 1))
+REQUIRES(IS_FRESH(r, sizeof(int16_t) * MLKEM_N))
+REQUIRES(1 <= layer && layer <= 7 && len == (MLKEM_N >> layer))
+REQUIRES(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, layer * MLKEM_Q - 1))
+ASSIGNS(OBJECT_UPTO(r, sizeof(int16_t) * MLKEM_N))
+ENSURES(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, (layer + 1) * MLKEM_Q - 1))
 // clang-format on
 {
   // `layer` is a ghost variable only needed in the CBMC specification
@@ -208,12 +208,12 @@ STATIC_ASSERT(INVNTT_BOUND_REF <= INVNTT_BOUND, invntt_bound)
 // Compute one layer of inverse NTT
 STATIC_TESTABLE
 void invntt_layer(int16_t *r, int len, int layer)  // clang-format off
-  REQUIRES(IS_FRESH(r, sizeof(int16_t) * MLKEM_N))
-  REQUIRES(2 <= len && len <= 128 && 1 <= layer && layer <= 7)
-  REQUIRES(len == (1 << (8 - layer)))
-  REQUIRES(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, MLKEM_Q))
-  ASSIGNS(OBJECT_UPTO(r, sizeof(int16_t) * MLKEM_N))
-  ENSURES(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, MLKEM_Q))
+REQUIRES(IS_FRESH(r, sizeof(int16_t) * MLKEM_N))
+REQUIRES(2 <= len && len <= 128 && 1 <= layer && layer <= 7)
+REQUIRES(len == (1 << (8 - layer)))
+REQUIRES(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, MLKEM_Q))
+ASSIGNS(OBJECT_UPTO(r, sizeof(int16_t) * MLKEM_N))
+ENSURES(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, MLKEM_Q))
 // clang-format on
 {
   // `layer` is a ghost variable used only in the specification

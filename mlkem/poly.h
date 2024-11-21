@@ -62,9 +62,9 @@ typedef struct {
 #pragma CPROVER check disable "unsigned-overflow"
 #endif
 static inline uint32_t scalar_compress_d1(uint16_t u)  // clang-format off
-  REQUIRES(u <= MLKEM_Q - 1)
-  ENSURES(RETURN_VALUE < 2)
-  ENSURES(RETURN_VALUE == (((uint32_t)u * 2 + MLKEM_Q / 2) / MLKEM_Q) % 2)  // clang-format on
+REQUIRES(u <= MLKEM_Q - 1)
+ENSURES(RETURN_VALUE < 2)
+ENSURES(RETURN_VALUE == (((uint32_t)u * 2 + MLKEM_Q / 2) / MLKEM_Q) % 2)  // clang-format on
 {
   uint32_t d0 = u << 1;
   d0 *= 645083;
@@ -94,9 +94,9 @@ static inline uint32_t scalar_compress_d1(uint16_t u)  // clang-format off
 #pragma CPROVER check disable "unsigned-overflow"
 #endif
 static inline uint32_t scalar_compress_d4(uint16_t u)  // clang-format off
-  REQUIRES(u <= MLKEM_Q - 1)
-  ENSURES(RETURN_VALUE < 16)
-  ENSURES(RETURN_VALUE == (((uint32_t)u * 16 + MLKEM_Q / 2) / MLKEM_Q) % 16)
+REQUIRES(u <= MLKEM_Q - 1)
+ENSURES(RETURN_VALUE < 16)
+ENSURES(RETURN_VALUE == (((uint32_t)u * 16 + MLKEM_Q / 2) / MLKEM_Q) % 16)
 {  // clang-format on
   uint32_t d0 = (uint32_t)u * 1290160;     // 16 * round(2^28 / MLKEM_Q)
   return (d0 + (1u << 27)) >> 28;          // round(d0/2^28)
@@ -117,8 +117,8 @@ static inline uint32_t scalar_compress_d4(uint16_t u)  // clang-format off
  *                 to be decompressed.
  ************************************************************/
 static inline uint16_t scalar_decompress_d4(uint32_t u)  // clang-format off
-  REQUIRES(0 <= u && u < 16)
-  ENSURES(RETURN_VALUE <= (MLKEM_Q - 1))
+REQUIRES(0 <= u && u < 16)
+ENSURES(RETURN_VALUE <= (MLKEM_Q - 1))
 {  // clang-format on
   return ((u * MLKEM_Q) + 8) / 16;
 }
@@ -141,9 +141,9 @@ static inline uint16_t scalar_decompress_d4(uint32_t u)  // clang-format off
 #pragma CPROVER check disable "unsigned-overflow"
 #endif
 static inline uint32_t scalar_compress_d5(uint16_t u)  // clang-format off
-  REQUIRES(u <= MLKEM_Q - 1)
-  ENSURES(RETURN_VALUE < 32)
-  ENSURES(RETURN_VALUE == (((uint32_t)u * 32 + MLKEM_Q / 2) / MLKEM_Q) % 32)  // clang-format on
+REQUIRES(u <= MLKEM_Q - 1)
+ENSURES(RETURN_VALUE < 32)
+ENSURES(RETURN_VALUE == (((uint32_t)u * 32 + MLKEM_Q / 2) / MLKEM_Q) % 32)  // clang-format on
 {
   uint32_t d0 = (uint32_t)u * 1290176;  // 2^5 * round(2^27 / MLKEM_Q)
   return (d0 + (1u << 26)) >> 27;       // round(d0/2^27)
@@ -164,8 +164,8 @@ static inline uint32_t scalar_compress_d5(uint16_t u)  // clang-format off
  *                 to be decompressed.
  ************************************************************/
 static inline uint16_t scalar_decompress_d5(uint32_t u)  // clang-format off
-  REQUIRES(0 <= u && u < 32)
-  ENSURES(RETURN_VALUE <= MLKEM_Q - 1)
+REQUIRES(0 <= u && u < 32)
+ENSURES(RETURN_VALUE <= MLKEM_Q - 1)
 {  // clang-format on
   return ((u * MLKEM_Q) + 16) / 32;
 }
@@ -190,9 +190,9 @@ static inline uint16_t scalar_decompress_d5(uint32_t u)  // clang-format off
 // TODO: do the same for the other static inline functions
 STATIC_INLINE_TESTABLE
 uint32_t scalar_compress_d10(uint16_t u)  // clang-format off
-  REQUIRES(u <= MLKEM_Q - 1)
-  ENSURES(RETURN_VALUE < (1u << 10))
-  ENSURES(RETURN_VALUE == (((uint32_t)u * (1u << 10) + MLKEM_Q / 2) / MLKEM_Q) % (1 << 10))
+REQUIRES(u <= MLKEM_Q - 1)
+ENSURES(RETURN_VALUE < (1u << 10))
+ENSURES(RETURN_VALUE == (((uint32_t)u * (1u << 10) + MLKEM_Q / 2) / MLKEM_Q) % (1 << 10))
 {           // clang-format on
   uint64_t d0 = (uint64_t)u * 2642263040;  // 2^10 * round(2^32 / MLKEM_Q)
   d0 = (d0 + ((uint64_t)1u << 32)) >> 33;
@@ -214,8 +214,8 @@ uint32_t scalar_compress_d10(uint16_t u)  // clang-format off
  *                 to be decompressed.
  ************************************************************/
 static inline uint16_t scalar_decompress_d10(uint32_t u)  // clang-format off
-  REQUIRES(0 <= u && u < 1024)
-  ENSURES(RETURN_VALUE <= (MLKEM_Q - 1))
+REQUIRES(0 <= u && u < 1024)
+ENSURES(RETURN_VALUE <= (MLKEM_Q - 1))
 {  // clang-format on
   return ((u * MLKEM_Q) + 512) / 1024;
 }
@@ -239,9 +239,9 @@ static inline uint16_t scalar_decompress_d10(uint32_t u)  // clang-format off
 #endif
 STATIC_INLINE_TESTABLE
 uint32_t scalar_compress_d11(uint16_t u)  // clang-format off
-  REQUIRES(u <= MLKEM_Q - 1)
-  ENSURES(RETURN_VALUE < (1u << 11))
-  ENSURES(RETURN_VALUE == (((uint32_t)u * (1u << 11) + MLKEM_Q / 2) / MLKEM_Q) % (1 << 11))
+REQUIRES(u <= MLKEM_Q - 1)
+ENSURES(RETURN_VALUE < (1u << 11))
+ENSURES(RETURN_VALUE == (((uint32_t)u * (1u << 11) + MLKEM_Q / 2) / MLKEM_Q) % (1 << 11))
 {           // clang-format on
   uint64_t d0 = (uint64_t)u * 5284526080;  // 2^11 * round(2^33 / MLKEM_Q)
   d0 = (d0 + ((uint64_t)1u << 32)) >> 33;
@@ -264,8 +264,8 @@ uint32_t scalar_compress_d11(uint16_t u)  // clang-format off
  ************************************************************/
 STATIC_INLINE_TESTABLE
 uint16_t scalar_decompress_d11(uint32_t u)  // clang-format off
-  REQUIRES(0 <= u && u < 2048)
-  ENSURES(RETURN_VALUE <= (MLKEM_Q - 1))
+REQUIRES(0 <= u && u < 2048)
+ENSURES(RETURN_VALUE <= (MLKEM_Q - 1))
 {  // clang-format on
   return ((u * MLKEM_Q) + 1024) / 2048;
 }
@@ -290,9 +290,9 @@ uint16_t scalar_decompress_d11(uint32_t u)  // clang-format off
  ************************************************************/
 STATIC_INLINE_TESTABLE
 uint16_t scalar_signed_to_unsigned_q(int16_t c)  // clang-format off
-  REQUIRES(c >= -(MLKEM_Q - 1) && c <= (MLKEM_Q - 1))
-  ENSURES(RETURN_VALUE >= 0 && RETURN_VALUE <= (MLKEM_Q - 1))
-  ENSURES(RETURN_VALUE == (int32_t)c + (((int32_t)c < 0) * MLKEM_Q))
+REQUIRES(c >= -(MLKEM_Q - 1) && c <= (MLKEM_Q - 1))
+ENSURES(RETURN_VALUE >= 0 && RETURN_VALUE <= (MLKEM_Q - 1))
+ENSURES(RETURN_VALUE == (int32_t)c + (((int32_t)c < 0) * MLKEM_Q))
 {  // clang-format on
   // Add Q if c is negative, but in constant time
   cmov_int16(&c, c + MLKEM_Q, c < 0);
@@ -570,11 +570,10 @@ REQUIRES( /* r0, r1 consecutive, r2, r3 consecutive */
    r1 == r0 + 1 && r3 == r2 + 1 && !SAME_OBJECT(r0, r2)))
 REQUIRES(IS_FRESH(seed, MLKEM_SYMBYTES))
 ASSIGNS(OBJECT_WHOLE(r0), OBJECT_WHOLE(r1), OBJECT_WHOLE(r2), OBJECT_WHOLE(r3))
-ENSURES(                                                                          \
-    ARRAY_ABS_BOUND(r0->coeffs,0, MLKEM_N - 1, MLKEM_ETA1) \
- && ARRAY_ABS_BOUND(r1->coeffs,0, MLKEM_N - 1, MLKEM_ETA1) \
- && ARRAY_ABS_BOUND(r2->coeffs,0, MLKEM_N - 1, MLKEM_ETA2) \
- && ARRAY_ABS_BOUND(r3->coeffs,0, MLKEM_N - 1, MLKEM_ETA2));
+ENSURES(ARRAY_ABS_BOUND(r0->coeffs,0, MLKEM_N - 1, MLKEM_ETA1)
+     && ARRAY_ABS_BOUND(r1->coeffs,0, MLKEM_N - 1, MLKEM_ETA1)
+     && ARRAY_ABS_BOUND(r2->coeffs,0, MLKEM_N - 1, MLKEM_ETA2)
+     && ARRAY_ABS_BOUND(r3->coeffs,0, MLKEM_N - 1, MLKEM_ETA2));
 // clang-format on
 
 #define poly_basemul_montgomery_cached \

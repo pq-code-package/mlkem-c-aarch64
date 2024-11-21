@@ -44,10 +44,10 @@ ENSURES(RETURN_VALUE == (1 - FORALL(int, i, 0, ((int)len - 1), (a[i] == b[i]))))
  **************************************************/
 void cmov(uint8_t *r, const uint8_t *x, size_t len,
           uint8_t b)  // clang-format off
-  REQUIRES(IS_FRESH(r, len))
-  REQUIRES(IS_FRESH(x, len))
-  REQUIRES(b == 0 || b == 1)
-  ASSIGNS(OBJECT_UPTO(r, len));
+REQUIRES(IS_FRESH(r, len))
+REQUIRES(IS_FRESH(x, len))
+REQUIRES(b == 0 || b == 1)
+ASSIGNS(OBJECT_UPTO(r, len));
 // clang-format on
 
 #define cmov_int16 MLKEM_NAMESPACE(cmov_int16)
