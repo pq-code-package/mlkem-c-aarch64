@@ -58,6 +58,14 @@ on:
         type: string
         description: Additional packages to install when custom compiler is used.
         default: ''
+      matrix_lock:
+        type: string
+        description: ''
+        default: ''
+      matrix_lock_id:
+        type: string
+        description: ''
+        default: ''
 env:
   AWS_ROLE: arn:aws:iam::559050233797:role/mlkem-c-aarch64-gh-action
   AWS_REGION: us-east-1
@@ -77,6 +85,20 @@ jobs:
       label: ${{ steps.start-ec2-runner.outputs.label }}
       ec2-instance-id: ${{ steps.start-ec2-runner.outputs.ec2-instance-id }}
     steps:
+      - name: "Initialize matrix lock"
+        if: ${{ inputs.matrix_lock_id }} == 1
+        uses: rakles/matrix-lock@c2548de5716ab27079f66277b59c712a312881da
+        with:
+          step: init
+          order: ${{ inputs.matrix_lock }}
+
+      - name: "Wait for matrix lock"
+        uses: rakles/matrix-lock@c2548de5716ab27079f66277b59c712a312881da
+        with:
+          step: wait
+          id: ${{ inputs.matrix_lock_id }}
+          retry-count: 240
+          retry-delay: 30
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Determine AMI ID
         id: det_ami_id
@@ -180,3 +202,8 @@ jobs:
           github-token: ${{ secrets.AWS_GITHUB_TOKEN }}
           label: ${{ needs.start-ec2-runner.outputs.label }}
           ec2-instance-id: ${{ needs.start-ec2-runner.outputs.ec2-instance-id }}
+      - name: "Continue matrix lock"
+        uses: rakles/matrix-lock@c2548de5716ab27079f66277b59c712a312881da
+        with:
+          step: continue
+          id: ${{ inputs.matrix_lock_id }}

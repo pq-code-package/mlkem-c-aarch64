@@ -85,7 +85,7 @@ runs:
         check-namespace
     - name: Store benchmark result
       if: ${{ inputs.store_results == 'true' }}
-      uses: benchmark-action/github-action-benchmark@v1
+      uses: benchmark-action/github-action-benchmark@6bae118c112083251560ad8b3a1ff2e43aa23351
       with:
         name: ${{ inputs.name }}
         tool: "customSmallerIsBetter"
