@@ -104,7 +104,7 @@
       <div class="small">Powered by <a rel="noopener" href="https://github.com/marketplace/actions/continuous-benchmark">github-action-benchmark</a></div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.2/dist/Chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
     <script src="data.js"></script>
     <script id="main-script">
       'use strict';
@@ -170,64 +170,51 @@
 
         function renderAllChars(dataSets) {
 
-          function renderGraph(parent, name, dataset) {
+          function renderGraph(parent, name, datasets) {
+            const div = document.createElement('div');
+            div.style.width = "1000px";
+            div.style.height = "500px";
+            parent.appendChild(div);
+
             const canvas = document.createElement('canvas');
             canvas.className = 'benchmark-chart';
-            parent.appendChild(canvas);
+            div.appendChild(canvas);
 
-            const color = toolColors[dataset.length > 0 ? dataset[0].tool : '_'];
+            const dataset = datasets.map((d)=> {
+              return {
+                label: d.benchName,
+                data: d.benches.map(d=> d.bench.value)
+              };
+            });
+
             const data = {
-              labels: dataset.map(d => d.commit.id.slice(0, 7)),
-              datasets: [
-                {
-                  label: name,
-                  data: dataset.map(d => d.bench.value),
-                  borderColor: color,
-                  backgroundColor: color + '60', // Add alpha for #rrggbbaa
-                }
-              ],
+              labels: datasets[0].benches.map(d => d.commit.id.slice(0, 7)),
+              datasets: dataset
             };
             const options = {
-              scales: {
-                xAxes: [
-                  {
-                    scaleLabel: {
-                      display: true,
-                      labelString: 'commit',
+              plugins: {
+                tooltip: {
+                  enabled: true,
+                  callbacks: {
+                    afterTitle: items => {
+                      const index = items[0].dataIndex;
+                      const data = datasets[0].benches[index];
+                      const commitTitle = data.commit.message.split("\n")[0];
+                      return '\n' + commitTitle + '\n\n' + data.commit.timestamp + '\n';
                     },
-                  }
-                ],
-                yAxes: [
-                  {
-                    scaleLabel: {
-                      display: true,
-                      labelString: dataset.length > 0 ? dataset[0].bench.unit : '',
+                    label: item => {
+                      let label = item.raw;
+                      const { range, unit } = datasets[0].benches[item.dataIndex].bench;
+                      label += ' ' + unit;
+                      if (range) {
+                        label += ' (' + range + ')';
+                      }
+                      return label;
                     },
-                    ticks: {
-                      beginAtZero: true,
+                    afterLabel: item => {
+                      const { extra } = datasets[0].benches[item.dataIndex].bench;
+                      return extra ? '\n' + extra : '';
                     }
-                  }
-                ],
-              },
-              tooltips: {
-                callbacks: {
-                  afterTitle: items => {
-                    const {index} = items[0];
-                    const data = dataset[index];
-                    return '\n' + data.commit.message + '\n\n' + data.commit.timestamp + ' committed by @' + data.commit.committer.username + '\n';
-                  },
-                  label: item => {
-                    let label = item.value;
-                    const { range, unit } = dataset[item.index].bench;
-                    label += ' ' + unit;
-                    if (range) {
-                      label += ' (' + range + ')';
-                    }
-                    return label;
-                  },
-                  afterLabel: item => {
-                    const { extra } = dataset[item.index].bench;
-                    return extra ? '\n' + extra : '';
                   }
                 }
               },
@@ -235,9 +222,8 @@
                 if (activeElems.length === 0) {
                   return;
                 }
-                // XXX: Undocumented. How can we know the index?
-                const index = activeElems[0]._index;
-                const url = dataset[index].commit.url;
+                const index = activeElems[0].datasetIndex;
+                const url = datasets[0].benches[index].commit.url;
                 window.open(url, '_blank');
               },
             };
@@ -263,7 +249,19 @@
             graphsElem.className = 'benchmark-graphs';
             setElem.appendChild(graphsElem);
 
+
+            const groupedBenchSet = {};
             for (const [benchName, benches] of benchSet.entries()) {
+              const parts = benchName.split(" ");
+              const groupName = parts[0];
+              groupedBenchSet[groupName] ??= []
+              groupedBenchSet[groupName].push({
+                benchName,
+                benches
+              });
+            }
+
+            for (const [benchName, benches] of Object.entries(groupedBenchSet)) {
               renderGraph(graphsElem, benchName, benches)
             }
           }
