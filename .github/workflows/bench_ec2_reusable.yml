@@ -103,7 +103,7 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
       - name: Start EC2 runner
         id: start-ec2-runner
-        uses: mkannwischer/ec2-github-runner@d15c8804522523d2bac7119a01ffff83b7795d87
+        uses: mkannwischer/ec2-github-runner@330e89984dd6f321a48ebb6a6c19db89a486fd47
         with:
           mode: start
           github-token: ${{ secrets.AWS_GITHUB_TOKEN }}
