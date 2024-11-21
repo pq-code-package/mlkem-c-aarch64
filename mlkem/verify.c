@@ -3,6 +3,17 @@
 #include <stddef.h>
 #include <stdint.h>
 
+//
+// WARNING:
+//
+// The functions in this compilation unit may be susceptible to
+// compiler-induced variable-time code when inlined into their call-sites.
+// The purpose of having a separate compilation here is to prevent
+// such potentially insecure inlining.
+//
+// You MUST NOT compile this file using link time optimization.
+//
+
 int verify(const uint8_t *a, const uint8_t *b, const size_t len) {
   uint8_t r = 0;
   uint64_t u;
