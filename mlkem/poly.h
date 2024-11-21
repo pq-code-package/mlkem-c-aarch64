@@ -570,11 +570,10 @@ REQUIRES( /* r0, r1 consecutive, r2, r3 consecutive */
    r1 == r0 + 1 && r3 == r2 + 1 && !SAME_OBJECT(r0, r2)))
 REQUIRES(IS_FRESH(seed, MLKEM_SYMBYTES))
 ASSIGNS(OBJECT_WHOLE(r0), OBJECT_WHOLE(r1), OBJECT_WHOLE(r2), OBJECT_WHOLE(r3))
-ENSURES(                                                                          \
-    ARRAY_ABS_BOUND(r0->coeffs,0, MLKEM_N - 1, MLKEM_ETA1) \
- && ARRAY_ABS_BOUND(r1->coeffs,0, MLKEM_N - 1, MLKEM_ETA1) \
- && ARRAY_ABS_BOUND(r2->coeffs,0, MLKEM_N - 1, MLKEM_ETA2) \
- && ARRAY_ABS_BOUND(r3->coeffs,0, MLKEM_N - 1, MLKEM_ETA2));
+ENSURES(ARRAY_ABS_BOUND(r0->coeffs,0, MLKEM_N - 1, MLKEM_ETA1)
+     && ARRAY_ABS_BOUND(r1->coeffs,0, MLKEM_N - 1, MLKEM_ETA1)
+     && ARRAY_ABS_BOUND(r2->coeffs,0, MLKEM_N - 1, MLKEM_ETA2)
+     && ARRAY_ABS_BOUND(r3->coeffs,0, MLKEM_N - 1, MLKEM_ETA2));
 // clang-format on
 
 #define poly_basemul_montgomery_cached \
