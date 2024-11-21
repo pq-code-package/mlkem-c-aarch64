@@ -1,6 +1,8 @@
 [//]: # (SPDX-License-Identifier: CC-BY-4.0)
-[//]: # (TODO Add Security Policy)
 
-# Security
+# Security Policy
 
-Please see [open issue](https://github.com/pq-code-package/tsc/issues/8)
+## Reporting security bugs
+
+If you think you have found a security bug in mlkem-native, please report the vulnerability through
+Github's [private vulnerability reporting](https://github.com/pq-code-package/mlkem-native/security).

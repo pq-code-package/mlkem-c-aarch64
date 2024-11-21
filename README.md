@@ -1,115 +1,101 @@
 [//]: # (SPDX-License-Identifier: CC-BY-4.0)
 
+![mlkem_native_logo](docs/images/mlkem_native.png)
+
 # mlkem-native
 
-**mlkem-native** is a C90 implementation of [ML-KEM](https://doi.org/10.6028/NIST.FIPS.203.ipd) targeting
+![CI](https://github.com/pq-code-package/mlkem-native/actions/workflows/ci.yml/badge.svg)
+![Benchmarks](https://github.com/pq-code-package/mlkem-native/actions/workflows/bench.yml/badge.svg)
+[![C90](https://img.shields.io/badge/language-C90-blue.svg)](https://web.archive.org/web/20200909074736if_/https://www.pdf-archive.com/2014/10/02/ansi-iso-9899-1990-1/ansi-iso-9899-1990-1.pdf)
+[![Apache](https://img.shields.io/badge/license-Apache--2.0-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
+
+mlkem-native is a C90 implementation of [ML-KEM](https://doi.org/10.6028/NIST.FIPS.203.ipd) targeting
 PC, mobile and server platforms. It is a fork of the ML-KEM [reference
-implementation](https://github.com/pq-crystals/kyber/tree/main/ref), deviating primarily to (a) accommodate an
-interface for native code (e.g. assembler), and (b) facilitate formal verification. **mlkem-native** provides
-native code backends in C, AArch64 and x86_64, offering state of the art performance on most Arm, Intel and AMD
-platforms.
+implementation](https://github.com/pq-crystals/kyber/tree/main/ref).
 
-If you need an ML-KEM implementation suitable for embedded systems, see
-[**mlkem-c-embedded**](https://github.com/pq-code-package/mlkem-c-embedded/).
+mlkem-native aims to be secure, fast, and easy to use: It provides native code backends in C, AArch64 and
+x86_64, offering state of the art performance on most Arm, Intel and AMD platforms (see
+[benchmarks](https://pq-code-package.github.io/mlkem-native/dev/bench/)). The C code in [mlkem/*](mlkem) is verified
+using [CBMC](https://github.com/diffblue/cbmc) to be free of undefined behaviour. In particular, there are no out of
+bounds accesses, nor integer overflows during optimized modular arithmetic.
 
-### Goals
-
-**mlkem-native** aims for _assurance_, _ease of use_, and _performance_. We seek implementations
-which are manually auditable or for which we see a path towards formal verification. All assembly aims
-to be readable and micro-optimization deferred to automated tooling such as
-[SLOTHY](https://slothy-optimizer.github.io/slothy/). Ultimately, **mlkem-native** strives for constant-time
-implementations for which the C-code is verified to be free of undefined behaviour, and where all assembly is
-functionally verified.
-
-### Intended use
-
-**mlkem-native** is currently intended to be used as a code package, where source files of **mlkem-native**
-are imported into a consuming project's source tree and built using that project's build system. The build system
-provided in this repository is for experimental and development purposes only.
-
-### Current state
-
-**mlkem-native** is work in progress. **WE DO NOT CURRENTLY RECOMMEND RELYING ON THIS LIBRARY IN A PRODUCTION
-ENVIRONMENT OR TO PROTECT ANY SENSITIVE DATA.** Once we have the first stable version, this notice will be removed.
-
-#### Performance
-
-**mlkem-native** has complete AArch64 and AVX2 backends of competitive performance (see
-[benchmarks](https://pq-code-package.github.io/mlkem-native/dev/bench/)).
-
-#### Verification
-
-All C code in [mlkem/*](mlkem) is verified to be memory and type safe using CBMC. This excludes, for example, out of
-bounds accesses, as well as integer overflows during optimized modular arithmetic. See the [CBMC
-Readme](cbmc/proofs/README.md) and the [CBMC Proof Guide](cbmc/proofs/proof_guide.md) for more information and how to
-reproduce the proofs. The code in [fips202/*](fips202) has not yet been verified using CBMC.
-
-Initial experiments are underway to verify AArch64 using [HOL-Light](https://hol-light.github.io/).
-
-### Getting started
-
-### Nix setup
-
-All the development and build dependencies are specified in [flake.nix](flake.nix). We recommend installing them using
-[nix](https://nixos.org/download/).
-
-To execute a bash shell with the development environment specified in [flake.nix](flake.nix), run
-```bash
-nix develop --experimental-features 'nix-command flakes'
-```
-
-### Native setup
-
-To build **mlkem-native**, you need `make` and a C99 compiler. To use the test scripts, you need Python3 with
-dependencies as specified in [requirements.txt](requirements.txt). We recommend using a virtual environment, e.g.:
+## Quickstart for Ubuntu
 
 ```bash
+# Clone mlkem-native
+git clone https://github.com/pq-code-package/mlkem-native.git
+cd mlkem-native
+
+# Install base packages
+sudo apt-get update
+sudo apt-get install python3-venv python3-pip make
+
+# Setup Python environment
 python3 -m venv venv
-./venv/bin/python3 -m pip install -r requirements.txt
 source venv/bin/activate
+python3 -m pip install -r requirements.txt
+
+# Build and run base tests
+make quickcheck
+
+# Build and run all tests
+./scripts/tests all
 ```
 
-### Using `make`
+See [BUILDING.md](BUILDING.md) for more information.
 
-You can build tests and benchmarks using the following `make` targets:
+## Security
 
-```bash
-make mlkem
-make bench
-make bench_components
-make nistkat
-make kat
-```
+mlkem-native is being developed with security at the top of mind. All native code is constant-time in the sense that
+it is free of secret-dependent control flow, memory access, and instructions that are commonly variable-time,
+thwarting most timing side channels.
+The C code is hardened against compiler-introduced timing side channels (such as
+[KyberSlash](https://kyberslash.cr.yp.to/) or [clangover](https://github.com/antoonpurnal/clangover))
+through suitable barriers and constant-time patterns.
 
-The resulting binaries can be found in [test/build](test/build).
+## Formal Verification
 
-### Windows
+We use the [C Bounded Model Checker (CBMC)](https://github.com/diffblue/cbmc) to prove absence of various classes of
+undefined behaviour in C, including out of bounds memory accesses and integer overflows. At present, the proofs cover
+all C code in [mlkem/*](mlkem) involved in running mlkem-native with its C backend. See [cbmc/proofs](cbmc/proofs) for
+details.
 
-You can also build **mlkem-native** on Windows using `nmake` and an MSVC compiler.
+Initial experiments are underway to verify assembly using the [HOL-Light](https://hol-light.github.io/) theorem prover
+and the [s2n-bignum](https://github.com/awslabs/s2n-bignum) infrastructure.
 
-To build and run the tests (only support functional testing for non-opt implementation for now), use the following `nmake` targets:
-```powershell
-nmke /f .\Makefile.Microsoft_nmake quickcheck
-```
+## State
 
-### Using `tests` script
+mlkem-native is in alpha-release stage. We believe it is ready for use, and hope to spark experiments on
+integration into other software before issuing a stable release. If you have any feedback, please reach out! See
+[RELEASE.md](RELEASE.md) for details.
 
-We recommend compiling and running tests and benchmarks using the [`./scripts/tests`](scripts/tests) script. For
-example,
+mlkem-native is intended to be used as a code package, where source files are imported into a consuming project's
+source tree and built using that project's build system. The build system provided in this repository is for
+experimental and development purposes only. If you prefer a library-build, please get in touch or open an issue.
 
-```bash
-./scripts/tests func
-```
+## Design
 
-will compile and run functionality tests. For detailed information on how to use the script, please refer to the
-`--help` option.
+mlkem-native is split in a _frontend_ and two _backends_ for arithmetic and FIPS-202 (SHA3). The frontend is
+fixed, written in C and covers all routines that are not critical to performance. The backends are flexible, take care of
+performance-sensitive routines, and can be implemented in C or native code (assembly/intrinsics); see
+[mlkem/native/arith_native.h](mlkem/native/arith_native.h) for the arithmetic backend and
+[fips202/native/fips202_native.h](fips202/native/fips202_native.h) for the FIPS-202 backend. mlkem-native currently
+offers three backends for C, AArch64 and x86_64 - if you'd like contribute new backends, please reach out or just open a
+PR.
 
-### Call for contributors
+Our AArch64 assembly is developed using [SLOTHY](https://github.com/slothy-optimizer/slothy): We write
+'clean' assembly by hand and automate micro-optimizations (e.g. see the [clean](mlkem/native/aarch64/ntt_clean.S)
+vs [optimized](mlkem/native/aarch64/ntt_opt.S) AArch64 NTT).
 
-We are actively seeking contributors who can help us build **mlkem-native**. If you are interested, please contact us,
-or volunteer for any of the open issues.
+## Have a Question?
 
-### Call for potential consumers
+If you think you have found a security bug in mlkem-native, please report the vulnerability through
+Github's [private vulnerability reporting](https://github.com/pq-code-package/mlkem-native/security). Please do **not**
+create a public GitHub issue.
 
-If you are a potential consumer of **mlkem-native**, please reach out: We're interested in hearing the way you want to
-use **mlkem-native**. If you have specific feature requests, please open an issue.
+If you have any other question / non-security related issue / feature request, please open a GitHub issue.
+
+## Contributing
+
+If you want to help us build mlkem-native, please reach out. You can contact the mlkem-native team
+through the [PQCA Discord](https://discord.com/invite/xyVnwzfg5R).
