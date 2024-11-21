@@ -2,7 +2,8 @@
 /// Copyright (c) 2022 Arm Limited
 /// Copyright (c) 2022 Hanno Becker
 /// Copyright (c) 2023 Amin Abdulrahman, Matthias Kannwischer
-/// SPDX-License-Identifier: MIT
+/// Copyright (c) 2024 The mlkem-native project authors
+// SPDX-License-Identifier: MIT
 ///
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal

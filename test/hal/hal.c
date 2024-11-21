@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 The mlkem-native project authors
  * Copyright (c) 2022 Arm Limited
  * Copyright (c) 2020 Dougall Johnson
  * SPDX-License-Identifier: MIT

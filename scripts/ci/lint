@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Copyright (c) 2024 The mlkem-native project authors
 # SPDX-License-Identifier: Apache-2.0
 
 set -o errexit
@@ -82,15 +83,21 @@ check-spdx()
       success=false
     fi
   done
+  for file in $(git ls-files -- "*.[chsS]" "*.py" ":/!cbmc/**/*.py"); do
+    if [[ $(grep "Copyright (c) 2024 The mlkem-native project authors" $file | wc -l) == 0 ]]; then
+      echo "::error file=$file,line=${line:-1},title=Missing copyright header error::$file is missing copyright header"
+      success=false
+    fi
+  done
 
   if $success; then
-    echo ":white_check_mark: Check SPDX" >>"$GITHUB_STEP_SUMMARY"
+    echo ":white_check_mark: Check SPDX + Copyright" >>"$GITHUB_STEP_SUMMARY"
   else
     SUCCESS=false
-    echo ":x: Check SPDX" >>"$GITHUB_STEP_SUMMARY"
+    echo ":x: Check SPDX + Copyright" >>"$GITHUB_STEP_SUMMARY"
   fi
 }
-echo "::group::Checking SPDX headers"
+echo "::group::Checking SPDX + Copyright headers"
 check-spdx
 echo "::endgroup::"
 
