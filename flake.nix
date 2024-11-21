@@ -19,38 +19,34 @@
       systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
       perSystem = { config, pkgs, system, inputs', ... }:
         let
-          default_gcc = { cross ? true }:
+          glibc-join = p: p.buildPackages.symlinkJoin {
+            name = "glibc-join";
+            paths = [ p.glibc p.glibc.static ];
+          };
+
+          wrap-gcc = p: p.buildPackages.wrapCCWith {
+            cc = p.buildPackages.gcc13.cc;
+            bintools = p.buildPackages.wrapBintoolsWith {
+              bintools = p.buildPackages.binutils-unwrapped;
+              libc = glibc-join p;
+            };
+          };
+
+          native-gcc =
+            if pkgs.stdenv.isDarwin
+            then null
+            else wrap-gcc pkgs;
+
+          # cross is for determining whether to install the cross toolchain or not
+          core = { cross ? true }:
             let
-              glibc-join = p: p.buildPackages.symlinkJoin {
-                name = "glibc-join";
-                paths = [ p.glibc p.glibc.static ];
-              };
-
-              wrap-gcc = p: p.buildPackages.wrapCCWith {
-                cc = p.buildPackages.gcc13.cc;
-                bintools = p.buildPackages.wrapBintoolsWith {
-                  bintools = p.buildPackages.binutils-unwrapped;
-                  libc = glibc-join p;
-                };
-              };
-
               x86_64-gcc = wrap-gcc pkgs.pkgsCross.gnu64;
               aarch64-gcc = wrap-gcc pkgs.pkgsCross.aarch64-multiplatform;
             in
-            if pkgs.stdenv.isDarwin
-            then [ ]
-            else if cross
-            then if pkgs.stdenv.isAarch64
+            if (cross && !pkgs.stdenv.isDarwin)
             then [ x86_64-gcc aarch64-gcc ]
-            else [ aarch64-gcc x86_64-gcc ]
-            else if pkgs.stdenv.isAarch64
-            then [ aarch64-gcc ]
-            else [ x86_64-gcc ];
-
-          # cross is for determining whether to install the cross toolchain or not 
-          core = { cross ? true }:
-            [ (default_gcc { cross = cross; }) ] ++
-            builtins.attrValues {
+            else [ native-gcc ]
+              ++ builtins.attrValues {
               inherit (config.packages) base;
               inherit (pkgs)
                 qemu; # 8.2.4
