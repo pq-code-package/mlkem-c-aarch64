@@ -13,6 +13,11 @@ MLKEM512_DIR = $(BUILD_DIR)/mlkem512
 MLKEM768_DIR = $(BUILD_DIR)/mlkem768
 MLKEM1024_DIR = $(BUILD_DIR)/mlkem1024
 
+# Even when link-time optimization is used for the rest of the code,
+# make sure not to use it for verify.c: Those are functions which, when
+# inlined, can be subject to compiler-induced variable-time code.
+%/verify.c.o: CPPFLAGS += -fno-lto
+
 $(MLKEM512_DIR)/bin/%: CPPFLAGS += -DMLKEM_K=2
 $(ALL_TESTS:%=$(MLKEM512_DIR)/bin/%512):$(MLKEM512_DIR)/bin/%512: $(MLKEM512_DIR)/test/%.c.o $(call MAKE_OBJS,$(MLKEM512_DIR), $(SOURCES))
 
