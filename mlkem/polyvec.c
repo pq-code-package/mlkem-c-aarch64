@@ -13,37 +13,26 @@ void polyvec_compress_du(uint8_t r[MLKEM_POLYVECCOMPRESSEDBYTES_DU],
   unsigned int i;
   POLYVEC_UBOUND(a, MLKEM_Q);
 
-  for (i = 0; i < MLKEM_K; i++)  // clang-format off
-    ASSIGNS(i, OBJECT_WHOLE(r))
-    INVARIANT(i <= MLKEM_K)
-    // clang-format on
-    {
-      poly_compress_du(r + i * MLKEM_POLYCOMPRESSEDBYTES_DU, &a->vec[i]);
-    }
+  for (i = 0; i < MLKEM_K; i++) {
+    poly_compress_du(r + i * MLKEM_POLYCOMPRESSEDBYTES_DU, &a->vec[i]);
+  }
 }
 
 void polyvec_decompress_du(polyvec *r,
                            const uint8_t a[MLKEM_POLYVECCOMPRESSEDBYTES_DU]) {
   unsigned int i;
-  for (i = 0; i < MLKEM_K; i++)  // clang-format off
-    ASSIGNS(i, OBJECT_WHOLE(r))
-    INVARIANT(i <= MLKEM_K)
-    // clang-format on
-    {
-      poly_decompress_du(&r->vec[i], a + i * MLKEM_POLYCOMPRESSEDBYTES_DU);
-    }
+  for (i = 0; i < MLKEM_K; i++) {
+    poly_decompress_du(&r->vec[i], a + i * MLKEM_POLYCOMPRESSEDBYTES_DU);
+  }
 
   POLYVEC_UBOUND(r, MLKEM_Q);
 }
 
 void polyvec_tobytes(uint8_t r[MLKEM_POLYVECBYTES], const polyvec *a) {
   unsigned int i;
-  for (i = 0; i < MLKEM_K; i++)  // clang-format off
-    ASSIGNS(i, OBJECT_WHOLE(r))
-    INVARIANT(i <= MLKEM_K)  // clang-format on
-    {
-      poly_tobytes(r + i * MLKEM_POLYBYTES, &a->vec[i]);
-    }
+  for (i = 0; i < MLKEM_K; i++) {
+    poly_tobytes(r + i * MLKEM_POLYBYTES, &a->vec[i]);
+  }
 }
 
 void polyvec_frombytes(polyvec *r, const uint8_t a[MLKEM_POLYVECBYTES]) {
@@ -97,18 +86,12 @@ void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a,
   poly t;
 
   poly_basemul_montgomery_cached(r, &a->vec[0], &b->vec[0], &b_cache->vec[0]);
-  for (i = 1; i < MLKEM_K; i++)  // clang-format off
-    ASSIGNS(i, t, OBJECT_WHOLE(r))
-    INVARIANT(i >= 1 && i <= MLKEM_K)
-    INVARIANT(ARRAY_ABS_BOUND(r->coeffs, 0, MLKEM_N - 1, i * (3 * HALF_Q - 1)))
-    DECREASES(MLKEM_K - i)
-    // clang-format on
-    {
-      poly_basemul_montgomery_cached(&t, &a->vec[i], &b->vec[i],
-                                     &b_cache->vec[i]);
-      poly_add(r, &t);
-      // abs bounds: < (i+1) * 3/2 * q
-    }
+  for (i = 1; i < MLKEM_K; i++) {
+    poly_basemul_montgomery_cached(&t, &a->vec[i], &b->vec[i],
+                                   &b_cache->vec[i]);
+    poly_add(r, &t);
+    // abs bounds: < (i+1) * 3/2 * q
+  }
 
   // Those bounds are true for the C implementation, but not needed
   // in the higher level bounds reasoning. It is thus best to omit
