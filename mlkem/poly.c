@@ -17,16 +17,14 @@
 
 void poly_compress_du(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES_DU], const poly *a) {
 #if (MLKEM_POLYCOMPRESSEDBYTES_DU == 352)
-  uint16_t t[8];
   for (int j = 0; j < MLKEM_N / 8; j++)  // clang-format off
-        ASSIGNS(j, OBJECT_WHOLE(t), OBJECT_WHOLE(r))
-        INVARIANT(j >= 0 && j <= MLKEM_N / 8)
-        {     // clang-format on
+    INVARIANT(j >= 0 && j <= MLKEM_N / 8)
+    {  // clang-format on
+      uint16_t t[8];
       for (int k = 0; k < 8; k++)  // clang-format off
-            ASSIGNS(k, OBJECT_WHOLE(t), OBJECT_WHOLE(r))
-            INVARIANT(k >= 0 && k <= 8)
-            INVARIANT(FORALL(int, r, 0, k - 1, t[r] < (1u << 11)))
-            {  // clang-format on
+        INVARIANT(k >= 0 && k <= 8)
+        INVARIANT(FORALL(int, r, 0, k - 1, t[r] < (1u << 11)))
+        {  // clang-format on
           t[k] = scalar_compress_d11(a->coeffs[8 * j + k]);
         }
 
@@ -47,17 +45,16 @@ void poly_compress_du(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES_DU], const poly *a) {
       r[11 * j + 9] = (t[6] >> 6) | ((t[7] << 5) & 0xFF);
       r[11 * j + 10] = (t[7] >> 3);
     }
+
 #elif (MLKEM_POLYCOMPRESSEDBYTES_DU == 320)
-  uint16_t t[4];
   for (int j = 0; j < MLKEM_N / 4; j++)  // clang-format off
-        ASSIGNS(j, OBJECT_WHOLE(t), OBJECT_WHOLE(r))
-        INVARIANT(j >= 0 && j <= MLKEM_N / 4)
-        {             // clang-format on
+    INVARIANT(j >= 0 && j <= MLKEM_N / 4)
+    {  // clang-format on
+      uint16_t t[4];
       for (int k = 0; k < 4; k++)  // clang-format off
-            ASSIGNS(k, OBJECT_WHOLE(t))
-            INVARIANT(k >= 0 && k <= 4)
-            INVARIANT(FORALL(int, r, 0, k - 1, t[r] < (1u << 10)))
-            {  // clang-format on
+        INVARIANT(k >= 0 && k <= 4)
+        INVARIANT(FORALL(int, r, 0, k - 1, t[r] < (1u << 10)))
+        {  // clang-format on
           t[k] = scalar_compress_d10(a->coeffs[4 * j + k]);
         }
 
@@ -82,10 +79,9 @@ void poly_decompress_du(poly *r,
                         const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES_DU]) {
 #if (MLKEM_POLYCOMPRESSEDBYTES_DU == 352)
   for (int j = 0; j < MLKEM_N / 8; j++)  // clang-format off
-        ASSIGNS(j, OBJECT_WHOLE(r))
-        INVARIANT(0 <= j && j <= MLKEM_N / 8)
-        INVARIANT(ARRAY_BOUND(r->coeffs, 0, 8 * j - 1, 0, (MLKEM_Q - 1)))
-        {  // clang-format on
+    INVARIANT(0 <= j && j <= MLKEM_N / 8)
+    INVARIANT(ARRAY_BOUND(r->coeffs, 0, 8 * j - 1, 0, (MLKEM_Q - 1)))
+    {  // clang-format on
       uint16_t t[8];
       uint8_t const *base = &a[11 * j];
       t[0] = 0x7FF & ((base[0] >> 0) | ((uint16_t)base[1] << 8));
@@ -100,19 +96,17 @@ void poly_decompress_du(poly *r,
       t[7] = 0x7FF & ((base[9] >> 5) | ((uint16_t)base[10] << 3));
 
       for (int k = 0; k < 8; k++)  // clang-format off
-            ASSIGNS(k, OBJECT_WHOLE(r))
-            INVARIANT(0 <= k && k <= 8)
-            INVARIANT(ARRAY_BOUND(r->coeffs, 0, 8 * j + k - 1, 0, (MLKEM_Q - 1)))
-            {  // clang-format on
+        INVARIANT(0 <= k && k <= 8)
+        INVARIANT(ARRAY_BOUND(r->coeffs, 0, 8 * j + k - 1, 0, (MLKEM_Q - 1)))
+        {  // clang-format on
           r->coeffs[8 * j + k] = scalar_decompress_d11(t[k]);
         }
     }
 #elif (MLKEM_POLYCOMPRESSEDBYTES_DU == 320)
   for (int j = 0; j < MLKEM_N / 4; j++)  // clang-format off
-        ASSIGNS(j, OBJECT_WHOLE(r))
-        INVARIANT(0 <= j && j <= MLKEM_N / 4)
-        INVARIANT(ARRAY_BOUND(r->coeffs, 0, 4 * j - 1, 0, (MLKEM_Q - 1)))
-        {  // clang-format on
+    INVARIANT(0 <= j && j <= MLKEM_N / 4)
+    INVARIANT(ARRAY_BOUND(r->coeffs, 0, 4 * j - 1, 0, (MLKEM_Q - 1)))
+    {  // clang-format on
       uint16_t t[4];
       uint8_t const *base = &a[5 * j];
 
@@ -122,11 +116,9 @@ void poly_decompress_du(poly *r,
       t[3] = 0x3FF & ((base[3] >> 6) | ((uint16_t)base[4] << 2));
 
       for (int k = 0; k < 4; k++)  // clang-format off
-            ASSIGNS(k, OBJECT_WHOLE(r))
-            INVARIANT(0 <= k && k <= 4)
-            INVARIANT(ARRAY_BOUND(r->coeffs, 0, 4 * j + k - 1, 0, (MLKEM_Q - 1)))
-                                   // clang-format on
-        {
+        INVARIANT(0 <= k && k <= 4)
+        INVARIANT(ARRAY_BOUND(r->coeffs, 0, 4 * j + k - 1, 0, (MLKEM_Q - 1)))
+        {  // clang-format on
           r->coeffs[4 * j + k] = scalar_decompress_d10(t[k]);
         }
     }
@@ -137,15 +129,13 @@ void poly_decompress_du(poly *r,
 
 void poly_compress_dv(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES_DV], const poly *a) {
   POLY_UBOUND(a, MLKEM_Q);
-  uint8_t t[8] = {0};
 
 #if (MLKEM_POLYCOMPRESSEDBYTES_DV == 128)
   for (int i = 0; i < MLKEM_N / 8; i++)  // clang-format off
-    ASSIGNS(i, OBJECT_WHOLE(t), OBJECT_WHOLE(r))
     INVARIANT(i >= 0 && i <= MLKEM_N / 8)  // clang-format on
     {
+      uint8_t t[8] = {0};
       for (int j = 0; j < 8; j++)  // clang-format off
-        ASSIGNS(j, OBJECT_WHOLE(t))
         INVARIANT(i >= 0 && i <= MLKEM_N / 8 && j >= 0 && j <= 8)
         INVARIANT(ARRAY_BOUND(t, 0, (j-1), 0, 15))
         {  // clang-format on
@@ -162,11 +152,10 @@ void poly_compress_dv(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES_DV], const poly *a) {
     }
 #elif (MLKEM_POLYCOMPRESSEDBYTES_DV == 160)
   for (int i = 0; i < MLKEM_N / 8; i++)  // clang-format off
-    ASSIGNS(i, OBJECT_WHOLE(t), OBJECT_WHOLE(r))
     INVARIANT(i >= 0 && i <= MLKEM_N / 8)  // clang-format on
     {
+      uint8_t t[8] = {0};
       for (int j = 0; j < 8; j++)  // clang-format off
-        ASSIGNS(j, OBJECT_WHOLE(t))
         INVARIANT(i >= 0 && i <= MLKEM_N / 8 && j >= 0 && j <= 8)
         INVARIANT(ARRAY_BOUND(t, 0, (j-1), 0, 31))
         {  // clang-format on
@@ -192,9 +181,8 @@ void poly_decompress_dv(poly *r,
                         const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES_DV]) {
 #if (MLKEM_POLYCOMPRESSEDBYTES_DV == 128)
   for (int i = 0; i < MLKEM_N / 2; i++)  // clang-format off
-        ASSIGNS(i, OBJECT_WHOLE(r))
-        INVARIANT(i >= 0 && i <= MLKEM_N / 2)
-        INVARIANT(ARRAY_BOUND(r->coeffs, 0, (2 * i - 1), 0, (MLKEM_Q - 1)))
+    INVARIANT(i >= 0 && i <= MLKEM_N / 2)
+    INVARIANT(ARRAY_BOUND(r->coeffs, 0, (2 * i - 1), 0, (MLKEM_Q - 1)))
     {  // clang-format on
       // REF-CHANGE: Hoist scalar decompression into separate function
       r->coeffs[2 * i + 0] = scalar_decompress_d4((a[i] >> 0) & 0xF);
@@ -202,7 +190,6 @@ void poly_decompress_dv(poly *r,
     }
 #elif (MLKEM_POLYCOMPRESSEDBYTES_DV == 160)
   for (int i = 0; i < MLKEM_N / 8; i++)  // clang-format off
-    ASSIGNS(i, OBJECT_WHOLE(r))
     INVARIANT(i >= 0 && i <= MLKEM_N / 8)
     INVARIANT(ARRAY_BOUND(r->coeffs, 0, (8 * i - 1), 0, (MLKEM_Q - 1)))
     {  // clang-format on
@@ -225,7 +212,6 @@ void poly_decompress_dv(poly *r,
 
       // and copy to the correct slice in r[]
       for (int j = 0; j < 8; j++)  // clang-format off
-        ASSIGNS(j, OBJECT_WHOLE(r))
         INVARIANT(j >= 0 && j <= 8 && i >= 0 && i <= MLKEM_N / 8)
         INVARIANT(ARRAY_BOUND(r->coeffs, 0, (8 * i + j - 1), 0, (MLKEM_Q - 1)))
         {  // clang-format on
@@ -246,9 +232,7 @@ void poly_tobytes(uint8_t r[MLKEM_POLYBYTES], const poly *a) {
 
 
   for (unsigned int i = 0; i < MLKEM_N / 2; i++)  // clang-format off
-    ASSIGNS(i, OBJECT_WHOLE(r))
     INVARIANT(i >= 0 && i <= MLKEM_N / 2)
-    DECREASES(MLKEM_N / 2 - i)
     // clang-format on
     {
       const uint16_t t0 = a->coeffs[2 * i];
@@ -282,7 +266,6 @@ void poly_tobytes(uint8_t r[MLKEM_POLYBYTES], const poly *a) {
 void poly_frombytes(poly *r, const uint8_t a[MLKEM_POLYBYTES]) {
   int i;
   for (i = 0; i < MLKEM_N / 2; i++)  // clang-format off
-    ASSIGNS(i, OBJECT_WHOLE(r))
     INVARIANT(i >= 0 && i <= MLKEM_N / 2)
     INVARIANT(ARRAY_BOUND(r->coeffs, 0, (2 * i - 1), 0, 4095))
     {  // clang-format on
@@ -309,15 +292,13 @@ void poly_frommsg(poly *r, const uint8_t msg[MLKEM_INDCPA_MSGBYTES]) {
 #endif
 
   for (int i = 0; i < MLKEM_N / 8; i++)  // clang-format off
-    ASSIGNS(i, OBJECT_WHOLE(r))
     INVARIANT(i >= 0 && i <= MLKEM_N / 8)
     INVARIANT(ARRAY_BOUND(r->coeffs, 0, (8 * i - 1), 0, (MLKEM_Q - 1)))
-    {          // clang-format on
+    {  // clang-format on
       for (int j = 0; j < 8; j++)  // clang-format off
-        ASSIGNS(j, OBJECT_WHOLE(r))
         INVARIANT(i >= 0 && i <  MLKEM_N / 8 && j >= 0 && j <= 8)
         INVARIANT(ARRAY_BOUND(r->coeffs, 0, (8 * i + j - 1), 0, (MLKEM_Q - 1)))
-        {  // clang-format on
+        {      // clang-format on
           r->coeffs[8 * i + j] = 0;
           cmov_int16(&r->coeffs[8 * i + j], HALF_Q, (msg[i] >> j) & 1);
         }
@@ -329,12 +310,10 @@ void poly_tomsg(uint8_t msg[MLKEM_INDCPA_MSGBYTES], const poly *a) {
   POLY_UBOUND(a, MLKEM_Q);
 
   for (int i = 0; i < MLKEM_N / 8; i++)  // clang-format off
-    ASSIGNS(i, OBJECT_WHOLE(msg))
     INVARIANT(i >= 0 && i <= MLKEM_N / 8)
     {  // clang-format on
       msg[i] = 0;
       for (int j = 0; j < 8; j++)  // clang-format off
-        ASSIGNS(j, OBJECT_WHOLE(msg))
         INVARIANT(i >= 0 && i <= MLKEM_N / 8 && j >= 0 && j <= 8)
         {  // clang-format on
           uint32_t t = scalar_compress_d1(a->coeffs[8 * i + j]);
@@ -433,9 +412,8 @@ void poly_basemul_montgomery_cached(poly *r, const poly *a, const poly *b,
 #if !defined(MLKEM_USE_NATIVE_POLY_TOMONT)
 void poly_tomont(poly *r) {
   int i;
-  const int16_t f = (1ULL << 32) % MLKEM_Q;          // 1353
+  const int16_t f = (1ULL << 32) % MLKEM_Q;       // 1353
   for (i = 0; i < MLKEM_N; i++)  // clang-format off
-    ASSIGNS(i, OBJECT_WHOLE(r))
     INVARIANT(i >= 0 && i <= MLKEM_N)
     INVARIANT(ARRAY_ABS_BOUND(r->coeffs ,0, (i - 1), (MLKEM_Q - 1)))
     {  // clang-format on
@@ -455,7 +433,6 @@ void poly_tomont(poly *r) {
 void poly_reduce(poly *r) {
   int i;
   for (i = 0; i < MLKEM_N; i++)  // clang-format off
-    ASSIGNS(i, OBJECT_WHOLE(r))
     INVARIANT(i >= 0 && i <= MLKEM_N)
     INVARIANT(ARRAY_BOUND(r->coeffs, 0, (i - 1), 0, (MLKEM_Q - 1)))
     {  // clang-format on
@@ -477,7 +454,6 @@ void poly_reduce(poly *r) {
 void poly_add(poly *r, const poly *b) {
   int i;
   for (i = 0; i < MLKEM_N; i++)  // clang-format off
-    ASSIGNS(i, OBJECT_WHOLE(r))
     INVARIANT(i >= 0 && i <= MLKEM_N)
     INVARIANT(FORALL(int, k0, i, MLKEM_N - 1, r->coeffs[k0] == LOOP_ENTRY(*r).coeffs[k0]))
     INVARIANT(FORALL(int, k1, 0, i - 1, r->coeffs[k1] == LOOP_ENTRY(*r).coeffs[k1] + b->coeffs[k1]))
@@ -489,7 +465,6 @@ void poly_add(poly *r, const poly *b) {
 void poly_sub(poly *r, const poly *b) {
   int i;
   for (i = 0; i < MLKEM_N; i++)  // clang-format off
-    ASSIGNS(i, OBJECT_WHOLE(r))
     INVARIANT(i >= 0 && i <= MLKEM_N)
     INVARIANT(FORALL(int, k0, i, MLKEM_N - 1, r->coeffs[k0] == LOOP_ENTRY(*r).coeffs[k0]))
     INVARIANT(FORALL(int, k1, 0, i - 1, r->coeffs[k1] == LOOP_ENTRY(*r).coeffs[k1] - b->coeffs[k1]))
@@ -502,7 +477,6 @@ void poly_sub(poly *r, const poly *b) {
 void poly_mulcache_compute(poly_mulcache *x, const poly *a) {
   int i;
   for (i = 0; i < MLKEM_N / 4; i++)  // clang-format off
-    ASSIGNS(i, OBJECT_WHOLE(x))
     INVARIANT(i >= 0 && i <= MLKEM_N / 4)
     {  // clang-format on
       x->coeffs[2 * i + 0] = fqmul(a->coeffs[4 * i + 1], zetas[64 + i]);

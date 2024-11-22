@@ -106,7 +106,6 @@ ENSURES(ARRAY_ABS_BOUND(r, start + 2 * len, MLKEM_N - 1, bound))
   // `bound` is a ghost variable only needed in the CBMC specification
   ((void)bound);
   for (int j = start; j < start + len; j++)  // clang-format off
-    ASSIGNS(j, OBJECT_UPTO(r, sizeof(int16_t) * MLKEM_N))
     INVARIANT(start <= j && j <= start + len)
     // Coefficients are updated in strided pairs, so the bounds for the
     // intermediate states alternate twice between the old and new bound
@@ -149,7 +148,6 @@ ENSURES(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, (layer + 1) * MLKEM_Q - 1))
   // Twiddle factors for layer n start at index 2^(layer-1)
   int k = MLKEM_N / (2 * len);
   for (int start = 0; start < MLKEM_N; start += 2 * len)  // clang-format off
-    ASSIGNS(start, k, OBJECT_UPTO(r, sizeof(int16_t) * MLKEM_N))
     INVARIANT(0 <= start && start < MLKEM_N + 2 * len)
     INVARIANT(0 <= k && k <= MLKEM_N / 2 && 2 * len * k == start + MLKEM_N)
     INVARIANT(ARRAY_ABS_BOUND(r, 0, start - 1, (layer * MLKEM_Q - 1) + MLKEM_Q))
@@ -177,7 +175,6 @@ void poly_ntt(poly *p) {
 
   for (int len = 128, layer = 1; len >= 2;
        len >>= 1, layer++)  // clang-format off
-    ASSIGNS(len, layer, OBJECT_UPTO(r, sizeof(int16_t) * MLKEM_N))
     INVARIANT(1 <= layer && layer <= 8 && len == (MLKEM_N >> layer))
     INVARIANT(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, layer * MLKEM_Q - 1))
     // clang-format on
@@ -221,7 +218,6 @@ ENSURES(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, MLKEM_Q))
   ((void)layer);
   int k = MLKEM_N / len - 1;
   for (int start = 0; start < MLKEM_N; start += 2 * len)  // clang-format off
-    ASSIGNS(start, k, OBJECT_UPTO(r, sizeof(int16_t) * MLKEM_N))
     INVARIANT(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, MLKEM_Q))
     INVARIANT(0 <= start && start <= MLKEM_N && 0 <= k && k <= 127)
     // Normalised form of k == MLKEM_N / len - 1 - start / (2 * len)
@@ -230,7 +226,6 @@ ENSURES(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, MLKEM_Q))
     {
       int16_t zeta = zetas[k--];
       for (int j = start; j < start + len; j++)  // clang-format off
-        ASSIGNS(j, OBJECT_UPTO(r, sizeof(int16_t) * MLKEM_N))
         INVARIANT(start <= j && j <= start + len)
         INVARIANT(0 <= start && start <= MLKEM_N && 0 <= k && k <= 127)
         INVARIANT(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, MLKEM_Q))
@@ -253,7 +248,6 @@ void poly_invntt_tomont(poly *p) {
   // absolute value < MLKEM_Q.
 
   for (int j = 0; j < MLKEM_N; j++)  // clang-format off
-    ASSIGNS(j, OBJECT_UPTO(r, sizeof(int16_t) * MLKEM_N))
     INVARIANT(0 <= j && j <= MLKEM_N && ARRAY_ABS_BOUND(r, 0, j - 1, MLKEM_Q))
     // clang-format on
     {
@@ -263,7 +257,6 @@ void poly_invntt_tomont(poly *p) {
   // Run the invNTT layers
   for (int len = 2, layer = 7; len <= 128;
        len <<= 1, layer--)  // clang-format off
-    ASSIGNS(len, layer, OBJECT_UPTO(r, sizeof(int16_t) * MLKEM_N))
     INVARIANT(2 <= len && len <= 256 && 0 <= layer && layer <= 7 && len == (1 << (8 - layer)))
     INVARIANT(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, MLKEM_Q))
     // clang-format on
