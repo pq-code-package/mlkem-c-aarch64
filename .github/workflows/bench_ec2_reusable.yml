@@ -58,9 +58,11 @@ on:
         type: string
         description: Additional packages to install when custom compiler is used.
         default: ''
+      aws_region:
+        type: string
+        default: "us-east-1"
 env:
   AWS_ROLE: arn:aws:iam::559050233797:role/mlkem-c-aarch64-gh-action
-  AWS_REGION: us-east-1
   AMI_UBUNTU_LATEST_X86_64: ami-0e86e20dae9224db8
   AMI_UBUNTU_LATEST_AARCH64: ami-096ea6a12ea24a797
 jobs:
@@ -100,7 +102,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2
         with:
           role-to-assume: ${{ env.AWS_ROLE }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ inputs.aws_region }}
       - name: Start EC2 runner
         id: start-ec2-runner
         uses: mkannwischer/ec2-github-runner@d15c8804522523d2bac7119a01ffff83b7795d87
@@ -201,7 +203,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2
         with:
           role-to-assume: ${{ env.AWS_ROLE }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ inputs.aws_region }}
       - name: Stop EC2 runner
         uses: mkannwischer/ec2-github-runner@d15c8804522523d2bac7119a01ffff83b7795d87
         with:

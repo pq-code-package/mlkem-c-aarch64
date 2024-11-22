@@ -87,7 +87,7 @@ jobs:
             cflags: "-flto -DFORCE_X86_64"
             perf: PMU
           - name: Intel Xeon 4th gen (c7i)
-            ec2_instance_type: c7i.large
+            ec2_instance_type: c7i.metal-24xl
             ec2_ami: ubuntu-latest (x86_64)
             archflags: -mavx2 -mbmi2 -mpopcnt -maes
             cflags: "-flto -DFORCE_X86_64"
