@@ -19,38 +19,40 @@
       systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
       perSystem = { config, pkgs, system, inputs', ... }:
         let
-          default_gcc = { cross ? true }:
+          glibc-join = p: p.buildPackages.symlinkJoin {
+            name = "glibc-join";
+            paths = [ p.glibc p.glibc.static ];
+          };
+
+          wrap-gcc = p: p.buildPackages.wrapCCWith {
+            cc = p.buildPackages.gcc13.cc;
+            bintools = p.buildPackages.wrapBintoolsWith {
+              bintools = p.buildPackages.binutils-unwrapped;
+              libc = glibc-join p;
+            };
+          };
+
+          native-gcc =
+            if pkgs.stdenv.isDarwin
+            then null
+            else wrap-gcc pkgs;
+
+          # cross is for determining whether to install the cross toolchain or not
+          core = { cross ? true }:
             let
-              glibc-join = p: p.buildPackages.symlinkJoin {
-                name = "glibc-join";
-                paths = [ p.glibc p.glibc.static ];
-              };
-
-              wrap-gcc = p: p.buildPackages.wrapCCWith {
-                cc = p.buildPackages.gcc13.cc;
-                bintools = p.buildPackages.wrapBintoolsWith {
-                  bintools = p.buildPackages.binutils-unwrapped;
-                  libc = glibc-join p;
-                };
-              };
-
               x86_64-gcc = wrap-gcc pkgs.pkgsCross.gnu64;
               aarch64-gcc = wrap-gcc pkgs.pkgsCross.aarch64-multiplatform;
             in
-            if pkgs.stdenv.isDarwin
-            then [ ]
-            else if cross
-            then if pkgs.stdenv.isAarch64
-            then [ x86_64-gcc aarch64-gcc ]
-            else [ aarch64-gcc x86_64-gcc ]
-            else if pkgs.stdenv.isAarch64
-            then [ aarch64-gcc ]
-            else [ x86_64-gcc ];
-
-          # cross is for determining whether to install the cross toolchain or not 
-          core = { cross ? true }:
-            [ (default_gcc { cross = cross; }) ] ++
-            builtins.attrValues {
+            # NOTE:
+              # - native toolchain should be equipped in the shell via `mkShellWithCC` (see `mkShell`)
+              # - only install extra cross-compiled toolchains if not on darwin or `cross` is specifally set to true
+              # - providing cross compilation toolchain (x86_64/aarch64-linux) for darwin can be cumbersome 
+              #   and won't just work for now
+              # - equip all toolchains if cross is explicitly set to true
+              # - one of the toolchains in the list is exactly the same as the toolchain in `native-gcc`, 
+              #   nix should be able to handle this properly, so it won't be an issue
+            pkgs.lib.optionals (cross && !pkgs.stdenv.isDarwin) [ x86_64-gcc aarch64-gcc ]
+            ++ builtins.attrValues {
               inherit (config.packages) base;
               inherit (pkgs)
                 qemu; # 8.2.4
@@ -60,8 +62,16 @@
             mkShell (attrs // {
               shellHook = ''
                 export PATH=$PWD/scripts:$PWD/scripts/ci:$PATH
+              '' +
+              # NOTE: we don't support nix gcc toolchains for darwin system, therefore explicitly setting CC is required
+              pkgs.lib.optionalString pkgs.stdenv.isDarwin ''
+                export CC=gcc
               '';
             });
+
+          # NOTE: idiomatic nix way of properly setting the $CC in a nix shell
+          mkShellWithCC = cc: pkgs.mkShellNoCC.override { stdenv = pkgs.overrideCC pkgs.stdenv cc; };
+          mkShell = mkShellWithCC native-gcc;
         in
         {
           # NOTE: hack for replacing bitwuzla in nixos-24.05 (0.4.0) to the one in nixos-unstable (0.6.0) by nix overlays
@@ -101,8 +111,7 @@
             };
           };
 
-
-          devShells.default = wrapShell pkgs.mkShellNoCC {
+          devShells.default = wrapShell mkShell {
             packages =
               core { } ++
               builtins.attrValues
@@ -114,17 +123,17 @@
                 };
           };
 
-          devShells.ci = wrapShell pkgs.mkShellNoCC { packages = core { cross = false; }; };
-          devShells.ci-cross = wrapShell pkgs.mkShellNoCC { packages = core { }; };
-          devShells.ci-cbmc = wrapShell pkgs.mkShellNoCC { packages = core { cross = false; } ++ [ config.packages.cbmc ]; };
-          devShells.ci-cbmc-cross = wrapShell pkgs.mkShellNoCC { packages = core { } ++ [ config.packages.cbmc ]; };
+          devShells.ci = wrapShell mkShell { packages = core { cross = false; }; };
+          devShells.ci-cross = wrapShell mkShell { packages = core { }; };
+          devShells.ci-cbmc = wrapShell mkShell { packages = core { cross = false; } ++ [ config.packages.cbmc ]; };
+          devShells.ci-cbmc-cross = wrapShell mkShell { packages = core { } ++ [ config.packages.cbmc ]; };
           devShells.ci-linter = wrapShell pkgs.mkShellNoCC { packages = [ config.packages.linters ]; };
 
-          devShells.ci_clang18 = wrapShell pkgs.mkShellNoCC { packages = [ config.packages.base pkgs.clang_18 ]; };
-          devShells.ci_gcc48 = wrapShell pkgs.mkShellNoCC { packages = [ config.packages.base pkgs.gcc48 ]; };
-          devShells.ci_gcc49 = wrapShell pkgs.mkShellNoCC { packages = [ config.packages.base pkgs.gcc49 ]; };
-          devShells.ci_gcc7 = wrapShell pkgs.mkShellNoCC { packages = [ config.packages.base pkgs.gcc7 ]; };
-          devShells.ci_gcc11 = wrapShell pkgs.mkShellNoCC { packages = [ config.packages.base pkgs.gcc11 ]; };
+          devShells.ci_clang18 = wrapShell (mkShellWithCC pkgs.clang_18) { packages = [ config.packages.base ]; };
+          devShells.ci_gcc48 = wrapShell (mkShellWithCC pkgs.gcc48) { packages = [ config.packages.base ]; };
+          devShells.ci_gcc49 = wrapShell (mkShellWithCC pkgs.gcc49) { packages = [ config.packages.base ]; };
+          devShells.ci_gcc7 = wrapShell (mkShellWithCC pkgs.gcc7) { packages = [ config.packages.base ]; };
+          devShells.ci_gcc11 = wrapShell (mkShellWithCC pkgs.gcc11) { packages = [ config.packages.base ]; };
         };
       flake = {
         # The usual flake attributes can be defined here, including system-
