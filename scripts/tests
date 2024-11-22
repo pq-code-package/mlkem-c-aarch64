@@ -118,9 +118,9 @@ _bench_options = [
     ),
     click.option(
         "-o",
-        "--output",
+        "--output-base",
         nargs=1,
-        help="Path to output file in json format",
+        help="Prefix of JSON output file. Optimized benchmarks will be written to {base}_opt.json, and non-optimized benchmarks will be written to {base}_no_opt.json",
     ),
     click.option(
         "-r",
@@ -225,7 +225,7 @@ def acvp(opts: Options, acvp_dir: str):
 def bench(
     opts: Options,
     cycles: str,
-    output,
+    output_base,
     run_as_root: bool,
     exec_wrapper: str,
     mac_taskpolicy,
@@ -233,7 +233,7 @@ def bench(
 ):
     Tests(opts).bench(
         cycles,
-        output,
+        output_base,
         run_as_root,
         exec_wrapper,
         mac_taskpolicy,

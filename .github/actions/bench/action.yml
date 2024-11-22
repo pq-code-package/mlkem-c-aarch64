@@ -18,8 +18,8 @@ inputs:
     description: ARCHFLAGS to pass to compilation
     default: ""
   opt:
-    description: opt flag to set for tests script
-    default: "true"
+    description: opt flag to set for tests script (opt, no_opt, all)
+    default: "opt"
   bench_extra_args:
     description: Further arguments to be appended to command line for `bench` script
     default: ""
@@ -72,23 +72,32 @@ runs:
       run: |
         ./scripts/tests bench -c ${{ inputs.perf }} --cross-prefix="${{ inputs.cross_prefix }}" \
               --cflags="${{ inputs.cflags }}" --arch-flags="${{ inputs.archflags }}" \
-              --opt=$([[ ${{ inputs.opt }} == "false" ]] && echo "no_opt" || echo "opt")  \
-              -v --output=output.json ${{ inputs.bench_extra_args }}
+              --opt=${{ inputs.opt }} \
+              -v --output-base=output ${{ inputs.bench_extra_args }}
 
         ./scripts/tests bench --components -c ${{ inputs.perf }} --cross-prefix="${{ inputs.cross_prefix }}" \
               --cflags="${{ inputs.cflags }}" --arch-flags="${{ inputs.archflags }}" \
               --opt=$([[ ${{ inputs.opt }} == "false" ]] && echo "no_opt" || echo "opt")  \
-              -v --output=output.json ${{ inputs.bench_extra_args }}
+              -v ${{ inputs.bench_extra_args }}
     - name: Check namespace
       shell: ${{ env.SHELL }}
       run: |
         check-namespace
-    - name: Store benchmark result
-      if: ${{ inputs.store_results == 'true' }}
+    - name: Store optimized benchmark result
+      if: ${{ inputs.store_results == 'true' && (inputs.opt == "opt" || inputs.opt == "all") }}
       uses: benchmark-action/github-action-benchmark@v1
       with:
         name: ${{ inputs.name }}
         tool: "customSmallerIsBetter"
-        output-file-path: output.json
+        output-file-path: "output_opt.json"
+        github-token: ${{ inputs.gh_token }}
+        auto-push: true
+    - name: Store non-optimized benchmark result
+      if: ${{ inputs.store_results == 'true' && (inputs.opt == "no_opt" || inputs.opt == "all") }}
+      uses: benchmark-action/github-action-benchmark@v1
+      with:
+        name: "${{ inputs.name }} (no-opt)"
+        tool: "customSmallerIsBetter"
+        output-file-path: "output_no_opt.json"
         github-token: ${{ inputs.gh_token }}
         auto-push: true

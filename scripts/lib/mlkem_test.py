@@ -574,7 +574,7 @@ class Tests:
     def bench(
         self,
         cycles: str,
-        output,
+        output_base,
         run_as_root: bool,
         exec_wrapper: str,
         mac_taskpolicy,
@@ -586,7 +586,7 @@ class Tests:
             t = self._bench
         else:
             t = self._bench_components
-            output = False
+            output_base = False
 
         if mac_taskpolicy:
             if exec_wrapper:
@@ -595,38 +595,35 @@ class Tests:
             else:
                 exec_wrapper = f"taskpolicy -c {mac_taskpolicy}"
 
-        # NOTE: We haven't yet decided how to output both opt/no-opt benchmark results
-        if self.opt.lower() == "all":
-            if self.compile:
-                t.compile(False, extra_make_args=[f"CYCLES={cycles}"])
-            if self.run:
-                self._run_bench(t, False, run_as_root, exec_wrapper)
-            if self.compile:
-                t.compile(True, extra_make_args=[f"CYCLES={cycles}"])
-            if self.run:
-                resultss = self._run_bench(t, True, run_as_root, exec_wrapper)
-        else:
-            if self.compile:
-                t.compile(
-                    True if self.opt.lower() == "opt" else False,
-                    extra_make_args=[f"CYCLES={cycles}"],
-                )
-            if self.run:
-                resultss = self._run_bench(
-                    t,
-                    True if self.opt.lower() == "opt" else False,
-                    run_as_root,
-                    exec_wrapper,
-                )
+        opts = []
+        if self.opt.lower() == "all" or self.opt.lower() == "opt":
+            opts.append(True)
+        if self.opt.lower() == "all" or self.opt.lower() != "opt":
+            opts.append(False)
 
-        if resultss is None:
-            exit(0)
+        resultss = {}
+        for opt in opts:
+            if self.compile:
+                t.compile(opt, extra_make_args=[f"CYCLES={cycles}"])
+            if self.run:
+                # _run_bench currently returns a single-element dictionary
+                # with the optimization value as the first key.
+                #
+                # Merge those manually here. Ultimately it would be cleaner
+                # for _run_bench to accept "all" as opt value, and then the
+                # opt-indexed dictionary would make sense.
+                this_result = self._run_bench(t, opt, run_as_root, exec_wrapper)
+                if this_result is None:
+                    exit(0)
+                resultss = resultss | this_result
 
-        # NOTE: There will only be one items in resultss, as we haven't yet decided how to write both opt/no-opt benchmark results
         for k, results in resultss.items():
-            if results is not None and output is not None and components is False:
+            if results is not None and output_base is not None and components is False:
                 import json
 
+                # Write foo_opt.json or foo_no_opt.json" depending on whether
+                # optimization is enabled.
+                output = f"{output_base}_{k}.json"
                 with open(output, "w") as f:
                     v = []
                     for scheme in results:
