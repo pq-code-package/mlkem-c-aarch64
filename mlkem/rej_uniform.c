@@ -44,7 +44,6 @@ static unsigned int rej_uniform_scalar(int16_t *r, unsigned int target,
   pos = 0;
   // pos + 3 cannot overflow due to the assumption buflen <= 4096
   while (ctr < target && pos + 3 <= buflen)  // clang-format off
-    ASSIGNS(ctr, val0, val1, pos, OBJECT_WHOLE(r))
     INVARIANT(offset <= ctr && ctr <= target && pos <= buflen)
     INVARIANT(ctr > 0 ==> ARRAY_BOUND(r, 0, ctr - 1, 0, (MLKEM_Q - 1)))  // clang-format on
     {

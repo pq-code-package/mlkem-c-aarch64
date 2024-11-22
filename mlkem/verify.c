@@ -25,7 +25,6 @@ int verify(const uint8_t *a, const uint8_t *b, const size_t len) {
   const int ilen = (int)len;
 
   for (int i = 0; i < ilen; i++)  // clang-format off
-    ASSIGNS(i, r)
     INVARIANT(i >= 0 && i <= ilen)
     INVARIANT((r == 0) == (FORALL(int, k, 0, (i - 1), (a[k] == b[k]))))  // clang-format on
     {
@@ -49,7 +48,6 @@ void cmov(uint8_t *r, const uint8_t *x, size_t len, uint8_t b) {
 
   b = (-b) & 0xFF;
   for (i = 0; i < len; i++)  // clang-format off
-    ASSIGNS(i, OBJECT_UPTO(r, len))
     INVARIANT(i <= len)
     // clang-format on
     {
