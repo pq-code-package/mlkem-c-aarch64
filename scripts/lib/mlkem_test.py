@@ -143,6 +143,8 @@ class Base:
                 cmd = ["qemu-x86_64"] + cmd
             elif "aarch64" in self.cross_prefix:
                 cmd = ["qemu-aarch64"] + cmd
+            elif "riscv64" in self.cross_prefix:
+                cmd = ["qemu-riscv64"] + cmd
             else:
                 log.info(
                     f"Emulation for {self.cross_prefix} on {platform.system()} not supported",
