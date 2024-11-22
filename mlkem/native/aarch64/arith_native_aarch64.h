@@ -1,3 +1,4 @@
+// Copyright (c) 2024 The mlkem-native project authors
 // SPDX-License-Identifier: Apache-2.0
 #ifndef MLKEM_AARCH64_NATIVE_H
 #define MLKEM_AARCH64_NATIVE_H

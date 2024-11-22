@@ -1,3 +1,4 @@
+// Copyright (c) 2024 The mlkem-native project authors
 // SPDX-License-Identifier: CC0-1.0
 #ifndef KECCAKF1600_H
 #define KECCAKF1600_H

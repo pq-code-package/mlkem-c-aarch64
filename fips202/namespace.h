@@ -1,3 +1,4 @@
+// Copyright (c) 2024 The mlkem-native project authors
 // SPDX-License-Identifier: CC0-1.0
 #ifndef NAMESPACE_H
 #define NAMESPACE_H
