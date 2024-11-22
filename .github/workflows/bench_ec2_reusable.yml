@@ -31,9 +31,9 @@ on:
         description: Custom ARCH flags for compilation
         default: -mcpu=neoverse-n1 -march=armv8.2-a
       opt:
-        type: boolean
-        description: Runs with optimized code if enabled.
-        default: true
+        type: string
+        description: Runs with optimized code if enabled (opt, no_opt, all)
+        default: "opt"
       perf:
         type: string
         description: Method by which clock cycles should be measured (PMU | PERF)
@@ -119,12 +119,25 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - uses: ./.github/actions/bench
+        if: ${{ inputs.opt == 'all' || inputs.opt == 'opt' }}
         with:
           nix-verbose: ${{ inputs.verbose }}
           name: ${{ inputs.name }}
           cflags: ${{ inputs.cflags }}
           archflags: ${{ inputs.archflags }}
-          opt: ${{ inputs.opt }}
+          opt: true
+          perf: ${{ inputs.perf }}
+          store_results: ${{ inputs.store_results }}
+          bench_extra_args: ${{ inputs.bench_extra_args }}
+          gh_token: ${{ secrets.AWS_GITHUB_TOKEN }}
+      - uses: ./.github/actions/bench
+        if: ${{ inputs.opt == 'all' || inputs.opt == 'no_opt' }}
+        with:
+          nix-verbose: ${{ inputs.verbose }}
+          name: ${{ inputs.name }} (no-opt)
+          cflags: ${{ inputs.cflags }}
+          archflags: ${{ inputs.archflags }}
+          opt: false
           perf: ${{ inputs.perf }}
           store_results: ${{ inputs.store_results }}
           bench_extra_args: ${{ inputs.bench_extra_args }}
@@ -143,6 +156,7 @@ jobs:
         run: |
           echo "CC=${{ inputs.compiler }}" >> "$GITHUB_ENV"
       - uses: ./.github/actions/bench
+        if: ${{ inputs.opt == 'all' || inputs.opt == 'opt' }}
         with:
           nix-shell: ''
           custom-shell: 'bash'
@@ -151,7 +165,22 @@ jobs:
           name: ${{ inputs.name }} (${{ inputs.compiler }})
           cflags: ${{ inputs.cflags }}
           archflags: ${{ inputs.archflags }}
-          opt: ${{ inputs.opt }}
+          opt: true
+          perf: ${{ inputs.perf }}
+          store_results: ${{ inputs.store_results }}
+          bench_extra_args: ${{ inputs.bench_extra_args }}
+          gh_token: ${{ secrets.AWS_GITHUB_TOKEN }}
+      - uses: ./.github/actions/bench
+        if: ${{ inputs.opt == 'all' || inputs.opt == 'no_opt' }}
+        with:
+          nix-shell: ''
+          custom-shell: 'bash'
+          nix-cache: false
+          nix-verbose: ${{ inputs.verbose }}
+          name: ${{ inputs.name }} (${{ inputs.compiler }}) (no-opt)
+          cflags: ${{ inputs.cflags }}
+          archflags: ${{ inputs.archflags }}
+          opt: false
           perf: ${{ inputs.perf }}
           store_results: ${{ inputs.store_results }}
           bench_extra_args: ${{ inputs.bench_extra_args }}

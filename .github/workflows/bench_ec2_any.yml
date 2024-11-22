@@ -31,9 +31,12 @@ on:
         description: Custom ARCH flags for compilation
         default: ''
       opt:
-        description: Run with optimized code if enabled
-        type: boolean
-        default: true
+        description: Benchmark optimized, non-optimized, or both
+        type: choice
+        options:
+           - all
+           - opt
+           - no_opt
       bench_extra_args:
         description: Additional command line to be appended to `tests bench` script
         default: ''

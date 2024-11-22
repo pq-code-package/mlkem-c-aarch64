@@ -61,11 +61,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        opt:
-          - name: opt
-            value: true
-          - name: no_opt
-            value: false
         target:
           - name: Graviton2
             ec2_instance_type: t4g.small
@@ -116,8 +111,8 @@ jobs:
       ec2_ami: ${{ matrix.target.ec2_ami }}
       archflags: ${{ matrix.target.archflags }}
       cflags: ${{ matrix.target.cflags }}
-      opt: ${{ matrix.opt.value }}
+      opt: "all"
       store_results: ${{ github.repository_owner == 'pq-code-package' && github.ref == 'refs/heads/main' }} # Only store optimized results
-      name: "${{ matrix.target.name }}${{ (!matrix.opt.value && ' (no-opt)') || ''}}"
+      name: ${{ matrix.target.name }}
       perf: ${{ matrix.target.perf }}
     secrets: inherit
