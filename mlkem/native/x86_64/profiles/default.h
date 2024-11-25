@@ -27,6 +27,7 @@
 #define MLKEM_USE_NATIVE_POLY_MULCACHE_COMPUTE
 #define MLKEM_USE_NATIVE_POLY_TOBYTES
 #define MLKEM_USE_NATIVE_POLY_FROMBYTES
+#define MLKEM_USE_NATIVE_VERIFY
 
 #define INVNTT_BOUND_NATIVE \
   (14870 + 1)  // Bound from the official Kyber repository

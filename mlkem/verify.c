@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#if !defined(MLKEM_USE_NATIVE_VERIFY)
 //
 // WARNING:
 //
@@ -79,3 +80,11 @@ void cmov_int16(int16_t *r, const int16_t v, const uint16_t b)
   *r ^= mask & ((*r) ^ v);
 #pragma CPROVER check pop
 }
+
+
+#else /* MLKEM_USE_NATIVE_VERIFY */
+
+// Dummy constant to keep compiler happy despite empty CU
+int empty_cu_c_verify;
+
+#endif /* MLKEM_USE_NATIVE_VERIFY */
