@@ -97,3 +97,10 @@ runs:
         comment-on-alert: true
         summary-always: true
         alert-threshold: ${{ inputs.alert_threshold }}
+    - name: Reset gh-pages if result is not pushed to gh-pages
+      shell: ${{ env.SHELL }}
+      if: ${{ inputs.store_results != 'true' }}
+      run: |
+        git -c advice.detachedHead=false switch gh-pages
+        git reset --hard HEAD~1
+        git checkout -
