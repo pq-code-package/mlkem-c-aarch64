@@ -16,11 +16,17 @@
   MLKEM_NAMESPACE(aarch64_invntt_zetas_layer01234)
 #define aarch64_invntt_zetas_layer56 \
   MLKEM_NAMESPACE(aarch64_invntt_zetas_layer56)
+#define aarch64_zetas_mulcache_native \
+  MLKEM_NAMESPACE(aarch64_zetas_mulcache_native)
+#define aarch64_zetas_mulcache_twisted_native \
+  MLKEM_NAMESPACE(aarch64_zetas_mulcache_twisted_native)
 
 extern const int16_t aarch64_ntt_zetas_layer01234[];
 extern const int16_t aarch64_ntt_zetas_layer56[];
 extern const int16_t aarch64_invntt_zetas_layer01234[];
 extern const int16_t aarch64_invntt_zetas_layer56[];
+extern const int16_t aarch64_zetas_mulcache_native[];
+extern const int16_t aarch64_zetas_mulcache_twisted_native[];
 
 #define ntt_asm_clean MLKEM_NAMESPACE(ntt_asm_clean)
 void ntt_asm_clean(int16_t *, const int16_t *, const int16_t *);

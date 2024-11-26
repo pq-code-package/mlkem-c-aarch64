@@ -10,7 +10,6 @@
 
 #include "../../arith_native.h"
 #include "../arith_native_aarch64.h"
-#include "../consts.h"
 
 #define MLKEM_USE_NATIVE_NTT
 #define MLKEM_USE_NATIVE_INTT
@@ -42,8 +41,9 @@ static inline void poly_tomont_native(poly *data) {
 
 static inline void poly_mulcache_compute_native(poly_mulcache *x,
                                                 const poly *y) {
-  poly_mulcache_compute_asm_clean(x->coeffs, y->coeffs, zetas_mulcache_native,
-                                  zetas_mulcache_twisted_native);
+  poly_mulcache_compute_asm_clean(x->coeffs, y->coeffs,
+                                  aarch64_zetas_mulcache_native,
+                                  aarch64_zetas_mulcache_twisted_native);
 }
 static inline void polyvec_basemul_acc_montgomery_cached_native(
     poly *r, const polyvec *a, const polyvec *b,

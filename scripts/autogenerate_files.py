@@ -202,6 +202,18 @@ def gen_aarch64_inv_ntt_zetas_layer56():
             yield from double_ith(gen_aarch64_root_of_unity_for_block(6,8*block+5, inv=True), i)
             yield from double_ith(gen_aarch64_root_of_unity_for_block(6,8*block+7, inv=True), i)
 
+def gen_aarch64_mulcache_twiddles():
+    for idx in range(64):
+        root = pow(root_of_unity, bitreverse(64+idx,7), modulus)
+        yield prepare_root_for_barrett(root)[0]
+        yield prepare_root_for_barrett(-root)[0]
+
+def gen_aarch64_mulcache_twiddles_twisted():
+    for idx in range(64):
+        root = pow(root_of_unity, bitreverse(64+idx,7), modulus)
+        yield prepare_root_for_barrett(root)[1]
+        yield prepare_root_for_barrett(-root)[1]
+
 def gen_aarch64_fwd_ntt_zeta_file(dry_run=False):
     def gen():
         yield from gen_header()
@@ -225,6 +237,14 @@ def gen_aarch64_fwd_ntt_zeta_file(dry_run=False):
         yield ""
         yield "const int16_t aarch64_invntt_zetas_layer56[] = {"
         yield from map(lambda t: str(t) + ",", gen_aarch64_inv_ntt_zetas_layer56())
+        yield "};"
+        yield ""
+        yield "const int16_t aarch64_zetas_mulcache_native[] = {"
+        yield from map(lambda t: str(t) + ",", gen_aarch64_mulcache_twiddles())
+        yield "};"
+        yield ""
+        yield "const int16_t aarch64_zetas_mulcache_twisted_native[] = {"
+        yield from map(lambda t: str(t) + ",", gen_aarch64_mulcache_twiddles_twisted())
         yield "};"
         yield ""
         yield "#else /* MLKEM_USE_NATIVE_AARCH64 */"
