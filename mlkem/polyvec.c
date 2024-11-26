@@ -7,6 +7,7 @@
 #include "ntt.h"
 #include "params.h"
 #include "poly.h"
+#include "scalar.h"
 
 #include "debug/debug.h"
 void polyvec_compress_du(uint8_t r[MLKEM_POLYVECCOMPRESSEDBYTES_DU],

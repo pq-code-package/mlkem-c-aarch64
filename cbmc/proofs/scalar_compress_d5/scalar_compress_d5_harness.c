@@ -16,7 +16,7 @@
  *   - include the declaration of the function
  *   - include the types needed to declare function arguments
  */
-#include <poly.h>
+#include <scalar.h>
 
 /**
  * @brief Starting point for formal analysis

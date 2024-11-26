@@ -9,6 +9,7 @@
 #include "ntt.h"
 #include "params.h"
 #include "reduce.h"
+#include "scalar.h"
 #include "symmetric.h"
 #include "verify.h"
 
