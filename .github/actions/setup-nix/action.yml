@@ -129,7 +129,7 @@ runs:
         nix config check
         nix config show
         echo "::endgroup::"
-    - uses: nix-community/cache-nix-action@v5
+    - uses: nix-community/cache-nix-action@8351fb9f51c580c96c509987ebb99e38aed956ce # v5.2.1
       id: cache
       if: ${{ env.NIX_CACHE_ENABLED != 1 && inputs.cache == 'true' }}
       continue-on-error: true
