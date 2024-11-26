@@ -49,9 +49,12 @@
               # - providing cross compilation toolchain (x86_64/aarch64-linux) for darwin can be cumbersome 
               #   and won't just work for now
               # - equip all toolchains if cross is explicitly set to true
-              # - one of the toolchains in the list is exactly the same as the toolchain in `native-gcc`, 
-              #   nix should be able to handle this properly, so it won't be an issue
-            pkgs.lib.optionals (cross && !pkgs.stdenv.isDarwin) [ x86_64-gcc aarch64-gcc ]
+              # - On some machines, `native-gcc` needed to be evaluated lastly (placed as the last element of the toolchain list), or else would result in environment variables (CC, AR, ...) overriding issue.
+            pkgs.lib.optionals (cross && !pkgs.stdenv.isDarwin) [
+              (pkgs.lib.optional (! pkgs.stdenv.hostPlatform.isx86_64) x86_64-gcc)
+              (pkgs.lib.optional (! pkgs.stdenv.hostPlatform.isAarch64) aarch64-gcc)
+              native-gcc
+            ]
             ++ builtins.attrValues {
               inherit (config.packages) base;
               inherit (pkgs)
@@ -63,9 +66,15 @@
               shellHook = ''
                 export PATH=$PWD/scripts:$PWD/scripts/ci:$PATH
               '' +
-              # NOTE: we don't support nix gcc toolchains for darwin system, therefore explicitly setting CC is required
+              # NOTE: we don't support nix gcc toolchains for darwin system, therefore explicitly setting environment variables like CC, AR, AS, ... is required
               pkgs.lib.optionalString pkgs.stdenv.isDarwin ''
                 export CC=gcc
+                export CXX=g++
+                for cmd in \
+                    ar as ld nm objcopy objdump readelf ranlib strip strings size windres
+                do
+                    export ''${cmd^^}=$cmd
+                done
               '';
             });
 
