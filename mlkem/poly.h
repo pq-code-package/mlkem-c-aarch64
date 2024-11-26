@@ -528,6 +528,13 @@ ENSURES(
  && ARRAY_ABS_BOUND(r3->coeffs,0, MLKEM_N - 1, MLKEM_ETA1));
 // clang-format on
 
+#if MLKEM_ETA1 == MLKEM_ETA2
+// We only require poly_getnoise_eta2_4x for ml-kem-768 and ml-kem-1024
+// where MLKEM_ETA2 = MLKEM_ETA1 = 2.
+// For ml-kem-512, poly_getnoise_eta1122_4x is used instead.
+#define poly_getnoise_eta2_4x poly_getnoise_eta1_4x
+#endif /* MLKEM_ETA1 == MLKEM_ETA2 */
+
 #define poly_getnoise_eta2 MLKEM_NAMESPACE(poly_getnoise_eta2)
 /*************************************************
  * Name:        poly_getnoise_eta2

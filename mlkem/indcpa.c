@@ -468,12 +468,12 @@ void indcpa_enc(uint8_t c[MLKEM_INDCPA_BYTES],
   poly_getnoise_eta1_4x(sp.vec + 0, sp.vec + 1, sp.vec + 2, &b.vec[0], coins, 0,
                         1, 2, 0xFF);
   // The fourth output buffer in this call _is_ used.
-  poly_getnoise_eta1_4x(ep.vec + 0, ep.vec + 1, ep.vec + 2, &epp, coins, 3, 4,
+  poly_getnoise_eta2_4x(ep.vec + 0, ep.vec + 1, ep.vec + 2, &epp, coins, 3, 4,
                         5, 6);
 #elif MLKEM_K == 4
   poly_getnoise_eta1_4x(sp.vec + 0, sp.vec + 1, sp.vec + 2, sp.vec + 3, coins,
                         0, 1, 2, 3);
-  poly_getnoise_eta1_4x(ep.vec + 0, ep.vec + 1, ep.vec + 2, ep.vec + 3, coins,
+  poly_getnoise_eta2_4x(ep.vec + 0, ep.vec + 1, ep.vec + 2, ep.vec + 3, coins,
                         4, 5, 6, 7);
   poly_getnoise_eta2(&epp, coins, 8);
 #endif
