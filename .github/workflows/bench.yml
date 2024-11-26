@@ -1,8 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 name: Bench
-permissions:
-  contents: read
 on:
   workflow_dispatch:
   push:
@@ -17,6 +15,9 @@ concurrency:
 
 jobs:
   bench:
+    permissions:
+      contents: write
+      pull-requests: write
     name: ${{ matrix.target.name }}
     strategy:
       fail-fast: true
@@ -56,8 +57,9 @@ jobs:
   ec2_all:
     name: ${{ matrix.target.name }} ${{ matrix.opt.name }}
     permissions:
-      contents: 'read'
-      id-token: 'write'
+      contents: write
+      pull-requests: write
+      id-token: write
     strategy:
       fail-fast: false
       matrix:

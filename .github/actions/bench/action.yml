@@ -44,6 +44,9 @@ inputs:
   cross_prefix:
     description: "Binary prefix for cross-compilation builds"
     default: ""
+  alert_threshold:
+    description: "Set alert threshold in percentage for benchmark result"
+    default: "103%"
 runs:
   using: composite
   steps:
@@ -84,11 +87,20 @@ runs:
       run: |
         check-namespace
     - name: Store benchmark result
-      if: ${{ inputs.store_results == 'true' }}
       uses: benchmark-action/github-action-benchmark@v1
       with:
         name: ${{ inputs.name }}
         tool: "customSmallerIsBetter"
         output-file-path: output.json
         github-token: ${{ inputs.gh_token }}
-        auto-push: true
+        auto-push: ${{ inputs.store_results == 'true' }}
+        comment-on-alert: true
+        summary-always: true
+        alert-threshold: ${{ inputs.alert_threshold }}
+    - name: Reset gh-pages if result is not pushed to gh-pages
+      shell: ${{ env.SHELL }}
+      if: ${{ inputs.store_results != 'true' }}
+      run: |
+        git -c advice.detachedHead=false switch gh-pages
+        git reset --hard HEAD~1
+        git checkout -
