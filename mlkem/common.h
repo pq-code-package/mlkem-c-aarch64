@@ -12,6 +12,8 @@
 #define ALWAYS_INLINE __attribute__((always_inline))
 #endif
 
+#define asm __asm__
+
 #define MLKEM_CONCAT_(left, right) left##right
 #define MLKEM_CONCAT(left, right) MLKEM_CONCAT_(left, right)
 
