@@ -10,24 +10,6 @@
 #include "cbmc.h"
 #include "params.h"
 
-// If a native backend is used, we include the native implementations from the
-// backend as those are using inline assembly. This guarantees that these
-// gadgets are constant-time, but also allows the compiler to inline them.
-// Otherwise, we use the reference code (verify.c) in a separate compilation
-// unit.
-#if defined(MLKEM_USE_NATIVE_VERIFY)
-#include "cpucap.h"
-
-#if defined(SYS_AARCH64)
-#include "verify-aarch64.h"
-#endif /* SYS_AARCH64 */
-
-#if defined(SYS_X86_64)
-#include "verify-x86_64.h"
-#endif /* SYS_X86_64 */
-#endif
-
-
 #define verify MLKEM_NAMESPACE(verify)
 /*************************************************
  * Name:        verify

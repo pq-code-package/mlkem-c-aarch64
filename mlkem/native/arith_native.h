@@ -43,6 +43,52 @@
 // The macro before each declaration controls whether a native
 // implementation is present.
 
+#if defined(MLKEM_USE_NATIVE_VERIFY)
+/*************************************************
+ * Name:        verify_native
+ *
+ * Description: Compare two arrays for equality in constant time.
+ *
+ * Arguments:   const uint8_t *a: pointer to first byte array
+ *              const uint8_t *b: pointer to second byte array
+ *              size_t len:       length of the byte arrays
+ *
+ * Returns 0 if the byte arrays are equal, 1 otherwise
+ **************************************************/
+static inline int verify_native(const uint8_t *a, const uint8_t *b,
+                                const size_t len);
+
+/*************************************************
+ * Name:        cmov
+ *
+ * Description: Copy len bytes from x to r if b is 1;
+ *              don't modify x if b is 0. Requires b to be in {0,1};
+ *              assumes two's complement representation of negative integers.
+ *              Runs in constant time.
+ *
+ * Arguments:   uint8_t *r:       pointer to output byte array
+ *              const uint8_t *x: pointer to input byte array
+ *              size_t len:       Amount of bytes to be copied
+ *              uint8_t b:        Condition bit; has to be in {0,1}
+ **************************************************/
+static inline void cmov_native(uint8_t *r, const uint8_t *x, size_t len,
+                               uint8_t b);
+
+/*************************************************
+ * Name:        cmov_int16_native
+ *
+ * Description: Copy input v to *r if b is 1, don't modify *r if b is 0.
+ *              Requires b to be in {0,1};
+ *              Runs in constant time.
+ *
+ * Arguments:   int16_t *r:       pointer to output int16_t
+ *              int16_t v:        input int16_t. Must not be NULL
+ *              uint16_t b:       Condition bit; has to be in {0,1}
+ **************************************************/
+static inline void cmov_int16_native(int16_t *r, const int16_t v,
+                                     const uint16_t b);
+#endif /* MLKEM_USE_NATIVE_VERIFY */
+
 #if defined(MLKEM_USE_NATIVE_NTT)
 /*************************************************
  * Name:        ntt_native

@@ -101,4 +101,6 @@ static inline void poly_frombytes_native(poly *r,
   nttfrombytes_avx2((__m256i *)r->coeffs, a, qdata.vec);
 }
 
+#include "../verify-x86_64.h"
+
 #endif /* MLKEM_ARITH_NATIVE_PROFILE_H */

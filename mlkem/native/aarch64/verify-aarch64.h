@@ -40,7 +40,6 @@ static inline void cmov_native(uint8_t *r, const uint8_t *x, size_t len,
   }
 }
 
-
 static inline void cmov_int16_native(int16_t *r, const int16_t v,
                                      const uint16_t b)
 {

@@ -74,4 +74,6 @@ static inline int rej_uniform_native(int16_t *r, unsigned int len,
   return (int)rej_uniform_asm_clean(r, buf, buflen);
 }
 
+#include "../verify-aarch64.h"
+
 #endif /* MLKEM_ARITH_NATIVE_PROFILE_H */

@@ -83,6 +83,5 @@ void polyvec_basemul_acc_montgomery_cached_asm_opt(int16_t *r, const int16_t *a,
                                                    const int16_t *b,
                                                    const int16_t *b_cache);
 
-
 #endif /* MLKEM_USE_NATIVE_AARCH64 */
 #endif /* MLKEM_AARCH64_NATIVE_H */
