@@ -76,22 +76,22 @@
         mls     \a\().8h, t0.8h,    consts.h[0]
 .endm
 
-.macro load_roots_123
-        ldr q_root0, [r_ptr0], #32
-        ldr q_root1, [r_ptr0, #-16]
+.macro load_roots_012
+        ldr q_root0, [r01234_ptr], #32
+        ldr q_root1, [r01234_ptr, #-16]
 .endm
 
-.macro load_next_roots_45
-        ldr q_root0, [r_ptr0], #16
+.macro load_next_roots_34
+        ldr q_root0, [r01234_ptr], #16
 .endm
 
-.macro load_next_roots_67
-        ldr q_root0,    [r_ptr1], #(6*16)
-        ldr q_root0_tw, [r_ptr1, #(-6*16 + 1*16)]
-        ldr q_root1,    [r_ptr1, #(-6*16 + 2*16)]
-        ldr q_root1_tw, [r_ptr1, #(-6*16 + 3*16)]
-        ldr q_root2,    [r_ptr1, #(-6*16 + 4*16)]
-        ldr q_root2_tw, [r_ptr1, #(-6*16 + 5*16)]
+.macro load_next_roots_56
+        ldr q_root0,    [r56_ptr], #(6*16)
+        ldr q_root0_tw, [r56_ptr, #(-6*16 + 1*16)]
+        ldr q_root1,    [r56_ptr, #(-6*16 + 2*16)]
+        ldr q_root1_tw, [r56_ptr, #(-6*16 + 3*16)]
+        ldr q_root2,    [r56_ptr, #(-6*16 + 4*16)]
+        ldr q_root2_tw, [r56_ptr, #(-6*16 + 5*16)]
 .endm
 
 .macro transpose4 data
@@ -143,10 +143,6 @@
 // are NOT canonically reduced. The ordering of the coefficients is canonical,
 // also matching PQClean.
 
-.data
-.p2align 4
-roots:
-#include "intt_123_45_67_twiddles.S"
 .text
 
         .global MLKEM_NAMESPACE(intt_asm_clean)
@@ -182,11 +178,12 @@ MLKEM_NAMESPACE(intt_asm_clean):
 _MLKEM_NAMESPACE(intt_asm_clean):
         push_stack
 
-        in      .req x0
-        inp     .req x1
-        count   .req x2
-        r_ptr0  .req x3
-        r_ptr1  .req x4
+        in         .req x0
+        r01234_ptr .req x1
+        r56_ptr    .req x2
+
+        inp     .req x3
+        count   .req x4
         xtmp    .req x5
 
         data0  .req v8
@@ -230,9 +227,6 @@ _MLKEM_NAMESPACE(intt_asm_clean):
         t2  .req v27
         t3  .req v28
 
-        ASM_LOAD(r_ptr0, roots_l34)
-        ASM_LOAD(r_ptr1, roots_l56)
-
         ASM_LOAD(xtmp, const_addr)
         ld1 {consts.8h}, [xtmp]
 
@@ -269,7 +263,7 @@ scale_start:
         mov count, #8
 
         .p2align 2
-layer4567_start:
+layer3456_start:
 
         ldr q_data0, [inp, #(16*0)]
         ldr q_data1, [inp, #(16*1)]
@@ -278,7 +272,7 @@ layer4567_start:
 
         transpose4 data // manual ld4
 
-        load_next_roots_67
+        load_next_roots_56
 
         // Layer 7
         gs_butterfly_v data0, data1, root1, root1_tw
@@ -297,7 +291,7 @@ layer4567_start:
 
         transpose4 data
 
-        load_next_roots_45
+        load_next_roots_34
 
         // Layer 5
         gs_butterfly data0, data1, root0, 2, 3
@@ -324,17 +318,16 @@ layer4567_start:
         str q_data3, [inp, #(-64 + 16*3)]
 
         subs count, count, #1
-        cbnz count, layer4567_start
+        cbnz count, layer3456_start
 
         // ---------------------------------------------------------------------
 
         mov count, #4
-        ASM_LOAD(r_ptr0, roots_l012)
-        load_roots_123
+        load_roots_012
 
         .p2align 2
 
-layer123_start:
+layer012_start:
 
         ldr q_data0, [in, #0]
         ldr q_data1, [in, #(1*(512/8))]
@@ -373,7 +366,7 @@ layer123_start:
         str q_data3, [in, #(-16 + 3*(512/8))]
 
         subs count, count, #1
-        cbnz count, layer123_start
+        cbnz count, layer012_start
 
         pop_stack
         ret

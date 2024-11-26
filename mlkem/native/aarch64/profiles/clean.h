@@ -22,10 +22,16 @@
 #define MLKEM_USE_NATIVE_REJ_UNIFORM
 
 #define NTT_BOUND_NATIVE (6 * MLKEM_Q)
-static inline void ntt_native(poly *data) { ntt_asm_clean(data->coeffs); }
+static inline void ntt_native(poly *data) {
+  ntt_asm_clean(data->coeffs, aarch64_ntt_zetas_layer01234,
+                aarch64_ntt_zetas_layer56);
+}
 
 #define INVNTT_BOUND_NATIVE (8 * MLKEM_Q)
-static inline void intt_native(poly *data) { intt_asm_clean(data->coeffs); }
+static inline void intt_native(poly *data) {
+  intt_asm_clean(data->coeffs, aarch64_invntt_zetas_layer01234,
+                 aarch64_invntt_zetas_layer56);
+}
 
 static inline void poly_reduce_native(poly *data) {
   poly_reduce_asm_clean(data->coeffs);

@@ -70,22 +70,22 @@
         mls     \a\().8h, t0.8h, consts.h[0]
 .endm
 
-.macro load_roots_123
-        ldr q_root0, [r_ptr0], #32
-        ldr q_root1, [r_ptr0, #-16]
+.macro load_roots_012
+        ldr q_root0, [r01234_ptr], #32
+        ldr q_root1, [r01234_ptr, #-16]
 .endm
 
-.macro load_next_roots_45
-        ldr q_root0, [r_ptr0], #16
+.macro load_next_roots_34
+        ldr q_root0, [r01234_ptr], #16
 .endm
 
-.macro load_next_roots_67
-        ldr q_root0,    [r_ptr1], #(6*16)
-        ldr q_root0_tw, [r_ptr1, #(-6*16 + 1*16)]
-        ldr q_root1,    [r_ptr1, #(-6*16 + 2*16)]
-        ldr q_root1_tw, [r_ptr1, #(-6*16 + 3*16)]
-        ldr q_root2,    [r_ptr1, #(-6*16 + 4*16)]
-        ldr q_root2_tw, [r_ptr1, #(-6*16 + 5*16)]
+.macro load_next_roots_56
+        ldr q_root0,    [r56_ptr], #(6*16)
+        ldr q_root0_tw, [r56_ptr, #(-6*16 + 1*16)]
+        ldr q_root1,    [r56_ptr, #(-6*16 + 2*16)]
+        ldr q_root1_tw, [r56_ptr, #(-6*16 + 3*16)]
+        ldr q_root2,    [r56_ptr, #(-6*16 + 4*16)]
+        ldr q_root2_tw, [r56_ptr, #(-6*16 + 5*16)]
 .endm
 
 .macro transpose4 data
@@ -131,16 +131,13 @@
         restore_vregs
 .endm
 
-.data
-.p2align 4
-roots:
-        #include "ntt_123_45_67_twiddles.S"
+        // Arguments
+        in         .req x0 // Input/output buffer
+        r01234_ptr .req x1 // twiddles for layer 0,1,2,3,4
+        r56_ptr    .req x2 // twiddles for layer 5,6
 
-        in      .req x0
-        inp     .req x1
-        count   .req x2
-        r_ptr0  .req x3
-        r_ptr1  .req x4
+        inp     .req x3
+        count   .req x4
         xtmp    .req x5
 
         data0  .req v8
@@ -202,9 +199,6 @@ const_addr:
 MLKEM_NAMESPACE(ntt_asm_clean):
 _MLKEM_NAMESPACE(ntt_asm_clean):
         push_stack
-
-        ASM_LOAD(r_ptr0, roots)
-        ASM_LOAD(r_ptr1, roots_l56)
         ASM_LOAD(xtmp, const_addr)
 
         ld1 {consts.8h}, [xtmp]
@@ -212,7 +206,7 @@ _MLKEM_NAMESPACE(ntt_asm_clean):
         mov inp, in
         mov count, #4
 
-        load_roots_123
+        load_roots_012
 
         .p2align 2
 
@@ -229,7 +223,7 @@ _MLKEM_NAMESPACE(ntt_asm_clean):
         //
         // See test/test_bounds.py for more details.
 
-layer123_start:
+layer012_start:
 
         ldr q_data0, [in, #0]
         ldr q_data1, [in, #(1*(512/8))]
@@ -265,20 +259,20 @@ layer123_start:
         str q_data7, [in, #(-16 + 7*(512/8))]
 
         subs count, count, #1
-        cbnz count, layer123_start
+        cbnz count, layer012_start
 
         mov in, inp
         mov count, #8
 
         .p2align 2
-layer4567_start:
+layer3456_start:
 
         ldr q_data0, [in, #(16*0)]
         ldr q_data1, [in, #(16*1)]
         ldr q_data2, [in, #(16*2)]
         ldr q_data3, [in, #(16*3)]
 
-        load_next_roots_45
+        load_next_roots_34
 
         ct_butterfly data0, data2, root0, 0, 1
         ct_butterfly data1, data3, root0, 0, 1
@@ -286,7 +280,7 @@ layer4567_start:
         ct_butterfly data2, data3, root0, 4, 5
 
         transpose4 data
-        load_next_roots_67
+        load_next_roots_56
 
         ct_butterfly_v data0, data2, root0, root0_tw
         ct_butterfly_v data1, data3, root0, root0_tw
@@ -296,7 +290,7 @@ layer4567_start:
         st4 {data0.4S, data1.4S, data2.4S, data3.4S}, [in], #64
 
         subs count, count, #1
-        cbnz count, layer4567_start
+        cbnz count, layer3456_start
 
         pop_stack
         ret
