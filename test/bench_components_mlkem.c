@@ -178,8 +178,10 @@ static int bench(void) {
 
 
 #if defined(MLKEM_USE_NATIVE_AARCH64)
-  BENCH("ntt-clean", ntt_asm_clean((int16_t *)data0));
-  BENCH("intt-clean", intt_asm_clean((int16_t *)data0));
+  BENCH("ntt-clean",
+        ntt_asm_clean((int16_t *)data0, (int16_t *)data1, (int16_t *)data2));
+  BENCH("intt-clean",
+        intt_asm_clean((int16_t *)data0, (int16_t *)data1, (int16_t *)data2));
   BENCH("poly-reduce-clean", poly_reduce_asm_clean((int16_t *)data0));
   BENCH("poly-tomont-clean", poly_tomont_asm_clean((int16_t *)data0));
   BENCH("poly-tobytes-clean",
@@ -192,8 +194,10 @@ static int bench(void) {
             (int16_t *)data0, (int16_t *)data1, (int16_t *)data2,
             (int16_t *)data3));
 
-  BENCH("ntt-opt", ntt_asm_opt((int16_t *)data0));
-  BENCH("intt-opt", intt_asm_opt((int16_t *)data0));
+  BENCH("ntt-opt",
+        ntt_asm_opt((int16_t *)data0, (int16_t *)data1, (int16_t *)data2));
+  BENCH("intt-opt",
+        intt_asm_opt((int16_t *)data0, (int16_t *)data1, (int16_t *)data2));
   BENCH("poly-reduce-opt", poly_reduce_asm_opt((int16_t *)data0));
   BENCH("poly-tomont-opt", poly_tomont_asm_opt((int16_t *)data0));
   BENCH("poly-mulcache-compute-opt",
