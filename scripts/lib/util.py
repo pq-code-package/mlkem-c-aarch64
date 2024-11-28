@@ -183,11 +183,12 @@ def github_summary(title: str, test_label: str, results: TypedDict):
             print("\n".join(summaries), file=f)
 
 
-def config_logger(verbose):
-    logging.basicConfig(
-        stream=sys.stdout, format="%(levelname)-5s > %(name)-40s %(message)s"
-    )
+logging.basicConfig(
+    stream=sys.stdout, format="%(levelname)-5s > %(name)-40s %(message)s"
+)
 
+
+def config_logger(verbose):
     logger = logging.getLogger()
 
     if verbose:
