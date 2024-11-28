@@ -20,7 +20,8 @@
  * Elements of R_q = Z_q[X]/(X^n + 1). Represents polynomial
  * coeffs[0] + X*coeffs[1] + X^2*coeffs[2] + ... + X^{n-1}*coeffs[n-1]
  */
-typedef struct {
+typedef struct
+{
   int16_t coeffs[MLKEM_N];
 } ALIGN poly;
 
@@ -30,7 +31,8 @@ typedef struct {
  */
 // REF-CHANGE: This structure does not exist in the reference
 // implementation.
-typedef struct {
+typedef struct
+{
   int16_t coeffs[MLKEM_N >> 1];
 } poly_mulcache;
 
@@ -98,9 +100,9 @@ static inline uint32_t scalar_compress_d4(uint16_t u)  // clang-format off
 REQUIRES(u <= MLKEM_Q - 1)
 ENSURES(RETURN_VALUE < 16)
 ENSURES(RETURN_VALUE == (((uint32_t)u * 16 + MLKEM_Q / 2) / MLKEM_Q) % 16)
-{  // clang-format on
-  uint32_t d0 = (uint32_t)u * 1290160;     // 16 * round(2^28 / MLKEM_Q)
-  return (d0 + (1u << 27)) >> 28;          // round(d0/2^28)
+{                                       // clang-format on
+  uint32_t d0 = (uint32_t)u * 1290160;  // 16 * round(2^28 / MLKEM_Q)
+  return (d0 + (1u << 27)) >> 28;       // round(d0/2^28)
 }
 #ifdef CBMC
 #pragma CPROVER check pop
@@ -194,7 +196,7 @@ uint32_t scalar_compress_d10(uint16_t u)  // clang-format off
 REQUIRES(u <= MLKEM_Q - 1)
 ENSURES(RETURN_VALUE < (1u << 10))
 ENSURES(RETURN_VALUE == (((uint32_t)u * (1u << 10) + MLKEM_Q / 2) / MLKEM_Q) % (1 << 10))
-{           // clang-format on
+{                                          // clang-format on
   uint64_t d0 = (uint64_t)u * 2642263040;  // 2^10 * round(2^32 / MLKEM_Q)
   d0 = (d0 + ((uint64_t)1u << 32)) >> 33;
   return (d0 & 0x3FF);
@@ -243,7 +245,7 @@ uint32_t scalar_compress_d11(uint16_t u)  // clang-format off
 REQUIRES(u <= MLKEM_Q - 1)
 ENSURES(RETURN_VALUE < (1u << 11))
 ENSURES(RETURN_VALUE == (((uint32_t)u * (1u << 11) + MLKEM_Q / 2) / MLKEM_Q) % (1 << 11))
-{           // clang-format on
+{                                          // clang-format on
   uint64_t d0 = (uint64_t)u * 5284526080;  // 2^11 * round(2^33 / MLKEM_Q)
   d0 = (d0 + ((uint64_t)1u << 32)) >> 33;
   return (d0 & 0x7FF);

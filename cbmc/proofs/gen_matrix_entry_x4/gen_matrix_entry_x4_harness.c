@@ -26,7 +26,8 @@ void gen_matrix_entry_x4(poly vec[4], uint8_t *seed[4]);
  * @brief Starting point for formal analysis
  *
  */
-void harness(void) {
+void harness(void)
+{
   poly out[4];
   uint8_t *seed[4];
   gen_matrix_entry_x4(out, seed);

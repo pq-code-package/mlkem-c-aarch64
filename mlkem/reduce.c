@@ -20,7 +20,8 @@ static const uint32_t QINV = 62209;  // q^-1 mod 2^16
 #pragma CPROVER check push
 #pragma CPROVER check disable "conversion"
 #endif
-static inline int16_t cast_uint16_to_int16(uint16_t x) {
+static inline int16_t cast_uint16_to_int16(uint16_t x)
+{
   // PORTABILITY: This relies on uint16_t -> int16_t
   // being implemented as the inverse of int16_t -> uint16_t,
   // which is implementation-defined (C99 6.3.1.3 (3))
@@ -58,7 +59,8 @@ static inline int16_t cast_uint16_to_int16(uint16_t x) {
  *                < q (C/2^16 + 1/2).
  **************************************************/
 ALWAYS_INLINE
-static inline int16_t montgomery_reduce_generic(int32_t a) {
+static inline int16_t montgomery_reduce_generic(int32_t a)
+{
   // Bounds on paper
   //
   // - Case |a| < q * C, for some C
@@ -89,7 +91,8 @@ static inline int16_t montgomery_reduce_generic(int32_t a) {
   return (int16_t)r;
 }
 
-int16_t montgomery_reduce(int32_t a) {
+int16_t montgomery_reduce(int32_t a)
+{
   SCALAR_BOUND(a, 2 * MLKEM_Q * 32768, "montgomery_reduce input");
 
   int16_t res = montgomery_reduce_generic(a);
@@ -98,7 +101,8 @@ int16_t montgomery_reduce(int32_t a) {
   return res;
 }
 
-int16_t fqmul(int16_t a, int16_t b) {
+int16_t fqmul(int16_t a, int16_t b)
+{
   SCALAR_BOUND(b, HALF_Q, "fqmul input");
 
   int16_t res = montgomery_reduce((int32_t)a * (int32_t)b);
@@ -124,7 +128,8 @@ static const int32_t barrett_multiplier =
  *
  * Returns:     integer in {-(q-1)/2,...,(q-1)/2} congruent to a modulo q.
  **************************************************/
-int16_t barrett_reduce(int16_t a) {
+int16_t barrett_reduce(int16_t a)
+{
   // Compute round_to_nearest(a/MLKEM_Q) using the multiplier
   // above and shift by BPOWER places.
   //

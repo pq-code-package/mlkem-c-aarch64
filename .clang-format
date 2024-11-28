@@ -18,3 +18,5 @@ IncludeBlocks: Preserve
 # Designate CBMC contracts/macros that appear in .h files
 # as "attributes" so they don't get increasingly indented line after line
 AttributeMacros: ['REQUIRES', 'ENSURES', 'ASSIGNS', 'INVARIANT']
+
+BreakBeforeBraces: Allman

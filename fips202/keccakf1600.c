@@ -20,32 +20,38 @@
 #define ROL(a, offset) ((a << offset) ^ (a >> (64 - offset)))
 
 void KeccakF1600_StateExtractBytes(uint64_t *state, unsigned char *data,
-                                   unsigned int offset, unsigned int length) {
+                                   unsigned int offset, unsigned int length)
+{
 #if defined(SYS_LITTLE_ENDIAN)
   uint8_t *state_ptr = (uint8_t *)state + offset;
-  for (unsigned int i = 0; i < length; i++) {
+  for (unsigned int i = 0; i < length; i++)
+  {
     data[i] = state_ptr[i];
   }
 #else  /* SYS_LITTLE_ENDIAN */
   // Portable version
   unsigned int i;
-  for (i = 0; i < length; i++) {
+  for (i = 0; i < length; i++)
+  {
     data[i] = state[(offset + i) >> 3] >> (8 * ((offset + i) & 0x07));
   }
 #endif /* SYS_LITTLE_ENDIAN */
 }
 
 void KeccakF1600_StateXORBytes(uint64_t *state, const unsigned char *data,
-                               unsigned int offset, unsigned int length) {
+                               unsigned int offset, unsigned int length)
+{
 #if defined(SYS_LITTLE_ENDIAN)
   uint8_t *state_ptr = (uint8_t *)state + offset;
-  for (unsigned int i = 0; i < length; i++) {
+  for (unsigned int i = 0; i < length; i++)
+  {
     state_ptr[i] ^= data[i];
   }
 #else  /* SYS_LITTLE_ENDIAN */
   // Portable version
   unsigned int i;
-  for (i = 0; i < length; i++) {
+  for (i = 0; i < length; i++)
+  {
     state[(offset + i) >> 3] ^= (uint64_t)data[i]
                                 << (8 * ((offset + i) & 0x07));
   }
@@ -55,7 +61,8 @@ void KeccakF1600_StateXORBytes(uint64_t *state, const unsigned char *data,
 void KeccakF1600x4_StateExtractBytes(uint64_t *state, unsigned char *data0,
                                      unsigned char *data1, unsigned char *data2,
                                      unsigned char *data3, unsigned int offset,
-                                     unsigned int length) {
+                                     unsigned int length)
+{
   KeccakF1600_StateExtractBytes(state + KECCAK_LANES * 0, data0, offset,
                                 length);
   KeccakF1600_StateExtractBytes(state + KECCAK_LANES * 1, data1, offset,
@@ -70,14 +77,16 @@ void KeccakF1600x4_StateXORBytes(uint64_t *state, const unsigned char *data0,
                                  const unsigned char *data1,
                                  const unsigned char *data2,
                                  const unsigned char *data3,
-                                 unsigned int offset, unsigned int length) {
+                                 unsigned int offset, unsigned int length)
+{
   KeccakF1600_StateXORBytes(state + KECCAK_LANES * 0, data0, offset, length);
   KeccakF1600_StateXORBytes(state + KECCAK_LANES * 1, data1, offset, length);
   KeccakF1600_StateXORBytes(state + KECCAK_LANES * 2, data2, offset, length);
   KeccakF1600_StateXORBytes(state + KECCAK_LANES * 3, data3, offset, length);
 }
 
-void KeccakF1600x4_StatePermute(uint64_t *state) {
+void KeccakF1600x4_StatePermute(uint64_t *state)
+{
 #if defined(MLKEM_USE_FIPS202_X4_NATIVE)
   keccak_f1600_x4_native(state);
 #elif defined(MLKEM_USE_FIPS202_X2_NATIVE)
@@ -106,7 +115,8 @@ static const uint64_t KeccakF_RoundConstants[NROUNDS] = {
     (uint64_t)0x8000000080008081ULL, (uint64_t)0x8000000000008080ULL,
     (uint64_t)0x0000000080000001ULL, (uint64_t)0x8000000080008008ULL};
 
-void KeccakF1600_StatePermute(uint64_t *state) {
+void KeccakF1600_StatePermute(uint64_t *state)
+{
   int round;
 
   uint64_t Aba, Abe, Abi, Abo, Abu;
@@ -149,7 +159,8 @@ void KeccakF1600_StatePermute(uint64_t *state) {
   Aso = state[23];
   Asu = state[24];
 
-  for (round = 0; round < NROUNDS; round += 2) {
+  for (round = 0; round < NROUNDS; round += 2)
+  {
     //    prepareTheta
     BCa = Aba ^ Aga ^ Aka ^ Ama ^ Asa;
     BCe = Abe ^ Age ^ Ake ^ Ame ^ Ase;
@@ -371,7 +382,8 @@ void KeccakF1600_StatePermute(uint64_t *state) {
 #undef round
 }
 #else  /* !MLKEM_USE_FIPS202_X1_NATIVE */
-void KeccakF1600_StatePermute(uint64_t *state) {
+void KeccakF1600_StatePermute(uint64_t *state)
+{
   keccak_f1600_x1_native(state);
 }
 #endif /* !MLKEM_USE_FIPS202_X1_NATIVE */

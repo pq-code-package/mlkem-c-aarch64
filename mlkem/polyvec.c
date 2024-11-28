@@ -10,49 +10,61 @@
 
 #include "debug/debug.h"
 void polyvec_compress_du(uint8_t r[MLKEM_POLYVECCOMPRESSEDBYTES_DU],
-                         const polyvec *a) {
+                         const polyvec *a)
+{
   unsigned int i;
   POLYVEC_UBOUND(a, MLKEM_Q);
 
-  for (i = 0; i < MLKEM_K; i++) {
+  for (i = 0; i < MLKEM_K; i++)
+  {
     poly_compress_du(r + i * MLKEM_POLYCOMPRESSEDBYTES_DU, &a->vec[i]);
   }
 }
 
 void polyvec_decompress_du(polyvec *r,
-                           const uint8_t a[MLKEM_POLYVECCOMPRESSEDBYTES_DU]) {
+                           const uint8_t a[MLKEM_POLYVECCOMPRESSEDBYTES_DU])
+{
   unsigned int i;
-  for (i = 0; i < MLKEM_K; i++) {
+  for (i = 0; i < MLKEM_K; i++)
+  {
     poly_decompress_du(&r->vec[i], a + i * MLKEM_POLYCOMPRESSEDBYTES_DU);
   }
 
   POLYVEC_UBOUND(r, MLKEM_Q);
 }
 
-void polyvec_tobytes(uint8_t r[MLKEM_POLYVECBYTES], const polyvec *a) {
+void polyvec_tobytes(uint8_t r[MLKEM_POLYVECBYTES], const polyvec *a)
+{
   unsigned int i;
-  for (i = 0; i < MLKEM_K; i++) {
+  for (i = 0; i < MLKEM_K; i++)
+  {
     poly_tobytes(r + i * MLKEM_POLYBYTES, &a->vec[i]);
   }
 }
 
-void polyvec_frombytes(polyvec *r, const uint8_t a[MLKEM_POLYVECBYTES]) {
+void polyvec_frombytes(polyvec *r, const uint8_t a[MLKEM_POLYVECBYTES])
+{
   int i;
-  for (i = 0; i < MLKEM_K; i++) {
+  for (i = 0; i < MLKEM_K; i++)
+  {
     poly_frombytes(&r->vec[i], a + i * MLKEM_POLYBYTES);
   }
 }
 
-void polyvec_ntt(polyvec *r) {
+void polyvec_ntt(polyvec *r)
+{
   unsigned int i;
-  for (i = 0; i < MLKEM_K; i++) {
+  for (i = 0; i < MLKEM_K; i++)
+  {
     poly_ntt(&r->vec[i]);
   }
 }
 
-void polyvec_invntt_tomont(polyvec *r) {
+void polyvec_invntt_tomont(polyvec *r)
+{
   unsigned int i;
-  for (i = 0; i < MLKEM_K; i++) {
+  for (i = 0; i < MLKEM_K; i++)
+  {
     poly_invntt_tomont(&r->vec[i]);
   }
 }
@@ -78,7 +90,8 @@ void polyvec_invntt_tomont(polyvec *r) {
 #if !defined(MLKEM_USE_NATIVE_POLYVEC_BASEMUL_ACC_MONTGOMERY_CACHED)
 void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a,
                                            const polyvec *b,
-                                           const polyvec_mulcache *b_cache) {
+                                           const polyvec_mulcache *b_cache)
+{
   POLYVEC_BOUND(a, MLKEM_Q);
   POLYVEC_BOUND(b, NTT_BOUND);
   POLYVEC_BOUND(b_cache, MLKEM_Q);
@@ -87,7 +100,8 @@ void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a,
   poly t;
 
   poly_basemul_montgomery_cached(r, &a->vec[0], &b->vec[0], &b_cache->vec[0]);
-  for (i = 1; i < MLKEM_K; i++) {
+  for (i = 1; i < MLKEM_K; i++)
+  {
     poly_basemul_montgomery_cached(&t, &a->vec[i], &b->vec[i],
                                    &b_cache->vec[i]);
     poly_add(r, &t);
@@ -105,7 +119,8 @@ void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a,
 #else  /* !MLKEM_USE_NATIVE_POLYVEC_BASEMUL_ACC_MONTGOMERY_CACHED */
 void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a,
                                            const polyvec *b,
-                                           const polyvec_mulcache *b_cache) {
+                                           const polyvec_mulcache *b_cache)
+{
   POLYVEC_BOUND(a, MLKEM_Q);
   POLYVEC_BOUND(b, NTT_BOUND);
   POLYVEC_BOUND(b_cache, MLKEM_Q);
@@ -123,8 +138,8 @@ void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a,
  *            - const polyvec *a: pointer to first input vector of polynomials
  *            - const polyvec *b: pointer to second input vector of polynomials
  **************************************************/
-void polyvec_basemul_acc_montgomery(poly *r, const polyvec *a,
-                                    const polyvec *b) {
+void polyvec_basemul_acc_montgomery(poly *r, const polyvec *a, const polyvec *b)
+{
   polyvec_mulcache b_cache;
   polyvec_mulcache_compute(&b_cache, b);
   polyvec_basemul_acc_montgomery_cached(r, a, b, &b_cache);
@@ -140,9 +155,11 @@ void polyvec_basemul_acc_montgomery(poly *r, const polyvec *a,
  * Arguments: - polyvec_mulcache *x: pointer to output cache.
  *            - const poly *a: pointer to input polynomial
  **************************************************/
-void polyvec_mulcache_compute(polyvec_mulcache *x, const polyvec *a) {
+void polyvec_mulcache_compute(polyvec_mulcache *x, const polyvec *a)
+{
   unsigned int i;
-  for (i = 0; i < MLKEM_K; i++) {
+  for (i = 0; i < MLKEM_K; i++)
+  {
     poly_mulcache_compute(&x->vec[i], &a->vec[i]);
   }
 }
@@ -157,23 +174,29 @@ void polyvec_mulcache_compute(polyvec_mulcache *x, const polyvec *a) {
  *
  * Arguments:   - polyvec *r: pointer to input/output polynomial
  **************************************************/
-void polyvec_reduce(polyvec *r) {
+void polyvec_reduce(polyvec *r)
+{
   unsigned int i;
-  for (i = 0; i < MLKEM_K; i++) {
+  for (i = 0; i < MLKEM_K; i++)
+  {
     poly_reduce(&r->vec[i]);
   }
 }
 
-void polyvec_add(polyvec *r, const polyvec *b) {
+void polyvec_add(polyvec *r, const polyvec *b)
+{
   int i;
-  for (i = 0; i < MLKEM_K; i++) {
+  for (i = 0; i < MLKEM_K; i++)
+  {
     poly_add(&r->vec[i], &b->vec[i]);
   }
 }
 
-void polyvec_tomont(polyvec *r) {
+void polyvec_tomont(polyvec *r)
+{
   unsigned int i;
-  for (i = 0; i < MLKEM_K; i++) {
+  for (i = 0; i < MLKEM_K; i++)
+  {
     poly_tomont(&r->vec[i]);
   }
 }

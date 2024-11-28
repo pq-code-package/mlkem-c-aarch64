@@ -41,7 +41,8 @@ void enable_cyclecounter(void) {}
 
 void disable_cyclecounter(void) {}
 
-uint64_t get_cyclecounter(void) {
+uint64_t get_cyclecounter(void)
+{
   uint64_t result;
 
   __asm__ volatile("rdtsc; shlq $32,%%rdx; orq %%rdx,%%rax"
@@ -54,7 +55,8 @@ uint64_t get_cyclecounter(void) {
 
 #elif defined(__AARCH64EL__) || defined(_M_ARM64)
 
-void enable_cyclecounter(void) {
+void enable_cyclecounter(void)
+{
   uint64_t tmp;
   __asm __volatile(
       "mrs    %[tmp], pmcr_el0\n"
@@ -66,7 +68,8 @@ void enable_cyclecounter(void) {
       : [tmp] "=r"(tmp));
 }
 
-void disable_cyclecounter(void) {
+void disable_cyclecounter(void)
+{
   uint64_t tmp;
   __asm __volatile(
       "mov   %[tmp], #0x3f\n"
@@ -75,7 +78,8 @@ void disable_cyclecounter(void) {
       : [tmp] "=r"(tmp));
 }
 
-uint64_t get_cyclecounter(void) {
+uint64_t get_cyclecounter(void)
+{
   uint64_t retval;
   __asm __volatile("mrs    %[retval], pmccntr_el0\n" : [retval] "=r"(retval));
   return retval;
@@ -97,7 +101,8 @@ uint64_t get_cyclecounter(void) {
 #include <unistd.h>
 
 static int perf_fd = 0;
-void enable_cyclecounter(void) {
+void enable_cyclecounter(void)
+{
   struct perf_event_attr pe;
   memset(&pe, 0, sizeof(struct perf_event_attr));
   pe.type = PERF_TYPE_HARDWARE;
@@ -113,19 +118,24 @@ void enable_cyclecounter(void) {
   ioctl(perf_fd, PERF_EVENT_IOC_ENABLE, 0);
 }
 
-void disable_cyclecounter(void) {
+void disable_cyclecounter(void)
+{
   ioctl(perf_fd, PERF_EVENT_IOC_DISABLE, 0);
   close(perf_fd);
 }
 
-uint64_t get_cyclecounter(void) {
+uint64_t get_cyclecounter(void)
+{
   long long cpu_cycles;
   ioctl(perf_fd, PERF_EVENT_IOC_DISABLE, 0);
   ssize_t read_count = read(perf_fd, &cpu_cycles, sizeof(cpu_cycles));
-  if (read_count < 0) {
+  if (read_count < 0)
+  {
     perror("read");
     exit(EXIT_FAILURE);
-  } else if (read_count == 0) {
+  }
+  else if (read_count == 0)
+  {
     /* Should not happen */
     printf("perf counter empty\n");
     exit(EXIT_FAILURE);
@@ -197,39 +207,47 @@ uint64_t g_counters[COUNTERS_COUNT];
 uint64_t g_config[COUNTERS_COUNT];
 
 
-static void configure_rdtsc(void) {
-  if (kpc_force_all_ctrs_set(1)) {
+static void configure_rdtsc(void)
+{
+  if (kpc_force_all_ctrs_set(1))
+  {
     printf("kpc_force_all_ctrs_set failed\n");
     return;
   }
 
-  if (kpc_set_counting(KPC_MASK)) {
+  if (kpc_set_counting(KPC_MASK))
+  {
     printf("kpc_set_counting failed\n");
     return;
   }
 
-  if (kpc_set_thread_counting(KPC_MASK)) {
+  if (kpc_set_thread_counting(KPC_MASK))
+  {
     printf("kpc_set_thread_counting failed\n");
     return;
   }
 
-  if (kpc_set_config(KPC_MASK, g_config)) {
+  if (kpc_set_config(KPC_MASK, g_config))
+  {
     printf("kpc_set_config failed\n");
     return;
   }
 }
 
-static void init_rdtsc(void) {
+static void init_rdtsc(void)
+{
   void *kperf = dlopen(
       "/System/Library/PrivateFrameworks/kperf.framework/Versions/A/kperf",
       RTLD_LAZY);
-  if (!kperf) {
+  if (!kperf)
+  {
     printf("kperf = %p\n", kperf);
     return;
   }
 #define F(ret, name, ...)                     \
   name = (name##proc *)(dlsym(kperf, #name)); \
-  if (!name) {                                \
+  if (!name)                                  \
+  {                                           \
     printf("%s = %p\n", #name, (void *)name); \
     return;                                   \
   }
@@ -239,12 +257,16 @@ static void init_rdtsc(void) {
   g_config[0] = CPMU_CORE_CYCLE | CFGWORD_EL0A64EN_MASK;
 }
 
-void enable_cyclecounter(void) {
+void enable_cyclecounter(void)
+{
   int test_high_perf_cores = 1;
 
-  if (test_high_perf_cores) {
+  if (test_high_perf_cores)
+  {
     pthread_set_qos_class_self_np(QOS_CLASS_USER_INTERACTIVE, 0);
-  } else {
+  }
+  else
+  {
     pthread_set_qos_class_self_np(QOS_CLASS_BACKGROUND, 0);
   }
   init_rdtsc();
@@ -253,8 +275,10 @@ void enable_cyclecounter(void) {
 
 void disable_cyclecounter(void) { return; }
 
-uint64_t get_cyclecounter(void) {
-  if (kpc_get_thread_counters(0, COUNTERS_COUNT, g_counters)) {
+uint64_t get_cyclecounter(void)
+{
+  if (kpc_get_thread_counters(0, COUNTERS_COUNT, g_counters))
+  {
     printf("kpc_get_thread_counters failed\n");
     return 1;
   }

@@ -7,12 +7,14 @@
 #include "params.h"
 #include "poly.h"
 
-typedef struct {
+typedef struct
+{
   poly vec[MLKEM_K];
 } ALIGN polyvec;
 
 // REF-CHANGE: This struct does not exist in the reference implementation
-typedef struct {
+typedef struct
+{
   poly_mulcache vec[MLKEM_K];
 } polyvec_mulcache;
 

@@ -122,7 +122,8 @@ ENSURES(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, (layer + 1) * MLKEM_Q - 1))
 //
 // REF-CHANGE: Removed indirection poly_ntt -> ntt()
 // and integrated polynomial reduction into the NTT.
-void poly_ntt(poly *p) {
+void poly_ntt(poly *p)
+{
   POLY_BOUND_MSG(p, MLKEM_Q, "ref ntt input");
   int16_t *r = p->coeffs;
 
@@ -143,7 +144,8 @@ void poly_ntt(poly *p) {
 // Check that bound for native NTT implies contractual bound
 STATIC_ASSERT(NTT_BOUND_NATIVE <= NTT_BOUND, invntt_bound)
 
-void poly_ntt(poly *p) {
+void poly_ntt(poly *p)
+{
   POLY_BOUND_MSG(p, MLKEM_Q, "native ntt input");
   ntt_native(p);
   POLY_BOUND_MSG(p, NTT_BOUND_NATIVE, "native ntt output");
@@ -192,7 +194,8 @@ ENSURES(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, MLKEM_Q))
     }
 }
 
-void poly_invntt_tomont(poly *p) {
+void poly_invntt_tomont(poly *p)
+{
   const int16_t f = 1441;  // mont^2/128
   int16_t *r = p->coeffs;
 
@@ -224,7 +227,8 @@ void poly_invntt_tomont(poly *p) {
 // Check that bound for native invNTT implies contractual bound
 STATIC_ASSERT(INVNTT_BOUND_NATIVE <= INVNTT_BOUND, invntt_bound)
 
-void poly_invntt_tomont(poly *p) {
+void poly_invntt_tomont(poly *p)
+{
   intt_native(p);
   POLY_BOUND_MSG(p, INVNTT_BOUND_NATIVE, "native intt output");
 }
@@ -246,7 +250,8 @@ void poly_invntt_tomont(poly *p) {
  *              - int16_t b_cached: Cached precomputation of b[1] * zeta
  **************************************************/
 void basemul_cached(int16_t r[2], const int16_t a[2], const int16_t b[2],
-                    int16_t b_cached) {
+                    int16_t b_cached)
+{
   BOUND(a, 2, MLKEM_Q, "basemul input bound");
 
   int32_t t0, t1;

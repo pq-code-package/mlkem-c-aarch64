@@ -97,7 +97,8 @@
 // clang-format on
 
 #define EXISTS(type, qvar, qvar_lb, qvar_ub, predicate)         \
-  __CPROVER_exists {                                            \
+  __CPROVER_exists                                              \
+  {                                                             \
     type qvar;                                                  \
     ((qvar_lb) <= (qvar) && (qvar) <= (qvar_ub)) && (predicate) \
   }

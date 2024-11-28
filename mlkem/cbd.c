@@ -14,7 +14,8 @@
  *
  * Returns 32-bit unsigned integer loaded from x
  **************************************************/
-static uint32_t load32_littleendian(const uint8_t x[4]) {
+static uint32_t load32_littleendian(const uint8_t x[4])
+{
   uint32_t r;
   r = (uint32_t)x[0];
   r |= (uint32_t)x[1] << 8;
@@ -35,7 +36,8 @@ static uint32_t load32_littleendian(const uint8_t x[4]) {
  * Returns 32-bit unsigned integer loaded from x (most significant byte is zero)
  **************************************************/
 #if MLKEM_ETA1 == 3
-static uint32_t load24_littleendian(const uint8_t x[3]) {
+static uint32_t load24_littleendian(const uint8_t x[3])
+{
   uint32_t r;
   r = (uint32_t)x[0];
   r |= (uint32_t)x[1] << 8;
@@ -54,7 +56,8 @@ static uint32_t load24_littleendian(const uint8_t x[3]) {
  * Arguments:   - poly *r: pointer to output polynomial
  *              - const uint8_t *buf: pointer to input byte array
  **************************************************/
-static void cbd2(poly *r, const uint8_t buf[2 * MLKEM_N / 4]) {
+static void cbd2(poly *r, const uint8_t buf[2 * MLKEM_N / 4])
+{
   for (int i = 0; i < MLKEM_N / 8; i++)  // clang-format off
     INVARIANT(i >= 0 && i <= MLKEM_N / 8)
     INVARIANT(ARRAY_ABS_BOUND(r->coeffs, 0, (8 * i - 1), 2))  // clang-format on
@@ -86,7 +89,8 @@ static void cbd2(poly *r, const uint8_t buf[2 * MLKEM_N / 4]) {
  *              - const uint8_t *buf: pointer to input byte array
  **************************************************/
 #if MLKEM_ETA1 == 3
-static void cbd3(poly *r, const uint8_t buf[3 * MLKEM_N / 4]) {
+static void cbd3(poly *r, const uint8_t buf[3 * MLKEM_N / 4])
+{
   for (int i = 0; i < MLKEM_N / 4; i++)  // clang-format off
     INVARIANT(i >= 0 && i <= MLKEM_N / 4)
     INVARIANT(ARRAY_ABS_BOUND(r->coeffs, 0, (4 * i - 1), 3))  // clang-format on
@@ -108,7 +112,8 @@ static void cbd3(poly *r, const uint8_t buf[3 * MLKEM_N / 4]) {
 }
 #endif
 
-void poly_cbd_eta1(poly *r, const uint8_t buf[MLKEM_ETA1 * MLKEM_N / 4]) {
+void poly_cbd_eta1(poly *r, const uint8_t buf[MLKEM_ETA1 * MLKEM_N / 4])
+{
 #if MLKEM_ETA1 == 2
   cbd2(r, buf);
 #elif MLKEM_ETA1 == 3
@@ -118,7 +123,8 @@ void poly_cbd_eta1(poly *r, const uint8_t buf[MLKEM_ETA1 * MLKEM_N / 4]) {
 #endif
 }
 
-void poly_cbd_eta2(poly *r, const uint8_t buf[MLKEM_ETA2 * MLKEM_N / 4]) {
+void poly_cbd_eta2(poly *r, const uint8_t buf[MLKEM_ETA2 * MLKEM_N / 4])
+{
 #if MLKEM_ETA2 == 2
   cbd2(r, buf);
 #else

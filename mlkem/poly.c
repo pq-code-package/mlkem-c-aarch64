@@ -15,7 +15,8 @@
 #include "arith_native.h"
 #include "debug/debug.h"
 
-void poly_compress_du(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES_DU], const poly *a) {
+void poly_compress_du(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES_DU], const poly *a)
+{
 #if (MLKEM_POLYCOMPRESSEDBYTES_DU == 352)
   for (int j = 0; j < MLKEM_N / 8; j++)  // clang-format off
     INVARIANT(j >= 0 && j <= MLKEM_N / 8)
@@ -75,8 +76,8 @@ void poly_compress_du(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES_DU], const poly *a) {
 }
 
 
-void poly_decompress_du(poly *r,
-                        const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES_DU]) {
+void poly_decompress_du(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES_DU])
+{
 #if (MLKEM_POLYCOMPRESSEDBYTES_DU == 352)
   for (int j = 0; j < MLKEM_N / 8; j++)  // clang-format off
     INVARIANT(0 <= j && j <= MLKEM_N / 8)
@@ -127,7 +128,8 @@ void poly_decompress_du(poly *r,
 #endif
 }
 
-void poly_compress_dv(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES_DV], const poly *a) {
+void poly_compress_dv(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES_DV], const poly *a)
+{
   POLY_UBOUND(a, MLKEM_Q);
 
 #if (MLKEM_POLYCOMPRESSEDBYTES_DV == 128)
@@ -177,8 +179,8 @@ void poly_compress_dv(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES_DV], const poly *a) {
 #endif
 }
 
-void poly_decompress_dv(poly *r,
-                        const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES_DV]) {
+void poly_decompress_dv(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES_DV])
+{
 #if (MLKEM_POLYCOMPRESSEDBYTES_DV == 128)
   for (int i = 0; i < MLKEM_N / 2; i++)  // clang-format off
     INVARIANT(i >= 0 && i <= MLKEM_N / 2)
@@ -227,7 +229,8 @@ void poly_decompress_dv(poly *r,
 }
 
 #if !defined(MLKEM_USE_NATIVE_POLY_TOBYTES)
-void poly_tobytes(uint8_t r[MLKEM_POLYBYTES], const poly *a) {
+void poly_tobytes(uint8_t r[MLKEM_POLYBYTES], const poly *a)
+{
   POLY_UBOUND(a, MLKEM_Q);
 
 
@@ -256,14 +259,16 @@ void poly_tobytes(uint8_t r[MLKEM_POLYBYTES], const poly *a) {
     }
 }
 #else  /* MLKEM_USE_NATIVE_POLY_TOBYTES */
-void poly_tobytes(uint8_t r[MLKEM_POLYBYTES], const poly *a) {
+void poly_tobytes(uint8_t r[MLKEM_POLYBYTES], const poly *a)
+{
   POLY_UBOUND(a, MLKEM_Q);
   poly_tobytes_native(r, a);
 }
 #endif /* MLKEM_USE_NATIVE_POLY_TOBYTES */
 
 #if !defined(MLKEM_USE_NATIVE_POLY_FROMBYTES)
-void poly_frombytes(poly *r, const uint8_t a[MLKEM_POLYBYTES]) {
+void poly_frombytes(poly *r, const uint8_t a[MLKEM_POLYBYTES])
+{
   int i;
   for (i = 0; i < MLKEM_N / 2; i++)  // clang-format off
     INVARIANT(i >= 0 && i <= MLKEM_N / 2)
@@ -281,12 +286,14 @@ void poly_frombytes(poly *r, const uint8_t a[MLKEM_POLYBYTES]) {
   POLY_UBOUND(r, 4096);
 }
 #else  /* MLKEM_USE_NATIVE_POLY_FROMBYTES */
-void poly_frombytes(poly *r, const uint8_t a[MLKEM_POLYBYTES]) {
+void poly_frombytes(poly *r, const uint8_t a[MLKEM_POLYBYTES])
+{
   poly_frombytes_native(r, a);
 }
 #endif /* MLKEM_USE_NATIVE_POLY_FROMBYTES */
 
-void poly_frommsg(poly *r, const uint8_t msg[MLKEM_INDCPA_MSGBYTES]) {
+void poly_frommsg(poly *r, const uint8_t msg[MLKEM_INDCPA_MSGBYTES])
+{
 #if (MLKEM_INDCPA_MSGBYTES != MLKEM_N / 8)
 #error "MLKEM_INDCPA_MSGBYTES must be equal to MLKEM_N/8 bytes!"
 #endif
@@ -294,11 +301,11 @@ void poly_frommsg(poly *r, const uint8_t msg[MLKEM_INDCPA_MSGBYTES]) {
   for (int i = 0; i < MLKEM_N / 8; i++)  // clang-format off
     INVARIANT(i >= 0 && i <= MLKEM_N / 8)
     INVARIANT(ARRAY_BOUND(r->coeffs, 0, (8 * i - 1), 0, (MLKEM_Q - 1)))
-    {  // clang-format on
+    {      // clang-format on
       for (int j = 0; j < 8; j++)  // clang-format off
         INVARIANT(i >= 0 && i <  MLKEM_N / 8 && j >= 0 && j <= 8)
         INVARIANT(ARRAY_BOUND(r->coeffs, 0, (8 * i + j - 1), 0, (MLKEM_Q - 1)))
-        {      // clang-format on
+        {  // clang-format on
           r->coeffs[8 * i + j] = 0;
           cmov_int16(&r->coeffs[8 * i + j], HALF_Q, (msg[i] >> j) & 1);
         }
@@ -306,7 +313,8 @@ void poly_frommsg(poly *r, const uint8_t msg[MLKEM_INDCPA_MSGBYTES]) {
   POLY_BOUND_MSG(r, MLKEM_Q, "poly_frommsg output");
 }
 
-void poly_tomsg(uint8_t msg[MLKEM_INDCPA_MSGBYTES], const poly *a) {
+void poly_tomsg(uint8_t msg[MLKEM_INDCPA_MSGBYTES], const poly *a)
+{
   POLY_UBOUND(a, MLKEM_Q);
 
   for (int i = 0; i < MLKEM_N / 8; i++)  // clang-format off
@@ -324,7 +332,8 @@ void poly_tomsg(uint8_t msg[MLKEM_INDCPA_MSGBYTES], const poly *a) {
 
 void poly_getnoise_eta1_4x(poly *r0, poly *r1, poly *r2, poly *r3,
                            const uint8_t seed[MLKEM_SYMBYTES], uint8_t nonce0,
-                           uint8_t nonce1, uint8_t nonce2, uint8_t nonce3) {
+                           uint8_t nonce1, uint8_t nonce2, uint8_t nonce3)
+{
   ALIGN uint8_t buf[KECCAK_WAY][MLKEM_ETA1 * MLKEM_N / 4];
   ALIGN uint8_t extkey[KECCAK_WAY][MLKEM_SYMBYTES + 1];
   memcpy(extkey[0], seed, MLKEM_SYMBYTES);
@@ -349,7 +358,8 @@ void poly_getnoise_eta1_4x(poly *r0, poly *r1, poly *r2, poly *r3,
 }
 
 void poly_getnoise_eta2(poly *r, const uint8_t seed[MLKEM_SYMBYTES],
-                        uint8_t nonce) {
+                        uint8_t nonce)
+{
   ALIGN uint8_t buf[MLKEM_ETA2 * MLKEM_N / 4];
   prf(buf, sizeof(buf), seed, nonce);
   poly_cbd_eta2(r, buf);
@@ -360,7 +370,8 @@ void poly_getnoise_eta2(poly *r, const uint8_t seed[MLKEM_SYMBYTES],
 void poly_getnoise_eta1122_4x(poly *r0, poly *r1, poly *r2, poly *r3,
                               const uint8_t seed[MLKEM_SYMBYTES],
                               uint8_t nonce0, uint8_t nonce1, uint8_t nonce2,
-                              uint8_t nonce3) {
+                              uint8_t nonce3)
+{
   ALIGN uint8_t buf1[KECCAK_WAY / 2][MLKEM_ETA1 * MLKEM_N / 4];
   ALIGN uint8_t buf2[KECCAK_WAY / 2][MLKEM_ETA2 * MLKEM_N / 4];
   ALIGN uint8_t extkey[KECCAK_WAY][MLKEM_SYMBYTES + 1];
@@ -395,7 +406,8 @@ void poly_getnoise_eta1122_4x(poly *r0, poly *r1, poly *r2, poly *r3,
 }
 
 void poly_basemul_montgomery_cached(poly *r, const poly *a, const poly *b,
-                                    const poly_mulcache *b_cache) {
+                                    const poly_mulcache *b_cache)
+{
   int i;
   for (i = 0; i < MLKEM_N / 4; i++)  // clang-format off
     ASSIGNS(i, OBJECT_WHOLE(r))
@@ -410,27 +422,30 @@ void poly_basemul_montgomery_cached(poly *r, const poly *a, const poly *b,
 }
 
 #if !defined(MLKEM_USE_NATIVE_POLY_TOMONT)
-void poly_tomont(poly *r) {
+void poly_tomont(poly *r)
+{
   int i;
-  const int16_t f = (1ULL << 32) % MLKEM_Q;       // 1353
+  const int16_t f = (1ULL << 32) % MLKEM_Q;  // 1353
   for (i = 0; i < MLKEM_N; i++)  // clang-format off
     INVARIANT(i >= 0 && i <= MLKEM_N)
     INVARIANT(ARRAY_ABS_BOUND(r->coeffs ,0, (i - 1), (MLKEM_Q - 1)))
-    {  // clang-format on
+    {                                        // clang-format on
       r->coeffs[i] = fqmul(r->coeffs[i], f);
     }
 
   POLY_BOUND(r, MLKEM_Q);
 }
 #else  /* MLKEM_USE_NATIVE_POLY_TOMONT */
-void poly_tomont(poly *r) {
+void poly_tomont(poly *r)
+{
   poly_tomont_native(r);
   POLY_BOUND(r, MLKEM_Q);
 }
 #endif /* MLKEM_USE_NATIVE_POLY_TOMONT */
 
 #if !defined(MLKEM_USE_NATIVE_POLY_REDUCE)
-void poly_reduce(poly *r) {
+void poly_reduce(poly *r)
+{
   int i;
   for (i = 0; i < MLKEM_N; i++)  // clang-format off
     INVARIANT(i >= 0 && i <= MLKEM_N)
@@ -445,13 +460,15 @@ void poly_reduce(poly *r) {
   POLY_UBOUND(r, MLKEM_Q);
 }
 #else  /* MLKEM_USE_NATIVE_POLY_REDUCE */
-void poly_reduce(poly *r) {
+void poly_reduce(poly *r)
+{
   poly_reduce_native(r);
   POLY_UBOUND(r, MLKEM_Q);
 }
 #endif /* MLKEM_USE_NATIVE_POLY_REDUCE */
 
-void poly_add(poly *r, const poly *b) {
+void poly_add(poly *r, const poly *b)
+{
   int i;
   for (i = 0; i < MLKEM_N; i++)  // clang-format off
     INVARIANT(i >= 0 && i <= MLKEM_N)
@@ -462,7 +479,8 @@ void poly_add(poly *r, const poly *b) {
     }
 }
 
-void poly_sub(poly *r, const poly *b) {
+void poly_sub(poly *r, const poly *b)
+{
   int i;
   for (i = 0; i < MLKEM_N; i++)  // clang-format off
     INVARIANT(i >= 0 && i <= MLKEM_N)
@@ -474,7 +492,8 @@ void poly_sub(poly *r, const poly *b) {
 }
 
 #if !defined(MLKEM_USE_NATIVE_POLY_MULCACHE_COMPUTE)
-void poly_mulcache_compute(poly_mulcache *x, const poly *a) {
+void poly_mulcache_compute(poly_mulcache *x, const poly *a)
+{
   int i;
   for (i = 0; i < MLKEM_N / 4; i++)  // clang-format off
     INVARIANT(i >= 0 && i <= MLKEM_N / 4)
@@ -485,7 +504,8 @@ void poly_mulcache_compute(poly_mulcache *x, const poly *a) {
   POLY_BOUND(x, MLKEM_Q);
 }
 #else  /* MLKEM_USE_NATIVE_POLY_MULCACHE_COMPUTE */
-void poly_mulcache_compute(poly_mulcache *x, const poly *a) {
+void poly_mulcache_compute(poly_mulcache *x, const poly *a)
+{
   poly_mulcache_compute_native(x, a);
   POLY_BOUND(x, MLKEM_Q);
 }

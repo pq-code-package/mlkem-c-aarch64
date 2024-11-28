@@ -22,7 +22,8 @@
  * @brief Starting point for formal analysis
  *
  */
-void harness(void) {
+void harness(void)
+{
   uint32_t u;
   uint16_t d;
   d = scalar_decompress_d5(u);

@@ -26,7 +26,8 @@ void gen_matrix_entry(poly *entry, uint8_t seed[MLKEM_SYMBYTES + 16]);
  * @brief Starting point for formal analysis
  *
  */
-void harness(void) {
+void harness(void)
+{
   poly *out;
   uint8_t *seed;
   gen_matrix_entry(out, seed);

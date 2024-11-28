@@ -22,7 +22,8 @@
  * @brief Starting point for formal analysis
  *
  */
-void harness(void) {
+void harness(void)
+{
   uint8_t *seed;
   poly *r0, *r1, *r2, *r3;
   uint8_t nonce0, nonce1, nonce2, nonce3;

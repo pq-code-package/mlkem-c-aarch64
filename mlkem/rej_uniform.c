@@ -36,7 +36,8 @@
  **************************************************/
 static unsigned int rej_uniform_scalar(int16_t *r, unsigned int target,
                                        unsigned int offset, const uint8_t *buf,
-                                       unsigned int buflen) {
+                                       unsigned int buflen)
+{
   unsigned int ctr, pos;
   uint16_t val0, val1;
 
@@ -51,10 +52,12 @@ static unsigned int rej_uniform_scalar(int16_t *r, unsigned int target,
       val1 = ((buf[pos + 1] >> 4) | ((uint16_t)buf[pos + 2] << 4)) & 0xFFF;
       pos += 3;
 
-      if (val0 < MLKEM_Q) {
+      if (val0 < MLKEM_Q)
+      {
         r[ctr++] = val0;
       }
-      if (ctr < target && val1 < MLKEM_Q) {
+      if (ctr < target && val1 < MLKEM_Q)
+      {
         r[ctr++] = val1;
       }
     }
@@ -63,13 +66,15 @@ static unsigned int rej_uniform_scalar(int16_t *r, unsigned int target,
 
 #if !defined(MLKEM_USE_NATIVE_REJ_UNIFORM)
 unsigned int rej_uniform(int16_t *r, unsigned int target, unsigned int offset,
-                         const uint8_t *buf, unsigned int buflen) {
+                         const uint8_t *buf, unsigned int buflen)
+{
   return rej_uniform_scalar(r, target, offset, buf, buflen);
 }
 #else  /* MLKEM_USE_NATIVE_REJ_UNIFORM */
 
 unsigned int rej_uniform(int16_t *r, unsigned int target, unsigned int offset,
-                         const uint8_t *buf, unsigned int buflen) {
+                         const uint8_t *buf, unsigned int buflen)
+{
   int ret;
 
   // Sample from large buffer with full lane as much as possible.

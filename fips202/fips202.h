@@ -17,12 +17,14 @@
 
 
 // Context for non-incremental API
-typedef struct {
+typedef struct
+{
   uint64_t ctx[25];
 } shake128ctx;
 
 // Context for incremental API
-typedef struct {
+typedef struct
+{
   uint64_t ctx[26];
 } shake256incctx;
 

@@ -153,7 +153,8 @@ static const uint8_t idx[256][8] = {
 #define _mm256_cmpge_epu16(a, b) _mm256_cmpeq_epi16(_mm256_max_epu16(a, b), a)
 #define _mm_cmpge_epu16(a, b) _mm_cmpeq_epi16(_mm_max_epu16(a, b), a)
 
-unsigned int rej_uniform_avx2(int16_t *restrict r, const uint8_t *buf) {
+unsigned int rej_uniform_avx2(int16_t *restrict r, const uint8_t *buf)
+{
   unsigned int ctr, pos;
   uint16_t val0, val1;
   uint32_t good;
@@ -170,7 +171,8 @@ unsigned int rej_uniform_avx2(int16_t *restrict r, const uint8_t *buf) {
   __m128i f, t, pilo, pihi;
 
   ctr = pos = 0;
-  while (ctr <= MLKEM_N - 32 && pos <= REJ_UNIFORM_AVX_BUFLEN - 48) {
+  while (ctr <= MLKEM_N - 32 && pos <= REJ_UNIFORM_AVX_BUFLEN - 48)
+  {
     f0 = _mm256_loadu_si256((__m256i *)&buf[pos]);
     // Don't load from offset 24, as this would over-read the buffer
     f1 = _mm256_loadu_si256((__m256i *)&buf[pos + 16]);
@@ -239,7 +241,8 @@ unsigned int rej_uniform_avx2(int16_t *restrict r, const uint8_t *buf) {
     ctr += _mm_popcnt_u32((good >> 24) & 0xFF);
   }
 
-  while (ctr <= MLKEM_N - 8 && pos <= REJ_UNIFORM_AVX_BUFLEN - 24) {
+  while (ctr <= MLKEM_N - 8 && pos <= REJ_UNIFORM_AVX_BUFLEN - 24)
+  {
     f = _mm_loadu_si128((__m128i *)&buf[pos]);
     f = _mm_shuffle_epi8(f, _mm256_castsi256_si128(idx8));
     t = _mm_srli_epi16(f, 4);
@@ -268,7 +271,8 @@ unsigned int rej_uniform_avx2(int16_t *restrict r, const uint8_t *buf) {
     ctr += _mm_popcnt_u32(good);
   }
 
-  while (ctr < MLKEM_N && pos <= REJ_UNIFORM_AVX_BUFLEN - 3) {
+  while (ctr < MLKEM_N && pos <= REJ_UNIFORM_AVX_BUFLEN - 3)
+  {
     val0 = ((buf[pos + 0] >> 0) | ((uint16_t)buf[pos + 1] << 8)) & 0xFFF;
     val1 = ((buf[pos + 1] >> 4) | ((uint16_t)buf[pos + 2] << 4));
     pos += 3;

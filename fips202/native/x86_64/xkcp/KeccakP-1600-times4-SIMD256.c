@@ -321,7 +321,8 @@ static ALIGN(KeccakP1600times4_statesAlignment) const UINT64
 #include <stdint.h>
 
 #define copyFromState(X, state)                                             \
-  do {                                                                      \
+  do                                                                        \
+  {                                                                         \
     const uint64_t *state64 = (const uint64_t *)(state);                    \
     __m256i _idx =                                                          \
         _mm256_set_epi64x((long long)&state64[75], (long long)&state64[50], \
@@ -354,7 +355,8 @@ static ALIGN(KeccakP1600times4_statesAlignment) const UINT64
   } while (0);
 
 #define SCATTER_STORE256(state, idx, v)                        \
-  do {                                                         \
+  do                                                           \
+  {                                                            \
     const uint64_t *state64 = (const uint64_t *)(state);       \
     __m128d t = _mm_castsi128_pd(_mm256_castsi256_si128((v))); \
     _mm_storel_pd((double *)&state64[0 + (idx)], t);           \
@@ -425,7 +427,8 @@ static ALIGN(KeccakP1600times4_statesAlignment) const UINT64
 #endif
 #include "KeccakP-1600-unrolling.macros"
 
-void KeccakP1600times4_PermuteAll_24rounds(void *states) {
+void KeccakP1600times4_PermuteAll_24rounds(void *states)
+{
   V256 *statesAsLanes = (V256 *)states;
   declareABCDE
 #ifndef KeccakP1600times4_fullUnrolling

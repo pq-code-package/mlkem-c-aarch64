@@ -33,7 +33,8 @@
  *              const uint8_t *seed: pointer to the input public seed
  **************************************************/
 static void pack_pk(uint8_t r[MLKEM_INDCPA_PUBLICKEYBYTES], polyvec *pk,
-                    const uint8_t seed[MLKEM_SYMBYTES]) {
+                    const uint8_t seed[MLKEM_SYMBYTES])
+{
   POLYVEC_BOUND(pk, MLKEM_Q);
   polyvec_tobytes(r, pk);
   memcpy(r + MLKEM_POLYVECBYTES, seed, MLKEM_SYMBYTES);
@@ -52,7 +53,8 @@ static void pack_pk(uint8_t r[MLKEM_INDCPA_PUBLICKEYBYTES], polyvec *pk,
  *                  key.
  **************************************************/
 static void unpack_pk(polyvec *pk, uint8_t seed[MLKEM_SYMBYTES],
-                      const uint8_t packedpk[MLKEM_INDCPA_PUBLICKEYBYTES]) {
+                      const uint8_t packedpk[MLKEM_INDCPA_PUBLICKEYBYTES])
+{
   polyvec_frombytes(pk, packedpk);
   memcpy(seed, packedpk + MLKEM_POLYVECBYTES, MLKEM_SYMBYTES);
 
@@ -71,7 +73,8 @@ static void unpack_pk(polyvec *pk, uint8_t seed[MLKEM_SYMBYTES],
  *              - polyvec *sk: pointer to input vector of polynomials (secret
  *key)
  **************************************************/
-static void pack_sk(uint8_t r[MLKEM_INDCPA_SECRETKEYBYTES], polyvec *sk) {
+static void pack_sk(uint8_t r[MLKEM_INDCPA_SECRETKEYBYTES], polyvec *sk)
+{
   POLYVEC_BOUND(sk, MLKEM_Q);
   polyvec_tobytes(r, sk);
 }
@@ -87,7 +90,8 @@ static void pack_sk(uint8_t r[MLKEM_INDCPA_SECRETKEYBYTES], polyvec *sk) {
  *key
  **************************************************/
 static void unpack_sk(polyvec *sk,
-                      const uint8_t packedsk[MLKEM_INDCPA_SECRETKEYBYTES]) {
+                      const uint8_t packedsk[MLKEM_INDCPA_SECRETKEYBYTES])
+{
   polyvec_frombytes(sk, packedsk);
   polyvec_reduce(sk);
 }
@@ -103,8 +107,8 @@ static void unpack_sk(polyvec *sk,
  *              poly *pk: pointer to the input vector of polynomials b
  *              poly *v: pointer to the input polynomial v
  **************************************************/
-static void pack_ciphertext(uint8_t r[MLKEM_INDCPA_BYTES], polyvec *b,
-                            poly *v) {
+static void pack_ciphertext(uint8_t r[MLKEM_INDCPA_BYTES], polyvec *b, poly *v)
+{
   polyvec_compress_du(r, b);
   poly_compress_dv(r + MLKEM_POLYVECCOMPRESSEDBYTES_DU, v);
 }
@@ -120,7 +124,8 @@ static void pack_ciphertext(uint8_t r[MLKEM_INDCPA_BYTES], polyvec *b,
  *              - const uint8_t *c: pointer to the input serialized ciphertext
  **************************************************/
 static void unpack_ciphertext(polyvec *b, poly *v,
-                              const uint8_t c[MLKEM_INDCPA_BYTES]) {
+                              const uint8_t c[MLKEM_INDCPA_BYTES])
+{
   polyvec_decompress_du(b, c);
   poly_decompress_dv(v, c + MLKEM_POLYVECCOMPRESSEDBYTES_DU);
 }
@@ -247,8 +252,8 @@ ENSURES(ARRAY_BOUND(entry->coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))
  *              - int transposed: boolean deciding whether A or A^T is generated
  **************************************************/
 // Not static for benchmarking
-void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES],
-                int transposed) {
+void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES], int transposed)
+{
   int i;
   // We generate four separate seed arrays rather than a single one to work
   // around limitations in CBMC function contracts dealing with disjoint slices
@@ -259,7 +264,8 @@ void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES],
   ALIGN uint8_t seed3[MLKEM_SYMBYTES + 2];
   uint8_t *seedxy[] = {seed0, seed1, seed2, seed3};
 
-  for (unsigned j = 0; j < KECCAK_WAY; j++) {
+  for (unsigned j = 0; j < KECCAK_WAY; j++)
+  {
     memcpy(seedxy[j], seed, MLKEM_SYMBYTES);
   }
 
@@ -269,16 +275,21 @@ void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES],
   // Either add suitable pragmas, or split gen_matrix according to MLKEM_K
   // and unroll by hand.
   for (i = 0; i < (MLKEM_K * MLKEM_K / KECCAK_WAY) * KECCAK_WAY;
-       i += KECCAK_WAY) {
+       i += KECCAK_WAY)
+  {
     uint8_t x, y;
 
-    for (unsigned int j = 0; j < KECCAK_WAY; j++) {
+    for (unsigned int j = 0; j < KECCAK_WAY; j++)
+    {
       x = (i + j) / MLKEM_K;
       y = (i + j) % MLKEM_K;
-      if (transposed) {
+      if (transposed)
+      {
         seedxy[j][MLKEM_SYMBYTES + 0] = x;
         seedxy[j][MLKEM_SYMBYTES + 1] = y;
-      } else {
+      }
+      else
+      {
         seedxy[j][MLKEM_SYMBYTES + 0] = y;
         seedxy[j][MLKEM_SYMBYTES + 1] = x;
       }
@@ -290,15 +301,19 @@ void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES],
   }
 
   // For left over polynomial, we use single keccak.
-  if (i < MLKEM_K * MLKEM_K) {
+  if (i < MLKEM_K * MLKEM_K)
+  {
     uint8_t x, y;
     x = i / MLKEM_K;
     y = i % MLKEM_K;
 
-    if (transposed) {
+    if (transposed)
+    {
       seed0[MLKEM_SYMBYTES + 0] = x;
       seed0[MLKEM_SYMBYTES + 1] = y;
-    } else {
+    }
+    else
+    {
       seed0[MLKEM_SYMBYTES + 0] = y;
       seed0[MLKEM_SYMBYTES + 1] = x;
     }
@@ -312,8 +327,10 @@ void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES],
 #if defined(MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER)
   // The public matrix is generated in NTT domain. If the native backend
   // uses a custom order in NTT domain, permute A accordingly.
-  for (i = 0; i < MLKEM_K; i++) {
-    for (int j = 0; j < MLKEM_K; j++) {
+  for (i = 0; i < MLKEM_K; i++)
+  {
+    for (int j = 0; j < MLKEM_K; j++)
+    {
       poly_permute_bitrev_to_custom(&a[i].vec[j]);
     }
   }
@@ -372,7 +389,8 @@ STATIC_ASSERT(NTT_BOUND + MLKEM_Q < INT16_MAX, indcpa_enc_bound_0)
 
 void indcpa_keypair_derand(uint8_t pk[MLKEM_INDCPA_PUBLICKEYBYTES],
                            uint8_t sk[MLKEM_INDCPA_SECRETKEYBYTES],
-                           const uint8_t coins[MLKEM_SYMBYTES]) {
+                           const uint8_t coins[MLKEM_SYMBYTES])
+{
   ALIGN uint8_t buf[2 * MLKEM_SYMBYTES];
   const uint8_t *publicseed = buf;
   const uint8_t *noiseseed = buf + MLKEM_SYMBYTES;
@@ -448,7 +466,8 @@ STATIC_ASSERT(INVNTT_BOUND + MLKEM_ETA2 + MLKEM_Q < INT16_MAX,
 void indcpa_enc(uint8_t c[MLKEM_INDCPA_BYTES],
                 const uint8_t m[MLKEM_INDCPA_MSGBYTES],
                 const uint8_t pk[MLKEM_INDCPA_PUBLICKEYBYTES],
-                const uint8_t coins[MLKEM_SYMBYTES]) {
+                const uint8_t coins[MLKEM_SYMBYTES])
+{
   ALIGN uint8_t seed[MLKEM_SYMBYTES];
   polyvec sp, pkpv, ep, at[MLKEM_K], b;
   poly v, k, epp;
@@ -503,7 +522,8 @@ STATIC_ASSERT(INVNTT_BOUND + MLKEM_Q < INT16_MAX, indcpa_dec_bound_0)
 
 void indcpa_dec(uint8_t m[MLKEM_INDCPA_MSGBYTES],
                 const uint8_t c[MLKEM_INDCPA_BYTES],
-                const uint8_t sk[MLKEM_INDCPA_SECRETKEYBYTES]) {
+                const uint8_t sk[MLKEM_INDCPA_SECRETKEYBYTES])
+{
   polyvec b, skpv;
   poly v, sb;
 

@@ -23,7 +23,8 @@ void ntt_layer(int16_t *p, int len, int layer);
  * @brief Starting point for formal analysis
  *
  */
-void harness(void) {
+void harness(void)
+{
   int16_t *a;
   int len, layer;
   ntt_layer(a, len, layer);

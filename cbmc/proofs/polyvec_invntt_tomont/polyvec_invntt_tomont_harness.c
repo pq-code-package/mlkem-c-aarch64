@@ -22,7 +22,8 @@
  * @brief Starting point for formal analysis
  *
  */
-void harness(void) {
+void harness(void)
+{
   polyvec *r;
   polyvec_invntt_tomont(r);
 }

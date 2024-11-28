@@ -26,7 +26,8 @@ void matvec_mul(polyvec *out, polyvec const *a, polyvec const *v,
  * @brief Starting point for formal analysis
  *
  */
-void harness(void) {
+void harness(void)
+{
   polyvec *out, *a, *v;
   polyvec_mulcache *vc;
   matvec_mul(out, a, v, vc);

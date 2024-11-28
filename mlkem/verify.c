@@ -15,7 +15,8 @@
 // You MUST NOT compile this file using link time optimization.
 //
 
-int verify(const uint8_t *a, const uint8_t *b, const size_t len) {
+int verify(const uint8_t *a, const uint8_t *b, const size_t len)
+{
   uint8_t r = 0;
   uint64_t u;
 
@@ -43,7 +44,8 @@ int verify(const uint8_t *a, const uint8_t *b, const size_t len) {
   return (int)u;
 }
 
-void cmov(uint8_t *r, const uint8_t *x, size_t len, uint8_t b) {
+void cmov(uint8_t *r, const uint8_t *x, size_t len, uint8_t b)
+{
   size_t i;
 
   b = (-b) & 0xFF;
@@ -61,7 +63,8 @@ void cmov(uint8_t *r, const uint8_t *x, size_t len, uint8_t b) {
  * Constant-time implementation. Relies on basic
  * properties of bitwise ^ or and &.
  **************************************************/
-void cmov_int16(int16_t *r, const int16_t v, const uint16_t b) {
+void cmov_int16(int16_t *r, const int16_t v, const uint16_t b)
+{
 // CBMC issues false alarms here for the implicit conversions between
 // uint16_t and int, so disable "conversion-check" here for now.
 #pragma CPROVER check push
