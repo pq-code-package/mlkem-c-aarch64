@@ -22,7 +22,8 @@
  * @brief Starting point for formal analysis
  *
  */
-void harness(void) {
+void harness(void)
+{
   int32_t a;
   int16_t r;
 

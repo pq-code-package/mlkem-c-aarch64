@@ -20,30 +20,32 @@ void shake128x4_absorb(keccakx4_state *state, const uint8_t *in0,
 #define shake256x4_absorb FIPS202_NAMESPACE(shake256x4_absorb)
 void shake256x4_absorb(keccakx4_state *state, const uint8_t *in0,
                        const uint8_t *in1, const uint8_t *in2,
-                       const uint8_t *in3, size_t inlen)  // clang-format off
-REQUIRES(IS_FRESH(state, sizeof(keccakx4_state)))
-REQUIRES(IS_FRESH(in0, inlen))
-REQUIRES(IS_FRESH(in1, inlen))
-REQUIRES(IS_FRESH(in2, inlen))
-REQUIRES(IS_FRESH(in3, inlen))
-ASSIGNS(OBJECT_WHOLE(state));
-// clang-format on
+                       const uint8_t *in3, size_t inlen)
+__contract__(
+  requires(memory_no_alias(state, sizeof(keccakx4_state)))
+  requires(memory_no_alias(in0, inlen))
+  requires(memory_no_alias(in1, inlen))
+  requires(memory_no_alias(in2, inlen))
+  requires(memory_no_alias(in3, inlen))
+  assigns(object_whole(state))
+);
 
 #define shake128x4_squeezeblocks FIPS202_NAMESPACE(shake128x4_squeezeblocks)
 void shake128x4_squeezeblocks(uint8_t *out0, uint8_t *out1, uint8_t *out2,
                               uint8_t *out3, size_t nblocks,
-                              keccakx4_state *state)  // clang-format off
-REQUIRES(IS_FRESH(state, sizeof(keccakx4_state)))
-REQUIRES(IS_FRESH(out0, nblocks * SHAKE128_RATE))
-REQUIRES(IS_FRESH(out1, nblocks * SHAKE128_RATE))
-REQUIRES(IS_FRESH(out2, nblocks * SHAKE128_RATE))
-REQUIRES(IS_FRESH(out3, nblocks * SHAKE128_RATE))
-ASSIGNS(OBJECT_UPTO(out0, nblocks * SHAKE128_RATE),
-  OBJECT_UPTO(out1, nblocks * SHAKE128_RATE),
-  OBJECT_UPTO(out2, nblocks * SHAKE128_RATE),
-  OBJECT_UPTO(out3, nblocks * SHAKE128_RATE),
-  OBJECT_WHOLE(state));
-// clang-format on
+                              keccakx4_state *state)
+__contract__(
+  requires(memory_no_alias(state, sizeof(keccakx4_state)))
+  requires(memory_no_alias(out0, nblocks * SHAKE128_RATE))
+  requires(memory_no_alias(out1, nblocks * SHAKE128_RATE))
+  requires(memory_no_alias(out2, nblocks * SHAKE128_RATE))
+  requires(memory_no_alias(out3, nblocks * SHAKE128_RATE))
+  assigns(memory_slice(out0, nblocks * SHAKE128_RATE),
+    memory_slice(out1, nblocks * SHAKE128_RATE),
+    memory_slice(out2, nblocks * SHAKE128_RATE),
+    memory_slice(out3, nblocks * SHAKE128_RATE),
+    object_whole(state))
+);
 
 #define shake256x4_squeezeblocks FIPS202_NAMESPACE(shake256x4_squeezeblocks)
 void shake256x4_squeezeblocks(uint8_t *out0, uint8_t *out1, uint8_t *out2,
@@ -59,20 +61,21 @@ void shake256x4_ctx_release(keccakx4_state *state);
 #define shake256x4 FIPS202_NAMESPACE(shake256x4)
 void shake256x4(uint8_t *out0, uint8_t *out1, uint8_t *out2, uint8_t *out3,
                 size_t outlen, uint8_t *in0, uint8_t *in1, uint8_t *in2,
-                uint8_t *in3, size_t inlen)  // clang-format off
+                uint8_t *in3, size_t inlen)
+__contract__(
 // Refine +prove this spec, e.g. add disjointness constraints?
-REQUIRES(READABLE(in0, inlen))
-REQUIRES(READABLE(in1, inlen))
-REQUIRES(READABLE(in2, inlen))
-REQUIRES(READABLE(in3, inlen))
-REQUIRES(WRITEABLE(out0, outlen))
-REQUIRES(WRITEABLE(out1, outlen))
-REQUIRES(WRITEABLE(out2, outlen))
-REQUIRES(WRITEABLE(out3, outlen))
-ASSIGNS(OBJECT_UPTO(out0, outlen))
-ASSIGNS(OBJECT_UPTO(out1, outlen))
-ASSIGNS(OBJECT_UPTO(out2, outlen))
-ASSIGNS(OBJECT_UPTO(out3, outlen));
-// clang-format on
+  requires(readable(in0, inlen))
+  requires(readable(in1, inlen))
+  requires(readable(in2, inlen))
+  requires(readable(in3, inlen))
+  requires(writeable(out0, outlen))
+  requires(writeable(out1, outlen))
+  requires(writeable(out2, outlen))
+  requires(writeable(out3, outlen))
+  assigns(memory_slice(out0, outlen))
+  assigns(memory_slice(out1, outlen))
+  assigns(memory_slice(out2, outlen))
+  assigns(memory_slice(out3, outlen))
+);
 
 #endif

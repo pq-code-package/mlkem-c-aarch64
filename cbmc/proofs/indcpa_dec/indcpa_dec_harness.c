@@ -23,7 +23,8 @@
  * @brief Starting point for formal analysis
  *
  */
-void harness(void) {
+void harness(void)
+{
   uint8_t *m, *c, *sk;
   indcpa_dec(m, c, sk);
 }

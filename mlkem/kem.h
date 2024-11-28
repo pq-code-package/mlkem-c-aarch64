@@ -21,14 +21,14 @@
 #endif
 
 #define crypto_kem_keypair_derand MLKEM_NAMESPACE(keypair_derand)
-int crypto_kem_keypair_derand(uint8_t *pk, uint8_t *sk,
-                              const uint8_t *coins)  // clang-format off
-REQUIRES(IS_FRESH(pk, MLKEM_PUBLICKEYBYTES))
-REQUIRES(IS_FRESH(sk, MLKEM_SECRETKEYBYTES))
-REQUIRES(IS_FRESH(coins, 2 * MLKEM_SYMBYTES))
-ASSIGNS(OBJECT_WHOLE(pk))
-ASSIGNS(OBJECT_WHOLE(sk));
-// clang-format on
+int crypto_kem_keypair_derand(uint8_t *pk, uint8_t *sk, const uint8_t *coins)
+__contract__(
+  requires(memory_no_alias(pk, MLKEM_PUBLICKEYBYTES))
+  requires(memory_no_alias(sk, MLKEM_SECRETKEYBYTES))
+  requires(memory_no_alias(coins, 2 * MLKEM_SYMBYTES))
+  assigns(object_whole(pk))
+  assigns(object_whole(sk))
+);
 
 #define crypto_kem_keypair MLKEM_NAMESPACE(keypair)
 /*************************************************
@@ -44,12 +44,13 @@ ASSIGNS(OBJECT_WHOLE(sk));
  *
  * Returns 0 (success)
  **************************************************/
-int crypto_kem_keypair(uint8_t *pk, uint8_t *sk)  // clang-format off
-REQUIRES(IS_FRESH(pk, MLKEM_PUBLICKEYBYTES))
-REQUIRES(IS_FRESH(sk, MLKEM_SECRETKEYBYTES))
-ASSIGNS(OBJECT_WHOLE(pk))
-ASSIGNS(OBJECT_WHOLE(sk));
-// clang-format on
+int crypto_kem_keypair(uint8_t *pk, uint8_t *sk)
+__contract__(
+  requires(memory_no_alias(pk, MLKEM_PUBLICKEYBYTES))
+  requires(memory_no_alias(sk, MLKEM_SECRETKEYBYTES))
+  assigns(object_whole(pk))
+  assigns(object_whole(sk))
+);
 
 #define crypto_kem_enc_derand MLKEM_NAMESPACE(enc_derand)
 /*************************************************
@@ -72,14 +73,15 @@ ASSIGNS(OBJECT_WHOLE(sk));
  * of FIPS203) fails.
  **************************************************/
 int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss, const uint8_t *pk,
-                          const uint8_t *coins)  // clang-format off
-REQUIRES(IS_FRESH(ct, MLKEM_CIPHERTEXTBYTES))
-REQUIRES(IS_FRESH(ss, MLKEM_SSBYTES))
-REQUIRES(IS_FRESH(pk, MLKEM_PUBLICKEYBYTES))
-REQUIRES(IS_FRESH(coins, MLKEM_SYMBYTES))
-ASSIGNS(OBJECT_WHOLE(ct))
-ASSIGNS(OBJECT_WHOLE(ss));
-// clang-format on
+                          const uint8_t *coins)
+__contract__(
+  requires(memory_no_alias(ct, MLKEM_CIPHERTEXTBYTES))
+  requires(memory_no_alias(ss, MLKEM_SSBYTES))
+  requires(memory_no_alias(pk, MLKEM_PUBLICKEYBYTES))
+  requires(memory_no_alias(coins, MLKEM_SYMBYTES))
+  assigns(object_whole(ct))
+  assigns(object_whole(ss))
+);
 
 #define crypto_kem_enc MLKEM_NAMESPACE(enc)
 /*************************************************
@@ -98,14 +100,14 @@ ASSIGNS(OBJECT_WHOLE(ss));
  * Returns 0 on success, and -1 if the public key modulus check (see Section 7.2
  * of FIPS203) fails.
  **************************************************/
-int crypto_kem_enc(uint8_t *ct, uint8_t *ss,
-                   const uint8_t *pk)  // clang-format off
-REQUIRES(IS_FRESH(ct, MLKEM_CIPHERTEXTBYTES))
-REQUIRES(IS_FRESH(ss, MLKEM_SSBYTES))
-REQUIRES(IS_FRESH(pk, MLKEM_PUBLICKEYBYTES))
-ASSIGNS(OBJECT_WHOLE(ct))
-ASSIGNS(OBJECT_WHOLE(ss));
-// clang-format on
+int crypto_kem_enc(uint8_t *ct, uint8_t *ss, const uint8_t *pk)
+__contract__(
+  requires(memory_no_alias(ct, MLKEM_CIPHERTEXTBYTES))
+  requires(memory_no_alias(ss, MLKEM_SSBYTES))
+  requires(memory_no_alias(pk, MLKEM_PUBLICKEYBYTES))
+  assigns(object_whole(ct))
+  assigns(object_whole(ss))
+);
 
 #define crypto_kem_dec MLKEM_NAMESPACE(dec)
 /*************************************************
@@ -126,12 +128,12 @@ ASSIGNS(OBJECT_WHOLE(ss));
  *
  * On failure, ss will contain a pseudo-random value.
  **************************************************/
-int crypto_kem_dec(uint8_t *ss, const uint8_t *ct,
-                   const uint8_t *sk)  // clang-format off
-REQUIRES(IS_FRESH(ss, MLKEM_SSBYTES))
-REQUIRES(IS_FRESH(ct, MLKEM_CIPHERTEXTBYTES))
-REQUIRES(IS_FRESH(sk, MLKEM_SECRETKEYBYTES))
-ASSIGNS(OBJECT_WHOLE(ss));
-// clang-format on
+int crypto_kem_dec(uint8_t *ss, const uint8_t *ct, const uint8_t *sk)
+__contract__(
+  requires(memory_no_alias(ss, MLKEM_SSBYTES))
+  requires(memory_no_alias(ct, MLKEM_CIPHERTEXTBYTES))
+  requires(memory_no_alias(sk, MLKEM_SECRETKEYBYTES))
+  assigns(object_whole(ss))
+);
 
 #endif

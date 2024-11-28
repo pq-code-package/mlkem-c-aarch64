@@ -22,7 +22,8 @@
  * @brief Starting point for formal analysis
  *
  */
-void harness(void) {
+void harness(void)
+{
   uint8_t *a, *b, *c;
   indcpa_keypair_derand(a, b, c);
 }

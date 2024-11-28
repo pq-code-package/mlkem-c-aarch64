@@ -14,7 +14,8 @@
  *
  * Returns 32-bit unsigned integer loaded from x
  **************************************************/
-static uint32_t load32_littleendian(const uint8_t x[4]) {
+static uint32_t load32_littleendian(const uint8_t x[4])
+{
   uint32_t r;
   r = (uint32_t)x[0];
   r |= (uint32_t)x[1] << 8;
@@ -35,7 +36,8 @@ static uint32_t load32_littleendian(const uint8_t x[4]) {
  * Returns 32-bit unsigned integer loaded from x (most significant byte is zero)
  **************************************************/
 #if MLKEM_ETA1 == 3
-static uint32_t load24_littleendian(const uint8_t x[3]) {
+static uint32_t load24_littleendian(const uint8_t x[3])
+{
   uint32_t r;
   r = (uint32_t)x[0];
   r |= (uint32_t)x[1] << 8;
@@ -54,24 +56,27 @@ static uint32_t load24_littleendian(const uint8_t x[3]) {
  * Arguments:   - poly *r: pointer to output polynomial
  *              - const uint8_t *buf: pointer to input byte array
  **************************************************/
-static void cbd2(poly *r, const uint8_t buf[2 * MLKEM_N / 4]) {
-  for (int i = 0; i < MLKEM_N / 8; i++)  // clang-format off
-    INVARIANT(i >= 0 && i <= MLKEM_N / 8)
-    INVARIANT(ARRAY_ABS_BOUND(r->coeffs, 0, (8 * i - 1), 2))  // clang-format on
-    {
-      uint32_t t = load32_littleendian(buf + 4 * i);
-      uint32_t d = t & 0x55555555;
-      d += (t >> 1) & 0x55555555;
+static void cbd2(poly *r, const uint8_t buf[2 * MLKEM_N / 4])
+{
+  for (int i = 0; i < MLKEM_N / 8; i++)
+  __loop__(
+    invariant(i >= 0 && i <= MLKEM_N / 8)
+    invariant(array_abs_bound(r->coeffs, 0, (8 * i - 1), 2)))
+  {
+    uint32_t t = load32_littleendian(buf + 4 * i);
+    uint32_t d = t & 0x55555555;
+    d += (t >> 1) & 0x55555555;
 
-      for (int j = 0; j < 8; j++)  // clang-format off
-        INVARIANT(i >= 0 && i <= MLKEM_N / 8 && j >= 0 && j <= 8)
-        INVARIANT(ARRAY_ABS_BOUND(r->coeffs, 0, 8 * i + j - 1, 2))  // clang-format on
-        {
-          const int16_t a = (d >> (4 * j + 0)) & 0x3;
-          const int16_t b = (d >> (4 * j + 2)) & 0x3;
-          r->coeffs[8 * i + j] = a - b;
-        }
+    for (int j = 0; j < 8; j++)
+    __loop__(
+      invariant(i >= 0 && i <= MLKEM_N / 8 && j >= 0 && j <= 8)
+      invariant(array_abs_bound(r->coeffs, 0, 8 * i + j - 1, 2)))
+    {
+      const int16_t a = (d >> (4 * j + 0)) & 0x3;
+      const int16_t b = (d >> (4 * j + 2)) & 0x3;
+      r->coeffs[8 * i + j] = a - b;
     }
+  }
 }
 
 /*************************************************
@@ -86,29 +91,33 @@ static void cbd2(poly *r, const uint8_t buf[2 * MLKEM_N / 4]) {
  *              - const uint8_t *buf: pointer to input byte array
  **************************************************/
 #if MLKEM_ETA1 == 3
-static void cbd3(poly *r, const uint8_t buf[3 * MLKEM_N / 4]) {
-  for (int i = 0; i < MLKEM_N / 4; i++)  // clang-format off
-    INVARIANT(i >= 0 && i <= MLKEM_N / 4)
-    INVARIANT(ARRAY_ABS_BOUND(r->coeffs, 0, (4 * i - 1), 3))  // clang-format on
-    {
-      const uint32_t t = load24_littleendian(buf + 3 * i);
-      uint32_t d = t & 0x00249249;
-      d += (t >> 1) & 0x00249249;
-      d += (t >> 2) & 0x00249249;
+static void cbd3(poly *r, const uint8_t buf[3 * MLKEM_N / 4])
+{
+  for (int i = 0; i < MLKEM_N / 4; i++)
+  __loop__(
+    invariant(i >= 0 && i <= MLKEM_N / 4)
+    invariant(array_abs_bound(r->coeffs, 0, (4 * i - 1), 3)))
+  {
+    const uint32_t t = load24_littleendian(buf + 3 * i);
+    uint32_t d = t & 0x00249249;
+    d += (t >> 1) & 0x00249249;
+    d += (t >> 2) & 0x00249249;
 
-      for (int j = 0; j < 4; j++)  // clang-format off
-        INVARIANT(i >= 0 && i <= MLKEM_N / 4 && j >= 0 && j <= 4)
-        INVARIANT(ARRAY_ABS_BOUND(r->coeffs, 0, 4 * i + j - 1, 3))  // clang-format on
-        {
-          const int16_t a = (d >> (6 * j + 0)) & 0x7;
-          const int16_t b = (d >> (6 * j + 3)) & 0x7;
-          r->coeffs[4 * i + j] = a - b;
-        }
+    for (int j = 0; j < 4; j++)
+    __loop__(
+      invariant(i >= 0 && i <= MLKEM_N / 4 && j >= 0 && j <= 4)
+      invariant(array_abs_bound(r->coeffs, 0, 4 * i + j - 1, 3)))
+    {
+      const int16_t a = (d >> (6 * j + 0)) & 0x7;
+      const int16_t b = (d >> (6 * j + 3)) & 0x7;
+      r->coeffs[4 * i + j] = a - b;
     }
+  }
 }
 #endif
 
-void poly_cbd_eta1(poly *r, const uint8_t buf[MLKEM_ETA1 * MLKEM_N / 4]) {
+void poly_cbd_eta1(poly *r, const uint8_t buf[MLKEM_ETA1 * MLKEM_N / 4])
+{
 #if MLKEM_ETA1 == 2
   cbd2(r, buf);
 #elif MLKEM_ETA1 == 3
@@ -118,7 +127,8 @@ void poly_cbd_eta1(poly *r, const uint8_t buf[MLKEM_ETA1 * MLKEM_N / 4]) {
 #endif
 }
 
-void poly_cbd_eta2(poly *r, const uint8_t buf[MLKEM_ETA2 * MLKEM_N / 4]) {
+void poly_cbd_eta2(poly *r, const uint8_t buf[MLKEM_ETA2 * MLKEM_N / 4])
+{
 #if MLKEM_ETA2 == 2
   cbd2(r, buf);
 #else

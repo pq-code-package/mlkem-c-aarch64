@@ -27,12 +27,14 @@
 //   fall back to the standard C implementation.
 #if defined(__ARM_FEATURE_SHA3) && defined(__APPLE__)
 #define MLKEM_USE_FIPS202_X1_NATIVE
-static inline void keccak_f1600_x1_native(uint64_t *state) {
+static inline void keccak_f1600_x1_native(uint64_t *state)
+{
   keccak_f1600_x1_v84a_asm_clean(state);
 }
 #elif !defined(SYS_AARCH64_SLOW_BARREL_SHIFTER)
 #define MLKEM_USE_FIPS202_X1_NATIVE
-static inline void keccak_f1600_x1_native(uint64_t *state) {
+static inline void keccak_f1600_x1_native(uint64_t *state)
+{
   keccak_f1600_x1_scalar_asm_opt(state);
 }
 #endif /* !SYS_AARCH64_SLOW_BARREL_SHIFTER */
@@ -54,12 +56,14 @@ static inline void keccak_f1600_x1_native(uint64_t *state) {
 // instructions only.
 #if defined(__APPLE__)
 #define MLKEM_USE_FIPS202_X2_NATIVE
-static inline void keccak_f1600_x2_native(uint64_t *state) {
+static inline void keccak_f1600_x2_native(uint64_t *state)
+{
   keccak_f1600_x2_v84a_asm_clean(state);
 }
 #else /* __APPLE__ */
 #define MLKEM_USE_FIPS202_X4_NATIVE
-static inline void keccak_f1600_x4_native(uint64_t *state) {
+static inline void keccak_f1600_x4_native(uint64_t *state)
+{
   keccak_f1600_x4_scalar_v8a_v84a_hybrid_asm_opt(state);
 }
 #endif /* __APPLE__ */
@@ -67,7 +71,8 @@ static inline void keccak_f1600_x4_native(uint64_t *state) {
 #else /* __ARM_FEATURE_SHA3 */
 
 #define MLKEM_USE_FIPS202_X4_NATIVE
-static inline void keccak_f1600_x4_native(uint64_t *state) {
+static inline void keccak_f1600_x4_native(uint64_t *state)
+{
   keccak_f1600_x4_scalar_v8a_asm_hybrid_opt(state);
 }
 

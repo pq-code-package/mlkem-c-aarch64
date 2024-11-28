@@ -23,7 +23,8 @@
  * @brief Starting point for formal analysis
  *
  */
-void harness(void) {
+void harness(void)
+{
   int16_t *a, *b, *r, b_cached;
 
   basemul_cached(r, a, b, b_cached);

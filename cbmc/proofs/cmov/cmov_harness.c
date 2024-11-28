@@ -22,7 +22,8 @@
  * @brief Starting point for formal analysis
  *
  */
-void harness(void) {
+void harness(void)
+{
   uint8_t *x, *y;
   size_t len;
   uint8_t b;

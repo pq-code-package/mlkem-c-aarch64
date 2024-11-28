@@ -33,38 +33,45 @@
 #define NTT_BOUND_NATIVE \
   (16118 + 1)  // Bound from the official Kyber repository
 
-static inline void poly_permute_bitrev_to_custom(poly *data) {
+static inline void poly_permute_bitrev_to_custom(poly *data)
+{
   nttunpack_avx2((__m256i *)(data->coeffs), qdata.vec);
 }
 
 static inline int rej_uniform_native(int16_t *r, unsigned int len,
-                                     const uint8_t *buf, unsigned int buflen) {
+                                     const uint8_t *buf, unsigned int buflen)
+{
   // AVX2 implementation assumes specific buffer lengths
-  if (len != MLKEM_N || buflen != REJ_UNIFORM_AVX_BUFLEN) {
+  if (len != MLKEM_N || buflen != REJ_UNIFORM_AVX_BUFLEN)
+  {
     return -1;
   }
 
   return (int)rej_uniform_avx2(r, buf);
 }
 
-static inline void ntt_native(poly *data) {
+static inline void ntt_native(poly *data)
+{
   ntt_avx2((__m256i *)data, qdata.vec);
 }
 
-static inline void intt_native(poly *data) {
+static inline void intt_native(poly *data)
+{
   invntt_avx2((__m256i *)data, qdata.vec);
 }
 
-static inline void poly_reduce_native(poly *data) {
+static inline void poly_reduce_native(poly *data)
+{
   reduce_avx2((__m256i *)data->coeffs, qdata.vec);
 }
 
-static inline void poly_tomont_native(poly *data) {
+static inline void poly_tomont_native(poly *data)
+{
   tomont_avx2((__m256i *)data->coeffs, qdata.vec);
 }
 
-static inline void poly_mulcache_compute_native(poly_mulcache *x,
-                                                const poly *y) {
+static inline void poly_mulcache_compute_native(poly_mulcache *x, const poly *y)
+{
   // AVX2 backend does not use mulcache
   ((void)y);
 
@@ -76,17 +83,20 @@ static inline void poly_mulcache_compute_native(poly_mulcache *x,
 
 static inline void polyvec_basemul_acc_montgomery_cached_native(
     poly *r, const polyvec *a, const polyvec *b,
-    const polyvec_mulcache *b_cache) {
+    const polyvec_mulcache *b_cache)
+{
   polyvec_basemul_acc_montgomery_cached_avx2(r, a, b, b_cache);
 }
 
 static inline void poly_tobytes_native(uint8_t r[MLKEM_POLYBYTES],
-                                       const poly *a) {
+                                       const poly *a)
+{
   ntttobytes_avx2(r, (const __m256i *)a->coeffs, qdata.vec);
 }
 
 static inline void poly_frombytes_native(poly *r,
-                                         const uint8_t a[MLKEM_POLYBYTES]) {
+                                         const uint8_t a[MLKEM_POLYBYTES])
+{
   nttfrombytes_avx2((__m256i *)r->coeffs, a, qdata.vec);
 }
 

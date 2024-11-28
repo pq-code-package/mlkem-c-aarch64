@@ -1,8 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
-# clang-format style file for MLKEM-C
-#
-# This is based on the style for for AWS-LC
+# clang-format style file for mlkem-native
 #
 BasedOnStyle: Google
 MaxEmptyLinesToKeep: 3
@@ -17,4 +15,8 @@ IncludeBlocks: Preserve
 
 # Designate CBMC contracts/macros that appear in .h files
 # as "attributes" so they don't get increasingly indented line after line
-AttributeMacros: ['REQUIRES', 'ENSURES', 'ASSIGNS', 'INVARIANT']
+BreakBeforeBraces: Allman
+WhitespaceSensitiveMacros: ['__contract__', '__loop__' ]
+Macros:
+ - __contract__(x)={} void foo()
+ - __loop__(x)={}

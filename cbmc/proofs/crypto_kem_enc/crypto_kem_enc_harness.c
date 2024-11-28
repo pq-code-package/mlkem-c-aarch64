@@ -22,7 +22,8 @@
  * @brief Starting point for formal analysis
  *
  */
-void harness(void) {
+void harness(void)
+{
   uint8_t *a, *b, *c;
   crypto_kem_enc(a, b, c);
 }

@@ -23,7 +23,8 @@
  * @brief Starting point for formal analysis
  *
  */
-void harness(void) {
+void harness(void)
+{
   poly_mulcache *x;
   poly *a;
 

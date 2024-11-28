@@ -8,7 +8,8 @@
 #include "symmetric.h"
 
 void mlkem_shake256_prf(uint8_t *out, size_t outlen,
-                        const uint8_t key[MLKEM_SYMBYTES], uint8_t nonce) {
+                        const uint8_t key[MLKEM_SYMBYTES], uint8_t nonce)
+{
   uint8_t extkey[MLKEM_SYMBYTES + 1];
 
   memcpy(extkey, key, MLKEM_SYMBYTES);
@@ -19,7 +20,8 @@ void mlkem_shake256_prf(uint8_t *out, size_t outlen,
 
 void mlkem_shake256_rkprf(uint8_t out[MLKEM_SSBYTES],
                           const uint8_t key[MLKEM_SYMBYTES],
-                          const uint8_t input[MLKEM_CIPHERTEXTBYTES]) {
+                          const uint8_t input[MLKEM_CIPHERTEXTBYTES])
+{
   shake256incctx s;
 
   shake256_inc_init(&s);

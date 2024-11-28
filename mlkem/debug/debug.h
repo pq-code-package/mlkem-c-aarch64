@@ -57,7 +57,8 @@ void mlkem_debug_print_error(const char *file, int line, const char *msg);
  * Currently called CASSERT to avoid clash with CBMC assert.
  */
 #define CASSERT(val, msg)                                 \
-  do {                                                    \
+  do                                                      \
+  {                                                       \
     mlkem_debug_assert(__FILE__, __LINE__, (msg), (val)); \
   } while (0)
 
@@ -76,7 +77,8 @@ void mlkem_debug_print_error(const char *file, int line, const char *msg);
  * high_bound: Exclusive upper bound on absolute value to check
  * msg: Message to print on failure */
 #define UBOUND(ptr, len, high_bound, msg)                                 \
-  do {                                                                    \
+  do                                                                      \
+  {                                                                       \
     mlkem_debug_check_bounds(__FILE__, __LINE__, (msg), (int16_t *)(ptr), \
                              (len), -1, ((high_bound)));                  \
   } while (0)
@@ -87,7 +89,8 @@ void mlkem_debug_print_error(const char *file, int line, const char *msg);
  * abs_bound: Exclusive upper bound on absolute value to check
  * msg: Message to print on failure */
 #define BOUND(ptr, len, abs_bound, msg)                                   \
-  do {                                                                    \
+  do                                                                      \
+  {                                                                       \
     mlkem_debug_check_bounds(__FILE__, __LINE__, (msg), (int16_t *)(ptr), \
                              (len), -(abs_bound), (abs_bound));           \
   } while (0)
@@ -125,7 +128,8 @@ void mlkem_debug_print_error(const char *file, int line, const char *msg);
  * ptr: polyvec* or polyvec_mulcache* pointer to vector of polynomials to check
  * abs_bound: Exclusive upper bound on absolute value to check */
 #define POLYVEC_BOUND(ptr, abs_bound)                                    \
-  do {                                                                   \
+  do                                                                     \
+  {                                                                      \
     for (unsigned _debug_polyvec_bound_idx = 0;                          \
          _debug_polyvec_bound_idx < MLKEM_K; _debug_polyvec_bound_idx++) \
       POLY_BOUND_MSG(&(ptr)->vec[_debug_polyvec_bound_idx], (abs_bound), \
@@ -137,7 +141,8 @@ void mlkem_debug_print_error(const char *file, int line, const char *msg);
  * ubound: Exclusive upper bound on value to check. Inclusive lower bound is 0.
  */
 #define POLYVEC_UBOUND(ptr, ubound)                                      \
-  do {                                                                   \
+  do                                                                     \
+  {                                                                      \
     for (unsigned _debug_polyvec_bound_idx = 0;                          \
          _debug_polyvec_bound_idx < MLKEM_K; _debug_polyvec_bound_idx++) \
       POLY_UBOUND_MSG(&(ptr)->vec[_debug_polyvec_bound_idx], (ubound),   \
@@ -146,7 +151,8 @@ void mlkem_debug_print_error(const char *file, int line, const char *msg);
 
 // Following AWS-LC to define a C99-compliant static assert
 #define MLKEM_STATIC_ASSERT_DEFINE(cond, msg)                            \
-  typedef struct {                                                       \
+  typedef struct                                                         \
+  {                                                                      \
     unsigned int MLKEM_CONCAT(static_assertion_, msg) : (cond) ? 1 : -1; \
   } MLKEM_CONCAT(static_assertion_, msg) __attribute__((unused));
 
@@ -163,34 +169,44 @@ void mlkem_debug_print_error(const char *file, int line, const char *msg);
 #else /* MLKEM_DEBUG */
 
 #define CASSERT(...) \
-  do {               \
+  do                 \
+  {                  \
   } while (0)
 #define SCALAR_BOUND(...) \
-  do {                    \
+  do                      \
+  {                       \
   } while (0)
 #define BOUND(...) \
-  do {             \
+  do               \
+  {                \
   } while (0)
 #define POLY_BOUND(...) \
-  do {                  \
+  do                    \
+  {                     \
   } while (0)
 #define POLYVEC_BOUND(...) \
-  do {                     \
+  do                       \
+  {                        \
   } while (0)
 #define POLY_BOUND_MSG(...) \
-  do {                      \
+  do                        \
+  {                         \
   } while (0)
 #define UBOUND(...) \
-  do {              \
+  do                \
+  {                 \
   } while (0)
 #define POLY_UBOUND(...) \
-  do {                   \
+  do                     \
+  {                      \
   } while (0)
 #define POLYVEC_UBOUND(...) \
-  do {                      \
+  do                        \
+  {                         \
   } while (0)
 #define POLY_UBOUND_MSG(...) \
-  do {                       \
+  do                         \
+  {                          \
   } while (0)
 #define STATIC_ASSERT(...)
 

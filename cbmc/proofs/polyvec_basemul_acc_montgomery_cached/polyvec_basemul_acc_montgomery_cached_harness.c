@@ -22,7 +22,8 @@
  * @brief Starting point for formal analysis
  *
  */
-void harness(void) {
+void harness(void)
+{
   poly *r;
   polyvec *a, *b;
   polyvec_mulcache *b_cached;

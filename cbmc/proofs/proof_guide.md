@@ -31,16 +31,16 @@ Notes:
 2. The counter variable should be a constant within the loop body. In the example above, do _not_ modify (or take the address of) `i` in the body of the loop.
 3. `int` is the best type for the counter variable. `unsigned` integer types complicate matters with their modulo N semantics. Avoid `size_t` since its large range (possibly unsigned 64 bit) can slow proofs down.
 
-CBMC requires basic assigns, loop-invariant, and decreases contracts _in exactly that order_. Note that the contracts appear _before_ the opening `{` of the loop body, so we also need to tell `clang-format` not to reformat these lines. The basic pattern is thus:
+CBMC requires basic assigns, loop-invariant, and decreases contracts _in exactly that order_. In mlkem-native, we
+further enclose the entire loop annotations in a `__loop__` macro. Note that the contracts appear _before_ the opening.
 
 ```
 for (int i = 0; i < C; i++)
-    // clang-format off
-ASSIGNS(i) // plus whatever else S does
-INVARIANT(i >= 0)
-INVARIANT(i <= C)
-DECREASES(C - i)
-// clang-format on
+__loop__(
+  assigns(i) // plus whatever else S does
+  invariant(i >= 0)
+  invariant(i <= C)
+  decreases(C - i))
 {
     S;
 }
@@ -54,13 +54,12 @@ A common pattern - doing something to every element of an array. An example woul
 
 ```
 void zero_array_ts (uint8_t *dst, int len)
-    // clang-format off
-REQUIRES(IS_FRESH(dst, len))
-ASSIGNS(OBJECT_WHOLE(dst));
-// clang-format on
+__contract__(
+  requires(memory_no_alias(dst, len))
+  assigns(object_whole(dst)));
 ```
 
-The `IS_FRESH(dst,len)` in the precondition means that the pointer value `dst` is not `NULL` and is pointing to at least `len` bytes of data. The `ASSIGNS` contract (in this case) means that when the function returns, it promises to have updated the whole object pointed to by dst - in this case `len` bytes of data.
+The `memory_no_alias(dst,len)` in the precondition means that the pointer value `dst` is not `NULL` and is pointing to at least `len` bytes of data. The `assigns` contract (in this case) means that when the function returns, it promises to have updated the whole object pointed to by dst - in this case `len` bytes of data.
 
 The body:
 
@@ -68,18 +67,17 @@ The body:
 void zero_array_ts (uint8_t *dst, int len)
 {
     for (int i = 0; i < len; i++)
-        // clang-format off
-    ASSIGNS(i, OBJECT_WHOLE(dst))
-    INVARIANT(i >= 0 && i <= len)
-    DECREASES(len - i)
-    // clang-format on
+    __loop__(
+      assigns(i, object_whole(dst))
+      invariant(i >= 0 && i <= len)
+      decreases(len - i))
     {
         dst[i] = 0;
     }
 }
 ```
 The only real "type safety proofs" here are that
-1. dst is pointing at exactly "len" bytes - this is given by the IS_FRESH() part of the precondition.
+1. dst is pointing at exactly "len" bytes - this is given by the memory_no_alias() part of the precondition.
 2. The assignment to `dst[i]` does not have a buffer overflow. This requires a proof that `i >= 0 && i < len` which is trivially discharged given the loop invariant AND the fact that the loop _hasn't_ terminated (so we know `i < len` too).
 
 ### Correctness proof of zero_array
@@ -90,14 +88,13 @@ The function specification is extended:
 
 ```
 void zero_array_correct (uint8_t *dst, int len)
-    // clang-format off
-REQUIRES(IS_FRESH(dst, len))
-ASSIGNS(OBJECT_WHOLE(dst))
-ENSURES(FORALL { int k; (0 <= k && k < len) ==> dst[k] == 0 });
-// clang-format on
+__contract__(
+  requires(memory_no_alias(dst, len))
+  assigns(object_whole(dst))
+  ensures(forall { int k; (0 <= k && k < len) ==> dst[k] == 0 }));
 ```
 
-Note the required order of the contracts is always REQUIRES, ASSIGNS, ENSURES.
+Note the required order of the contracts is always requires, assigns, ensures.
 
 The body is the same, but with a stronger loop invariant. The invariant says that "after j loop iterations, we've zeroed the first j elements of the array", so:
 
@@ -105,12 +102,11 @@ The body is the same, but with a stronger loop invariant. The invariant says tha
 void zero_array_correct (uint8_t *dst, int len)
 {
     for (int i = 0; i < len; i++)
-        // clang-format off
-    ASSIGNS(i, OBJECT_WHOLE(dst))
-    INVARIANT(i >= 0 && i <= len)
-    INVARIANT(FORALL { int j; (0 <= j && j <= i - 1) ==> dst[j] == 0 } )
-    DECREASES(len - i)
-    // clang-format on
+    __loop__(
+      assigns(i, object_whole(dst))
+      invariant(i >= 0 && i <= len)
+      invariant(forall { int j; (0 <= j && j <= i - 1) ==> dst[j] == 0 } )
+      decreases(len - i))
     {
         dst[i] = 0;
     }
@@ -118,22 +114,22 @@ void zero_array_correct (uint8_t *dst, int len)
 ```
 
 Rules of thumb:
-1. Don't overload your program variables with quantified variables inside your FORALL contracts. It get confusing if you do.
+1. Don't overload your program variables with quantified variables inside your forall contracts. It get confusing if you do.
 2. The type of the quanitified variable is _signed_ "int". This is important.
 3. The path in the program from the loop-invariant, through the final loop exit test, to the implicit `return` statement is "nothing" or a "null statement". The proof needs to establish that (on the final iteration), the loop invariant _and_ the loop exit condidtion imply the post-condition. Imagine having to do that if there's some really complex code _after_ the loop body.
 
-This pattern also brings up another important trick - the use of "null ranges" in FORALL expressions. Consider the loop invariant above. We need to prove that it's true on the first entry to the loop (i.e. when i == 0).
+This pattern also brings up another important trick - the use of "null ranges" in forall expressions. Consider the loop invariant above. We need to prove that it's true on the first entry to the loop (i.e. when i == 0).
 
 Substituting i == 0 into there, we need to prove
 
 ```
-FORALL { int j; (0 <= j && j <= -1) ==> dst[j] == 0 }
+forall { int j; (0 <= j && j <= -1) ==> dst[j] == 0 }
 ```
 
 but how can j be both larger-than-or-equal-to 0 AND less-than-or-equal-to -1 at the same time? Answer: it can't! So.. the left hand side of the quantified predicate is False, so it reduces to:
 
 ```
-FORALL { int j; false ==> dst[j] == 0 }
+forall { int j; false ==> dst[j] == 0 }
 ```
 
 The `==>` is a logical implication, and we know that `False ==> ANYTHING` is True, so all is well.
@@ -150,7 +146,7 @@ Another important sanity check. If there are no statements following the loop bo
 // Loop invariant
 (i >= 0 &&
  i <= len &&
- (FORALL { int j; (0 <= j && j <= i - 1) ==> dst[j] == 0 } )
+ (forall { int j; (0 <= j && j <= i - 1) ==> dst[j] == 0 } )
 &&
 // Loop exit condition must be TRUE, so
 i == len)
@@ -158,7 +154,7 @@ i == len)
   ==>
 
 // Post-condition
-FORALL { int k; (0 <= k && k < len) ==> dst[k] == 0 }
+forall { int k; (0 <= k && k < len) ==> dst[k] == 0 }
 ```
 
 The loop exit condition means that we can just replace `i` with `len` in the hypotheses, to get:
@@ -166,17 +162,17 @@ The loop exit condition means that we can just replace `i` with `len` in the hyp
 ```
 len >= 0 &&
 len <= len &&
-(FORALL { int j; (0 <= j && j <= len - 1) ==> dst[j] == 0 } )
+(forall { int j; (0 <= j && j <= len - 1) ==> dst[j] == 0 } )
   ==>
-FORALL { int k; (0 <= k && k < len) ==> dst[k] == 0 }
+forall { int k; (0 <= k && k < len) ==> dst[k] == 0 }
 ```
 
 `j <= len - 1` can be simplified to `j < len` so that simplifies to:
 
 ```
-FORALL { int j; (0 <= j && j < len) ==> dst[j] == 0 }
+forall { int j; (0 <= j && j < len) ==> dst[j] == 0 }
   ==>
-FORALL { int k; (0 <= k && k < len) ==> dst[k] == 0 }
+forall { int k; (0 <= k && k < len) ==> dst[k] == 0 }
 ```
 
 which is True.
@@ -252,7 +248,7 @@ The file `XXX_harness.c` should declare a single function called `XXX_harness()`
 For example, if a function f() expects a single parameter which is a pointer to some struct s:
 ```
 void f(s *x)
-REQUIRES(IS_FRESH(x, sizeof(s));
+requires(memory_no_alias(x, sizeof(s));
 ```
 then the harness should contain
 ```
@@ -265,7 +261,7 @@ The harness should _not_ contain
   f(&a);
 ```
 
-Using contracts, this harness function should not need to contain any CBMC `ASSUME` or `ASSERT` statements at all.
+Using contracts, this harness function should not need to contain any CBMC `assume` or `assert` statements at all.
 
 ### Supply top-level contracts
 
@@ -280,11 +276,10 @@ Check for any BOUND macros in the body that give range constraints on the parame
 The order of the top-level contracts for a function is _always_:
 ```
 t1 XXX(params...)
-    // clang-format off
-REQUIRES()
-ASSIGNS()
-ENSURES();
-// clang-format on
+__contract__(
+  requires()
+  assigns()
+  ensures());
 ```
 with a final semi-colon on the end of the last one. That final semi-colon is needed to terminate the function declaration as per normal C syntax.
 
@@ -366,20 +361,19 @@ The comments on `poly_tobytes()` give us a clear hint:
  *              - r: pointer to output byte array
  *                   (of MLKEM_POLYBYTES bytes)
 ```
-So we need to write a REQUIRES contract to constrain the ranges of the coefficients denoted by the parameter `a`. There is no constraint on the output byte array, other than it must be the right length, which is given by the function prototype.
+So we need to write a requires contract to constrain the ranges of the coefficients denoted by the parameter `a`. There is no constraint on the output byte array, other than it must be the right length, which is given by the function prototype.
 
 We can use the macros in `cbmc.h` to help, thus:
 
 ```
 void poly_tobytes(uint8_t r[MLKEM_POLYBYTES], const poly *a)
-     // clang-format off
-REQUIRES(IS_FRESH(a, sizeof(poly)))
-REQUIRES(ARRAY_BOUND(a->coeffs, 0, (MLKEM_N - 1), 0, (MLKEM_Q - 1)))
-ASSIGNS(OBJECT_WHOLE(r));
-// clang-format on
+__contract__(
+  requires(memory_no_alias(a, sizeof(poly)))
+  requires(array_bound(a->coeffs, 0, (MLKEM_N - 1), 0, (MLKEM_Q - 1)))
+  assigns(object_whole(r)));
 ```
 
-`ARRAY_BOUND` is a macro that expands to a quantified expression that expresses that the elemtns of `a->coeffs` between index values `0` and `(MLKEM_N - 1)` (inclusive) are in the range `0` through `(MLKEM_Q - 1)` (also inclusive). See the macro definition in `mlkem/cbmc.h` for details.
+`array_bound` is a macro that expands to a quantified expression that expresses that the elemtns of `a->coeffs` between index values `0` and `(MLKEM_N - 1)` (inclusive) are in the range `0` through `(MLKEM_Q - 1)` (also inclusive). See the macro definition in `mlkem/cbmc.h` for details.
 
 ### Interior contracts and loop invariants
 
@@ -399,13 +393,12 @@ Therefore, we add:
 
 ```
   for (int i = 0; i < MLKEM_N / 2; i++)
-      // clang-format off
-  ASSIGNS(i, OBJECT_WHOLE(r))
-  INVARIANT(i >= 0)
-  INVARIANT(i <= MLKEM_N / 2)
-  DECREASES(MLKEM_N / 2 - i)
-    // clang-format on
-    { ... }
+  __loop__(
+    assigns(i, object_whole(r))
+    invariant(i >= 0)
+    invariant(i <= MLKEM_N / 2)
+    decreases(MLKEM_N / 2 - i))
+  { ... }
 ```
 
 Note that the invariant `i >= 0` could be ommitted since `i` is of an `unsigned` integer type. It is given here for clarity only.

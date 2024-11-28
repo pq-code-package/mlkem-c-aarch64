@@ -23,16 +23,18 @@
  *              smaller than 3/2 q in absolute value.
  **************************************************/
 #define montgomery_reduce MLKEM_NAMESPACE(montgomery_reduce)
-int16_t montgomery_reduce(int32_t a)  // clang-format off
-REQUIRES(a > -(2 * MLKEM_Q * 32768))
-REQUIRES(a <  (2 * MLKEM_Q * 32768))
-ENSURES(RETURN_VALUE > -(3 * HALF_Q) && RETURN_VALUE < (3 * HALF_Q));
-// clang-format on
+int16_t montgomery_reduce(int32_t a)
+__contract__(
+  requires(a > -(2 * MLKEM_Q * 32768))
+  requires(a <  (2 * MLKEM_Q * 32768))
+  ensures(return_value > -(3 * HALF_Q) && return_value < (3 * HALF_Q))
+);
 
 #define barrett_reduce MLKEM_NAMESPACE(barrett_reduce)
-int16_t barrett_reduce(int16_t a)  // clang-format off
-ENSURES(RETURN_VALUE > -HALF_Q && RETURN_VALUE < HALF_Q);
-// clang-format on
+int16_t barrett_reduce(int16_t a)
+__contract__(
+  ensures(return_value > -HALF_Q && return_value < HALF_Q)
+);
 
 /*************************************************
  * Name:        fqmul
@@ -49,12 +51,12 @@ ENSURES(RETURN_VALUE > -HALF_Q && RETURN_VALUE < HALF_Q);
  *
  **************************************************/
 #define fqmul MLKEM_NAMESPACE(fqmul)
-
-int16_t fqmul(int16_t a, int16_t b)  // clang-format off
-REQUIRES(b > -HALF_Q)
-REQUIRES(b < HALF_Q)
-ENSURES(RETURN_VALUE > -MLKEM_Q && RETURN_VALUE < MLKEM_Q);
-// clang-format on
+int16_t fqmul(int16_t a, int16_t b)
+__contract__(
+  requires(b > -HALF_Q)
+  requires(b < HALF_Q)
+  ensures(return_value > -MLKEM_Q && return_value < MLKEM_Q)
+);
 
 
 #endif

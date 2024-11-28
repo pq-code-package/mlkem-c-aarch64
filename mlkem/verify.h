@@ -21,13 +21,13 @@
  *
  * Returns 0 if the byte arrays are equal, 1 otherwise
  **************************************************/
-int verify(const uint8_t *a, const uint8_t *b,
-           const size_t len)  // clang-format off
-REQUIRES(IS_FRESH(a, len))
-REQUIRES(IS_FRESH(b, len))
-REQUIRES(len <= INT_MAX)
-ENSURES(RETURN_VALUE == (1 - FORALL(int, i, 0, ((int)len - 1), (a[i] == b[i]))));
-// clang-format on
+int verify(const uint8_t *a, const uint8_t *b, const size_t len)
+__contract__(
+  requires(memory_no_alias(a, len))
+  requires(memory_no_alias(b, len))
+  requires(len <= INT_MAX)
+  ensures(return_value == (1 - forall(int, i, 0, ((int)len - 1), (a[i] == b[i]))))
+);
 
 #define cmov MLKEM_NAMESPACE(cmov)
 /*************************************************
@@ -43,13 +43,13 @@ ENSURES(RETURN_VALUE == (1 - FORALL(int, i, 0, ((int)len - 1), (a[i] == b[i]))))
  *              size_t len:       Amount of bytes to be copied
  *              uint8_t b:        Condition bit; has to be in {0,1}
  **************************************************/
-void cmov(uint8_t *r, const uint8_t *x, size_t len,
-          uint8_t b)  // clang-format off
-REQUIRES(IS_FRESH(r, len))
-REQUIRES(IS_FRESH(x, len))
-REQUIRES(b == 0 || b == 1)
-ASSIGNS(OBJECT_UPTO(r, len));
-// clang-format on
+void cmov(uint8_t *r, const uint8_t *x, size_t len, uint8_t b)
+__contract__(
+  requires(memory_no_alias(r, len))
+  requires(memory_no_alias(x, len))
+  requires(b == 0 || b == 1)
+  assigns(memory_slice(r, len))
+);
 
 #define cmov_int16 MLKEM_NAMESPACE(cmov_int16)
 /*************************************************
@@ -63,13 +63,12 @@ ASSIGNS(OBJECT_UPTO(r, len));
  *              int16_t v:        input int16_t. Must not be NULL
  *              uint16_t b:       Condition bit; has to be in {0,1}
  **************************************************/
-
-void cmov_int16(int16_t *r, const int16_t v,
-                const uint16_t b)  // clang-format off
-REQUIRES(b == 0 || b == 1)
-REQUIRES(IS_FRESH(r, sizeof(int16_t)))
-ASSIGNS(OBJECT_UPTO(r, sizeof(int16_t)))
-ENSURES(*r == (b ? v : OLD(*r)));
-// clang-format on
+void cmov_int16(int16_t *r, const int16_t v, const uint16_t b)
+__contract__(
+  requires(b == 0 || b == 1)
+  requires(memory_no_alias(r, sizeof(int16_t)))
+  assigns(memory_slice(r, sizeof(int16_t)))
+  ensures(*r == (b ? v : old(*r)))
+);
 
 #endif

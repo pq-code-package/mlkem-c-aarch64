@@ -22,7 +22,8 @@
  * @brief Starting point for formal analysis
  *
  */
-void harness(void) {
+void harness(void)
+{
   poly *a;
 
   /* Contracts for this function are in poly.h */

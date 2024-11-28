@@ -33,7 +33,8 @@
  *              const uint8_t *seed: pointer to the input public seed
  **************************************************/
 static void pack_pk(uint8_t r[MLKEM_INDCPA_PUBLICKEYBYTES], polyvec *pk,
-                    const uint8_t seed[MLKEM_SYMBYTES]) {
+                    const uint8_t seed[MLKEM_SYMBYTES])
+{
   POLYVEC_BOUND(pk, MLKEM_Q);
   polyvec_tobytes(r, pk);
   memcpy(r + MLKEM_POLYVECBYTES, seed, MLKEM_SYMBYTES);
@@ -52,7 +53,8 @@ static void pack_pk(uint8_t r[MLKEM_INDCPA_PUBLICKEYBYTES], polyvec *pk,
  *                  key.
  **************************************************/
 static void unpack_pk(polyvec *pk, uint8_t seed[MLKEM_SYMBYTES],
-                      const uint8_t packedpk[MLKEM_INDCPA_PUBLICKEYBYTES]) {
+                      const uint8_t packedpk[MLKEM_INDCPA_PUBLICKEYBYTES])
+{
   polyvec_frombytes(pk, packedpk);
   memcpy(seed, packedpk + MLKEM_POLYVECBYTES, MLKEM_SYMBYTES);
 
@@ -71,7 +73,8 @@ static void unpack_pk(polyvec *pk, uint8_t seed[MLKEM_SYMBYTES],
  *              - polyvec *sk: pointer to input vector of polynomials (secret
  *key)
  **************************************************/
-static void pack_sk(uint8_t r[MLKEM_INDCPA_SECRETKEYBYTES], polyvec *sk) {
+static void pack_sk(uint8_t r[MLKEM_INDCPA_SECRETKEYBYTES], polyvec *sk)
+{
   POLYVEC_BOUND(sk, MLKEM_Q);
   polyvec_tobytes(r, sk);
 }
@@ -87,7 +90,8 @@ static void pack_sk(uint8_t r[MLKEM_INDCPA_SECRETKEYBYTES], polyvec *sk) {
  *key
  **************************************************/
 static void unpack_sk(polyvec *sk,
-                      const uint8_t packedsk[MLKEM_INDCPA_SECRETKEYBYTES]) {
+                      const uint8_t packedsk[MLKEM_INDCPA_SECRETKEYBYTES])
+{
   polyvec_frombytes(sk, packedsk);
   polyvec_reduce(sk);
 }
@@ -103,8 +107,8 @@ static void unpack_sk(polyvec *sk,
  *              poly *pk: pointer to the input vector of polynomials b
  *              poly *v: pointer to the input polynomial v
  **************************************************/
-static void pack_ciphertext(uint8_t r[MLKEM_INDCPA_BYTES], polyvec *b,
-                            poly *v) {
+static void pack_ciphertext(uint8_t r[MLKEM_INDCPA_BYTES], polyvec *b, poly *v)
+{
   polyvec_compress_du(r, b);
   poly_compress_dv(r + MLKEM_POLYVECCOMPRESSEDBYTES_DU, v);
 }
@@ -120,7 +124,8 @@ static void pack_ciphertext(uint8_t r[MLKEM_INDCPA_BYTES], polyvec *b,
  *              - const uint8_t *c: pointer to the input serialized ciphertext
  **************************************************/
 static void unpack_ciphertext(polyvec *b, poly *v,
-                              const uint8_t c[MLKEM_INDCPA_BYTES]) {
+                              const uint8_t c[MLKEM_INDCPA_BYTES])
+{
   polyvec_decompress_du(b, c);
   poly_decompress_dv(v, c + MLKEM_POLYVECCOMPRESSEDBYTES_DU);
 }
@@ -133,19 +138,19 @@ static void unpack_ciphertext(polyvec *b, poly *v,
 // Generate four A matrix entries from a seed, using rejection
 // sampling on the output of a XOF.
 STATIC_TESTABLE
-void gen_matrix_entry_x4(poly *vec, uint8_t *seed[4])  // clang-format off
-REQUIRES(IS_FRESH(vec, sizeof(poly) * 4))
-REQUIRES(IS_FRESH(seed, sizeof(uint8_t*) * 4))
-REQUIRES(IS_FRESH(seed[0], MLKEM_SYMBYTES + 2))
-REQUIRES(IS_FRESH(seed[1], MLKEM_SYMBYTES + 2))
-REQUIRES(IS_FRESH(seed[2], MLKEM_SYMBYTES + 2))
-REQUIRES(IS_FRESH(seed[3], MLKEM_SYMBYTES + 2))
-ASSIGNS(OBJECT_UPTO(vec, sizeof(poly) * 4))
-ENSURES(ARRAY_BOUND(vec[0].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))
-ENSURES(ARRAY_BOUND(vec[1].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))
-ENSURES(ARRAY_BOUND(vec[2].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))
-ENSURES(ARRAY_BOUND(vec[3].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))
-// clang-format on
+void gen_matrix_entry_x4(poly *vec, uint8_t *seed[4])
+__contract__(
+  requires(memory_no_alias(vec, sizeof(poly) * 4))
+  requires(memory_no_alias(seed, sizeof(uint8_t*) * 4))
+  requires(memory_no_alias(seed[0], MLKEM_SYMBYTES + 2))
+  requires(memory_no_alias(seed[1], MLKEM_SYMBYTES + 2))
+  requires(memory_no_alias(seed[2], MLKEM_SYMBYTES + 2))
+  requires(memory_no_alias(seed[3], MLKEM_SYMBYTES + 2))
+  assigns(memory_slice(vec, sizeof(poly) * 4))
+  ensures(array_bound(vec[0].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))
+  ensures(array_bound(vec[1].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))
+  ensures(array_bound(vec[2].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))
+  ensures(array_bound(vec[3].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1))))
 {
   // Temporary buffers for XOF output before rejection sampling
   uint8_t buf0[MLKEM_GEN_MATRIX_NBLOCKS * SHAKE128_RATE];
@@ -176,23 +181,23 @@ ENSURES(ARRAY_BOUND(vec[3].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))
   // one more block a time until we're done.
   buflen = SHAKE128_RATE;
   while (ctr[0] < MLKEM_N || ctr[1] < MLKEM_N || ctr[2] < MLKEM_N ||
-         ctr[3] < MLKEM_N)  // clang-format off
-    ASSIGNS(ctr, statex, OBJECT_UPTO(vec, sizeof(poly) * 4), OBJECT_WHOLE(buf0),
-       OBJECT_WHOLE(buf1), OBJECT_WHOLE(buf2), OBJECT_WHOLE(buf3))
-    INVARIANT(ctr[0] <= MLKEM_N && ctr[1] <= MLKEM_N)
-    INVARIANT(ctr[2] <= MLKEM_N && ctr[3] <= MLKEM_N)
-    INVARIANT(ctr[0] > 0 ==> ARRAY_BOUND(vec[0].coeffs, 0, ctr[0] - 1, 0, (MLKEM_Q - 1)))
-    INVARIANT(ctr[1] > 0 ==> ARRAY_BOUND(vec[1].coeffs, 0, ctr[1] - 1, 0, (MLKEM_Q - 1)))
-    INVARIANT(ctr[2] > 0 ==> ARRAY_BOUND(vec[2].coeffs, 0, ctr[2] - 1, 0, (MLKEM_Q - 1)))
-    INVARIANT(ctr[3] > 0 ==> ARRAY_BOUND(vec[3].coeffs, 0, ctr[3] - 1, 0, (MLKEM_Q - 1)))
-                            // clang-format on
-    {
-      shake128x4_squeezeblocks(buf0, buf1, buf2, buf3, 1, &statex);
-      ctr[0] = rej_uniform(vec[0].coeffs, MLKEM_N, ctr[0], buf0, buflen);
-      ctr[1] = rej_uniform(vec[1].coeffs, MLKEM_N, ctr[1], buf1, buflen);
-      ctr[2] = rej_uniform(vec[2].coeffs, MLKEM_N, ctr[2], buf2, buflen);
-      ctr[3] = rej_uniform(vec[3].coeffs, MLKEM_N, ctr[3], buf3, buflen);
-    }
+         ctr[3] < MLKEM_N)
+  __loop__(
+    assigns(ctr, statex, memory_slice(vec, sizeof(poly) * 4), object_whole(buf0),
+       object_whole(buf1), object_whole(buf2), object_whole(buf3))
+    invariant(ctr[0] <= MLKEM_N && ctr[1] <= MLKEM_N)
+    invariant(ctr[2] <= MLKEM_N && ctr[3] <= MLKEM_N)
+    invariant(ctr[0] > 0 ==> array_bound(vec[0].coeffs, 0, ctr[0] - 1, 0, (MLKEM_Q - 1)))
+    invariant(ctr[1] > 0 ==> array_bound(vec[1].coeffs, 0, ctr[1] - 1, 0, (MLKEM_Q - 1)))
+    invariant(ctr[2] > 0 ==> array_bound(vec[2].coeffs, 0, ctr[2] - 1, 0, (MLKEM_Q - 1)))
+    invariant(ctr[3] > 0 ==> array_bound(vec[3].coeffs, 0, ctr[3] - 1, 0, (MLKEM_Q - 1))))
+  {
+    shake128x4_squeezeblocks(buf0, buf1, buf2, buf3, 1, &statex);
+    ctr[0] = rej_uniform(vec[0].coeffs, MLKEM_N, ctr[0], buf0, buflen);
+    ctr[1] = rej_uniform(vec[1].coeffs, MLKEM_N, ctr[1], buf1, buflen);
+    ctr[2] = rej_uniform(vec[2].coeffs, MLKEM_N, ctr[2], buf2, buflen);
+    ctr[3] = rej_uniform(vec[3].coeffs, MLKEM_N, ctr[3], buf3, buflen);
+  }
 
   shake128x4_ctx_release(&statex);
 }
@@ -200,13 +205,13 @@ ENSURES(ARRAY_BOUND(vec[3].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))
 // Generate a single A matrix entry from a seed, using rejection
 // sampling on the output of a XOF.
 STATIC_TESTABLE
-void gen_matrix_entry(poly *entry,
-                      uint8_t seed[MLKEM_SYMBYTES + 2])  // clang-format off
-REQUIRES(IS_FRESH(entry, sizeof(poly)))
-REQUIRES(IS_FRESH(seed, MLKEM_SYMBYTES + 2))
-ASSIGNS(OBJECT_UPTO(entry, sizeof(poly)))
-ENSURES(ARRAY_BOUND(entry->coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))
-{  // clang-format on
+void gen_matrix_entry(poly *entry, uint8_t seed[MLKEM_SYMBYTES + 2])
+__contract__(
+  requires(memory_no_alias(entry, sizeof(poly)))
+  requires(memory_no_alias(seed, MLKEM_SYMBYTES + 2))
+  assigns(memory_slice(entry, sizeof(poly)))
+  ensures(array_bound(entry->coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1))))
+{
   shake128ctx state;
   uint8_t buf[MLKEM_GEN_MATRIX_NBLOCKS * SHAKE128_RATE];
   unsigned int ctr, buflen;
@@ -221,15 +226,16 @@ ENSURES(ARRAY_BOUND(entry->coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))
 
   // Squeeze + sample one more block a time until we're done
   buflen = SHAKE128_RATE;
-  while (ctr < MLKEM_N)  // clang-format off
-    ASSIGNS(ctr, state, OBJECT_UPTO(entry, sizeof(poly)), OBJECT_WHOLE(buf))
-    INVARIANT(0 <= ctr && ctr <= MLKEM_N)
-    INVARIANT(ctr > 0 ==> ARRAY_BOUND(entry->coeffs, 0, ctr - 1,
-                                          0, (MLKEM_Q - 1)))  // clang-format on
-    {
-      shake128_squeezeblocks(buf, 1, &state);
-      ctr = rej_uniform(entry->coeffs, MLKEM_N, ctr, buf, SHAKE128_RATE);
-    }
+  while (ctr < MLKEM_N)
+  __loop__(
+    assigns(ctr, state, memory_slice(entry, sizeof(poly)), object_whole(buf))
+    invariant(0 <= ctr && ctr <= MLKEM_N)
+    invariant(ctr > 0 ==> array_bound(entry->coeffs, 0, ctr - 1,
+                                          0, (MLKEM_Q - 1))))
+  {
+    shake128_squeezeblocks(buf, 1, &state);
+    ctr = rej_uniform(entry->coeffs, MLKEM_N, ctr, buf, SHAKE128_RATE);
+  }
 
   shake128_ctx_release(&state);
 }
@@ -247,8 +253,8 @@ ENSURES(ARRAY_BOUND(entry->coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))
  *              - int transposed: boolean deciding whether A or A^T is generated
  **************************************************/
 // Not static for benchmarking
-void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES],
-                int transposed) {
+void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES], int transposed)
+{
   int i;
   // We generate four separate seed arrays rather than a single one to work
   // around limitations in CBMC function contracts dealing with disjoint slices
@@ -259,7 +265,8 @@ void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES],
   ALIGN uint8_t seed3[MLKEM_SYMBYTES + 2];
   uint8_t *seedxy[] = {seed0, seed1, seed2, seed3};
 
-  for (unsigned j = 0; j < KECCAK_WAY; j++) {
+  for (unsigned j = 0; j < KECCAK_WAY; j++)
+  {
     memcpy(seedxy[j], seed, MLKEM_SYMBYTES);
   }
 
@@ -269,16 +276,21 @@ void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES],
   // Either add suitable pragmas, or split gen_matrix according to MLKEM_K
   // and unroll by hand.
   for (i = 0; i < (MLKEM_K * MLKEM_K / KECCAK_WAY) * KECCAK_WAY;
-       i += KECCAK_WAY) {
+       i += KECCAK_WAY)
+  {
     uint8_t x, y;
 
-    for (unsigned int j = 0; j < KECCAK_WAY; j++) {
+    for (unsigned int j = 0; j < KECCAK_WAY; j++)
+    {
       x = (i + j) / MLKEM_K;
       y = (i + j) % MLKEM_K;
-      if (transposed) {
+      if (transposed)
+      {
         seedxy[j][MLKEM_SYMBYTES + 0] = x;
         seedxy[j][MLKEM_SYMBYTES + 1] = y;
-      } else {
+      }
+      else
+      {
         seedxy[j][MLKEM_SYMBYTES + 0] = y;
         seedxy[j][MLKEM_SYMBYTES + 1] = x;
       }
@@ -290,15 +302,19 @@ void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES],
   }
 
   // For left over polynomial, we use single keccak.
-  if (i < MLKEM_K * MLKEM_K) {
+  if (i < MLKEM_K * MLKEM_K)
+  {
     uint8_t x, y;
     x = i / MLKEM_K;
     y = i % MLKEM_K;
 
-    if (transposed) {
+    if (transposed)
+    {
       seed0[MLKEM_SYMBYTES + 0] = x;
       seed0[MLKEM_SYMBYTES + 1] = y;
-    } else {
+    }
+    else
+    {
       seed0[MLKEM_SYMBYTES + 0] = y;
       seed0[MLKEM_SYMBYTES + 1] = x;
     }
@@ -307,13 +323,16 @@ void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES],
     i++;
   }
 
-  ASSERT(i == MLKEM_K * MLKEM_K, "gen_matrix: failed to generate whole matrix");
+  cassert(i == MLKEM_K * MLKEM_K,
+          "gen_matrix: failed to generate whole matrix");
 
 #if defined(MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER)
   // The public matrix is generated in NTT domain. If the native backend
   // uses a custom order in NTT domain, permute A accordingly.
-  for (i = 0; i < MLKEM_K; i++) {
-    for (int j = 0; j < MLKEM_K; j++) {
+  for (i = 0; i < MLKEM_K; i++)
+  {
+    for (int j = 0; j < MLKEM_K; j++)
+    {
       poly_permute_bitrev_to_custom(&a[i].vec[j]);
     }
   }
@@ -335,23 +354,24 @@ void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES],
  **************************************************/
 STATIC_TESTABLE
 void matvec_mul(polyvec *out, const polyvec a[MLKEM_K], const polyvec *v,
-                const polyvec_mulcache *vc)  // clang-format off
-REQUIRES(IS_FRESH(out, sizeof(polyvec)))
-REQUIRES(IS_FRESH(a, sizeof(polyvec) * MLKEM_K))
-REQUIRES(IS_FRESH(v, sizeof(polyvec)))
-REQUIRES(IS_FRESH(vc, sizeof(polyvec_mulcache)))
-REQUIRES(FORALL(int, k0, 0, MLKEM_K - 1,
- FORALL(int, k1, 0, MLKEM_K - 1,
-   ARRAY_ABS_BOUND(a[k0].vec[k1].coeffs, 0, MLKEM_N - 1, (MLKEM_Q - 1)))))
-ASSIGNS(OBJECT_WHOLE(out))
-// clang-format on
+                const polyvec_mulcache *vc)
+__contract__(
+  requires(memory_no_alias(out, sizeof(polyvec)))
+  requires(memory_no_alias(a, sizeof(polyvec) * MLKEM_K))
+  requires(memory_no_alias(v, sizeof(polyvec)))
+  requires(memory_no_alias(vc, sizeof(polyvec_mulcache)))
+  requires(forall(int, k0, 0, MLKEM_K - 1,
+  forall(int, k1, 0, MLKEM_K - 1,
+    array_abs_bound(a[k0].vec[k1].coeffs, 0, MLKEM_N - 1, (MLKEM_Q - 1)))))
+  assigns(object_whole(out)))
 {
-  for (int i = 0; i < MLKEM_K; i++)  // clang-format off
-    ASSIGNS(i, OBJECT_WHOLE(out))
-    INVARIANT(i >= 0 && i <= MLKEM_K)  // clang-format on
-    {
-      polyvec_basemul_acc_montgomery_cached(&out->vec[i], &a[i], v, vc);
-    }
+  for (int i = 0; i < MLKEM_K; i++)
+  __loop__(
+    assigns(i, object_whole(out))
+    invariant(i >= 0 && i <= MLKEM_K))
+  {
+    polyvec_basemul_acc_montgomery_cached(&out->vec[i], &a[i], v, vc);
+  }
 }
 
 /*************************************************
@@ -372,7 +392,8 @@ STATIC_ASSERT(NTT_BOUND + MLKEM_Q < INT16_MAX, indcpa_enc_bound_0)
 
 void indcpa_keypair_derand(uint8_t pk[MLKEM_INDCPA_PUBLICKEYBYTES],
                            uint8_t sk[MLKEM_INDCPA_SECRETKEYBYTES],
-                           const uint8_t coins[MLKEM_SYMBYTES]) {
+                           const uint8_t coins[MLKEM_SYMBYTES])
+{
   ALIGN uint8_t buf[2 * MLKEM_SYMBYTES];
   const uint8_t *publicseed = buf;
   const uint8_t *noiseseed = buf + MLKEM_SYMBYTES;
@@ -448,7 +469,8 @@ STATIC_ASSERT(INVNTT_BOUND + MLKEM_ETA2 + MLKEM_Q < INT16_MAX,
 void indcpa_enc(uint8_t c[MLKEM_INDCPA_BYTES],
                 const uint8_t m[MLKEM_INDCPA_MSGBYTES],
                 const uint8_t pk[MLKEM_INDCPA_PUBLICKEYBYTES],
-                const uint8_t coins[MLKEM_SYMBYTES]) {
+                const uint8_t coins[MLKEM_SYMBYTES])
+{
   ALIGN uint8_t seed[MLKEM_SYMBYTES];
   polyvec sp, pkpv, ep, at[MLKEM_K], b;
   poly v, k, epp;
@@ -503,7 +525,8 @@ STATIC_ASSERT(INVNTT_BOUND + MLKEM_Q < INT16_MAX, indcpa_dec_bound_0)
 
 void indcpa_dec(uint8_t m[MLKEM_INDCPA_MSGBYTES],
                 const uint8_t c[MLKEM_INDCPA_BYTES],
-                const uint8_t sk[MLKEM_INDCPA_SECRETKEYBYTES]) {
+                const uint8_t sk[MLKEM_INDCPA_SECRETKEYBYTES])
+{
   polyvec b, skpv;
   poly v, sb;
 

@@ -18,7 +18,8 @@ void ntt_butterfly_block(int16_t *r, int16_t root, int start, int len,
  * @brief Starting point for formal analysis
  *
  */
-void harness(void) {
+void harness(void)
+{
   int16_t *r, root;
   int start, stride, bound;
   ntt_butterfly_block(r, root, start, stride, bound);

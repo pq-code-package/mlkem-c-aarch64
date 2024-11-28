@@ -23,7 +23,8 @@
  * @brief Starting point for formal analysis
  *
  */
-void harness(void) {
+void harness(void)
+{
   int16_t u;
 
   /* Contracts for this function are in poly.h */
