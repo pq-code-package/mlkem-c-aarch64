@@ -222,8 +222,10 @@
                 if (activeElems.length === 0) {
                   return;
                 }
-                const index = activeElems[0].datasetIndex;
-                const url = datasets[0].benches[index].commit.url;
+                console.log(activeElems);
+                const datasetIndex = activeElems[0].datasetIndex;
+                const index = activeElems[0].index;
+                const url = datasets[datasetIndex].benches[index].commit.url;
                 window.open(url, '_blank');
               },
             };
