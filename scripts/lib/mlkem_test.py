@@ -299,9 +299,14 @@ class Tests:
                 elif "riscv64" in opts.cross_prefix:
                     self.cmd_prefix.append("qemu-riscv64")
                 else:
-                    log.info(
+                    logging.info(
                         f"Emulation for {opts.cross_prefix} on {platform.system()} not supported",
                     )
+            elif opts.cross_prefix:
+                logging.error(
+                    f"Emulation for {opts.cross_prefix} on {platform.system()} not supported",
+                )
+                sys.exit(1)
 
     def _run_func(self, opt: bool):
         """Underlying function for functional test"""
