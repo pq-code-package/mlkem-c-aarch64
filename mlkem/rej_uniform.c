@@ -44,23 +44,24 @@ static unsigned int rej_uniform_scalar(int16_t *r, unsigned int target,
   ctr = offset;
   pos = 0;
   // pos + 3 cannot overflow due to the assumption buflen <= 4096
-  while (ctr < target && pos + 3 <= buflen)  // clang-format off
-    INVARIANT(offset <= ctr && ctr <= target && pos <= buflen)
-    INVARIANT(ctr > 0 ==> ARRAY_BOUND(r, 0, ctr - 1, 0, (MLKEM_Q - 1)))  // clang-format on
-    {
-      val0 = ((buf[pos + 0] >> 0) | ((uint16_t)buf[pos + 1] << 8)) & 0xFFF;
-      val1 = ((buf[pos + 1] >> 4) | ((uint16_t)buf[pos + 2] << 4)) & 0xFFF;
-      pos += 3;
+  while (ctr < target && pos + 3 <= buflen)
+  __loop__(
+    invariant(offset <= ctr && ctr <= target && pos <= buflen)
+    invariant(ctr > 0 ==> array_bound(r, 0, ctr - 1, 0, (MLKEM_Q - 1))))
+  {
+    val0 = ((buf[pos + 0] >> 0) | ((uint16_t)buf[pos + 1] << 8)) & 0xFFF;
+    val1 = ((buf[pos + 1] >> 4) | ((uint16_t)buf[pos + 2] << 4)) & 0xFFF;
+    pos += 3;
 
-      if (val0 < MLKEM_Q)
-      {
-        r[ctr++] = val0;
-      }
-      if (ctr < target && val1 < MLKEM_Q)
-      {
-        r[ctr++] = val1;
-      }
+    if (val0 < MLKEM_Q)
+    {
+      r[ctr++] = val0;
     }
+    if (ctr < target && val1 < MLKEM_Q)
+    {
+      r[ctr++] = val1;
+    }
+  }
   return ctr;
 }
 

@@ -111,8 +111,9 @@ void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a,
   // Those bounds are true for the C implementation, but not needed
   // in the higher level bounds reasoning. It is thus best to omit
   // them from the spec to not unnecessarily constraint native implementations.
-  ASSERT(ARRAY_ABS_BOUND(r->coeffs, 0, MLKEM_N - 1, MLKEM_K * (3 * HALF_Q - 1)),
-         "polyvec_basemul_acc_montgomery_cached output bounds");
+  cassert(
+      array_abs_bound(r->coeffs, 0, MLKEM_N - 1, MLKEM_K * (3 * HALF_Q - 1)),
+      "polyvec_basemul_acc_montgomery_cached output bounds");
   // TODO: Integrate CBMC assertion into POLY_BOUND if CBMC is set
   POLY_BOUND(r, MLKEM_K * 3 * HALF_Q);
 }

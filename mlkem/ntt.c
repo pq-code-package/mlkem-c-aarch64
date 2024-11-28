@@ -43,36 +43,36 @@
 //
 STATIC_TESTABLE
 void ntt_butterfly_block(int16_t r[MLKEM_N], int16_t zeta, int start, int len,
-                         int bound)  // clang-format off
-REQUIRES(0 <= start && start < MLKEM_N)
-REQUIRES(1 <= len && len <= MLKEM_N / 2 && start + 2 * len <= MLKEM_N)
-REQUIRES(0 <= bound && bound < INT16_MAX - MLKEM_Q)
-REQUIRES(-HALF_Q < zeta && zeta < HALF_Q)
-REQUIRES(IS_FRESH(r, sizeof(int16_t) * MLKEM_N))
-REQUIRES(ARRAY_ABS_BOUND(r, 0, start - 1, bound + MLKEM_Q))
-REQUIRES(ARRAY_ABS_BOUND(r, start, MLKEM_N - 1, bound))
-ASSIGNS(OBJECT_UPTO(r, sizeof(int16_t) * MLKEM_N))
-ENSURES(ARRAY_ABS_BOUND(r, 0, start + 2*len - 1, bound + MLKEM_Q))
-ENSURES(ARRAY_ABS_BOUND(r, start + 2 * len, MLKEM_N - 1, bound))
-// clang-format on
+                         int bound)
+__contract__(
+  requires(0 <= start && start < MLKEM_N)
+  requires(1 <= len && len <= MLKEM_N / 2 && start + 2 * len <= MLKEM_N)
+  requires(0 <= bound && bound < INT16_MAX - MLKEM_Q)
+  requires(-HALF_Q < zeta && zeta < HALF_Q)
+  requires(is_fresh(r, sizeof(int16_t) * MLKEM_N))
+  requires(array_abs_bound(r, 0, start - 1, bound + MLKEM_Q))
+  requires(array_abs_bound(r, start, MLKEM_N - 1, bound))
+  assigns(object_upto(r, sizeof(int16_t) * MLKEM_N))
+  ensures(array_abs_bound(r, 0, start + 2*len - 1, bound + MLKEM_Q))
+  ensures(array_abs_bound(r, start + 2 * len, MLKEM_N - 1, bound)))
 {
   // `bound` is a ghost variable only needed in the CBMC specification
   ((void)bound);
-  for (int j = start; j < start + len; j++)  // clang-format off
-    INVARIANT(start <= j && j <= start + len)
+  for (int j = start; j < start + len; j++)
+  __loop__(
+    invariant(start <= j && j <= start + len)
     // Coefficients are updated in strided pairs, so the bounds for the
     // intermediate states alternate twice between the old and new bound
-    INVARIANT(ARRAY_ABS_BOUND(r, 0,           j - 1,           bound + MLKEM_Q))
-    INVARIANT(ARRAY_ABS_BOUND(r, j,           start + len - 1, bound))
-    INVARIANT(ARRAY_ABS_BOUND(r, start + len, j + len - 1,     bound + MLKEM_Q))
-    INVARIANT(ARRAY_ABS_BOUND(r, j + len,     MLKEM_N - 1,     bound))
-    // clang-format on
-    {
-      int16_t t;
-      t = fqmul(r[j + len], zeta);
-      r[j + len] = r[j] - t;
-      r[j] = r[j] + t;
-    }
+    invariant(array_abs_bound(r, 0,           j - 1,           bound + MLKEM_Q))
+    invariant(array_abs_bound(r, j,           start + len - 1, bound))
+    invariant(array_abs_bound(r, start + len, j + len - 1,     bound + MLKEM_Q))
+    invariant(array_abs_bound(r, j + len,     MLKEM_N - 1,     bound)))
+  {
+    int16_t t;
+    t = fqmul(r[j + len], zeta);
+    r[j + len] = r[j] - t;
+    r[j] = r[j] + t;
+  }
 }
 
 // Compute one layer of forward NTT
@@ -88,28 +88,28 @@ ENSURES(ARRAY_ABS_BOUND(r, start + 2 * len, MLKEM_N - 1, bound))
 //   official Kyber implementation here, merely adding `layer` as
 //   a ghost variable for the specifications.
 STATIC_TESTABLE
-void ntt_layer(int16_t r[MLKEM_N], int len, int layer)  // clang-format off
-REQUIRES(IS_FRESH(r, sizeof(int16_t) * MLKEM_N))
-REQUIRES(1 <= layer && layer <= 7 && len == (MLKEM_N >> layer))
-REQUIRES(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, layer * MLKEM_Q - 1))
-ASSIGNS(OBJECT_UPTO(r, sizeof(int16_t) * MLKEM_N))
-ENSURES(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, (layer + 1) * MLKEM_Q - 1))
-// clang-format on
+void ntt_layer(int16_t r[MLKEM_N], int len, int layer)
+__contract__(
+  requires(is_fresh(r, sizeof(int16_t) * MLKEM_N))
+  requires(1 <= layer && layer <= 7 && len == (MLKEM_N >> layer))
+  requires(array_abs_bound(r, 0, MLKEM_N - 1, layer * MLKEM_Q - 1))
+  assigns(object_upto(r, sizeof(int16_t) * MLKEM_N))
+  ensures(array_abs_bound(r, 0, MLKEM_N - 1, (layer + 1) * MLKEM_Q - 1)))
 {
   // `layer` is a ghost variable only needed in the CBMC specification
   ((void)layer);
   // Twiddle factors for layer n start at index 2^(layer-1)
   int k = MLKEM_N / (2 * len);
-  for (int start = 0; start < MLKEM_N; start += 2 * len)  // clang-format off
-    INVARIANT(0 <= start && start < MLKEM_N + 2 * len)
-    INVARIANT(0 <= k && k <= MLKEM_N / 2 && 2 * len * k == start + MLKEM_N)
-    INVARIANT(ARRAY_ABS_BOUND(r, 0, start - 1, (layer * MLKEM_Q - 1) + MLKEM_Q))
-    INVARIANT(ARRAY_ABS_BOUND(r, start, MLKEM_N - 1, layer * MLKEM_Q - 1))
-    // clang-format on
-    {
-      int16_t zeta = zetas[k++];
-      ntt_butterfly_block(r, zeta, start, len, layer * MLKEM_Q - 1);
-    }
+  for (int start = 0; start < MLKEM_N; start += 2 * len)
+  __loop__(
+    invariant(0 <= start && start < MLKEM_N + 2 * len)
+    invariant(0 <= k && k <= MLKEM_N / 2 && 2 * len * k == start + MLKEM_N)
+    invariant(array_abs_bound(r, 0, start - 1, (layer * MLKEM_Q - 1) + MLKEM_Q))
+    invariant(array_abs_bound(r, start, MLKEM_N - 1, layer * MLKEM_Q - 1)))
+  {
+    int16_t zeta = zetas[k++];
+    ntt_butterfly_block(r, zeta, start, len, layer * MLKEM_Q - 1);
+  }
 }
 
 // Compute full forward NTT
@@ -127,14 +127,13 @@ void poly_ntt(poly *p)
   POLY_BOUND_MSG(p, MLKEM_Q, "ref ntt input");
   int16_t *r = p->coeffs;
 
-  for (int len = 128, layer = 1; len >= 2;
-       len >>= 1, layer++)  // clang-format off
-    INVARIANT(1 <= layer && layer <= 8 && len == (MLKEM_N >> layer))
-    INVARIANT(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, layer * MLKEM_Q - 1))
-    // clang-format on
-    {
-      ntt_layer(r, len, layer);
-    }
+  for (int len = 128, layer = 1; len >= 2; len >>= 1, layer++)
+  __loop__(
+    invariant(1 <= layer && layer <= 8 && len == (MLKEM_N >> layer))
+    invariant(array_abs_bound(r, 0, MLKEM_N - 1, layer * MLKEM_Q - 1)))
+  {
+    ntt_layer(r, len, layer);
+  }
 
   // Check the stronger bound
   POLY_BOUND_MSG(p, NTT_BOUND, "ref ntt output");
@@ -160,38 +159,38 @@ STATIC_ASSERT(INVNTT_BOUND_REF <= INVNTT_BOUND, invntt_bound)
 
 // Compute one layer of inverse NTT
 STATIC_TESTABLE
-void invntt_layer(int16_t *r, int len, int layer)  // clang-format off
-REQUIRES(IS_FRESH(r, sizeof(int16_t) * MLKEM_N))
-REQUIRES(2 <= len && len <= 128 && 1 <= layer && layer <= 7)
-REQUIRES(len == (1 << (8 - layer)))
-REQUIRES(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, MLKEM_Q))
-ASSIGNS(OBJECT_UPTO(r, sizeof(int16_t) * MLKEM_N))
-ENSURES(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, MLKEM_Q))
-// clang-format on
+void invntt_layer(int16_t *r, int len, int layer)
+__contract__(
+  requires(is_fresh(r, sizeof(int16_t) * MLKEM_N))
+  requires(2 <= len && len <= 128 && 1 <= layer && layer <= 7)
+  requires(len == (1 << (8 - layer)))
+  requires(array_abs_bound(r, 0, MLKEM_N - 1, MLKEM_Q))
+  assigns(object_upto(r, sizeof(int16_t) * MLKEM_N))
+  ensures(array_abs_bound(r, 0, MLKEM_N - 1, MLKEM_Q)))
 {
   // `layer` is a ghost variable used only in the specification
   ((void)layer);
   int k = MLKEM_N / len - 1;
-  for (int start = 0; start < MLKEM_N; start += 2 * len)  // clang-format off
-    INVARIANT(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, MLKEM_Q))
-    INVARIANT(0 <= start && start <= MLKEM_N && 0 <= k && k <= 127)
+  for (int start = 0; start < MLKEM_N; start += 2 * len)
+  __loop__(
+    invariant(array_abs_bound(r, 0, MLKEM_N - 1, MLKEM_Q))
+    invariant(0 <= start && start <= MLKEM_N && 0 <= k && k <= 127)
     // Normalised form of k == MLKEM_N / len - 1 - start / (2 * len)
-    INVARIANT(2 * len * k + start == 2 * MLKEM_N - 2 * len)
-    // clang-format on
+    invariant(2 * len * k + start == 2 * MLKEM_N - 2 * len))
+  {
+    int16_t zeta = zetas[k--];
+    for (int j = start; j < start + len; j++)
+    __loop__(
+      invariant(start <= j && j <= start + len)
+      invariant(0 <= start && start <= MLKEM_N && 0 <= k && k <= 127)
+      invariant(array_abs_bound(r, 0, MLKEM_N - 1, MLKEM_Q)))
     {
-      int16_t zeta = zetas[k--];
-      for (int j = start; j < start + len; j++)  // clang-format off
-        INVARIANT(start <= j && j <= start + len)
-        INVARIANT(0 <= start && start <= MLKEM_N && 0 <= k && k <= 127)
-        INVARIANT(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, MLKEM_Q))
-        // clang-format on
-        {
-          int16_t t = r[j];
-          r[j] = barrett_reduce(t + r[j + len]);
-          r[j + len] = r[j + len] - t;
-          r[j + len] = fqmul(r[j + len], zeta);
-        }
+      int16_t t = r[j];
+      r[j] = barrett_reduce(t + r[j + len]);
+      r[j + len] = r[j + len] - t;
+      r[j + len] = fqmul(r[j + len], zeta);
     }
+  }
 }
 
 void poly_invntt_tomont(poly *p)
@@ -203,22 +202,22 @@ void poly_invntt_tomont(poly *p)
   // and NTT twist. This also brings coefficients down to
   // absolute value < MLKEM_Q.
 
-  for (int j = 0; j < MLKEM_N; j++)  // clang-format off
-    INVARIANT(0 <= j && j <= MLKEM_N && ARRAY_ABS_BOUND(r, 0, j - 1, MLKEM_Q))
-    // clang-format on
-    {
-      r[j] = fqmul(r[j], f);
-    }
+  for (int j = 0; j < MLKEM_N; j++)
+  __loop__(
+    invariant(0 <= j && j <= MLKEM_N)
+    invariant(array_abs_bound(r, 0, j - 1, MLKEM_Q)))
+  {
+    r[j] = fqmul(r[j], f);
+  }
 
   // Run the invNTT layers
-  for (int len = 2, layer = 7; len <= 128;
-       len <<= 1, layer--)  // clang-format off
-    INVARIANT(2 <= len && len <= 256 && 0 <= layer && layer <= 7 && len == (1 << (8 - layer)))
-    INVARIANT(ARRAY_ABS_BOUND(r, 0, MLKEM_N - 1, MLKEM_Q))
-    // clang-format on
-    {
-      invntt_layer(p->coeffs, len, layer);
-    }
+  for (int len = 2, layer = 7; len <= 128; len <<= 1, layer--)
+  __loop__(
+    invariant(2 <= len && len <= 256 && 0 <= layer && layer <= 7 && len == (1 << (8 - layer)))
+    invariant(array_abs_bound(r, 0, MLKEM_N - 1, MLKEM_Q)))
+  {
+    invntt_layer(p->coeffs, len, layer);
+  }
 
   POLY_BOUND_MSG(p, INVNTT_BOUND_REF, "ref intt output");
 }

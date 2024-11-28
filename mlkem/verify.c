@@ -25,12 +25,13 @@ int verify(const uint8_t *a, const uint8_t *b, const size_t len)
   // can yield -1 as required.
   const int ilen = (int)len;
 
-  for (int i = 0; i < ilen; i++)  // clang-format off
-    INVARIANT(i >= 0 && i <= ilen)
-    INVARIANT((r == 0) == (FORALL(int, k, 0, (i - 1), (a[k] == b[k]))))  // clang-format on
-    {
-      r |= a[i] ^ b[i];
-    }
+  for (int i = 0; i < ilen; i++)
+  __loop__(
+    invariant(i >= 0 && i <= ilen)
+    invariant((r == 0) == (forall(int, k, 0, (i - 1), (a[k] == b[k])))))
+  {
+    r |= a[i] ^ b[i];
+  }
 
 #ifdef CBMC
 #pragma CPROVER check push
@@ -49,12 +50,11 @@ void cmov(uint8_t *r, const uint8_t *x, size_t len, uint8_t b)
   size_t i;
 
   b = (-b) & 0xFF;
-  for (i = 0; i < len; i++)  // clang-format off
-    INVARIANT(i <= len)
-    // clang-format on
-    {
-      r[i] ^= b & (r[i] ^ x[i]);
-    }
+  for (i = 0; i < len; i++)
+  __loop__(invariant(i <= len))
+  {
+    r[i] ^= b & (r[i] ^ x[i]);
+  }
 }
 
 /*************************************************

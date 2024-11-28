@@ -11,27 +11,27 @@
 
 #define gen_matrix MLKEM_NAMESPACE(gen_matrix)
 
-void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES],
-                int transposed)  // clang-format off
-REQUIRES(IS_FRESH(a, sizeof(polyvec) * MLKEM_K))
-REQUIRES(IS_FRESH(seed, MLKEM_SYMBYTES))
-REQUIRES(transposed == 0 || transposed == 1)
-ASSIGNS(OBJECT_WHOLE(a))
-ENSURES(FORALL(int, x, 0, MLKEM_K - 1, FORALL(int, y, 0, MLKEM_K - 1,
-  ARRAY_BOUND(a[x].vec[y].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))));
-// clang-format on
+void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES], int transposed)
+__contract__(
+  requires(is_fresh(a, sizeof(polyvec) * MLKEM_K))
+  requires(is_fresh(seed, MLKEM_SYMBYTES))
+  requires(transposed == 0 || transposed == 1)
+  assigns(object_whole(a))
+  ensures(forall(int, x, 0, MLKEM_K - 1, forall(int, y, 0, MLKEM_K - 1,
+  array_bound(a[x].vec[y].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))));
+);
 
 #define indcpa_keypair_derand MLKEM_NAMESPACE(indcpa_keypair_derand)
-void indcpa_keypair_derand(
-    uint8_t pk[MLKEM_INDCPA_PUBLICKEYBYTES],
-    uint8_t sk[MLKEM_INDCPA_SECRETKEYBYTES],
-    const uint8_t coins[MLKEM_SYMBYTES])  // clang-format off
-REQUIRES(IS_FRESH(pk, MLKEM_INDCPA_PUBLICKEYBYTES))
-REQUIRES(IS_FRESH(sk, MLKEM_INDCPA_SECRETKEYBYTES))
-REQUIRES(IS_FRESH(coins, MLKEM_SYMBYTES))
-ASSIGNS(OBJECT_WHOLE(pk))
-ASSIGNS(OBJECT_WHOLE(sk));
-// clang-format on
+void indcpa_keypair_derand(uint8_t pk[MLKEM_INDCPA_PUBLICKEYBYTES],
+                           uint8_t sk[MLKEM_INDCPA_SECRETKEYBYTES],
+                           const uint8_t coins[MLKEM_SYMBYTES])
+__contract__(
+  requires(is_fresh(pk, MLKEM_INDCPA_PUBLICKEYBYTES))
+  requires(is_fresh(sk, MLKEM_INDCPA_SECRETKEYBYTES))
+  requires(is_fresh(coins, MLKEM_SYMBYTES))
+  assigns(object_whole(pk))
+  assigns(object_whole(sk))
+);
 
 #define indcpa_enc MLKEM_NAMESPACE(indcpa_enc)
 /*************************************************
@@ -50,22 +50,24 @@ ASSIGNS(OBJECT_WHOLE(sk));
 void indcpa_enc(uint8_t c[MLKEM_INDCPA_BYTES],
                 const uint8_t m[MLKEM_INDCPA_MSGBYTES],
                 const uint8_t pk[MLKEM_INDCPA_PUBLICKEYBYTES],
-                const uint8_t coins[MLKEM_SYMBYTES])  // clang-format off
-REQUIRES(IS_FRESH(c, MLKEM_INDCPA_BYTES))
-REQUIRES(IS_FRESH(m, MLKEM_INDCPA_MSGBYTES))
-REQUIRES(IS_FRESH(pk, MLKEM_INDCPA_PUBLICKEYBYTES))
-REQUIRES(IS_FRESH(coins, MLKEM_SYMBYTES))
-ASSIGNS(OBJECT_WHOLE(c));
-// clang-format on
+                const uint8_t coins[MLKEM_SYMBYTES])
+__contract__(
+  requires(is_fresh(c, MLKEM_INDCPA_BYTES))
+  requires(is_fresh(m, MLKEM_INDCPA_MSGBYTES))
+  requires(is_fresh(pk, MLKEM_INDCPA_PUBLICKEYBYTES))
+  requires(is_fresh(coins, MLKEM_SYMBYTES))
+  assigns(object_whole(c))
+);
 
 #define indcpa_dec MLKEM_NAMESPACE(indcpa_dec)
-void indcpa_dec(
-    uint8_t m[MLKEM_INDCPA_MSGBYTES], const uint8_t c[MLKEM_INDCPA_BYTES],
-    const uint8_t sk[MLKEM_INDCPA_SECRETKEYBYTES])  // clang-format off
-REQUIRES(IS_FRESH(c, MLKEM_INDCPA_BYTES))
-REQUIRES(IS_FRESH(m, MLKEM_INDCPA_MSGBYTES))
-REQUIRES(IS_FRESH(sk, MLKEM_INDCPA_SECRETKEYBYTES))
-ASSIGNS(OBJECT_WHOLE(m));
-// clang-format on
+void indcpa_dec(uint8_t m[MLKEM_INDCPA_MSGBYTES],
+                const uint8_t c[MLKEM_INDCPA_BYTES],
+                const uint8_t sk[MLKEM_INDCPA_SECRETKEYBYTES])
+__contract__(
+  requires(is_fresh(c, MLKEM_INDCPA_BYTES))
+  requires(is_fresh(m, MLKEM_INDCPA_MSGBYTES))
+  requires(is_fresh(sk, MLKEM_INDCPA_SECRETKEYBYTES))
+  assigns(object_whole(m))
+);
 
 #endif

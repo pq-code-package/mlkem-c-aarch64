@@ -12,14 +12,9 @@
 #define STATIC_TESTABLE static
 #define STATIC_INLINE_TESTABLE static inline
 
-// CBMC top-level contracts are replaced by "" for compilation
-#define ASSIGNS(...)
-#define REQUIRES(...)
-#define ENSURES(...)
-#define DECREASES(...)
-#define INVARIANT(...)
-#define ASSERT(...)
-#define ASSUME(...)
+#define __contract__(x)
+#define __loop__(x)
+#define cassert(x, y)
 
 #else  // CBMC _is_ defined, therefore we're doing proof
 
@@ -27,23 +22,25 @@
 #define STATIC_TESTABLE
 #define STATIC_INLINE_TESTABLE
 
+#define __contract__(x) x
+#define __loop__(x) x
 
 // https://diffblue.github.io/cbmc/contracts-assigns.html
-#define ASSIGNS(...) __CPROVER_assigns(__VA_ARGS__)
+#define assigns(...) __CPROVER_assigns(__VA_ARGS__)
 
 // https://diffblue.github.io/cbmc/contracts-requires-ensures.html
-#define REQUIRES(...) __CPROVER_requires(__VA_ARGS__)
-#define ENSURES(...) __CPROVER_ensures(__VA_ARGS__)
+#define requires(...) __CPROVER_requires(__VA_ARGS__)
+#define ensures(...) __CPROVER_ensures(__VA_ARGS__)
 
 // note we drop "loop_" here since there are no other kind of invariants
 // in CBMC. An "invariant" is _always_ a "loop invariant" so no need to
 // keep that qualification
 // https://diffblue.github.io/cbmc/contracts-loops.html
-#define INVARIANT(...) __CPROVER_loop_invariant(__VA_ARGS__)
-#define DECREASES(...) __CPROVER_decreases(__VA_ARGS__)
+#define invariant(...) __CPROVER_loop_invariant(__VA_ARGS__)
+#define decreases(...) __CPROVER_decreases(__VA_ARGS__)
 
-#define ASSERT(...) __CPROVER_assert(__VA_ARGS__)
-#define ASSUME(...) __CPROVER_assume(__VA_ARGS__)
+#define cassert(...) __CPROVER_assert(__VA_ARGS__)
+#define assume(...) __CPROVER_assume(__VA_ARGS__)
 
 #define READABLE(...) __CPROVER_r_ok(__VA_ARGS__)
 #define WRITEABLE(...) __CPROVER_w_ok(__VA_ARGS__)
@@ -53,22 +50,22 @@
 // _inside_ top-level contracts.
 ///////////////////////////////////////////////////
 
-// function return value - useful inside ENSURES
+// function return value - useful inside ensures
 // https://diffblue.github.io/cbmc/contracts-functions.html
-#define RETURN_VALUE (__CPROVER_return_value)
+#define return_value (__CPROVER_return_value)
 
-// ASSIGNS l-value targets
+// assigns l-value targets
 // https://diffblue.github.io/cbmc/contracts-assigns.html
 #define TYPED_TARGET(...) __CPROVER_typed_target(__VA_ARGS__)
-#define OBJECT_WHOLE(...) __CPROVER_object_whole(__VA_ARGS__)
+#define object_whole(...) __CPROVER_object_whole(__VA_ARGS__)
 #define OBJECT_FROM(...) __CPROVER_object_from(__VA_ARGS__)
-#define OBJECT_UPTO(...) __CPROVER_object_upto(__VA_ARGS__)
+#define object_upto(...) __CPROVER_object_upto(__VA_ARGS__)
 
 #define SAME_OBJECT(...) __CPROVER_same_object(__VA_ARGS__)
 
 // Pointer-related predicates
 // https://diffblue.github.io/cbmc/contracts-memory-predicates.html
-#define IS_FRESH(...) __CPROVER_is_fresh(__VA_ARGS__)
+#define is_fresh(...) __CPROVER_is_fresh(__VA_ARGS__)
 #define POINTER_IN_RANGE(...) __CPROVER_pointer_in_range_dfcc(__VA_ARGS__)
 #define READABLE(...) __CPROVER_r_ok(__VA_ARGS__)
 #define WRITEABLE(...) __CPROVER_w_ok(__VA_ARGS__)
@@ -79,8 +76,8 @@
 
 // History variables
 // https://diffblue.github.io/cbmc/contracts-history-variables.html
-#define OLD(...) __CPROVER_old(__VA_ARGS__)
-#define LOOP_ENTRY(...) __CPROVER_loop_entry(__VA_ARGS__)
+#define old(...) __CPROVER_old(__VA_ARGS__)
+#define loop_entry(...) __CPROVER_loop_entry(__VA_ARGS__)
 
 // Quantifiers
 // Note that the range on qvar is _inclusive_ between qvar_lb .. qvar_ub
@@ -88,13 +85,12 @@
 
 // Prevent clang-format from corrupting CBMC's special ==> operator
 // clang-format off
-#define FORALL(type, qvar, qvar_lb, qvar_ub, predicate)          \
-  __CPROVER_forall                                               \
-  {                                                              \
-    type qvar;                                                   \
-    ((qvar_lb) <= (qvar) && (qvar) <= (qvar_ub)) ==> (predicate) \
+#define forall(type, qvar, qvar_lb, qvar_ub, predicate)           \
+  __CPROVER_forall                                                \
+  {                                                               \
+    type qvar;                                                    \
+    ((qvar_lb) <= (qvar) && (qvar) <= (qvar_ub)) ==> (predicate)  \
   }
-// clang-format on
 
 #define EXISTS(type, qvar, qvar_lb, qvar_ub, predicate)         \
   __CPROVER_exists                                              \
@@ -102,6 +98,7 @@
     type qvar;                                                  \
     ((qvar_lb) <= (qvar) && (qvar) <= (qvar_ub)) && (predicate) \
   }
+// clang-format on
 
 ///////////////////////////////////////////////////
 // Convenience macros for common contract patterns
@@ -111,36 +108,34 @@
 // range value_lb .. value_ub (inclusive)"
 //
 // Example:
-//  ARRAY_BOUND(a->coeffs, 0, MLKEM_N-1, -(MLKEM_Q - 1), MLKEM_Q - 1)
+//  array_bound(a->coeffs, 0, MLKEM_N-1, -(MLKEM_Q - 1), MLKEM_Q - 1)
 // expands to
 //  __CPROVER_forall { int k; (0 <= k && k <= MLKEM_N-1) ==> ( (-(MLKEM_Q -
 //  1) <= a->coeffs[k]) && (a->coeffs[k] <= (MLKEM_Q - 1))) }
 
 // Prevent clang-format from corrupting CBMC's special ==> operator
 // clang-format off
-
 #define CBMC_CONCAT_(left, right) left##right
-#define CBMC_CONCAT(left, right) CBMC_CONCAT_(left,right)
+#define CBMC_CONCAT(left, right) CBMC_CONCAT_(left, right)
 
-#define ARRAY_BOUND_CORE(indextype, qvar, qvar_lb, qvar_ub, array_var, \
-                        value_lb, value_ub)                           \
-  __CPROVER_forall                                                    \
-  {                                                                   \
-    indextype qvar;                                                   \
-    ((qvar_lb) <= (qvar) && (qvar) <= (qvar_ub)) ==>                  \
-          (((value_lb) <= (array_var[(qvar)])) &&                     \
-           ((array_var[(qvar)]) <= (value_ub)))                       \
+#define array_bound_core(indextype, qvar, qvar_lb, qvar_ub, array_var, \
+                         value_lb, value_ub)                           \
+  __CPROVER_forall                                                     \
+  {                                                                    \
+    indextype qvar;                                                    \
+    ((qvar_lb) <= (qvar) && (qvar) <= (qvar_ub)) ==>                   \
+        (((value_lb) <= (array_var[(qvar)])) &&                        \
+        ((array_var[(qvar)]) <= (value_ub)))                           \
   }
 
-#define ARRAY_BOUND(array_var, qvar_lb, qvar_ub,                  \
-                        value_lb, value_ub)                           \
-    ARRAY_BOUND_CORE(int, CBMC_CONCAT(_cbmc_idx,__LINE__),        \
-     (qvar_lb), (qvar_ub), (array_var), (value_lb), (value_ub))
+#define array_bound(array_var, qvar_lb, qvar_ub, value_lb, value_ub) \
+  array_bound_core(int, CBMC_CONCAT(_cbmc_idx, __LINE__), (qvar_lb), \
+                   (qvar_ub), (array_var), (value_lb), (value_ub))
 
+
+// Wrapper around array_bound operating on absolute values
+#define array_abs_bound(arr, lb, ub, k) \
+  array_bound((arr), (lb), (ub), (-(k)), (k))
 // clang-format on
-
-// Wrapper around ARRAY_BOUND operating on absolute values
-#define ARRAY_ABS_BOUND(arr, lb, ub, k) \
-  ARRAY_BOUND((arr), (lb), (ub), (-(k)), (k))
 
 #endif

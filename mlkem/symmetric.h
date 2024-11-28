@@ -29,12 +29,12 @@
  *              out and key may NOT be aliased.
  **************************************************/
 void mlkem_shake256_prf(uint8_t *out, size_t outlen,
-                        const uint8_t key[MLKEM_SYMBYTES],
-                        uint8_t nonce)  // clang-format off
-REQUIRES(IS_FRESH(out, outlen))
-REQUIRES(IS_FRESH(key, MLKEM_SYMBYTES))
-ASSIGNS(OBJECT_UPTO(out, outlen));
-// clang-format on
+                        const uint8_t key[MLKEM_SYMBYTES], uint8_t nonce)
+__contract__(
+  requires(is_fresh(out, outlen))
+  requires(is_fresh(key, MLKEM_SYMBYTES))
+  assigns(object_upto(out, outlen))
+);
 
 #define mlkem_shake256_rkprf MLKEM_NAMESPACE(mlkem_shake256_rkprf)
 /*************************************************
@@ -53,14 +53,15 @@ ASSIGNS(OBJECT_UPTO(out, outlen));
  *
  *              out, key, and input may NOT be aliased.
  **************************************************/
-void mlkem_shake256_rkprf(
-    uint8_t out[MLKEM_SSBYTES], const uint8_t key[MLKEM_SYMBYTES],
-    const uint8_t input[MLKEM_CIPHERTEXTBYTES])  // clang-format off
-REQUIRES(IS_FRESH(out, MLKEM_SSBYTES))
-REQUIRES(IS_FRESH(key, MLKEM_SYMBYTES))
-REQUIRES(IS_FRESH(input, MLKEM_CIPHERTEXTBYTES))
-ASSIGNS(OBJECT_UPTO(out, MLKEM_SSBYTES));
-// clang-format on
+void mlkem_shake256_rkprf(uint8_t out[MLKEM_SSBYTES],
+                          const uint8_t key[MLKEM_SYMBYTES],
+                          const uint8_t input[MLKEM_CIPHERTEXTBYTES])
+__contract__(
+  requires(is_fresh(out, MLKEM_SSBYTES))
+  requires(is_fresh(key, MLKEM_SYMBYTES))
+  requires(is_fresh(input, MLKEM_CIPHERTEXTBYTES))
+  assigns(object_upto(out, MLKEM_SSBYTES))
+);
 
 
 // Macros denoting FIPS-203 specific Hash functions

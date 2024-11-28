@@ -8,9 +8,10 @@
 
 #include "cbmc.h"
 
-void randombytes(uint8_t *out, size_t outlen)  // clang-format off
-REQUIRES(IS_FRESH(out, outlen))
-ASSIGNS(OBJECT_UPTO(out, outlen));
-// clang-format on
+void randombytes(uint8_t *out, size_t outlen)
+__contract__(
+  requires(is_fresh(out, outlen))
+  assigns(object_upto(out, outlen))
+);
 
 #endif

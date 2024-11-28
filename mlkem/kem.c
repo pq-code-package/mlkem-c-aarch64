@@ -12,10 +12,11 @@
 
 #if defined(CBMC)
 // Redeclaration with contract needed for CBMC only
-int memcmp(const void *str1, const void *str2, size_t n)  // clang-format off
-REQUIRES(IS_FRESH(str1, n))
-REQUIRES(IS_FRESH(str2, n));
-// clang-format on
+int memcmp(const void *str1, const void *str2, size_t n)
+__contract__(
+  requires(is_fresh(str1, n))
+  requires(is_fresh(str2, n))
+);
 #endif
 
 /*************************************************

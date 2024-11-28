@@ -44,14 +44,14 @@
 // buffer. This avoids shifting the buffer base in the caller, which appears
 // tricky to reason about.
 unsigned int rej_uniform(int16_t *r, unsigned int target, unsigned int offset,
-                         const uint8_t *buf,
-                         unsigned int buflen)  // clang-format off
-REQUIRES(offset <= target && target <= 4096 && buflen <= 4096 && buflen % 3 == 0)
-REQUIRES(IS_FRESH(r, sizeof(int16_t) * target))
-REQUIRES(IS_FRESH(buf, buflen))
-REQUIRES(offset > 0 ==> ARRAY_BOUND(r, 0, offset - 1, 0, (MLKEM_Q - 1)))
-ASSIGNS(OBJECT_UPTO(r, sizeof(int16_t) * target))
-ENSURES(offset <= RETURN_VALUE && RETURN_VALUE <= target)
-ENSURES(RETURN_VALUE > 0 ==> ARRAY_BOUND(r, 0, RETURN_VALUE - 1, 0, (MLKEM_Q - 1)));
-// clang-format on
+                         const uint8_t *buf, unsigned int buflen)
+__contract__(
+  requires(offset <= target && target <= 4096 && buflen <= 4096 && buflen % 3 == 0)
+  requires(is_fresh(r, sizeof(int16_t) * target))
+  requires(is_fresh(buf, buflen))
+  requires(offset > 0 ==> array_bound(r, 0, offset - 1, 0, (MLKEM_Q - 1)))
+  assigns(object_upto(r, sizeof(int16_t) * target))
+  ensures(offset <= return_value && return_value <= target)
+  ensures(return_value > 0 ==> array_bound(r, 0, return_value - 1, 0, (MLKEM_Q - 1)))
+);
 #endif
