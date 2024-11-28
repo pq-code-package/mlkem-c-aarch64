@@ -110,6 +110,15 @@ jobs:
           gh_token: ${{ secrets.GITHUB_TOKEN }}
           compile_mode: cross-x86_64
           opt: opt
+      - name: cross riscv64 tests (opt only)
+        uses: ./.github/actions/multi-functest
+        if: ${{ matrix.target.runner == 'pqcp-arm64' && (success() || failure()) }}
+        with:
+          nix-shell: ci-cross
+          nix-cache: true
+          gh_token: ${{ secrets.GITHUB_TOKEN }}
+          compile_mode: cross-riscv64
+          opt: opt
   compiler_tests:
     name: Compiler tests (${{ matrix.target.name }})
     strategy:
