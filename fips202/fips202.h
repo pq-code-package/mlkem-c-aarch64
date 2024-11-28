@@ -36,9 +36,9 @@ typedef struct
 #define shake128_absorb FIPS202_NAMESPACE(shake128_absorb)
 void shake128_absorb(shake128ctx *state, const uint8_t *input, size_t inlen)
 __contract__(
-  requires(is_fresh(state, sizeof(shake128ctx)))
-  requires(is_fresh(input, inlen))
-  assigns(object_upto(state, sizeof(shake128ctx)))
+  requires(memory_no_alias(state, sizeof(shake128ctx)))
+  requires(memory_no_alias(input, inlen))
+  assigns(memory_slice(state, sizeof(shake128ctx)))
 );
 
 /* Squeeze output out of the sponge.
@@ -48,9 +48,9 @@ __contract__(
 #define shake128_squeezeblocks FIPS202_NAMESPACE(shake128_squeezeblocks)
 void shake128_squeezeblocks(uint8_t *output, size_t nblocks, shake128ctx *state)
 __contract__(
-  requires(is_fresh(state, sizeof(shake128ctx)))
-  requires(is_fresh(output, nblocks * SHAKE128_RATE))
-  assigns(object_upto(output, nblocks * SHAKE128_RATE), object_upto(state, sizeof(shake128ctx)))
+  requires(memory_no_alias(state, sizeof(shake128ctx)))
+  requires(memory_no_alias(output, nblocks * SHAKE128_RATE))
+  assigns(memory_slice(output, nblocks * SHAKE128_RATE), memory_slice(state, sizeof(shake128ctx)))
 );
 
 /* Free the state */
@@ -85,9 +85,9 @@ void shake256_inc_ctx_release(shake256incctx *state);
 void shake256(uint8_t *output, size_t outlen, const uint8_t *input,
               size_t inlen)
 __contract__(
-  requires(is_fresh(input, inlen))
-  requires(is_fresh(output, outlen))
-  assigns(object_upto(output, outlen))
+  requires(memory_no_alias(input, inlen))
+  requires(memory_no_alias(output, outlen))
+  assigns(memory_slice(output, outlen))
 );
 
 /* One-stop SHA3_256 call. Aliasing between input and
@@ -96,9 +96,9 @@ __contract__(
 #define sha3_256 FIPS202_NAMESPACE(sha3_256)
 void sha3_256(uint8_t *output, const uint8_t *input, size_t inlen)
 __contract__(
-  requires(is_fresh(input, inlen))
-  requires(is_fresh(output, SHA3_256_HASHBYTES))
-  assigns(object_upto(output, SHA3_256_HASHBYTES))
+  requires(memory_no_alias(input, inlen))
+  requires(memory_no_alias(output, SHA3_256_HASHBYTES))
+  assigns(memory_slice(output, SHA3_256_HASHBYTES))
 );
 
 /* One-stop SHA3_512 call. Aliasing between input and
@@ -107,9 +107,9 @@ __contract__(
 #define sha3_512 FIPS202_NAMESPACE(sha3_512)
 void sha3_512(uint8_t *output, const uint8_t *input, size_t inlen)
 __contract__(
-  requires(is_fresh(input, inlen))
-  requires(is_fresh(output, SHA3_512_HASHBYTES))
-  assigns(object_upto(output, SHA3_512_HASHBYTES))
+  requires(memory_no_alias(input, inlen))
+  requires(memory_no_alias(output, SHA3_512_HASHBYTES))
+  assigns(memory_slice(output, SHA3_512_HASHBYTES))
 );
 
 #endif

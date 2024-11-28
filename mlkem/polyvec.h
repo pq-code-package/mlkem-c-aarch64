@@ -33,8 +33,8 @@ typedef struct
 void polyvec_compress_du(uint8_t r[MLKEM_POLYVECCOMPRESSEDBYTES_DU],
                          const polyvec *a)
 __contract__(
-  requires(is_fresh(r, MLKEM_POLYVECCOMPRESSEDBYTES_DU))
-  requires(is_fresh(a, sizeof(polyvec)))
+  requires(memory_no_alias(r, MLKEM_POLYVECCOMPRESSEDBYTES_DU))
+  requires(memory_no_alias(a, sizeof(polyvec)))
   requires(forall(int, k0, 0, MLKEM_K - 1,
          array_bound(a->vec[k0].coeffs, 0, (MLKEM_N - 1), 0, (MLKEM_Q - 1))))
   assigns(object_whole(r))
@@ -55,8 +55,8 @@ __contract__(
 void polyvec_decompress_du(polyvec *r,
                            const uint8_t a[MLKEM_POLYVECCOMPRESSEDBYTES_DU])
 __contract__(
-  requires(is_fresh(a, MLKEM_POLYVECCOMPRESSEDBYTES_DU))
-  requires(is_fresh(r, sizeof(polyvec)))
+  requires(memory_no_alias(a, MLKEM_POLYVECCOMPRESSEDBYTES_DU))
+  requires(memory_no_alias(r, sizeof(polyvec)))
   assigns(object_whole(r))
   ensures(forall(int, k0, 0, MLKEM_K - 1,
          array_bound(r->vec[k0].coeffs, 0, (MLKEM_N - 1), 0, (MLKEM_Q - 1))))
@@ -75,8 +75,8 @@ __contract__(
  **************************************************/
 void polyvec_tobytes(uint8_t r[MLKEM_POLYVECBYTES], const polyvec *a)
 __contract__(
-  requires(is_fresh(a, sizeof(polyvec)))
-  requires(is_fresh(r, MLKEM_POLYVECBYTES))
+  requires(memory_no_alias(a, sizeof(polyvec)))
+  requires(memory_no_alias(r, MLKEM_POLYVECBYTES))
   requires(forall(int, k0, 0, MLKEM_K - 1,
          array_bound(a->vec[k0].coeffs, 0, (MLKEM_N - 1), 0, (MLKEM_Q - 1))))
   assigns(object_whole(r))
@@ -96,8 +96,8 @@ __contract__(
  **************************************************/
 void polyvec_frombytes(polyvec *r, const uint8_t a[MLKEM_POLYVECBYTES])
 __contract__(
-  requires(is_fresh(r, sizeof(polyvec)))
-  requires(is_fresh(a, MLKEM_POLYVECBYTES))
+  requires(memory_no_alias(r, sizeof(polyvec)))
+  requires(memory_no_alias(a, MLKEM_POLYVECBYTES))
   assigns(object_whole(r))
   ensures(forall(int, k0, 0, MLKEM_K - 1,
         array_bound(r->vec[k0].coeffs, 0, (MLKEM_N - 1), 0, 4095)))
@@ -120,7 +120,7 @@ __contract__(
  **************************************************/
 void polyvec_ntt(polyvec *r)
 __contract__(
-  requires(is_fresh(r, sizeof(polyvec)))
+  requires(memory_no_alias(r, sizeof(polyvec)))
   requires(forall(int, j, 0, MLKEM_K - 1,
   array_abs_bound(r->vec[j].coeffs, 0, MLKEM_N - 1, (MLKEM_Q - 1))))
   assigns(object_whole(r))
@@ -146,7 +146,7 @@ __contract__(
  **************************************************/
 void polyvec_invntt_tomont(polyvec *r)
 __contract__(
-  requires(is_fresh(r, sizeof(polyvec)))
+  requires(memory_no_alias(r, sizeof(polyvec)))
   assigns(object_whole(r))
   ensures(forall(int, j, 0, MLKEM_K - 1,
   array_abs_bound(r->vec[j].coeffs, 0, MLKEM_N - 1, (INVNTT_BOUND - 1))))
@@ -181,14 +181,14 @@ void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a,
                                            const polyvec *b,
                                            const polyvec_mulcache *b_cache)
 __contract__(
-  requires(is_fresh(r, sizeof(poly)))
-  requires(is_fresh(a, sizeof(polyvec)))
-  requires(is_fresh(b, sizeof(polyvec)))
-  requires(is_fresh(b_cache, sizeof(polyvec_mulcache)))
+  requires(memory_no_alias(r, sizeof(poly)))
+  requires(memory_no_alias(a, sizeof(polyvec)))
+  requires(memory_no_alias(b, sizeof(polyvec)))
+  requires(memory_no_alias(b_cache, sizeof(polyvec_mulcache)))
 // Input is coefficient-wise < q in absolute value
   requires(forall(int, k1, 0, MLKEM_K - 1,
  array_abs_bound(a->vec[k1].coeffs, 0, MLKEM_N - 1, (MLKEM_Q - 1))))
-  assigns(object_upto(r, sizeof(poly)))
+  assigns(memory_slice(r, sizeof(poly)))
 );
 
 // REF-CHANGE: This function does not exist in the reference implementation
@@ -218,8 +218,8 @@ __contract__(
 // higher level safety proofs, and thus not part of the spec.
 void polyvec_mulcache_compute(polyvec_mulcache *x, const polyvec *a)
 __contract__(
-  requires(is_fresh(x, sizeof(polyvec_mulcache)))
-  requires(is_fresh(a, sizeof(polyvec)))
+  requires(memory_no_alias(x, sizeof(polyvec_mulcache)))
+  requires(memory_no_alias(a, sizeof(polyvec)))
   assigns(object_whole(x))
 );
 
@@ -240,7 +240,7 @@ __contract__(
 //             use of poly_reduce() in the context of (de)serialization.
 void polyvec_reduce(polyvec *r)
 __contract__(
-  requires(is_fresh(r, sizeof(polyvec)))
+  requires(memory_no_alias(r, sizeof(polyvec)))
   assigns(object_whole(r))
   ensures(forall(int, k0, 0, MLKEM_K - 1,
     array_bound(r->vec[k0].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1))))
@@ -265,8 +265,8 @@ __contract__(
  **************************************************/
 void polyvec_add(polyvec *r, const polyvec *b)
 __contract__(
-  requires(is_fresh(r, sizeof(polyvec)))
-  requires(is_fresh(b, sizeof(polyvec)))
+  requires(memory_no_alias(r, sizeof(polyvec)))
+  requires(memory_no_alias(b, sizeof(polyvec)))
   requires(forall(int, j0, 0, MLKEM_K - 1,
           forall(int, k0, 0, MLKEM_N - 1,
             (int32_t)r->vec[j0].coeffs[k0] + b->vec[j0].coeffs[k0] <= INT16_MAX)))
@@ -288,8 +288,8 @@ __contract__(
  **************************************************/
 void polyvec_tomont(polyvec *r)
 __contract__(
-  requires(is_fresh(r, sizeof(polyvec)))
-  assigns(object_upto(r, sizeof(polyvec)))
+  requires(memory_no_alias(r, sizeof(polyvec)))
+  assigns(memory_slice(r, sizeof(polyvec)))
   assigns(object_whole(r))
   ensures(forall(int, j, 0, MLKEM_K - 1,
   array_abs_bound(r->vec[j].coeffs, 0, MLKEM_N - 1, (MLKEM_Q - 1))))

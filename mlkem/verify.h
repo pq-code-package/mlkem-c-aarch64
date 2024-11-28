@@ -23,8 +23,8 @@
  **************************************************/
 int verify(const uint8_t *a, const uint8_t *b, const size_t len)
 __contract__(
-  requires(is_fresh(a, len))
-  requires(is_fresh(b, len))
+  requires(memory_no_alias(a, len))
+  requires(memory_no_alias(b, len))
   requires(len <= INT_MAX)
   ensures(return_value == (1 - forall(int, i, 0, ((int)len - 1), (a[i] == b[i]))))
 );
@@ -45,10 +45,10 @@ __contract__(
  **************************************************/
 void cmov(uint8_t *r, const uint8_t *x, size_t len, uint8_t b)
 __contract__(
-  requires(is_fresh(r, len))
-  requires(is_fresh(x, len))
+  requires(memory_no_alias(r, len))
+  requires(memory_no_alias(x, len))
   requires(b == 0 || b == 1)
-  assigns(object_upto(r, len))
+  assigns(memory_slice(r, len))
 );
 
 #define cmov_int16 MLKEM_NAMESPACE(cmov_int16)
@@ -66,8 +66,8 @@ __contract__(
 void cmov_int16(int16_t *r, const int16_t v, const uint16_t b)
 __contract__(
   requires(b == 0 || b == 1)
-  requires(is_fresh(r, sizeof(int16_t)))
-  assigns(object_upto(r, sizeof(int16_t)))
+  requires(memory_no_alias(r, sizeof(int16_t)))
+  assigns(memory_slice(r, sizeof(int16_t)))
   ensures(*r == (b ? v : old(*r)))
 );
 

@@ -31,9 +31,9 @@
 void mlkem_shake256_prf(uint8_t *out, size_t outlen,
                         const uint8_t key[MLKEM_SYMBYTES], uint8_t nonce)
 __contract__(
-  requires(is_fresh(out, outlen))
-  requires(is_fresh(key, MLKEM_SYMBYTES))
-  assigns(object_upto(out, outlen))
+  requires(memory_no_alias(out, outlen))
+  requires(memory_no_alias(key, MLKEM_SYMBYTES))
+  assigns(memory_slice(out, outlen))
 );
 
 #define mlkem_shake256_rkprf MLKEM_NAMESPACE(mlkem_shake256_rkprf)
@@ -57,10 +57,10 @@ void mlkem_shake256_rkprf(uint8_t out[MLKEM_SSBYTES],
                           const uint8_t key[MLKEM_SYMBYTES],
                           const uint8_t input[MLKEM_CIPHERTEXTBYTES])
 __contract__(
-  requires(is_fresh(out, MLKEM_SSBYTES))
-  requires(is_fresh(key, MLKEM_SYMBYTES))
-  requires(is_fresh(input, MLKEM_CIPHERTEXTBYTES))
-  assigns(object_upto(out, MLKEM_SSBYTES))
+  requires(memory_no_alias(out, MLKEM_SSBYTES))
+  requires(memory_no_alias(key, MLKEM_SYMBYTES))
+  requires(memory_no_alias(input, MLKEM_CIPHERTEXTBYTES))
+  assigns(memory_slice(out, MLKEM_SSBYTES))
 );
 
 

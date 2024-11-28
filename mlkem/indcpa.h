@@ -13,8 +13,8 @@
 
 void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES], int transposed)
 __contract__(
-  requires(is_fresh(a, sizeof(polyvec) * MLKEM_K))
-  requires(is_fresh(seed, MLKEM_SYMBYTES))
+  requires(memory_no_alias(a, sizeof(polyvec) * MLKEM_K))
+  requires(memory_no_alias(seed, MLKEM_SYMBYTES))
   requires(transposed == 0 || transposed == 1)
   assigns(object_whole(a))
   ensures(forall(int, x, 0, MLKEM_K - 1, forall(int, y, 0, MLKEM_K - 1,
@@ -26,9 +26,9 @@ void indcpa_keypair_derand(uint8_t pk[MLKEM_INDCPA_PUBLICKEYBYTES],
                            uint8_t sk[MLKEM_INDCPA_SECRETKEYBYTES],
                            const uint8_t coins[MLKEM_SYMBYTES])
 __contract__(
-  requires(is_fresh(pk, MLKEM_INDCPA_PUBLICKEYBYTES))
-  requires(is_fresh(sk, MLKEM_INDCPA_SECRETKEYBYTES))
-  requires(is_fresh(coins, MLKEM_SYMBYTES))
+  requires(memory_no_alias(pk, MLKEM_INDCPA_PUBLICKEYBYTES))
+  requires(memory_no_alias(sk, MLKEM_INDCPA_SECRETKEYBYTES))
+  requires(memory_no_alias(coins, MLKEM_SYMBYTES))
   assigns(object_whole(pk))
   assigns(object_whole(sk))
 );
@@ -52,10 +52,10 @@ void indcpa_enc(uint8_t c[MLKEM_INDCPA_BYTES],
                 const uint8_t pk[MLKEM_INDCPA_PUBLICKEYBYTES],
                 const uint8_t coins[MLKEM_SYMBYTES])
 __contract__(
-  requires(is_fresh(c, MLKEM_INDCPA_BYTES))
-  requires(is_fresh(m, MLKEM_INDCPA_MSGBYTES))
-  requires(is_fresh(pk, MLKEM_INDCPA_PUBLICKEYBYTES))
-  requires(is_fresh(coins, MLKEM_SYMBYTES))
+  requires(memory_no_alias(c, MLKEM_INDCPA_BYTES))
+  requires(memory_no_alias(m, MLKEM_INDCPA_MSGBYTES))
+  requires(memory_no_alias(pk, MLKEM_INDCPA_PUBLICKEYBYTES))
+  requires(memory_no_alias(coins, MLKEM_SYMBYTES))
   assigns(object_whole(c))
 );
 
@@ -64,9 +64,9 @@ void indcpa_dec(uint8_t m[MLKEM_INDCPA_MSGBYTES],
                 const uint8_t c[MLKEM_INDCPA_BYTES],
                 const uint8_t sk[MLKEM_INDCPA_SECRETKEYBYTES])
 __contract__(
-  requires(is_fresh(c, MLKEM_INDCPA_BYTES))
-  requires(is_fresh(m, MLKEM_INDCPA_MSGBYTES))
-  requires(is_fresh(sk, MLKEM_INDCPA_SECRETKEYBYTES))
+  requires(memory_no_alias(c, MLKEM_INDCPA_BYTES))
+  requires(memory_no_alias(m, MLKEM_INDCPA_MSGBYTES))
+  requires(memory_no_alias(sk, MLKEM_INDCPA_SECRETKEYBYTES))
   assigns(object_whole(m))
 );
 

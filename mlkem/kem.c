@@ -14,8 +14,8 @@
 // Redeclaration with contract needed for CBMC only
 int memcmp(const void *str1, const void *str2, size_t n)
 __contract__(
-  requires(is_fresh(str1, n))
-  requires(is_fresh(str2, n))
+  requires(memory_no_alias(str1, n))
+  requires(memory_no_alias(str2, n))
 );
 #endif
 

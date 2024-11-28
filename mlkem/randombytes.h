@@ -10,8 +10,8 @@
 
 void randombytes(uint8_t *out, size_t outlen)
 __contract__(
-  requires(is_fresh(out, outlen))
-  assigns(object_upto(out, outlen))
+  requires(memory_no_alias(out, outlen))
+  assigns(memory_slice(out, outlen))
 );
 
 #endif

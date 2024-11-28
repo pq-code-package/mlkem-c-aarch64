@@ -47,10 +47,10 @@ unsigned int rej_uniform(int16_t *r, unsigned int target, unsigned int offset,
                          const uint8_t *buf, unsigned int buflen)
 __contract__(
   requires(offset <= target && target <= 4096 && buflen <= 4096 && buflen % 3 == 0)
-  requires(is_fresh(r, sizeof(int16_t) * target))
-  requires(is_fresh(buf, buflen))
+  requires(memory_no_alias(r, sizeof(int16_t) * target))
+  requires(memory_no_alias(buf, buflen))
   requires(offset > 0 ==> array_bound(r, 0, offset - 1, 0, (MLKEM_Q - 1)))
-  assigns(object_upto(r, sizeof(int16_t) * target))
+  assigns(memory_slice(r, sizeof(int16_t) * target))
   ensures(offset <= return_value && return_value <= target)
   ensures(return_value > 0 ==> array_bound(r, 0, return_value - 1, 0, (MLKEM_Q - 1)))
 );

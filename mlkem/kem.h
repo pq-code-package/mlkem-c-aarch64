@@ -23,9 +23,9 @@
 #define crypto_kem_keypair_derand MLKEM_NAMESPACE(keypair_derand)
 int crypto_kem_keypair_derand(uint8_t *pk, uint8_t *sk, const uint8_t *coins)
 __contract__(
-  requires(is_fresh(pk, MLKEM_PUBLICKEYBYTES))
-  requires(is_fresh(sk, MLKEM_SECRETKEYBYTES))
-  requires(is_fresh(coins, 2 * MLKEM_SYMBYTES))
+  requires(memory_no_alias(pk, MLKEM_PUBLICKEYBYTES))
+  requires(memory_no_alias(sk, MLKEM_SECRETKEYBYTES))
+  requires(memory_no_alias(coins, 2 * MLKEM_SYMBYTES))
   assigns(object_whole(pk))
   assigns(object_whole(sk))
 );
@@ -46,8 +46,8 @@ __contract__(
  **************************************************/
 int crypto_kem_keypair(uint8_t *pk, uint8_t *sk)
 __contract__(
-  requires(is_fresh(pk, MLKEM_PUBLICKEYBYTES))
-  requires(is_fresh(sk, MLKEM_SECRETKEYBYTES))
+  requires(memory_no_alias(pk, MLKEM_PUBLICKEYBYTES))
+  requires(memory_no_alias(sk, MLKEM_SECRETKEYBYTES))
   assigns(object_whole(pk))
   assigns(object_whole(sk))
 );
@@ -75,10 +75,10 @@ __contract__(
 int crypto_kem_enc_derand(uint8_t *ct, uint8_t *ss, const uint8_t *pk,
                           const uint8_t *coins)
 __contract__(
-  requires(is_fresh(ct, MLKEM_CIPHERTEXTBYTES))
-  requires(is_fresh(ss, MLKEM_SSBYTES))
-  requires(is_fresh(pk, MLKEM_PUBLICKEYBYTES))
-  requires(is_fresh(coins, MLKEM_SYMBYTES))
+  requires(memory_no_alias(ct, MLKEM_CIPHERTEXTBYTES))
+  requires(memory_no_alias(ss, MLKEM_SSBYTES))
+  requires(memory_no_alias(pk, MLKEM_PUBLICKEYBYTES))
+  requires(memory_no_alias(coins, MLKEM_SYMBYTES))
   assigns(object_whole(ct))
   assigns(object_whole(ss))
 );
@@ -102,9 +102,9 @@ __contract__(
  **************************************************/
 int crypto_kem_enc(uint8_t *ct, uint8_t *ss, const uint8_t *pk)
 __contract__(
-  requires(is_fresh(ct, MLKEM_CIPHERTEXTBYTES))
-  requires(is_fresh(ss, MLKEM_SSBYTES))
-  requires(is_fresh(pk, MLKEM_PUBLICKEYBYTES))
+  requires(memory_no_alias(ct, MLKEM_CIPHERTEXTBYTES))
+  requires(memory_no_alias(ss, MLKEM_SSBYTES))
+  requires(memory_no_alias(pk, MLKEM_PUBLICKEYBYTES))
   assigns(object_whole(ct))
   assigns(object_whole(ss))
 );
@@ -130,9 +130,9 @@ __contract__(
  **************************************************/
 int crypto_kem_dec(uint8_t *ss, const uint8_t *ct, const uint8_t *sk)
 __contract__(
-  requires(is_fresh(ss, MLKEM_SSBYTES))
-  requires(is_fresh(ct, MLKEM_CIPHERTEXTBYTES))
-  requires(is_fresh(sk, MLKEM_SECRETKEYBYTES))
+  requires(memory_no_alias(ss, MLKEM_SSBYTES))
+  requires(memory_no_alias(ct, MLKEM_CIPHERTEXTBYTES))
+  requires(memory_no_alias(sk, MLKEM_SECRETKEYBYTES))
   assigns(object_whole(ss))
 );
 

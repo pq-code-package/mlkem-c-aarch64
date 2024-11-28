@@ -140,13 +140,13 @@ static void unpack_ciphertext(polyvec *b, poly *v,
 STATIC_TESTABLE
 void gen_matrix_entry_x4(poly *vec, uint8_t *seed[4])
 __contract__(
-  requires(is_fresh(vec, sizeof(poly) * 4))
-  requires(is_fresh(seed, sizeof(uint8_t*) * 4))
-  requires(is_fresh(seed[0], MLKEM_SYMBYTES + 2))
-  requires(is_fresh(seed[1], MLKEM_SYMBYTES + 2))
-  requires(is_fresh(seed[2], MLKEM_SYMBYTES + 2))
-  requires(is_fresh(seed[3], MLKEM_SYMBYTES + 2))
-  assigns(object_upto(vec, sizeof(poly) * 4))
+  requires(memory_no_alias(vec, sizeof(poly) * 4))
+  requires(memory_no_alias(seed, sizeof(uint8_t*) * 4))
+  requires(memory_no_alias(seed[0], MLKEM_SYMBYTES + 2))
+  requires(memory_no_alias(seed[1], MLKEM_SYMBYTES + 2))
+  requires(memory_no_alias(seed[2], MLKEM_SYMBYTES + 2))
+  requires(memory_no_alias(seed[3], MLKEM_SYMBYTES + 2))
+  assigns(memory_slice(vec, sizeof(poly) * 4))
   ensures(array_bound(vec[0].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))
   ensures(array_bound(vec[1].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))
   ensures(array_bound(vec[2].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))
@@ -183,7 +183,7 @@ __contract__(
   while (ctr[0] < MLKEM_N || ctr[1] < MLKEM_N || ctr[2] < MLKEM_N ||
          ctr[3] < MLKEM_N)
   __loop__(
-    assigns(ctr, statex, object_upto(vec, sizeof(poly) * 4), object_whole(buf0),
+    assigns(ctr, statex, memory_slice(vec, sizeof(poly) * 4), object_whole(buf0),
        object_whole(buf1), object_whole(buf2), object_whole(buf3))
     invariant(ctr[0] <= MLKEM_N && ctr[1] <= MLKEM_N)
     invariant(ctr[2] <= MLKEM_N && ctr[3] <= MLKEM_N)
@@ -207,9 +207,9 @@ __contract__(
 STATIC_TESTABLE
 void gen_matrix_entry(poly *entry, uint8_t seed[MLKEM_SYMBYTES + 2])
 __contract__(
-  requires(is_fresh(entry, sizeof(poly)))
-  requires(is_fresh(seed, MLKEM_SYMBYTES + 2))
-  assigns(object_upto(entry, sizeof(poly)))
+  requires(memory_no_alias(entry, sizeof(poly)))
+  requires(memory_no_alias(seed, MLKEM_SYMBYTES + 2))
+  assigns(memory_slice(entry, sizeof(poly)))
   ensures(array_bound(entry->coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1))))
 {
   shake128ctx state;
@@ -228,7 +228,7 @@ __contract__(
   buflen = SHAKE128_RATE;
   while (ctr < MLKEM_N)
   __loop__(
-    assigns(ctr, state, object_upto(entry, sizeof(poly)), object_whole(buf))
+    assigns(ctr, state, memory_slice(entry, sizeof(poly)), object_whole(buf))
     invariant(0 <= ctr && ctr <= MLKEM_N)
     invariant(ctr > 0 ==> array_bound(entry->coeffs, 0, ctr - 1,
                                           0, (MLKEM_Q - 1))))
@@ -356,10 +356,10 @@ STATIC_TESTABLE
 void matvec_mul(polyvec *out, const polyvec a[MLKEM_K], const polyvec *v,
                 const polyvec_mulcache *vc)
 __contract__(
-  requires(is_fresh(out, sizeof(polyvec)))
-  requires(is_fresh(a, sizeof(polyvec) * MLKEM_K))
-  requires(is_fresh(v, sizeof(polyvec)))
-  requires(is_fresh(vc, sizeof(polyvec_mulcache)))
+  requires(memory_no_alias(out, sizeof(polyvec)))
+  requires(memory_no_alias(a, sizeof(polyvec) * MLKEM_K))
+  requires(memory_no_alias(v, sizeof(polyvec)))
+  requires(memory_no_alias(vc, sizeof(polyvec_mulcache)))
   requires(forall(int, k0, 0, MLKEM_K - 1,
   forall(int, k1, 0, MLKEM_K - 1,
     array_abs_bound(a[k0].vec[k1].coeffs, 0, MLKEM_N - 1, (MLKEM_Q - 1)))))

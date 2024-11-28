@@ -324,10 +324,10 @@ __contract__(
  **************************************************/
 void poly_compress_du(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES_DU], const poly *a)
 __contract__(
-  requires(is_fresh(r, MLKEM_POLYCOMPRESSEDBYTES_DU))
-  requires(is_fresh(a, sizeof(poly)))
+  requires(memory_no_alias(r, MLKEM_POLYCOMPRESSEDBYTES_DU))
+  requires(memory_no_alias(a, sizeof(poly)))
   requires(array_bound(a->coeffs, 0, (MLKEM_N - 1), 0, (MLKEM_Q - 1)))
-  assigns(object_upto(r, MLKEM_POLYCOMPRESSEDBYTES_DU))
+  assigns(memory_slice(r, MLKEM_POLYCOMPRESSEDBYTES_DU))
 );
 
 #define poly_decompress_du MLKEM_NAMESPACE(poly_decompress_du)
@@ -347,9 +347,9 @@ __contract__(
  **************************************************/
 void poly_decompress_du(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES_DU])
 __contract__(
-  requires(is_fresh(a, MLKEM_POLYCOMPRESSEDBYTES_DU))
-  requires(is_fresh(r, sizeof(poly)))
-  assigns(object_upto(r, sizeof(poly)))
+  requires(memory_no_alias(a, MLKEM_POLYCOMPRESSEDBYTES_DU))
+  requires(memory_no_alias(r, sizeof(poly)))
+  assigns(memory_slice(r, sizeof(poly)))
   ensures(array_bound(r->coeffs, 0, (MLKEM_N - 1), 0, (MLKEM_Q - 1)))
 );
 
@@ -368,8 +368,8 @@ __contract__(
  **************************************************/
 void poly_compress_dv(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES_DV], const poly *a)
 __contract__(
-  requires(is_fresh(r, MLKEM_POLYCOMPRESSEDBYTES_DV))
-  requires(is_fresh(a, sizeof(poly)))
+  requires(memory_no_alias(r, MLKEM_POLYCOMPRESSEDBYTES_DV))
+  requires(memory_no_alias(a, sizeof(poly)))
   requires(array_bound(a->coeffs, 0, (MLKEM_N - 1), 0, (MLKEM_Q - 1)))
   assigns(object_whole(r))
 );
@@ -392,8 +392,8 @@ __contract__(
  **************************************************/
 void poly_decompress_dv(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES_DV])
 __contract__(
-  requires(is_fresh(a, MLKEM_POLYCOMPRESSEDBYTES_DV))
-  requires(is_fresh(r, sizeof(poly)))
+  requires(memory_no_alias(a, MLKEM_POLYCOMPRESSEDBYTES_DV))
+  requires(memory_no_alias(r, sizeof(poly)))
   assigns(object_whole(r))
   ensures(array_bound(r->coeffs, 0, (MLKEM_N - 1), 0, (MLKEM_Q - 1)))
 );
@@ -415,8 +415,8 @@ __contract__(
  **************************************************/
 void poly_tobytes(uint8_t r[MLKEM_POLYBYTES], const poly *a)
 __contract__(
-  requires(is_fresh(r, MLKEM_POLYBYTES))
-  requires(is_fresh(a, sizeof(poly)))
+  requires(memory_no_alias(r, MLKEM_POLYBYTES))
+  requires(memory_no_alias(a, sizeof(poly)))
   requires(array_bound(a->coeffs, 0, (MLKEM_N - 1), 0, (MLKEM_Q - 1)))
   assigns(object_whole(r))
 );
@@ -438,9 +438,9 @@ __contract__(
  **************************************************/
 void poly_frombytes(poly *r, const uint8_t a[MLKEM_POLYBYTES])
 __contract__(
-  requires(is_fresh(a, MLKEM_POLYBYTES))
-  requires(is_fresh(r, sizeof(poly)))
-  assigns(object_upto(r, sizeof(poly)))
+  requires(memory_no_alias(a, MLKEM_POLYBYTES))
+  requires(memory_no_alias(r, sizeof(poly)))
+  assigns(memory_slice(r, sizeof(poly)))
   ensures(array_bound(r->coeffs, 0, (MLKEM_N - 1), 0, 4095))
 );
 
@@ -456,8 +456,8 @@ __contract__(
  **************************************************/
 void poly_frommsg(poly *r, const uint8_t msg[MLKEM_INDCPA_MSGBYTES])
 __contract__(
-  requires(is_fresh(msg, MLKEM_INDCPA_MSGBYTES))
-  requires(is_fresh(r, sizeof(poly)))
+  requires(memory_no_alias(msg, MLKEM_INDCPA_MSGBYTES))
+  requires(memory_no_alias(r, sizeof(poly)))
   assigns(object_whole(r))
   ensures(array_bound(r->coeffs, 0, (MLKEM_N - 1), 0, (MLKEM_Q - 1)))
 );
@@ -474,8 +474,8 @@ __contract__(
  **************************************************/
 void poly_tomsg(uint8_t msg[MLKEM_INDCPA_MSGBYTES], const poly *r)
 __contract__(
-  requires(is_fresh(msg, MLKEM_INDCPA_MSGBYTES))
-  requires(is_fresh(r, sizeof(poly)))
+  requires(memory_no_alias(msg, MLKEM_INDCPA_MSGBYTES))
+  requires(memory_no_alias(r, sizeof(poly)))
   requires(array_bound(r->coeffs, 0, (MLKEM_N - 1), 0, (MLKEM_Q - 1)))
   assigns(object_whole(msg))
 );
@@ -497,21 +497,21 @@ void poly_getnoise_eta1_4x(poly *r0, poly *r1, poly *r2, poly *r3,
                            const uint8_t seed[MLKEM_SYMBYTES], uint8_t nonce0,
                            uint8_t nonce1, uint8_t nonce2, uint8_t nonce3)
 /* Depending on MLKEM_K, the pointers passed to this function belong
-   to the same objects, so we cannot use is_fresh for r0-r3.
+   to the same objects, so we cannot use memory_no_alias for r0-r3.
 
-   NOTE: Somehow it is important to use is_fresh() first in the
+   NOTE: Somehow it is important to use memory_no_alias() first in the
          conjunctions defining each case.
 */
 #if MLKEM_K == 2
 __contract__(
-  requires(is_fresh(seed, MLKEM_SYMBYTES))
+  requires(memory_no_alias(seed, MLKEM_SYMBYTES))
   requires( /* Case A: r0, r1 consecutive, r2, r3 consecutive */
-    (is_fresh(r0, 2 * sizeof(poly)) && is_fresh(r2, 2 * sizeof(poly)) &&
-     r1 == r0 + 1 && r3 == r2 + 1 && !SAME_OBJECT(r0, r2)))
-  assigns(object_upto(r0, sizeof(poly)))
-  assigns(object_upto(r1, sizeof(poly)))
-  assigns(object_upto(r2, sizeof(poly)))
-  assigns(object_upto(r3, sizeof(poly)))
+    (memory_no_alias(r0, 2 * sizeof(poly)) && memory_no_alias(r2, 2 * sizeof(poly)) &&
+     r1 == r0 + 1 && r3 == r2 + 1 && !same_object(r0, r2)))
+  assigns(memory_slice(r0, sizeof(poly)))
+  assigns(memory_slice(r1, sizeof(poly)))
+  assigns(memory_slice(r2, sizeof(poly)))
+  assigns(memory_slice(r3, sizeof(poly)))
   ensures(
     array_abs_bound(r0->coeffs,0, MLKEM_N - 1, MLKEM_ETA1)
     && array_abs_bound(r1->coeffs,0, MLKEM_N - 1, MLKEM_ETA1)
@@ -520,13 +520,13 @@ __contract__(
 );
 #elif MLKEM_K == 4
 __contract__(
-  requires(is_fresh(seed, MLKEM_SYMBYTES))
+  requires(memory_no_alias(seed, MLKEM_SYMBYTES))
   requires( /* Case B: r0, r1, r2, r3 consecutive */
-    (is_fresh(r0, 4 * sizeof(poly)) && r1 == r0 + 1 && r2 == r0 + 2 && r3 == r0 + 3))
-  assigns(object_upto(r0, sizeof(poly)))
-  assigns(object_upto(r1, sizeof(poly)))
-  assigns(object_upto(r2, sizeof(poly)))
-  assigns(object_upto(r3, sizeof(poly)))
+    (memory_no_alias(r0, 4 * sizeof(poly)) && r1 == r0 + 1 && r2 == r0 + 2 && r3 == r0 + 3))
+  assigns(memory_slice(r0, sizeof(poly)))
+  assigns(memory_slice(r1, sizeof(poly)))
+  assigns(memory_slice(r2, sizeof(poly)))
+  assigns(memory_slice(r3, sizeof(poly)))
   ensures(
     array_abs_bound(r0->coeffs,0, MLKEM_N - 1, MLKEM_ETA1)
     && array_abs_bound(r1->coeffs,0, MLKEM_N - 1, MLKEM_ETA1)
@@ -535,14 +535,14 @@ __contract__(
 );
 #elif MLKEM_K == 3
 __contract__(
-  requires(is_fresh(seed, MLKEM_SYMBYTES))
+  requires(memory_no_alias(seed, MLKEM_SYMBYTES))
   requires( /* Case C: r0, r1, r2 consecutive */
- (is_fresh(r0, 3 * sizeof(poly)) && is_fresh(r3, 1 * sizeof(poly)) &&
-  r1 == r0 + 1 && r2 == r0 + 2 && !SAME_OBJECT(r3, r0)))
-  assigns(object_upto(r0, sizeof(poly)))
-  assigns(object_upto(r1, sizeof(poly)))
-  assigns(object_upto(r2, sizeof(poly)))
-  assigns(object_upto(r3, sizeof(poly)))
+ (memory_no_alias(r0, 3 * sizeof(poly)) && memory_no_alias(r3, 1 * sizeof(poly)) &&
+  r1 == r0 + 1 && r2 == r0 + 2 && !same_object(r3, r0)))
+  assigns(memory_slice(r0, sizeof(poly)))
+  assigns(memory_slice(r1, sizeof(poly)))
+  assigns(memory_slice(r2, sizeof(poly)))
+  assigns(memory_slice(r3, sizeof(poly)))
   ensures(
     array_abs_bound(r0->coeffs,0, MLKEM_N - 1, MLKEM_ETA1)
     && array_abs_bound(r1->coeffs,0, MLKEM_N - 1, MLKEM_ETA1)
@@ -574,8 +574,8 @@ __contract__(
 void poly_getnoise_eta2(poly *r, const uint8_t seed[MLKEM_SYMBYTES],
                         uint8_t nonce)
 __contract__(
-  requires(is_fresh(r, sizeof(poly)))
-  requires(is_fresh(seed, MLKEM_SYMBYTES))
+  requires(memory_no_alias(r, sizeof(poly)))
+  requires(memory_no_alias(seed, MLKEM_SYMBYTES))
   assigns(object_whole(r))
   ensures(array_abs_bound(r->coeffs, 0, MLKEM_N - 1, MLKEM_ETA2))
 );
@@ -599,9 +599,9 @@ void poly_getnoise_eta1122_4x(poly *r0, poly *r1, poly *r2, poly *r3,
                               uint8_t nonce3)
 __contract__(
   requires( /* r0, r1 consecutive, r2, r3 consecutive */
- (is_fresh(r0, 2 * sizeof(poly)) && is_fresh(r2, 2 * sizeof(poly)) &&
-   r1 == r0 + 1 && r3 == r2 + 1 && !SAME_OBJECT(r0, r2)))
-  requires(is_fresh(seed, MLKEM_SYMBYTES))
+ (memory_no_alias(r0, 2 * sizeof(poly)) && memory_no_alias(r2, 2 * sizeof(poly)) &&
+   r1 == r0 + 1 && r3 == r2 + 1 && !same_object(r0, r2)))
+  requires(memory_no_alias(seed, MLKEM_SYMBYTES))
   assigns(object_whole(r0), object_whole(r1), object_whole(r2), object_whole(r3))
   ensures(array_abs_bound(r0->coeffs,0, MLKEM_N - 1, MLKEM_ETA1)
      && array_abs_bound(r1->coeffs,0, MLKEM_N - 1, MLKEM_ETA1)
@@ -633,10 +633,10 @@ __contract__(
 void poly_basemul_montgomery_cached(poly *r, const poly *a, const poly *b,
                                     const poly_mulcache *b_cache)
 __contract__(
-  requires(is_fresh(r, sizeof(poly)))
-  requires(is_fresh(a, sizeof(poly)))
-  requires(is_fresh(b, sizeof(poly)))
-  requires(is_fresh(b_cache, sizeof(poly_mulcache)))
+  requires(memory_no_alias(r, sizeof(poly)))
+  requires(memory_no_alias(a, sizeof(poly)))
+  requires(memory_no_alias(b, sizeof(poly)))
+  requires(memory_no_alias(b_cache, sizeof(poly_mulcache)))
   requires(array_abs_bound(a->coeffs, 0, MLKEM_N - 1, (MLKEM_Q - 1)))
   assigns(object_whole(r))
   ensures(array_abs_bound(r->coeffs, 0, MLKEM_N - 1, (3 * HALF_Q - 1)))
@@ -655,8 +655,8 @@ __contract__(
  **************************************************/
 void poly_tomont(poly *r)
 __contract__(
-  requires(is_fresh(r, sizeof(poly)))
-  assigns(object_upto(r, sizeof(poly)))
+  requires(memory_no_alias(r, sizeof(poly)))
+  assigns(memory_slice(r, sizeof(poly)))
   ensures(array_abs_bound(r->coeffs, 0, MLKEM_N - 1, (MLKEM_Q - 1)))
 );
 
@@ -684,8 +684,8 @@ __contract__(
 // higher level safety proofs, and thus not part of the spec.
 void poly_mulcache_compute(poly_mulcache *x, const poly *a)
 __contract__(
-  requires(is_fresh(x, sizeof(poly_mulcache)))
-  requires(is_fresh(a, sizeof(poly)))
+  requires(memory_no_alias(x, sizeof(poly_mulcache)))
+  requires(memory_no_alias(a, sizeof(poly)))
   assigns(object_whole(x))
 );
 
@@ -707,8 +707,8 @@ __contract__(
 //             use of poly_reduce() in the context of (de)serialization.
 void poly_reduce(poly *r)
 __contract__(
-  requires(is_fresh(r, sizeof(poly)))
-  assigns(object_upto(r, sizeof(poly)))
+  requires(memory_no_alias(r, sizeof(poly)))
+  assigns(memory_slice(r, sizeof(poly)))
   ensures(array_bound(r->coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))
 );
 
@@ -731,12 +731,12 @@ __contract__(
 // We specialize to the accumulator form to avoid reasoning about aliasing.
 void poly_add(poly *r, const poly *b)
 __contract__(
-  requires(is_fresh(r, sizeof(poly)))
-  requires(is_fresh(b, sizeof(poly)))
+  requires(memory_no_alias(r, sizeof(poly)))
+  requires(memory_no_alias(b, sizeof(poly)))
   requires(forall(int, k0, 0, MLKEM_N - 1, (int32_t) r->coeffs[k0] + b->coeffs[k0] <= INT16_MAX))
   requires(forall(int, k1, 0, MLKEM_N - 1, (int32_t) r->coeffs[k1] + b->coeffs[k1] >= INT16_MIN))
   ensures(forall(int, k, 0, MLKEM_N - 1, r->coeffs[k] == old(*r).coeffs[k] + b->coeffs[k]))
-  assigns(object_upto(r, sizeof(poly)))
+  assigns(memory_slice(r, sizeof(poly)))
 );
 
 #define poly_sub MLKEM_NAMESPACE(poly_sub)
@@ -754,8 +754,8 @@ __contract__(
 // We specialize to the accumulator form to avoid reasoning about aliasing.
 void poly_sub(poly *r, const poly *b)
 __contract__(
-  requires(is_fresh(r, sizeof(poly)))
-  requires(is_fresh(b, sizeof(poly)))
+  requires(memory_no_alias(r, sizeof(poly)))
+  requires(memory_no_alias(b, sizeof(poly)))
   requires(forall(int, k0, 0, MLKEM_N - 1, (int32_t) r->coeffs[k0] - b->coeffs[k0] <= INT16_MAX))
   requires(forall(int, k1, 0, MLKEM_N - 1, (int32_t) r->coeffs[k1] - b->coeffs[k1] >= INT16_MIN))
   ensures(forall(int, k, 0, MLKEM_N - 1, r->coeffs[k] == old(*r).coeffs[k] - b->coeffs[k]))

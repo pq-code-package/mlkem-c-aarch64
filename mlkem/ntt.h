@@ -34,9 +34,9 @@ extern const int16_t zetas[128];
 #define poly_ntt MLKEM_NAMESPACE(poly_ntt)
 void poly_ntt(poly *r)
 __contract__(
-  requires(is_fresh(r, sizeof(poly)))
+  requires(memory_no_alias(r, sizeof(poly)))
   requires(array_abs_bound(r->coeffs, 0, MLKEM_N - 1, MLKEM_Q - 1))
-  assigns(object_upto(r, sizeof(poly)))
+  assigns(memory_slice(r, sizeof(poly)))
   ensures(array_abs_bound(r->coeffs, 0, MLKEM_N - 1, NTT_BOUND - 1))
 );
 
@@ -59,8 +59,8 @@ __contract__(
 #define poly_invntt_tomont MLKEM_NAMESPACE(poly_invntt_tomont)
 void poly_invntt_tomont(poly *r)
 __contract__(
-  requires(is_fresh(r, sizeof(poly)))
-  assigns(object_upto(r, sizeof(poly)))
+  requires(memory_no_alias(r, sizeof(poly)))
+  assigns(memory_slice(r, sizeof(poly)))
   ensures(array_abs_bound(r->coeffs, 0, MLKEM_N - 1, INVNTT_BOUND - 1))
 );
 
@@ -88,11 +88,11 @@ __contract__(
 void basemul_cached(int16_t r[2], const int16_t a[2], const int16_t b[2],
                     int16_t b_cached)
 __contract__(
-  requires(is_fresh(r, 2 * sizeof(int16_t)))
-  requires(is_fresh(a, 2 * sizeof(int16_t)))
-  requires(is_fresh(b, 2 * sizeof(int16_t)))
+  requires(memory_no_alias(r, 2 * sizeof(int16_t)))
+  requires(memory_no_alias(a, 2 * sizeof(int16_t)))
+  requires(memory_no_alias(b, 2 * sizeof(int16_t)))
   requires(array_abs_bound(a, 0, 1, MLKEM_Q - 1))
-  assigns(object_upto(r, 2 * sizeof(int16_t)))
+  assigns(memory_slice(r, 2 * sizeof(int16_t)))
   ensures(array_abs_bound(r, 0, 1, (3 * HALF_Q - 1)))
 );
 

@@ -161,8 +161,7 @@ void poly_compress_dv(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES_DV], const poly *a)
   }
 #elif (MLKEM_POLYCOMPRESSEDBYTES_DV == 160)
   for (int i = 0; i < MLKEM_N / 8; i++)
-  __loop__(
-    invariant(i >= 0 && i <= MLKEM_N / 8);  )
+  __loop__(invariant(i >= 0 && i <= MLKEM_N / 8))
   {
     uint8_t t[8] = {0};
     for (int j = 0; j < 8; j++)

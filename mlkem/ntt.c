@@ -49,10 +49,10 @@ __contract__(
   requires(1 <= len && len <= MLKEM_N / 2 && start + 2 * len <= MLKEM_N)
   requires(0 <= bound && bound < INT16_MAX - MLKEM_Q)
   requires(-HALF_Q < zeta && zeta < HALF_Q)
-  requires(is_fresh(r, sizeof(int16_t) * MLKEM_N))
+  requires(memory_no_alias(r, sizeof(int16_t) * MLKEM_N))
   requires(array_abs_bound(r, 0, start - 1, bound + MLKEM_Q))
   requires(array_abs_bound(r, start, MLKEM_N - 1, bound))
-  assigns(object_upto(r, sizeof(int16_t) * MLKEM_N))
+  assigns(memory_slice(r, sizeof(int16_t) * MLKEM_N))
   ensures(array_abs_bound(r, 0, start + 2*len - 1, bound + MLKEM_Q))
   ensures(array_abs_bound(r, start + 2 * len, MLKEM_N - 1, bound)))
 {
@@ -90,10 +90,10 @@ __contract__(
 STATIC_TESTABLE
 void ntt_layer(int16_t r[MLKEM_N], int len, int layer)
 __contract__(
-  requires(is_fresh(r, sizeof(int16_t) * MLKEM_N))
+  requires(memory_no_alias(r, sizeof(int16_t) * MLKEM_N))
   requires(1 <= layer && layer <= 7 && len == (MLKEM_N >> layer))
   requires(array_abs_bound(r, 0, MLKEM_N - 1, layer * MLKEM_Q - 1))
-  assigns(object_upto(r, sizeof(int16_t) * MLKEM_N))
+  assigns(memory_slice(r, sizeof(int16_t) * MLKEM_N))
   ensures(array_abs_bound(r, 0, MLKEM_N - 1, (layer + 1) * MLKEM_Q - 1)))
 {
   // `layer` is a ghost variable only needed in the CBMC specification
@@ -161,11 +161,11 @@ STATIC_ASSERT(INVNTT_BOUND_REF <= INVNTT_BOUND, invntt_bound)
 STATIC_TESTABLE
 void invntt_layer(int16_t *r, int len, int layer)
 __contract__(
-  requires(is_fresh(r, sizeof(int16_t) * MLKEM_N))
+  requires(memory_no_alias(r, sizeof(int16_t) * MLKEM_N))
   requires(2 <= len && len <= 128 && 1 <= layer && layer <= 7)
   requires(len == (1 << (8 - layer)))
   requires(array_abs_bound(r, 0, MLKEM_N - 1, MLKEM_Q))
-  assigns(object_upto(r, sizeof(int16_t) * MLKEM_N))
+  assigns(memory_slice(r, sizeof(int16_t) * MLKEM_N))
   ensures(array_abs_bound(r, 0, MLKEM_N - 1, MLKEM_Q)))
 {
   // `layer` is a ghost variable used only in the specification

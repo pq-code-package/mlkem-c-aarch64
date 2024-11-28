@@ -20,9 +20,9 @@
  **************************************************/
 void poly_cbd_eta1(poly *r, const uint8_t buf[MLKEM_ETA1 * MLKEM_N / 4])
 __contract__(
-  requires(is_fresh(r, sizeof(poly)))
-  requires(is_fresh(buf, MLKEM_ETA1 * MLKEM_N / 4))
-  assigns(object_upto(r, sizeof(poly)))
+  requires(memory_no_alias(r, sizeof(poly)))
+  requires(memory_no_alias(buf, MLKEM_ETA1 * MLKEM_N / 4))
+  assigns(memory_slice(r, sizeof(poly)))
   ensures(array_abs_bound(r->coeffs, 0, MLKEM_N - 1, MLKEM_ETA1))
 );
 
@@ -39,9 +39,9 @@ __contract__(
  **************************************************/
 void poly_cbd_eta2(poly *r, const uint8_t buf[MLKEM_ETA2 * MLKEM_N / 4])
 __contract__(
-  requires(is_fresh(r, sizeof(poly)))
-  requires(is_fresh(buf, MLKEM_ETA2 * MLKEM_N / 4))
-  assigns(object_upto(r, sizeof(poly)))
+  requires(memory_no_alias(r, sizeof(poly)))
+  requires(memory_no_alias(buf, MLKEM_ETA2 * MLKEM_N / 4))
+  assigns(memory_slice(r, sizeof(poly)))
   ensures(array_abs_bound(r->coeffs, 0, MLKEM_N - 1, MLKEM_ETA2))
 );
 

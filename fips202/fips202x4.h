@@ -22,11 +22,11 @@ void shake256x4_absorb(keccakx4_state *state, const uint8_t *in0,
                        const uint8_t *in1, const uint8_t *in2,
                        const uint8_t *in3, size_t inlen)
 __contract__(
-  requires(is_fresh(state, sizeof(keccakx4_state)))
-  requires(is_fresh(in0, inlen))
-  requires(is_fresh(in1, inlen))
-  requires(is_fresh(in2, inlen))
-  requires(is_fresh(in3, inlen))
+  requires(memory_no_alias(state, sizeof(keccakx4_state)))
+  requires(memory_no_alias(in0, inlen))
+  requires(memory_no_alias(in1, inlen))
+  requires(memory_no_alias(in2, inlen))
+  requires(memory_no_alias(in3, inlen))
   assigns(object_whole(state))
 );
 
@@ -35,16 +35,16 @@ void shake128x4_squeezeblocks(uint8_t *out0, uint8_t *out1, uint8_t *out2,
                               uint8_t *out3, size_t nblocks,
                               keccakx4_state *state)
 __contract__(
-  requires(is_fresh(state, sizeof(keccakx4_state)))
-  requires(is_fresh(out0, nblocks * SHAKE128_RATE))
-  requires(is_fresh(out1, nblocks * SHAKE128_RATE))
-  requires(is_fresh(out2, nblocks * SHAKE128_RATE))
-  requires(is_fresh(out3, nblocks * SHAKE128_RATE))
-  assigns(object_upto(out0, nblocks * SHAKE128_RATE),
-  object_upto(out1, nblocks * SHAKE128_RATE),
-  object_upto(out2, nblocks * SHAKE128_RATE),
-  object_upto(out3, nblocks * SHAKE128_RATE),
-  object_whole(state));
+  requires(memory_no_alias(state, sizeof(keccakx4_state)))
+  requires(memory_no_alias(out0, nblocks * SHAKE128_RATE))
+  requires(memory_no_alias(out1, nblocks * SHAKE128_RATE))
+  requires(memory_no_alias(out2, nblocks * SHAKE128_RATE))
+  requires(memory_no_alias(out3, nblocks * SHAKE128_RATE))
+  assigns(memory_slice(out0, nblocks * SHAKE128_RATE),
+    memory_slice(out1, nblocks * SHAKE128_RATE),
+    memory_slice(out2, nblocks * SHAKE128_RATE),
+    memory_slice(out3, nblocks * SHAKE128_RATE),
+    object_whole(state))
 );
 
 #define shake256x4_squeezeblocks FIPS202_NAMESPACE(shake256x4_squeezeblocks)
@@ -64,18 +64,18 @@ void shake256x4(uint8_t *out0, uint8_t *out1, uint8_t *out2, uint8_t *out3,
                 uint8_t *in3, size_t inlen)
 __contract__(
 // Refine +prove this spec, e.g. add disjointness constraints?
-  requires(READABLE(in0, inlen))
-  requires(READABLE(in1, inlen))
-  requires(READABLE(in2, inlen))
-  requires(READABLE(in3, inlen))
-  requires(WRITEABLE(out0, outlen))
-  requires(WRITEABLE(out1, outlen))
-  requires(WRITEABLE(out2, outlen))
-  requires(WRITEABLE(out3, outlen))
-  assigns(object_upto(out0, outlen))
-  assigns(object_upto(out1, outlen))
-  assigns(object_upto(out2, outlen))
-  assigns(object_upto(out3, outlen))
+  requires(readable(in0, inlen))
+  requires(readable(in1, inlen))
+  requires(readable(in2, inlen))
+  requires(readable(in3, inlen))
+  requires(writeable(out0, outlen))
+  requires(writeable(out1, outlen))
+  requires(writeable(out2, outlen))
+  requires(writeable(out3, outlen))
+  assigns(memory_slice(out0, outlen))
+  assigns(memory_slice(out1, outlen))
+  assigns(memory_slice(out2, outlen))
+  assigns(memory_slice(out3, outlen))
 );
 
 #endif
