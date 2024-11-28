@@ -101,14 +101,14 @@ jobs:
           gh_token: ${{ secrets.GITHUB_TOKEN }}
           compile_mode: native
           cflags: "-DMLKEM_DEBUG -fsanitize=address -fsanitize=undefined -fno-sanitize-recover=all"
-      - name: cross tests (opt only)
+      - name: cross x86_64 tests (opt only)
         uses: ./.github/actions/multi-functest
-        if: ${{ matrix.target.runner != 'macos-latest' && (success() || failure()) }}
+        if: ${{ matrix.target.runner == 'pqcp-arm64' && (success() || failure()) }}
         with:
           nix-shell: ci-cross
           nix-cache: true
           gh_token: ${{ secrets.GITHUB_TOKEN }}
-          compile_mode: cross
+          compile_mode: cross-x86_64
           opt: opt
   compiler_tests:
     name: Compiler tests (${{ matrix.target.name }})
