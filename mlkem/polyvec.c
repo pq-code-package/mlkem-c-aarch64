@@ -94,12 +94,12 @@ void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a,
                                            const polyvec *b,
                                            const polyvec_mulcache *b_cache)
 {
+  int i;
+  poly t;
+
   POLYVEC_BOUND(a, MLKEM_Q);
   POLYVEC_BOUND(b, NTT_BOUND);
   POLYVEC_BOUND(b_cache, MLKEM_Q);
-
-  int i;
-  poly t;
 
   poly_basemul_montgomery_cached(r, &a->vec[0], &b->vec[0], &b_cache->vec[0]);
   for (i = 1; i < MLKEM_K; i++)

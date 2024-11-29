@@ -155,6 +155,9 @@ static void acvp_mlkem_keyGen_AFT(unsigned char const z[MLKEM_SYMBYTES],
 
 int main(int argc, char *argv[])
 {
+  acvp_mode mode;
+  acvp_type type;
+
   if (argc == 0)
   {
     goto usage;
@@ -166,7 +169,6 @@ int main(int argc, char *argv[])
   {
     goto usage;
   }
-  acvp_mode mode;
 
   if (strcmp(*argv, "encapDecap") == 0)
   {
@@ -187,7 +189,6 @@ int main(int argc, char *argv[])
   {
     goto usage;
   }
-  acvp_type type;
 
   if (strcmp(*argv, "AFT") == 0)
   {
@@ -208,12 +209,12 @@ int main(int argc, char *argv[])
   {
     case encapDecap:
     {
+      acvp_encapDecap_function encapDecap_function;
       /* Parse function: "encapsulation" or "decapsulation" */
       if (argc == 0)
       {
         goto usage;
       }
-      acvp_encapDecap_function encapDecap_function;
 
       if (strcmp(*argv, "encapsulation") == 0)
       {
@@ -233,6 +234,8 @@ int main(int argc, char *argv[])
       {
         case encapsulation:
         {
+          unsigned char ek[MLKEM_INDCPA_PUBLICKEYBYTES];
+          unsigned char m[MLKEM_SYMBYTES];
           /* Encapsulation only for "AFT" */
           if (type != AFT)
           {
@@ -240,7 +243,6 @@ int main(int argc, char *argv[])
           }
 
           /* Parse ek */
-          unsigned char ek[MLKEM_INDCPA_PUBLICKEYBYTES];
           if (argc == 0 || decode_hex("ek", ek, sizeof(ek), *argv) != 0)
           {
             goto encaps_usage;
@@ -248,7 +250,6 @@ int main(int argc, char *argv[])
           argc--, argv++;
 
           /* Parse m */
-          unsigned char m[MLKEM_SYMBYTES];
           if (argc == 0 || decode_hex("m", m, sizeof(m), *argv) != 0)
           {
             goto encaps_usage;
@@ -261,6 +262,8 @@ int main(int argc, char *argv[])
         }
         case decapsulation:
         {
+          unsigned char dk[MLKEM_SECRETKEYBYTES];
+          unsigned char c[MLKEM_CIPHERTEXTBYTES];
           /* Decapsulation only for "VAL" */
           if (type != VAL)
           {
@@ -268,7 +271,6 @@ int main(int argc, char *argv[])
           }
 
           /* Parse dk */
-          unsigned char dk[MLKEM_SECRETKEYBYTES];
           if (argc == 0 || decode_hex("dk", dk, sizeof(dk), *argv) != 0)
           {
             goto decaps_usage;
@@ -276,7 +278,6 @@ int main(int argc, char *argv[])
           argc--, argv++;
 
           /* Parse c */
-          unsigned char c[MLKEM_CIPHERTEXTBYTES];
           if (argc == 0 || decode_hex("c", c, sizeof(c), *argv) != 0)
           {
             goto decaps_usage;
@@ -292,6 +293,8 @@ int main(int argc, char *argv[])
     }
     case keyGen:
     {
+      unsigned char z[MLKEM_SYMBYTES];
+      unsigned char d[MLKEM_SYMBYTES];
       /* keyGen only for "AFT" */
       if (type != AFT)
       {
@@ -299,7 +302,6 @@ int main(int argc, char *argv[])
       }
 
       /* Parse z */
-      unsigned char z[MLKEM_SYMBYTES];
       if (argc == 0 || decode_hex("z", z, sizeof(z), *argv) != 0)
       {
         goto keygen_usage;
@@ -307,7 +309,6 @@ int main(int argc, char *argv[])
       argc--, argv++;
 
       /* Parse d */
-      unsigned char d[MLKEM_SYMBYTES];
       if (argc == 0 || decode_hex("d", d, sizeof(d), *argv) != 0)
       {
         goto keygen_usage;

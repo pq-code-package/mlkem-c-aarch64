@@ -96,9 +96,10 @@ static INLINE int16_t montgomery_reduce_generic(int32_t a)
 
 int16_t montgomery_reduce(int32_t a)
 {
+  int16_t res;
   SCALAR_BOUND(a, 2 * MLKEM_Q * 32768, "montgomery_reduce input");
 
-  int16_t res = montgomery_reduce_generic(a);
+  res = montgomery_reduce_generic(a);
 
   SCALAR_BOUND(res, (3 * (MLKEM_Q + 1)) / 2, "montgomery_reduce output");
   return res;
@@ -106,9 +107,10 @@ int16_t montgomery_reduce(int32_t a)
 
 int16_t fqmul(int16_t a, int16_t b)
 {
+  int16_t res;
   SCALAR_BOUND(b, HALF_Q, "fqmul input");
 
-  int16_t res = montgomery_reduce((int32_t)a * (int32_t)b);
+  res = montgomery_reduce((int32_t)a * (int32_t)b);
 
   SCALAR_BOUND(res, MLKEM_Q, "fqmul output");
   return res;

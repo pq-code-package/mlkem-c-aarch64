@@ -40,12 +40,12 @@ void polyvec_basemul_acc_montgomery_cached_avx2(poly *r, const polyvec *a,
                                                 const polyvec *b,
                                                 const polyvec_mulcache *b_cache)
 {
+  unsigned int i;
+  poly t;
+
   ((void)b_cache); /* cache unused */
 
   /* TODO! Think through bounds */
-
-  unsigned int i;
-  poly t;
 
   poly_basemul_montgomery_avx2(r, &a->vec[0], &b->vec[0]);
   for (i = 1; i < MLKEM_K; i++)
