@@ -17,7 +17,6 @@ UNWINDSET +=
 
 PROOF_SOURCES += $(PROOFDIR)/$(HARNESS_FILE).c
 PROJECT_SOURCES += $(SRCDIR)/mlkem/poly.c
-PROJECT_SOURCES += $(SRCDIR)/mlkem/verify.c
 
 CHECK_FUNCTION_CONTRACTS=$(MLKEM_NAMESPACE)poly_compress_du
 # For K = 2 or 3, the code calls scalar_compress_d10, so

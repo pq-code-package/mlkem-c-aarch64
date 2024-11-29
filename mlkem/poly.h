@@ -300,7 +300,7 @@ __contract__(
   ensures(return_value == (int32_t)c + (((int32_t)c < 0) * MLKEM_Q)))
 {
   // Add Q if c is negative, but in constant time
-  cmov_int16(&c, c + MLKEM_Q, c < 0);
+  c = ct_sel_int16(c + MLKEM_Q, c, ct_cmask_neg_i16(c));
 
   cassert(c >= 0, "scalar_signed_to_unsigned_q result lower bound");
   cassert(c < MLKEM_Q, "scalar_signed_to_unsigned_q result upper bound");

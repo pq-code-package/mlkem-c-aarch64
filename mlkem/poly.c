@@ -319,8 +319,9 @@ void poly_frommsg(poly *r, const uint8_t msg[MLKEM_INDCPA_MSGBYTES])
       invariant(i >= 0 && i <  MLKEM_N / 8 && j >= 0 && j <= 8)
       invariant(array_bound(r->coeffs, 0, (8 * i + j - 1), 0, (MLKEM_Q - 1))))
     {
-      r->coeffs[8 * i + j] = 0;
-      cmov_int16(&r->coeffs[8 * i + j], HALF_Q, (msg[i] >> j) & 1);
+      // Prevent the compiler from recognizing this as a bit selection
+      uint8_t mask = value_barrier_u8(1u << j);
+      r->coeffs[8 * i + j] = ct_sel_int16(HALF_Q, 0, msg[i] & mask);
     }
   }
   POLY_BOUND_MSG(r, MLKEM_Q, "poly_frommsg output");
@@ -335,8 +336,7 @@ void poly_tomsg(uint8_t msg[MLKEM_INDCPA_MSGBYTES], const poly *a)
   {
     msg[i] = 0;
     for (int j = 0; j < 8; j++)
-    __loop__(
-      invariant(i >= 0 && i <= MLKEM_N / 8 && j >= 0 && j <= 8))
+    __loop__(invariant(i >= 0 && i <= MLKEM_N / 8 && j >= 0 && j <= 8))
     {
       uint32_t t = scalar_compress_d1(a->coeffs[8 * i + j]);
       msg[i] |= t << j;
