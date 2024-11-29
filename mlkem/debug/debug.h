@@ -172,47 +172,47 @@ void mlkem_debug_print_error(const char *file, int line, const char *msg);
 
 #else /* MLKEM_DEBUG */
 
-#define CASSERT(...) \
-  do                 \
-  {                  \
-  } while (0)
-#define SCALAR_BOUND(...) \
+#define CASSERT(val, msg) \
   do                      \
   {                       \
   } while (0)
-#define BOUND(...) \
-  do               \
-  {                \
+#define SCALAR_BOUND(val, abs_bound, msg) \
+  do                                      \
+  {                                       \
   } while (0)
-#define POLY_BOUND(...) \
-  do                    \
-  {                     \
+#define BOUND(ptr, len, abs_bound, msg) \
+  do                                    \
+  {                                     \
   } while (0)
-#define POLYVEC_BOUND(...) \
-  do                       \
-  {                        \
+#define POLY_BOUND(ptr, abs_bound) \
+  do                               \
+  {                                \
   } while (0)
-#define POLY_BOUND_MSG(...) \
-  do                        \
-  {                         \
+#define POLYVEC_BOUND(ptr, abs_bound) \
+  do                                  \
+  {                                   \
   } while (0)
-#define UBOUND(...) \
-  do                \
-  {                 \
+#define POLY_BOUND_MSG(ptr, ubound, abs_bound) \
+  do                                           \
+  {                                            \
   } while (0)
-#define POLY_UBOUND(...) \
-  do                     \
-  {                      \
+#define UBOUND(ptr, len, high_bound, msg) \
+  do                                      \
+  {                                       \
   } while (0)
-#define POLYVEC_UBOUND(...) \
-  do                        \
-  {                         \
+#define POLY_UBOUND(ptr, ubound) \
+  do                             \
+  {                              \
   } while (0)
-#define POLY_UBOUND_MSG(...) \
-  do                         \
-  {                          \
+#define POLYVEC_UBOUND(ptr, ubound) \
+  do                                \
+  {                                 \
   } while (0)
-#define STATIC_ASSERT(...)
+#define POLY_UBOUND_MSG(ptr, ubound, msg) \
+  do                                      \
+  {                                       \
+  } while (0)
+#define STATIC_ASSERT(cond, error)
 
 #endif /* MLKEM_DEBUG */
 
