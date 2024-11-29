@@ -269,6 +269,7 @@ __contract__(
 void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES], int transposed)
 {
   int i;
+  unsigned int j;
   /*
    * We generate four separate seed arrays rather than a single one to work
    * around limitations in CBMC function contracts dealing with disjoint slices
@@ -281,7 +282,7 @@ void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES], int transposed)
   ALIGN uint8_t seed3[MLKEM_SYMBYTES + 2];
   uint8_t *seedxy[] = {seed0, seed1, seed2, seed3};
 
-  for (unsigned j = 0; j < KECCAK_WAY; j++)
+  for (j = 0; j < KECCAK_WAY; j++)
   {
     memcpy(seedxy[j], seed, MLKEM_SYMBYTES);
   }
@@ -293,13 +294,12 @@ void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES], int transposed)
    * and unroll by hand.
    */
 
-
   for (i = 0; i < (MLKEM_K * MLKEM_K / KECCAK_WAY) * KECCAK_WAY;
        i += KECCAK_WAY)
   {
     uint8_t x, y;
 
-    for (unsigned int j = 0; j < KECCAK_WAY; j++)
+    for (j = 0; j < KECCAK_WAY; j++)
     {
       x = (i + j) / MLKEM_K;
       y = (i + j) % MLKEM_K;
@@ -354,7 +354,7 @@ void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES], int transposed)
    */
   for (i = 0; i < MLKEM_K; i++)
   {
-    for (int j = 0; j < MLKEM_K; j++)
+    for (j = 0; j < MLKEM_K; j++)
     {
       poly_permute_bitrev_to_custom(&a[i].vec[j]);
     }
@@ -388,7 +388,8 @@ __contract__(
     array_abs_bound(a[k0].vec[k1].coeffs, 0, MLKEM_N - 1, (MLKEM_Q - 1)))))
   assigns(object_whole(out)))
 {
-  for (int i = 0; i < MLKEM_K; i++)
+  int i;
+  for (i = 0; i < MLKEM_K; i++)
   __loop__(
     assigns(i, object_whole(out))
     invariant(i >= 0 && i <= MLKEM_K))

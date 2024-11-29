@@ -253,8 +253,9 @@ __contract__(
    * can yield -1 as required.
    */
   const int ilen = (int)len;
+  int i;
 
-  for (int i = 0; i < ilen; i++)
+  for (i = 0; i < ilen; i++)
   __loop__(
     invariant(i >= 0 && i <= ilen)
     invariant((r == 0) == (forall(int, k, 0, (i - 1), (a[k] == b[k])))))

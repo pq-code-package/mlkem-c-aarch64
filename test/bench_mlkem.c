@@ -29,16 +29,18 @@ static int percentiles[] = {1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 99};
 
 static void print_percentile_legend(void)
 {
+  unsigned i;
   printf("%21s", "percentile");
-  for (unsigned i = 0; i < sizeof(percentiles) / sizeof(percentiles[0]); i++)
+  for (i = 0; i < sizeof(percentiles) / sizeof(percentiles[0]); i++)
     printf("%7d", percentiles[i]);
   printf("\n");
 }
 
 static void print_percentiles(const char *txt, uint64_t cyc[NTESTS])
 {
+  unsigned i;
   printf("%10s percentiles:", txt);
-  for (unsigned i = 0; i < sizeof(percentiles) / sizeof(percentiles[0]); i++)
+  for (i = 0; i < sizeof(percentiles) / sizeof(percentiles[0]); i++)
     printf("%7" PRIu64, (cyc)[NTESTS * percentiles[i] / 100] / NITERATIONS);
   printf("\n");
 }

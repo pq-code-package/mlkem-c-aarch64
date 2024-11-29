@@ -55,7 +55,8 @@ __contract__(
 {
   /* `bound` is a ghost variable only needed in the CBMC specification */
   ((void)bound);
-  for (int j = start; j < start + len; j++)
+  int j;
+  for (j = start; j < start + len; j++)
   __loop__(
     invariant(start <= j && j <= start + len)
     /* 
@@ -96,10 +97,11 @@ __contract__(
   ensures(array_abs_bound(r, 0, MLKEM_N - 1, (layer + 1) * MLKEM_Q - 1)))
 {
   /* `layer` is a ghost variable only needed in the CBMC specification */
+  int start;
   ((void)layer);
   /* Twiddle factors for layer n start at index 2^(layer-1) */
   int k = MLKEM_N / (2 * len);
-  for (int start = 0; start < MLKEM_N; start += 2 * len)
+  for (start = 0; start < MLKEM_N; start += 2 * len)
   __loop__(
     invariant(0 <= start && start < MLKEM_N + 2 * len)
     invariant(0 <= k && k <= MLKEM_N / 2 && 2 * len * k == start + MLKEM_N)
@@ -125,10 +127,11 @@ __contract__(
 
 void poly_ntt(poly *p)
 {
+  int len, layer;
   POLY_BOUND_MSG(p, MLKEM_Q, "ref ntt input");
   int16_t *r = p->coeffs;
 
-  for (int len = 128, layer = 1; len >= 2; len >>= 1, layer++)
+  for (len = 128, layer = 1; len >= 2; len >>= 1, layer++)
   __loop__(
     invariant(1 <= layer && layer <= 8 && len == (MLKEM_N >> layer))
     invariant(array_abs_bound(r, 0, MLKEM_N - 1, layer * MLKEM_Q - 1)))
@@ -170,17 +173,19 @@ __contract__(
   ensures(array_abs_bound(r, 0, MLKEM_N - 1, MLKEM_Q)))
 {
   /* `layer` is a ghost variable used only in the specification */
+  int start, k;
   ((void)layer);
   int k = MLKEM_N / len - 1;
-  for (int start = 0; start < MLKEM_N; start += 2 * len)
+  for (start = 0; start < MLKEM_N; start += 2 * len)
   __loop__(
     invariant(array_abs_bound(r, 0, MLKEM_N - 1, MLKEM_Q))
     invariant(0 <= start && start <= MLKEM_N && 0 <= k && k <= 127)
     /* Normalised form of k == MLKEM_N / len - 1 - start / (2 * len) */
     invariant(2 * len * k + start == 2 * MLKEM_N - 2 * len))
   {
+    int j;
     int16_t zeta = zetas[k--];
-    for (int j = start; j < start + len; j++)
+    for (j = start; j < start + len; j++)
     __loop__(
       invariant(start <= j && j <= start + len)
       invariant(0 <= start && start <= MLKEM_N && 0 <= k && k <= 127)
@@ -196,16 +201,16 @@ __contract__(
 
 void poly_invntt_tomont(poly *p)
 {
-  const int16_t f = 1441;  /* mont^2/128 */
-  int16_t *r = p->coeffs;
-
   /*
    * Scale input polynomial to account for Montgomery factor
    * and NTT twist. This also brings coefficients down to
    * absolute value < MLKEM_Q.
    */
+  int j, len, layer;
+  const int16_t f = 1441;
+  int16_t *r = p->coeffs;
 
-  for (int j = 0; j < MLKEM_N; j++)
+  for (j = 0; j < MLKEM_N; j++)
   __loop__(
     invariant(0 <= j && j <= MLKEM_N)
     invariant(array_abs_bound(r, 0, j - 1, MLKEM_Q)))
@@ -214,7 +219,7 @@ void poly_invntt_tomont(poly *p)
   }
 
   /* Run the invNTT layers */
-  for (int len = 2, layer = 7; len <= 128; len <<= 1, layer--)
+  for (len = 2, layer = 7; len <= 128; len <<= 1, layer--)
   __loop__(
     invariant(2 <= len && len <= 256 && 0 <= layer && layer <= 7 && len == (1 << (8 - layer)))
     invariant(array_abs_bound(r, 0, MLKEM_N - 1, MLKEM_Q)))

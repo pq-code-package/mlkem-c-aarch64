@@ -56,6 +56,7 @@ static unsigned char decode_hex_char(char hex)
 static int decode_hex(const char *prefix, unsigned char *out, size_t out_len,
                       const char *hex)
 {
+  size_t i;
   size_t hex_len = strlen(hex);
   size_t prefix_len = strlen(prefix);
 
@@ -77,7 +78,7 @@ static int decode_hex(const char *prefix, unsigned char *out, size_t out_len,
     goto hex_usage;
   }
 
-  for (size_t i = 0; i < out_len; i++, hex += 2, out++)
+  for (i = 0; i < out_len; i++, hex += 2, out++)
   {
     unsigned hex0 = decode_hex_char(hex[0]);
     unsigned hex1 = decode_hex_char(hex[1]);

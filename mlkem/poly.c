@@ -19,12 +19,14 @@
 
 void poly_compress_du(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES_DU], const poly *a)
 {
+  int j;
 #if (MLKEM_POLYCOMPRESSEDBYTES_DU == 352)
-  for (int j = 0; j < MLKEM_N / 8; j++)
+  for (j = 0; j < MLKEM_N / 8; j++)
   __loop__(invariant(j >= 0 && j <= MLKEM_N / 8))
   {
+    int k;
     uint16_t t[8];
-    for (int k = 0; k < 8; k++)
+    for (k = 0; k < 8; k++)
     __loop__(
       invariant(k >= 0 && k <= 8)
       invariant(forall(int, r, 0, k - 1, t[r] < (1u << 11))))
@@ -52,11 +54,12 @@ void poly_compress_du(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES_DU], const poly *a)
   }
 
 #elif (MLKEM_POLYCOMPRESSEDBYTES_DU == 320)
-  for (int j = 0; j < MLKEM_N / 4; j++)
+  for (j = 0; j < MLKEM_N / 4; j++)
   __loop__(invariant(j >= 0 && j <= MLKEM_N / 4))
   {
+    int k;
     uint16_t t[4];
-    for (int k = 0; k < 4; k++)
+    for (k = 0; k < 4; k++)
     __loop__(
       invariant(k >= 0 && k <= 4)
       invariant(forall(int, r, 0, k - 1, t[r] < (1u << 10))))
@@ -84,12 +87,14 @@ void poly_compress_du(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES_DU], const poly *a)
 
 void poly_decompress_du(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES_DU])
 {
+  int j;
 #if (MLKEM_POLYCOMPRESSEDBYTES_DU == 352)
-  for (int j = 0; j < MLKEM_N / 8; j++)
+  for (j = 0; j < MLKEM_N / 8; j++)
   __loop__(
     invariant(0 <= j && j <= MLKEM_N / 8)
     invariant(array_bound(r->coeffs, 0, 8 * j - 1, 0, (MLKEM_Q - 1))))
   {
+    int k;
     uint16_t t[8];
     uint8_t const *base = &a[11 * j];
     t[0] = 0x7FF & ((base[0] >> 0) | ((uint16_t)base[1] << 8));
@@ -103,7 +108,7 @@ void poly_decompress_du(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES_DU])
     t[6] = 0x7FF & ((base[8] >> 2) | ((uint16_t)base[9] << 6));
     t[7] = 0x7FF & ((base[9] >> 5) | ((uint16_t)base[10] << 3));
 
-    for (int k = 0; k < 8; k++)
+    for (k = 0; k < 8; k++)
     __loop__(
       invariant(0 <= k && k <= 8)
       invariant(array_bound(r->coeffs, 0, 8 * j + k - 1, 0, (MLKEM_Q - 1))))
@@ -112,11 +117,12 @@ void poly_decompress_du(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES_DU])
     }
   }
 #elif (MLKEM_POLYCOMPRESSEDBYTES_DU == 320)
-  for (int j = 0; j < MLKEM_N / 4; j++)
+  for (j = 0; j < MLKEM_N / 4; j++)
   __loop__(
     invariant(0 <= j && j <= MLKEM_N / 4)
     invariant(array_bound(r->coeffs, 0, 4 * j - 1, 0, (MLKEM_Q - 1))))
   {
+    int k;
     uint16_t t[4];
     uint8_t const *base = &a[5 * j];
 
@@ -125,7 +131,7 @@ void poly_decompress_du(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES_DU])
     t[2] = 0x3FF & ((base[2] >> 4) | ((uint16_t)base[3] << 4));
     t[3] = 0x3FF & ((base[3] >> 6) | ((uint16_t)base[4] << 2));
 
-    for (int k = 0; k < 4; k++)
+    for (k = 0; k < 4; k++)
     __loop__(
       invariant(0 <= k && k <= 4)
       invariant(array_bound(r->coeffs, 0, 4 * j + k - 1, 0, (MLKEM_Q - 1))))
@@ -140,14 +146,16 @@ void poly_decompress_du(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES_DU])
 
 void poly_compress_dv(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES_DV], const poly *a)
 {
+  int i;
   POLY_UBOUND(a, MLKEM_Q);
 
 #if (MLKEM_POLYCOMPRESSEDBYTES_DV == 128)
-  for (int i = 0; i < MLKEM_N / 8; i++)
+  for (i = 0; i < MLKEM_N / 8; i++)
   __loop__(invariant(i >= 0 && i <= MLKEM_N / 8))
   {
+    int j;
     uint8_t t[8] = {0};
-    for (int j = 0; j < 8; j++)
+    for (j = 0; j < 8; j++)
     __loop__(
       invariant(i >= 0 && i <= MLKEM_N / 8 && j >= 0 && j <= 8)
       invariant(array_bound(t, 0, (j-1), 0, 15)))
@@ -166,11 +174,12 @@ void poly_compress_dv(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES_DV], const poly *a)
     r[i * 4 + 3] = t[6] | (t[7] << 4);
   }
 #elif (MLKEM_POLYCOMPRESSEDBYTES_DV == 160)
-  for (int i = 0; i < MLKEM_N / 8; i++)
+  for (i = 0; i < MLKEM_N / 8; i++)
   __loop__(invariant(i >= 0 && i <= MLKEM_N / 8))
   {
+    int j;
     uint8_t t[8] = {0};
-    for (int j = 0; j < 8; j++)
+    for (j = 0; j < 8; j++)
     __loop__(
       invariant(i >= 0 && i <= MLKEM_N / 8 && j >= 0 && j <= 8)
       invariant(array_bound(t, 0, (j-1), 0, 31)))
@@ -197,8 +206,9 @@ void poly_compress_dv(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES_DV], const poly *a)
 
 void poly_decompress_dv(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES_DV])
 {
+  int i;
 #if (MLKEM_POLYCOMPRESSEDBYTES_DV == 128)
-  for (int i = 0; i < MLKEM_N / 2; i++)
+  for (i = 0; i < MLKEM_N / 2; i++)
   __loop__(
     invariant(i >= 0 && i <= MLKEM_N / 2)
     invariant(array_bound(r->coeffs, 0, (2 * i - 1), 0, (MLKEM_Q - 1))))
@@ -208,11 +218,12 @@ void poly_decompress_dv(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES_DV])
     r->coeffs[2 * i + 1] = scalar_decompress_d4((a[i] >> 4) & 0xF);
   }
 #elif (MLKEM_POLYCOMPRESSEDBYTES_DV == 160)
-  for (int i = 0; i < MLKEM_N / 8; i++)
+  for (i = 0; i < MLKEM_N / 8; i++)
   __loop__(
     invariant(i >= 0 && i <= MLKEM_N / 8)
     invariant(array_bound(r->coeffs, 0, (8 * i - 1), 0, (MLKEM_Q - 1))))
   {
+    int j;
     uint8_t t[8];
     const int offset = i * 5;
     /*
@@ -235,7 +246,7 @@ void poly_decompress_dv(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES_DV])
     t[7] = 0x1F & (a[offset + 4] >> 3);
 
     /* and copy to the correct slice in r[] */
-    for (int j = 0; j < 8; j++)
+    for (j = 0; j < 8; j++)
     __loop__(
       invariant(j >= 0 && j <= 8 && i >= 0 && i <= MLKEM_N / 8)
       invariant(array_bound(r->coeffs, 0, (8 * i + j - 1), 0, (MLKEM_Q - 1))))
@@ -254,10 +265,11 @@ void poly_decompress_dv(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES_DV])
 #if !defined(MLKEM_USE_NATIVE_POLY_TOBYTES)
 void poly_tobytes(uint8_t r[MLKEM_POLYBYTES], const poly *a)
 {
+  unsigned int i;
   POLY_UBOUND(a, MLKEM_Q);
 
 
-  for (unsigned int i = 0; i < MLKEM_N / 2; i++)
+  for (i = 0; i < MLKEM_N / 2; i++)
   __loop__(invariant(i >= 0 && i <= MLKEM_N / 2))
   {
     const uint16_t t0 = a->coeffs[2 * i];
@@ -321,16 +333,18 @@ void poly_frombytes(poly *r, const uint8_t a[MLKEM_POLYBYTES])
 
 void poly_frommsg(poly *r, const uint8_t msg[MLKEM_INDCPA_MSGBYTES])
 {
+  int i;
 #if (MLKEM_INDCPA_MSGBYTES != MLKEM_N / 8)
 #error "MLKEM_INDCPA_MSGBYTES must be equal to MLKEM_N/8 bytes!"
 #endif
 
-  for (int i = 0; i < MLKEM_N / 8; i++)
+  for (i = 0; i < MLKEM_N / 8; i++)
   __loop__(
     invariant(i >= 0 && i <= MLKEM_N / 8)
     invariant(array_bound(r->coeffs, 0, (8 * i - 1), 0, (MLKEM_Q - 1))))
   {
-    for (int j = 0; j < 8; j++)
+    int j;
+    for (j = 0; j < 8; j++)
     __loop__(
       invariant(i >= 0 && i <  MLKEM_N / 8 && j >= 0 && j <= 8)
       invariant(array_bound(r->coeffs, 0, (8 * i + j - 1), 0, (MLKEM_Q - 1))))
@@ -345,14 +359,17 @@ void poly_frommsg(poly *r, const uint8_t msg[MLKEM_INDCPA_MSGBYTES])
 
 void poly_tomsg(uint8_t msg[MLKEM_INDCPA_MSGBYTES], const poly *a)
 {
+  int i;
   POLY_UBOUND(a, MLKEM_Q);
 
-  for (int i = 0; i < MLKEM_N / 8; i++)
+  for (i = 0; i < MLKEM_N / 8; i++)
   __loop__(invariant(i >= 0 && i <= MLKEM_N / 8))
   {
+    int j;
     msg[i] = 0;
-    for (int j = 0; j < 8; j++)
-    __loop__(invariant(i >= 0 && i <= MLKEM_N / 8 && j >= 0 && j <= 8))
+    for (j = 0; j < 8; j++)
+    __loop__(
+      invariant(i >= 0 && i <= MLKEM_N / 8 && j >= 0 && j <= 8))
     {
       uint32_t t = scalar_compress_d1(a->coeffs[8 * i + j]);
       msg[i] |= t << j;

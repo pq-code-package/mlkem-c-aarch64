@@ -129,26 +129,28 @@ void mlkem_debug_print_error(const char *file, int line, const char *msg);
 /* Check absolute bounds on coefficients in vector of polynomials
  * ptr: polyvec* or polyvec_mulcache* pointer to vector of polynomials to check
  * abs_bound: Exclusive upper bound on absolute value to check */
-#define POLYVEC_BOUND(ptr, abs_bound)                                    \
-  do                                                                     \
-  {                                                                      \
-    for (unsigned _debug_polyvec_bound_idx = 0;                          \
-         _debug_polyvec_bound_idx < MLKEM_K; _debug_polyvec_bound_idx++) \
-      POLY_BOUND_MSG(&(ptr)->vec[_debug_polyvec_bound_idx], (abs_bound), \
-                     "polyvec absolute bound for " #ptr ".vec[i]");      \
+#define POLYVEC_BOUND(ptr, abs_bound)                                      \
+  do                                                                       \
+  {                                                                        \
+    unsigned _debug_polyvec_bound_idx;                                     \
+    for (_debug_polyvec_bound_idx = 0; _debug_polyvec_bound_idx < MLKEM_K; \
+         _debug_polyvec_bound_idx++)                                       \
+      POLY_BOUND_MSG(&(ptr)->vec[_debug_polyvec_bound_idx], (abs_bound),   \
+                     "polyvec absolute bound for " #ptr ".vec[i]");        \
   } while (0)
 
 /* Check unsigned bounds on coefficients in vector of polynomials
  * ptr: polyvec* or polyvec_mulcache* pointer to vector of polynomials to check
  * ubound: Exclusive upper bound on value to check. Inclusive lower bound is 0.
  */
-#define POLYVEC_UBOUND(ptr, ubound)                                      \
-  do                                                                     \
-  {                                                                      \
-    for (unsigned _debug_polyvec_bound_idx = 0;                          \
-         _debug_polyvec_bound_idx < MLKEM_K; _debug_polyvec_bound_idx++) \
-      POLY_UBOUND_MSG(&(ptr)->vec[_debug_polyvec_bound_idx], (ubound),   \
-                      "polyvec unsigned bound for " #ptr ".vec[i]");     \
+#define POLYVEC_UBOUND(ptr, ubound)                                        \
+  do                                                                       \
+  {                                                                        \
+    unsigned _debug_polyvec_bound_idx;                                     \
+    for (_debug_polyvec_bound_idx = 0; _debug_polyvec_bound_idx < MLKEM_K; \
+         _debug_polyvec_bound_idx++)                                       \
+      POLY_UBOUND_MSG(&(ptr)->vec[_debug_polyvec_bound_idx], (ubound),     \
+                      "polyvec unsigned bound for " #ptr ".vec[i]");       \
   } while (0)
 
 /* Following AWS-LC to define a C99-compliant static assert */
