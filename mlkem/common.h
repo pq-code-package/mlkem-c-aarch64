@@ -33,6 +33,23 @@
 #define ALWAYS_INLINE __attribute__((always_inline))
 #endif
 
+
+/*
+ * C90 does not have the restrict compiler directive yet.
+ * We don't use it in C90 builds.
+ */
+#if !defined(restrict)
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+#define RESTRICT restrict
+#else
+#define RESTRICT
+#endif
+
+#else
+
+#define RESTRICT restrict
+#endif
+
 #define DEFAULT_ALIGN 32
 #if defined(_WIN32)
 #define ALIGN __declspec(align(DEFAULT_ALIGN))
