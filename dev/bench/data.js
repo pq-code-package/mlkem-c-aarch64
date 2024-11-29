@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1732880350736,
+  "lastUpdate": 1732796322975,
   "repoUrl": "https://github.com/pq-code-package/mlkem-native",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -57861,71 +57861,6 @@ window.BENCHMARK_DATA = {
             "unit": "cycles"
           }
         ]
-      },
-      {
-        "commit": {
-          "author": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "committer": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "id": "30faf2200ab8dae4b7201f02bf2067ba74dacd49",
-          "message": "WIP: Harden constant time functions against inlining and optimizations",
-          "timestamp": "2024-11-28T12:04:41Z",
-          "url": "https://github.com/pq-code-package/mlkem-native/pull/460/commits/30faf2200ab8dae4b7201f02bf2067ba74dacd49"
-        },
-        "date": 1732880143911,
-        "tool": "customSmallerIsBetter",
-        "benches": [
-          {
-            "name": "ML-KEM-512 keypair",
-            "value": 29195,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 encaps",
-            "value": 36046,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 decaps",
-            "value": 49148,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 keypair",
-            "value": 49162,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 encaps",
-            "value": 56112,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 decaps",
-            "value": 74400,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 keypair",
-            "value": 72227,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 encaps",
-            "value": 81977,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 decaps",
-            "value": 106969,
-            "unit": "cycles"
-          }
-        ]
       }
     ],
     "Graviton3": [
@@ -73219,71 +73154,6 @@ window.BENCHMARK_DATA = {
             "unit": "cycles"
           }
         ]
-      },
-      {
-        "commit": {
-          "author": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "committer": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "id": "30faf2200ab8dae4b7201f02bf2067ba74dacd49",
-          "message": "WIP: Harden constant time functions against inlining and optimizations",
-          "timestamp": "2024-11-28T12:04:41Z",
-          "url": "https://github.com/pq-code-package/mlkem-native/pull/460/commits/30faf2200ab8dae4b7201f02bf2067ba74dacd49"
-        },
-        "date": 1732879981373,
-        "tool": "customSmallerIsBetter",
-        "benches": [
-          {
-            "name": "ML-KEM-512 keypair",
-            "value": 19031,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 encaps",
-            "value": 23875,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 decaps",
-            "value": 33471,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 keypair",
-            "value": 32349,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 encaps",
-            "value": 36131,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 decaps",
-            "value": 49712,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 keypair",
-            "value": 46969,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 encaps",
-            "value": 53136,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 decaps",
-            "value": 71980,
-            "unit": "cycles"
-          }
-        ]
       }
     ],
     "Graviton4": [
@@ -82786,71 +82656,6 @@ window.BENCHMARK_DATA = {
             "unit": "cycles"
           }
         ]
-      },
-      {
-        "commit": {
-          "author": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "committer": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "id": "30faf2200ab8dae4b7201f02bf2067ba74dacd49",
-          "message": "WIP: Harden constant time functions against inlining and optimizations",
-          "timestamp": "2024-11-28T12:04:41Z",
-          "url": "https://github.com/pq-code-package/mlkem-native/pull/460/commits/30faf2200ab8dae4b7201f02bf2067ba74dacd49"
-        },
-        "date": 1732879958703,
-        "tool": "customSmallerIsBetter",
-        "benches": [
-          {
-            "name": "ML-KEM-512 keypair",
-            "value": 18275,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 encaps",
-            "value": 22570,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 decaps",
-            "value": 31949,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 keypair",
-            "value": 30796,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 encaps",
-            "value": 34182,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 decaps",
-            "value": 47248,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 keypair",
-            "value": 44481,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 encaps",
-            "value": 50325,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 decaps",
-            "value": 68331,
-            "unit": "cycles"
-          }
-        ]
       }
     ],
     "Intel Xeon 4th gen (c7i)": [
@@ -92008,71 +91813,6 @@ window.BENCHMARK_DATA = {
             "unit": "cycles"
           }
         ]
-      },
-      {
-        "commit": {
-          "author": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "committer": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "id": "30faf2200ab8dae4b7201f02bf2067ba74dacd49",
-          "message": "WIP: Harden constant time functions against inlining and optimizations",
-          "timestamp": "2024-11-28T12:04:41Z",
-          "url": "https://github.com/pq-code-package/mlkem-native/pull/460/commits/30faf2200ab8dae4b7201f02bf2067ba74dacd49"
-        },
-        "date": 1732879846237,
-        "tool": "customSmallerIsBetter",
-        "benches": [
-          {
-            "name": "ML-KEM-512 keypair",
-            "value": 13829,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 encaps",
-            "value": 18336,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 decaps",
-            "value": 25169,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 keypair",
-            "value": 22466,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 encaps",
-            "value": 24695,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 decaps",
-            "value": 34110,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 keypair",
-            "value": 32144,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 encaps",
-            "value": 36027,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 decaps",
-            "value": 49715,
-            "unit": "cycles"
-          }
-        ]
       }
     ],
     "Intel Xeon 3rd gen (c6i)": [
@@ -93447,71 +93187,6 @@ window.BENCHMARK_DATA = {
             "unit": "cycles"
           }
         ]
-      },
-      {
-        "commit": {
-          "author": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "committer": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "id": "30faf2200ab8dae4b7201f02bf2067ba74dacd49",
-          "message": "WIP: Harden constant time functions against inlining and optimizations",
-          "timestamp": "2024-11-28T12:04:41Z",
-          "url": "https://github.com/pq-code-package/mlkem-native/pull/460/commits/30faf2200ab8dae4b7201f02bf2067ba74dacd49"
-        },
-        "date": 1732879865269,
-        "tool": "customSmallerIsBetter",
-        "benches": [
-          {
-            "name": "ML-KEM-512 keypair",
-            "value": 20330,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 encaps",
-            "value": 27273,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 decaps",
-            "value": 37770,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 keypair",
-            "value": 34823,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 encaps",
-            "value": 38394,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 decaps",
-            "value": 53510,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 keypair",
-            "value": 48072,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 encaps",
-            "value": 54309,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 decaps",
-            "value": 74997,
-            "unit": "cycles"
-          }
-        ]
       }
     ],
     "AMD EPYC 3rd gen (c6a)": [
@@ -94745,71 +94420,6 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 65601,
-            "unit": "cycles"
-          }
-        ]
-      },
-      {
-        "commit": {
-          "author": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "committer": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "id": "30faf2200ab8dae4b7201f02bf2067ba74dacd49",
-          "message": "WIP: Harden constant time functions against inlining and optimizations",
-          "timestamp": "2024-11-28T12:04:41Z",
-          "url": "https://github.com/pq-code-package/mlkem-native/pull/460/commits/30faf2200ab8dae4b7201f02bf2067ba74dacd49"
-        },
-        "date": 1732879865976,
-        "tool": "customSmallerIsBetter",
-        "benches": [
-          {
-            "name": "ML-KEM-512 keypair",
-            "value": 18143,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 encaps",
-            "value": 22939,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 decaps",
-            "value": 31460,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 keypair",
-            "value": 31077,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 encaps",
-            "value": 33981,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 decaps",
-            "value": 46348,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 keypair",
-            "value": 44651,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 encaps",
-            "value": 50140,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 decaps",
-            "value": 66934,
             "unit": "cycles"
           }
         ]
@@ -103905,71 +103515,6 @@ window.BENCHMARK_DATA = {
             "unit": "cycles"
           }
         ]
-      },
-      {
-        "commit": {
-          "author": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "committer": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "id": "30faf2200ab8dae4b7201f02bf2067ba74dacd49",
-          "message": "WIP: Harden constant time functions against inlining and optimizations",
-          "timestamp": "2024-11-28T12:04:41Z",
-          "url": "https://github.com/pq-code-package/mlkem-native/pull/460/commits/30faf2200ab8dae4b7201f02bf2067ba74dacd49"
-        },
-        "date": 1732879997920,
-        "tool": "customSmallerIsBetter",
-        "benches": [
-          {
-            "name": "ML-KEM-512 keypair",
-            "value": 15103,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 encaps",
-            "value": 19777,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 decaps",
-            "value": 27499,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 keypair",
-            "value": 25588,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 encaps",
-            "value": 28135,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 decaps",
-            "value": 39835,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 keypair",
-            "value": 35651,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 encaps",
-            "value": 40793,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 decaps",
-            "value": 56728,
-            "unit": "cycles"
-          }
-        ]
       }
     ],
     "Intel Xeon 3rd gen (c6i) (no-opt)": [
@@ -105341,71 +104886,6 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 204191,
-            "unit": "cycles"
-          }
-        ]
-      },
-      {
-        "commit": {
-          "author": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "committer": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "id": "30faf2200ab8dae4b7201f02bf2067ba74dacd49",
-          "message": "WIP: Harden constant time functions against inlining and optimizations",
-          "timestamp": "2024-11-28T12:04:41Z",
-          "url": "https://github.com/pq-code-package/mlkem-native/pull/460/commits/30faf2200ab8dae4b7201f02bf2067ba74dacd49"
-        },
-        "date": 1732880015084,
-        "tool": "customSmallerIsBetter",
-        "benches": [
-          {
-            "name": "ML-KEM-512 keypair",
-            "value": 57672,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 encaps",
-            "value": 73368,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 decaps",
-            "value": 99859,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 keypair",
-            "value": 93167,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 encaps",
-            "value": 113899,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 decaps",
-            "value": 148979,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 keypair",
-            "value": 136179,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 encaps",
-            "value": 162818,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 decaps",
-            "value": 207105,
             "unit": "cycles"
           }
         ]
@@ -107461,71 +106941,6 @@ window.BENCHMARK_DATA = {
             "unit": "cycles"
           }
         ]
-      },
-      {
-        "commit": {
-          "author": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "committer": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "id": "30faf2200ab8dae4b7201f02bf2067ba74dacd49",
-          "message": "WIP: Harden constant time functions against inlining and optimizations",
-          "timestamp": "2024-11-28T12:04:41Z",
-          "url": "https://github.com/pq-code-package/mlkem-native/pull/460/commits/30faf2200ab8dae4b7201f02bf2067ba74dacd49"
-        },
-        "date": 1732879956815,
-        "tool": "customSmallerIsBetter",
-        "benches": [
-          {
-            "name": "ML-KEM-512 keypair",
-            "value": 36837,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 encaps",
-            "value": 48415,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 decaps",
-            "value": 65239,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 keypair",
-            "value": 59791,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 encaps",
-            "value": 74819,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 decaps",
-            "value": 96265,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 keypair",
-            "value": 90403,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 encaps",
-            "value": 111569,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 decaps",
-            "value": 138611,
-            "unit": "cycles"
-          }
-        ]
       }
     ],
     "Graviton4 (no-opt)": [
@@ -109578,71 +108993,6 @@ window.BENCHMARK_DATA = {
             "unit": "cycles"
           }
         ]
-      },
-      {
-        "commit": {
-          "author": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "committer": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "id": "30faf2200ab8dae4b7201f02bf2067ba74dacd49",
-          "message": "WIP: Harden constant time functions against inlining and optimizations",
-          "timestamp": "2024-11-28T12:04:41Z",
-          "url": "https://github.com/pq-code-package/mlkem-native/pull/460/commits/30faf2200ab8dae4b7201f02bf2067ba74dacd49"
-        },
-        "date": 1732880095949,
-        "tool": "customSmallerIsBetter",
-        "benches": [
-          {
-            "name": "ML-KEM-512 keypair",
-            "value": 42865,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 encaps",
-            "value": 53608,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 decaps",
-            "value": 73563,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 keypair",
-            "value": 70329,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 encaps",
-            "value": 84799,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 decaps",
-            "value": 111894,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 keypair",
-            "value": 103613,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 encaps",
-            "value": 123292,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 decaps",
-            "value": 157826,
-            "unit": "cycles"
-          }
-        ]
       }
     ],
     "AMD EPYC 3rd gen (c6a) (no-opt)": [
@@ -110876,71 +110226,6 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 207300,
-            "unit": "cycles"
-          }
-        ]
-      },
-      {
-        "commit": {
-          "author": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "committer": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "id": "30faf2200ab8dae4b7201f02bf2067ba74dacd49",
-          "message": "WIP: Harden constant time functions against inlining and optimizations",
-          "timestamp": "2024-11-28T12:04:41Z",
-          "url": "https://github.com/pq-code-package/mlkem-native/pull/460/commits/30faf2200ab8dae4b7201f02bf2067ba74dacd49"
-        },
-        "date": 1732880007299,
-        "tool": "customSmallerIsBetter",
-        "benches": [
-          {
-            "name": "ML-KEM-512 keypair",
-            "value": 53294,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 encaps",
-            "value": 68880,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 decaps",
-            "value": 95601,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 keypair",
-            "value": 86407,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 encaps",
-            "value": 106275,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 decaps",
-            "value": 141289,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 keypair",
-            "value": 126921,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 encaps",
-            "value": 152216,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 decaps",
-            "value": 196548,
             "unit": "cycles"
           }
         ]
@@ -112928,71 +112213,6 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 172928,
-            "unit": "cycles"
-          }
-        ]
-      },
-      {
-        "commit": {
-          "author": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "committer": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "id": "30faf2200ab8dae4b7201f02bf2067ba74dacd49",
-          "message": "WIP: Harden constant time functions against inlining and optimizations",
-          "timestamp": "2024-11-28T12:04:41Z",
-          "url": "https://github.com/pq-code-package/mlkem-native/pull/460/commits/30faf2200ab8dae4b7201f02bf2067ba74dacd49"
-        },
-        "date": 1732880131760,
-        "tool": "customSmallerIsBetter",
-        "benches": [
-          {
-            "name": "ML-KEM-512 keypair",
-            "value": 46571,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 encaps",
-            "value": 60291,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 decaps",
-            "value": 82747,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 keypair",
-            "value": 76079,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 encaps",
-            "value": 93767,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 decaps",
-            "value": 124033,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 keypair",
-            "value": 111532,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 encaps",
-            "value": 133858,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 decaps",
-            "value": 172551,
             "unit": "cycles"
           }
         ]
@@ -115048,71 +114268,6 @@ window.BENCHMARK_DATA = {
             "unit": "cycles"
           }
         ]
-      },
-      {
-        "commit": {
-          "author": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "committer": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "id": "30faf2200ab8dae4b7201f02bf2067ba74dacd49",
-          "message": "WIP: Harden constant time functions against inlining and optimizations",
-          "timestamp": "2024-11-28T12:04:41Z",
-          "url": "https://github.com/pq-code-package/mlkem-native/pull/460/commits/30faf2200ab8dae4b7201f02bf2067ba74dacd49"
-        },
-        "date": 1732880139117,
-        "tool": "customSmallerIsBetter",
-        "benches": [
-          {
-            "name": "ML-KEM-512 keypair",
-            "value": 46031,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 encaps",
-            "value": 57438,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 decaps",
-            "value": 78748,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 keypair",
-            "value": 75902,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 encaps",
-            "value": 90988,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 decaps",
-            "value": 119686,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 keypair",
-            "value": 112467,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 encaps",
-            "value": 132357,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 decaps",
-            "value": 169643,
-            "unit": "cycles"
-          }
-        ]
       }
     ],
     "Graviton2 (no-opt)": [
@@ -117097,71 +116252,6 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 decaps",
             "value": 267791,
-            "unit": "cycles"
-          }
-        ]
-      },
-      {
-        "commit": {
-          "author": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "committer": {
-            "name": "pq-code-package",
-            "username": "pq-code-package"
-          },
-          "id": "30faf2200ab8dae4b7201f02bf2067ba74dacd49",
-          "message": "WIP: Harden constant time functions against inlining and optimizations",
-          "timestamp": "2024-11-28T12:04:41Z",
-          "url": "https://github.com/pq-code-package/mlkem-native/pull/460/commits/30faf2200ab8dae4b7201f02bf2067ba74dacd49"
-        },
-        "date": 1732880350435,
-        "tool": "customSmallerIsBetter",
-        "benches": [
-          {
-            "name": "ML-KEM-512 keypair",
-            "value": 72511,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 encaps",
-            "value": 90448,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-512 decaps",
-            "value": 123288,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 keypair",
-            "value": 119538,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 encaps",
-            "value": 142892,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-768 decaps",
-            "value": 187335,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 keypair",
-            "value": 178037,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 encaps",
-            "value": 207525,
-            "unit": "cycles"
-          },
-          {
-            "name": "ML-KEM-1024 decaps",
-            "value": 264040,
             "unit": "cycles"
           }
         ]
