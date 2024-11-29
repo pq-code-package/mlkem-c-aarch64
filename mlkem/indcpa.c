@@ -280,7 +280,11 @@ void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES], int transposed)
   ALIGN uint8_t seed1[MLKEM_SYMBYTES + 2];
   ALIGN uint8_t seed2[MLKEM_SYMBYTES + 2];
   ALIGN uint8_t seed3[MLKEM_SYMBYTES + 2];
-  uint8_t *seedxy[] = {seed0, seed1, seed2, seed3};
+  uint8_t *seedxy[4];
+  seedxy[0] = seed0;
+  seedxy[1] = seed1;
+  seedxy[2] = seed2;
+  seedxy[3] = seed3;
 
   for (j = 0; j < KECCAK_WAY; j++)
   {
