@@ -343,6 +343,7 @@ jobs:
       verbose: true
     secrets: inherit
   cbmc_k2:
+    name: CBMC (ML-KEM-512)
     needs: [quickcheck, quickcheck-windows]
     permissions:
       contents: 'read'
@@ -366,6 +367,7 @@ jobs:
       cbmc_mlkem_k: 2
     secrets: inherit
   cbmc_k3:
+    name: CBMC (ML-KEM-768)
     needs: [quickcheck, quickcheck-windows]
     permissions:
       contents: 'read'
@@ -389,6 +391,7 @@ jobs:
       cbmc_mlkem_k: 3
     secrets: inherit
   cbmc_k4:
+    name: CBMC (ML-KEM-1024)
     needs: [quickcheck, quickcheck-windows]
     permissions:
       contents: 'read'
