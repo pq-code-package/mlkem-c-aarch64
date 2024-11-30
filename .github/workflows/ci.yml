@@ -322,7 +322,7 @@ jobs:
             ec2_ami_id: ami-08ddb0acd99dc3d33 # aarch64, ubuntu-latest, 64g
             compile_mode: native
             opt: all
-    name: Functional tests  (${{ matrix.target.name }})
+    name: Platform tests  (${{ matrix.target.name }})
     permissions:
       contents: 'read'
       id-token: 'write'
