@@ -71,54 +71,84 @@ jobs:
         target:
          - runner: macos-latest
            name: 'MacOS'
+           arch: mac
+           mode: native
          - runner: pqcp-arm64
            name: 'ubuntu-latest (aarch64)'
+           arch: aarch64
+           mode: native
+         - runner: pqcp-arm64
+           name: 'ubuntu-latest (aarch64)'
+           arch: x86_64
+           mode: cross-x86_64
+         - runner: pqcp-arm64
+           name: 'ubuntu-latest (aarch64)'
+           arch: riscv64
+           mode: cross-riscv64
          - runner: pqcp-x64
            name: 'ubuntu-latest (x86_64)'
+           arch: x86_64
+           mode: native
+         - runner: pqcp-x64
+           name: 'ubuntu-latest (x86_64)'
+           arch: aarch64
+           mode: cross-aarch64
         exclude:
           - {external: true,
              target: {
                runner: pqcp-arm64,
                name: 'ubuntu-latest (aarch64)',
+               arch: aarch64,
+               mode: native
+             }}
+          - {external: true,
+             target: {
+               runner: pqcp-arm64,
+               name: 'ubuntu-latest (aarch64)',
+               arch: x86_64,
+               mode: cross-x86_64
+             }}
+          - {external: true,
+             target: {
+               runner: pqcp-arm64,
+               name: 'ubuntu-latest (aarch64)',
+               arch: riscv64,
+               mode: cross-riscv64
              }}
           - {external: true,
              target: {
                runner: pqcp-x64,
                name: 'ubuntu-latest (x86_64)',
+               arch: x86_64,
+               mode: native
              }}
-    name: Functional tests (${{ matrix.target.name }})
+          - {external: true,
+             target: {
+               runner: pqcp-x64,
+               name: 'ubuntu-latest (x86_64)',
+               arch: aarch64,
+               mode: cross-aarch64
+             }}
+    name: Functional tests (${{ matrix.target.arch }}${{ matrix.target.mode != 'native' && ', cross' || ''}})
     runs-on: ${{ matrix.target.runner }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - name: native build
+      - name: build + test
         uses: ./.github/actions/multi-functest
         with:
+          nix-shell: ${{ matrix.target.mode == 'native' && 'ci' || 'ci-cross' }}
+          nix-cache: ${{ matrix.target.mode == 'native' && 'false' || 'true' }}
           gh_token: ${{ secrets.GITHUB_TOKEN }}
-          compile_mode: native
-      - name: native tests (+debug+memsan+ubsan)
+          compile_mode: ${{ matrix.target.mode }}
+          # There is no native code on R-V yet, so no point running opt tests
+          opt: ${{ matrix.target.arch != 'riscv64' && 'all' || 'no_opt' }}
+      - name: build + test (+debug+memsan+ubsan)
         uses: ./.github/actions/multi-functest
+        if: ${{ matrix.target.mode == 'native' }}
         with:
           gh_token: ${{ secrets.GITHUB_TOKEN }}
           compile_mode: native
           cflags: "-DMLKEM_DEBUG -fsanitize=address -fsanitize=undefined -fno-sanitize-recover=all"
-      - name: cross x86_64 tests (opt only)
-        uses: ./.github/actions/multi-functest
-        if: ${{ matrix.target.runner == 'pqcp-arm64' && (success() || failure()) }}
-        with:
-          nix-shell: ci-cross
-          nix-cache: true
-          gh_token: ${{ secrets.GITHUB_TOKEN }}
-          compile_mode: cross-x86_64
-          opt: opt
-      - name: cross riscv64 tests (opt only)
-        uses: ./.github/actions/multi-functest
-        if: ${{ matrix.target.runner == 'pqcp-arm64' && (success() || failure()) }}
-        with:
-          nix-shell: ci-cross
-          nix-cache: true
-          gh_token: ${{ secrets.GITHUB_TOKEN }}
-          compile_mode: cross-riscv64
-          opt: opt
   compiler_tests:
     name: Compiler tests (${{ matrix.target.name }})
     strategy:
