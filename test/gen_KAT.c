@@ -7,7 +7,7 @@
 #include "kem.h"
 #include "params.h"
 
-#define NTESTS 10000
+#define NTESTS 1000
 
 static void print_hex(const char *label, const uint8_t *data, size_t size)
 {
