@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1732987285027,
+  "lastUpdate": 1732987331927,
   "repoUrl": "https://github.com/pq-code-package/mlkem-native",
   "entries": {
     "Arm Cortex-A72 (Raspberry Pi 4) benchmarks": [
@@ -110641,6 +110641,75 @@ window.BENCHMARK_DATA = {
           {
             "name": "ML-KEM-1024 encaps",
             "value": 124744,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 decaps",
+            "value": 154290,
+            "unit": "cycles"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "beckphan@amazon.co.uk",
+            "name": "Hanno Becker",
+            "username": "hanno-becker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c9abbca02fd544e162dc09c294a5f00299b1bf61",
+          "message": "Merge pull request #461 from pq-code-package/avx2_twiddles\n\nAutogenerate twiddles used for AVX2 NTTs",
+          "timestamp": "2024-11-30T17:14:19Z",
+          "tree_id": "1449b9f6ec3028b212a316c5759e259176f2bfaa",
+          "url": "https://github.com/pq-code-package/mlkem-native/commit/c9abbca02fd544e162dc09c294a5f00299b1bf61"
+        },
+        "date": 1732987331268,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "ML-KEM-512 keypair",
+            "value": 42774,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 encaps",
+            "value": 54631,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-512 decaps",
+            "value": 72336,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 keypair",
+            "value": 70202,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 encaps",
+            "value": 85942,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-768 decaps",
+            "value": 109394,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 keypair",
+            "value": 103737,
+            "unit": "cycles"
+          },
+          {
+            "name": "ML-KEM-1024 encaps",
+            "value": 124749,
             "unit": "cycles"
           },
           {
