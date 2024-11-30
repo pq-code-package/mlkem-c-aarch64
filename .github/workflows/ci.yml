@@ -62,7 +62,7 @@ jobs:
           cl
           nmake /f ./Makefile.Microsoft_nmake quickcheck
   build_kat:
-    needs: quickcheck
+    needs: [quickcheck, quickcheck-windows]
     strategy:
       fail-fast: false
       matrix:
@@ -151,6 +151,7 @@ jobs:
           cflags: "-DMLKEM_DEBUG -fsanitize=address -fsanitize=undefined -fno-sanitize-recover=all"
   compiler_tests:
     name: Compiler tests (${{ matrix.target.name }})
+    needs: [quickcheck, quickcheck-windows]
     strategy:
       fail-fast: false
       matrix:
@@ -236,7 +237,7 @@ jobs:
   # The purpose of this job is to test non-default yet valid configurations
   config_variations:
     name: Non-standard configurations
-    needs: quickcheck
+    needs: [quickcheck, quickcheck-windows]
     strategy:
       fail-fast: false
       matrix:
@@ -292,7 +293,7 @@ jobs:
           kat: false
           acvp: false
   ec2_functests:
-    needs: quickcheck
+    needs: [quickcheck, quickcheck-windows]
     strategy:
       fail-fast: false
       matrix:
@@ -342,7 +343,7 @@ jobs:
       verbose: true
     secrets: inherit
   cbmc_k2:
-    needs: quickcheck
+    needs: [quickcheck, quickcheck-windows]
     permissions:
       contents: 'read'
       id-token: 'write'
@@ -365,7 +366,7 @@ jobs:
       cbmc_mlkem_k: 2
     secrets: inherit
   cbmc_k3:
-    needs: quickcheck
+    needs: [quickcheck, quickcheck-windows]
     permissions:
       contents: 'read'
       id-token: 'write'
@@ -388,7 +389,7 @@ jobs:
       cbmc_mlkem_k: 3
     secrets: inherit
   cbmc_k4:
-    needs: quickcheck
+    needs: [quickcheck, quickcheck-windows]
     permissions:
       contents: 'read'
       id-token: 'write'
