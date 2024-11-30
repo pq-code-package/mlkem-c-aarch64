@@ -254,6 +254,72 @@ def gen_aarch64_fwd_ntt_zeta_file(dry_run=False):
         yield ""
     update_file("mlkem/native/aarch64/aarch64_zetas.c", '\n'.join(gen()), dry_run=dry_run)
 
+def signed_reduce_u16(x):
+    x = x % 2**16
+    if x >= 2**15:
+        x -= 2**16
+    return x
+
+def prepare_root_for_montmul(root):
+    """Takes a constant that the code needs to Montgomery-multiply with,
+    and returns the pair of (a) the signed canonical representative of its
+    Montgomery form, (b) the twisted constant used in the low-mul part of
+    the Montgomery multiplication."""
+
+    # Convert to Montgomery form and pick canonical signed representative
+    root = signed_reduce(root * montgomery_factor)
+    root_twisted = signed_reduce_u16(root * pow(modulus, -1, 2**16))
+    return root, root_twisted
+
+def gen_avx2_root_of_unity_for_block(layer, block, inv=False):
+    # We are computing a negacyclic NTT; the twiddles needed here is
+    # the second half of the twiddles for a cyclic NTT of twice the size.
+    log = bitreverse(pow(2,layer) + block, 7)
+    if inv is True:
+        log = -log
+    root, root_twisted = prepare_root_for_montmul(pow(root_of_unity, log, modulus))
+    return root, root_twisted
+
+def gen_avx2_fwd_ntt_zetas():
+
+    def gen_twiddles(layer, block, repeat):
+        """Generates twisted twiddle, then twiddle, for given layer and block.
+        Repeat both the given number of times."""
+        root, root_twisted = gen_avx2_root_of_unity_for_block(layer, block)
+        return [root]*repeat, [root_twisted]*repeat
+
+    def gen_twiddles_many(layer, block_base, block_offsets, repeat):
+        """Generates twisted twiddles, then twiddles, of each (layer, block_base + i)
+        pair for i in block_offsets. Each twiddle is repeated `repeat` times."""
+        root_pairs = list(map(lambda x: gen_twiddles(layer, block_base + x, repeat), block_offsets))
+        yield from (r for l in root_pairs for r in l[1])
+        yield from (r for l in root_pairs for r in l[0])
+
+    # Layers 0 twiddle
+    yield from gen_twiddles_many(0, 0, range(1), 4)
+    # Padding so that the subsequent twiddles are 16-byte aligned
+    yield from [0]*8
+
+    # Layer 1-6 twiddles, separated by whether they belong to the upper or lower half
+    for i in range(2):
+        yield from gen_twiddles_many(1, i*(2**0), range(1), 16)
+        yield from gen_twiddles_many(2, i*(2**1), range(2), 8)
+        yield from gen_twiddles_many(3, i*(2**2), range(4), 4)
+        yield from gen_twiddles_many(4, i*(2**3), range(8), 2)
+        yield from gen_twiddles_many(5, i*(2**4), range(16), 1)
+        yield from gen_twiddles_many(6, i*(2**5), range(0,32,2), 1)
+        yield from gen_twiddles_many(6, i*(2**5), range(1,32,2), 1)
+
+def gen_avx2_fwd_ntt_zeta_file(dry_run=False):
+    def gen():
+        yield from gen_header()
+        yield "// Table of zeta values used in the AVX2 NTTs"
+        yield "// See autogenerate_files.py for details."
+        yield ""
+        yield from map(lambda t: str(t) + ",", gen_avx2_fwd_ntt_zetas())
+        yield ""
+    update_file("mlkem/native/x86_64/x86_64_zetas.i", '\n'.join(gen()), dry_run=dry_run)
+
 def _main():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -262,6 +328,7 @@ def _main():
     args = parser.parse_args()
     gen_c_zeta_file(args.dry_run)
     gen_aarch64_fwd_ntt_zeta_file(args.dry_run)
+    gen_avx2_fwd_ntt_zeta_file(args.dry_run)
 
 if __name__ == "__main__":
     _main()
