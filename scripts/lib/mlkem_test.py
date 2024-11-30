@@ -48,6 +48,8 @@ class Options(object):
         self.opt = "ALL"
         self.compile = True
         self.run = True
+        self.exec_wrapper = ""
+        self.run_as_root = ""
 
 
 class Base:
@@ -136,19 +138,7 @@ class Base:
             log.error(f"{bin} does not exists")
             sys.exit(1)
 
-        cmd = [f"{bin}"]
-        if self.cross_prefix and platform.system() != "Darwin":
-            log.info(f"Emulating {bin} with QEMU")
-            if "x86_64" in self.cross_prefix:
-                cmd = ["qemu-x86_64"] + cmd
-            elif "aarch64" in self.cross_prefix:
-                cmd = ["qemu-aarch64"] + cmd
-            else:
-                log.info(
-                    f"Emulation for {self.cross_prefix} on {platform.system()} not supported",
-                )
-
-        cmd = cmd_prefix + cmd + extra_args
+        cmd = cmd_prefix + [f"{bin}"] + extra_args
 
         log.debug(" ".join(cmd))
 
@@ -206,7 +196,7 @@ class Test_Implementations:
         scheme: SCHEME,
         actual_proc: Callable[[bytes], str] = None,
         expect_proc: Callable[[SCHEME, str], tuple[bool, str]] = None,
-        prefix: [str] = [],
+        cmd_prefix: [str] = [],
         extra_args: [str] = [],
     ) -> TypedDict:
         k = "opt" if opt else "no_opt"
@@ -214,7 +204,7 @@ class Test_Implementations:
         results = {}
         results[k] = {}
         results[k][scheme] = self.ts[k].run_scheme(
-            scheme, actual_proc, expect_proc, prefix, extra_args
+            scheme, actual_proc, expect_proc, cmd_prefix, extra_args
         )
 
         return results
@@ -288,6 +278,35 @@ class Tests:
         self.compile_mode = copts.compile_mode()
         self.compile = opts.compile
         self.run = opts.run
+        self.cmd_prefix = []
+
+        if self.run:
+            if opts.run_as_root:
+                logging.info(
+                    f"Running {bin} as root -- you may need to enter your root password.",
+                )
+                self.cmd_prefix.append("sudo")
+
+            if opts.exec_wrapper:
+                logging.info(f"Running with customized wrapper {opts.exec_wrapper}")
+                self.cmd_prefix = self.cmd_prefix + opts.exec_wrapper.split(" ")
+            elif opts.cross_prefix and platform.system() != "Darwin":
+                logging.info(f"Emulating with QEMU")
+                if "x86_64" in opts.cross_prefix:
+                    self.cmd_prefix.append("qemu-x86_64")
+                elif "aarch64" in opts.cross_prefix:
+                    self.cmd_prefix.append("qemu-aarch64")
+                elif "riscv64" in opts.cross_prefix:
+                    self.cmd_prefix.append("qemu-riscv64")
+                else:
+                    logging.info(
+                        f"Emulation for {opts.cross_prefix} on {platform.system()} not supported",
+                    )
+            elif opts.cross_prefix:
+                logging.error(
+                    f"Emulation for {opts.cross_prefix} on {platform.system()} not supported",
+                )
+                sys.exit(1)
 
     def _run_func(self, opt: bool):
         """Underlying function for functional test"""
@@ -312,6 +331,7 @@ class Tests:
             opt,
             actual_proc=lambda result: str(result, encoding="utf-8"),
             expect_proc=expect,
+            cmd_prefix=self.cmd_prefix,
         )
 
     def func(self):
@@ -347,6 +367,7 @@ class Tests:
             opt,
             actual_proc=sha256sum,
             expect_proc=expect_proc,
+            cmd_prefix=self.cmd_prefix,
         )
 
     def nistkat(self):
@@ -381,6 +402,7 @@ class Tests:
             opt,
             actual_proc=sha256sum,
             expect_proc=expect_proc,
+            cmd_prefix=self.cmd_prefix,
         )
 
     def kat(self):
@@ -475,6 +497,7 @@ class Tests:
                     extra_args=extra_args,
                     actual_proc=actual_proc,
                     expect_proc=partial(_expect_proc, tc),
+                    cmd_prefix=self.cmd_prefix,
                 )
                 for k, r in rs.items():
                     results[k][scheme] = results[k][scheme] or r[scheme]
@@ -514,6 +537,7 @@ class Tests:
                     extra_args=extra_args,
                     actual_proc=actual_proc,
                     expect_proc=partial(_expect_proc, tc),
+                    cmd_prefix=self.cmd_prefix,
                 )
                 for k, r in rs.items():
                     results[k][scheme] = results[k][scheme] or r[scheme]
@@ -555,28 +579,16 @@ class Tests:
             exit(1)
 
     def _run_bench(
-        self, t: Test_Implementations, opt: bool, run_as_root: bool, exec_wrapper: str
+        self,
+        t: Test_Implementations,
+        opt: bool,
     ) -> TypedDict:
-        cmd_prefix = []
-        if run_as_root:
-            logging.info(
-                f"Running {bin} as root -- you may need to enter your root password.",
-            )
-            cmd_prefix.append("sudo")
-
-        if exec_wrapper:
-            logging.info(f"Running with customized wrapper.")
-            exec_wrapper = exec_wrapper.split(" ")
-            cmd_prefix = cmd_prefix + exec_wrapper
-
-        return t.run_schemes(opt, cmd_prefix=cmd_prefix)
+        return t.run_schemes(opt, cmd_prefix=self.cmd_prefix)
 
     def bench(
         self,
         cycles: str,
         output,
-        run_as_root: bool,
-        exec_wrapper: str,
         mac_taskpolicy,
         components,
     ):
@@ -600,11 +612,11 @@ class Tests:
             if self.compile:
                 t.compile(False, extra_make_args=[f"CYCLES={cycles}"])
             if self.run:
-                self._run_bench(t, False, run_as_root, exec_wrapper)
+                self._run_bench(t, False)
             if self.compile:
                 t.compile(True, extra_make_args=[f"CYCLES={cycles}"])
             if self.run:
-                resultss = self._run_bench(t, True, run_as_root, exec_wrapper)
+                resultss = self._run_bench(t, True)
         else:
             if self.compile:
                 t.compile(
@@ -615,8 +627,6 @@ class Tests:
                 resultss = self._run_bench(
                     t,
                     True if self.opt.lower() == "opt" else False,
-                    run_as_root,
-                    exec_wrapper,
                 )
 
         if resultss is None:

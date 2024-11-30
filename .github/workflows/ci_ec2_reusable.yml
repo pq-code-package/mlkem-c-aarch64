@@ -66,7 +66,7 @@ env:
   AMI_UBUNTU_LATEST_AARCH64: ami-096ea6a12ea24a797
 jobs:
   start-ec2-runner:
-    name: Start ${{ inputs.name }} (${{ inputs.ec2_instance_type }})
+    name: Start instance (${{ inputs.ec2_instance_type }})
     permissions:
       contents: 'read'
       id-token: 'write'
@@ -113,6 +113,7 @@ jobs:
           subnet-id: subnet-07b2729e5e065962f
           security-group-id: sg-0ab2e297196c8c381
   tests:
+    name: Run test
     needs: start-ec2-runner
     runs-on: ${{ needs.start-ec2-runner.outputs.label }}
     steps:
@@ -152,7 +153,7 @@ jobs:
           mlkem_k: ${{ inputs.cbmc_mlkem_k }}
           gh_token: ${{ secrets.AWS_GITHUB_TOKEN }}
   stop-ec2-runner:
-    name: Stop ${{ inputs.name }} (${{ inputs.ec2_instance_type }})
+    name: Stop instance (${{ inputs.ec2_instance_type }})
     permissions:
       contents: 'read'
       id-token: 'write'

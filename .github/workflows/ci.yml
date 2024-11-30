@@ -62,7 +62,7 @@ jobs:
           cl
           nmake /f ./Makefile.Microsoft_nmake quickcheck
   build_kat:
-    needs: quickcheck
+    needs: [quickcheck, quickcheck-windows]
     strategy:
       fail-fast: false
       matrix:
@@ -71,47 +71,87 @@ jobs:
         target:
          - runner: macos-latest
            name: 'MacOS'
+           arch: mac
+           mode: native
          - runner: pqcp-arm64
            name: 'ubuntu-latest (aarch64)'
+           arch: aarch64
+           mode: native
+         - runner: pqcp-arm64
+           name: 'ubuntu-latest (aarch64)'
+           arch: x86_64
+           mode: cross-x86_64
+         - runner: pqcp-arm64
+           name: 'ubuntu-latest (aarch64)'
+           arch: riscv64
+           mode: cross-riscv64
          - runner: pqcp-x64
            name: 'ubuntu-latest (x86_64)'
+           arch: x86_64
+           mode: native
+         - runner: pqcp-x64
+           name: 'ubuntu-latest (x86_64)'
+           arch: aarch64
+           mode: cross-aarch64
         exclude:
           - {external: true,
              target: {
                runner: pqcp-arm64,
                name: 'ubuntu-latest (aarch64)',
+               arch: aarch64,
+               mode: native
+             }}
+          - {external: true,
+             target: {
+               runner: pqcp-arm64,
+               name: 'ubuntu-latest (aarch64)',
+               arch: x86_64,
+               mode: cross-x86_64
+             }}
+          - {external: true,
+             target: {
+               runner: pqcp-arm64,
+               name: 'ubuntu-latest (aarch64)',
+               arch: riscv64,
+               mode: cross-riscv64
              }}
           - {external: true,
              target: {
                runner: pqcp-x64,
                name: 'ubuntu-latest (x86_64)',
+               arch: x86_64,
+               mode: native
              }}
-    name: Functional tests (${{ matrix.target.name }})
+          - {external: true,
+             target: {
+               runner: pqcp-x64,
+               name: 'ubuntu-latest (x86_64)',
+               arch: aarch64,
+               mode: cross-aarch64
+             }}
+    name: Functional tests (${{ matrix.target.arch }}${{ matrix.target.mode != 'native' && ', cross' || ''}})
     runs-on: ${{ matrix.target.runner }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - name: native build
+      - name: build + test
         uses: ./.github/actions/multi-functest
         with:
+          nix-shell: ${{ matrix.target.mode == 'native' && 'ci' || 'ci-cross' }}
+          nix-cache: ${{ matrix.target.mode == 'native' && 'false' || 'true' }}
           gh_token: ${{ secrets.GITHUB_TOKEN }}
-          compile_mode: native
-      - name: native tests (+debug+memsan+ubsan)
+          compile_mode: ${{ matrix.target.mode }}
+          # There is no native code on R-V yet, so no point running opt tests
+          opt: ${{ matrix.target.arch != 'riscv64' && 'all' || 'no_opt' }}
+      - name: build + test (+debug+memsan+ubsan)
         uses: ./.github/actions/multi-functest
+        if: ${{ matrix.target.mode == 'native' }}
         with:
           gh_token: ${{ secrets.GITHUB_TOKEN }}
           compile_mode: native
           cflags: "-DMLKEM_DEBUG -fsanitize=address -fsanitize=undefined -fno-sanitize-recover=all"
-      - name: cross tests (opt only)
-        uses: ./.github/actions/multi-functest
-        if: ${{ matrix.target.runner != 'macos-latest' && (success() || failure()) }}
-        with:
-          nix-shell: ci-cross
-          nix-cache: true
-          gh_token: ${{ secrets.GITHUB_TOKEN }}
-          compile_mode: cross
-          opt: opt
   compiler_tests:
     name: Compiler tests (${{ matrix.target.name }})
+    needs: [quickcheck, quickcheck-windows]
     strategy:
       fail-fast: false
       matrix:
@@ -197,7 +237,7 @@ jobs:
   # The purpose of this job is to test non-default yet valid configurations
   config_variations:
     name: Non-standard configurations
-    needs: quickcheck
+    needs: [quickcheck, quickcheck-windows]
     strategy:
       fail-fast: false
       matrix:
@@ -253,7 +293,7 @@ jobs:
           kat: false
           acvp: false
   ec2_functests:
-    needs: quickcheck
+    needs: [quickcheck, quickcheck-windows]
     strategy:
       fail-fast: false
       matrix:
@@ -282,7 +322,7 @@ jobs:
             ec2_ami_id: ami-08ddb0acd99dc3d33 # aarch64, ubuntu-latest, 64g
             compile_mode: native
             opt: all
-    name: Functional tests  (${{ matrix.target.name }})
+    name: Platform tests  (${{ matrix.target.name }})
     permissions:
       contents: 'read'
       id-token: 'write'
@@ -303,7 +343,8 @@ jobs:
       verbose: true
     secrets: inherit
   cbmc_k2:
-    needs: quickcheck
+    name: CBMC (ML-KEM-512)
+    needs: [quickcheck, quickcheck-windows]
     permissions:
       contents: 'read'
       id-token: 'write'
@@ -326,7 +367,8 @@ jobs:
       cbmc_mlkem_k: 2
     secrets: inherit
   cbmc_k3:
-    needs: quickcheck
+    name: CBMC (ML-KEM-768)
+    needs: [quickcheck, quickcheck-windows]
     permissions:
       contents: 'read'
       id-token: 'write'
@@ -349,7 +391,8 @@ jobs:
       cbmc_mlkem_k: 3
     secrets: inherit
   cbmc_k4:
-    needs: quickcheck
+    name: CBMC (ML-KEM-1024)
+    needs: [quickcheck, quickcheck-windows]
     permissions:
       contents: 'read'
       id-token: 'write'

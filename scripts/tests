@@ -104,6 +104,26 @@ _shared_options = [
         help="Determine to run the compiled binary or not",
         callback=__callback("run"),
     ),
+    click.option(
+        "-w",
+        "--exec-wrapper",
+        expose_value=False,
+        show_default=True,
+        default="",
+        help="Run the benchmark binary with the user-customized wrapper.",
+        callback=__callback("exec_wrapper"),
+    ),
+    click.option(
+        "-r",
+        "--run-as-root",
+        expose_value=False,
+        is_flag=True,
+        show_default=True,
+        default=False,
+        type=bool,
+        help="Benchmarking binary is run with sudo.",
+        callback=__callback("run_as_root"),
+    ),
 ]
 
 _bench_options = [
@@ -121,20 +141,6 @@ _bench_options = [
         "--output",
         nargs=1,
         help="Path to output file in json format",
-    ),
-    click.option(
-        "-r",
-        "--run-as-root",
-        is_flag=True,
-        show_default=True,
-        default=False,
-        type=bool,
-        help="Benchmarking binary is run with sudo.",
-    ),
-    click.option(
-        "-w",
-        "--exec-wrapper",
-        help="Run the benchmark binary with the user-customized wrapper.",
     ),
     click.option(
         "-t",
@@ -226,16 +232,12 @@ def bench(
     opts: Options,
     cycles: str,
     output,
-    run_as_root: bool,
-    exec_wrapper: str,
     mac_taskpolicy,
     components,
 ):
     Tests(opts).bench(
         cycles,
         output,
-        run_as_root,
-        exec_wrapper,
         mac_taskpolicy,
         components,
     )

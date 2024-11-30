@@ -23,7 +23,7 @@ inputs:
     description: CFLAGS to pass to compilation
     default: ""
   compile_mode:
-    description: all | native | cross
+    description: all | native | cross-x86_64 | cross-aarch64 | cross-riscv64
     default: "native"
   opt:
     description: all | opt | no_opt
@@ -53,14 +53,13 @@ runs:
           gh_token: ${{ inputs.gh_token }}
           custom_shell: ${{ inputs.custom_shell }}
           cflags: ${{ inputs.cflags }}
-          mode: native
           opt: ${{ inputs.opt }}
           func: ${{ inputs.func }}
           kat: ${{ inputs.kat }}
           nistkat: ${{ inputs.nistkat }}
           acvp: ${{ inputs.acvp }}
-      - name: Cross Tests
-        if: ${{ (inputs.compile_mode == 'all' || inputs.compile_mode == 'cross') && (success() || failure()) }}
+      - name: Cross x86_64 Tests
+        if: ${{ (inputs.compile_mode == 'all' || inputs.compile_mode == 'cross-x86_64') && (success() || failure()) }}
         uses: ./.github/actions/functest
         with:
           nix-shell: ${{ inputs.nix-shell }}
@@ -69,7 +68,39 @@ runs:
           gh_token: ${{ inputs.gh_token }}
           custom_shell: ${{ inputs.custom_shell }}
           cflags: ${{ inputs.cflags }}
-          mode: cross
+          cross_prefix: x86_64-unknown-linux-gnu-
+          opt: ${{ inputs.opt }}
+          func: ${{ inputs.func }}
+          kat: ${{ inputs.kat }}
+          nistkat: ${{ inputs.nistkat }}
+          acvp: ${{ inputs.acvp }}
+      - name: Cross aarch64 Tests
+        if: ${{ (inputs.compile_mode == 'all' || inputs.compile_mode == 'cross-aarch64') && (success() || failure()) }}
+        uses: ./.github/actions/functest
+        with:
+          nix-shell: ${{ inputs.nix-shell }}
+          nix-cache: ${{ inputs.nix-cache }}
+          nix-verbose: ${{ inputs.nix-verbose }}
+          gh_token: ${{ inputs.gh_token }}
+          custom_shell: ${{ inputs.custom_shell }}
+          cflags: ${{ inputs.cflags }}
+          cross_prefix: aarch64-unknown-linux-gnu-
+          opt: ${{ inputs.opt }}
+          func: ${{ inputs.func }}
+          kat: ${{ inputs.kat }}
+          nistkat: ${{ inputs.nistkat }}
+          acvp: ${{ inputs.acvp }}
+      - name: Cross riscv64 Tests
+        if: ${{ (inputs.compile_mode == 'all' || inputs.compile_mode == 'cross-riscv64') && (success() || failure()) }}
+        uses: ./.github/actions/functest
+        with:
+          nix-shell: ${{ inputs.nix-shell }}
+          nix-cache: ${{ inputs.nix-cache }}
+          nix-verbose: ${{ inputs.nix-verbose }}
+          gh_token: ${{ inputs.gh_token }}
+          custom_shell: ${{ inputs.custom_shell }}
+          cflags: ${{ inputs.cflags }}
+          cross_prefix: riscv64-unknown-linux-gnu-
           opt: ${{ inputs.opt }}
           func: ${{ inputs.func }}
           kat: ${{ inputs.kat }}
