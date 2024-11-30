@@ -45,13 +45,14 @@ __contract__(
  *                  Can be any int16_t.
  *              - int16_t b: second factor.
  *                  Must be signed canonical (abs value <(q+1)/2)
+ *              - uint16_t b_twisted: Montgomery twist of second factor
  *
  * Returns 16-bit integer congruent to a*b*R^{-1} mod q, and
  * smaller than q in absolute value.
  *
  **************************************************/
 #define fqmul MLKEM_NAMESPACE(fqmul)
-int16_t fqmul(int16_t a, int16_t b)
+int16_t fqmul(int16_t a, int16_t b, uint16_t b_twisted)
 __contract__(
   requires(b > -HALF_Q)
   requires(b < HALF_Q)

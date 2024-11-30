@@ -42,8 +42,8 @@
 //             5 -- 7
 //
 STATIC_TESTABLE
-void ntt_butterfly_block(int16_t r[MLKEM_N], int16_t zeta, int start, int len,
-                         int bound)
+void ntt_butterfly_block(int16_t r[MLKEM_N], int16_t zeta, int16_t zeta_twisted,
+                         int start, int len, int bound)
 __contract__(
   requires(0 <= start && start < MLKEM_N)
   requires(1 <= len && len <= MLKEM_N / 2 && start + 2 * len <= MLKEM_N)
@@ -69,7 +69,7 @@ __contract__(
     invariant(array_abs_bound(r, j + len,     MLKEM_N - 1,     bound)))
   {
     int16_t t;
-    t = fqmul(r[j + len], zeta);
+    t = fqmul(r[j + len], zeta, zeta_twisted);
     r[j + len] = r[j] - t;
     r[j] = r[j] + t;
   }
@@ -107,8 +107,9 @@ __contract__(
     invariant(array_abs_bound(r, 0, start - 1, (layer * MLKEM_Q - 1) + MLKEM_Q))
     invariant(array_abs_bound(r, start, MLKEM_N - 1, layer * MLKEM_Q - 1)))
   {
-    int16_t zeta = zetas[k++];
-    ntt_butterfly_block(r, zeta, start, len, layer * MLKEM_Q - 1);
+    int16_t zeta = zetas[k];
+    uint16_t zeta_twisted = zetas_twisted[k++];
+    ntt_butterfly_block(r, zeta, zeta_twisted, start, len, layer * MLKEM_Q - 1);
   }
 }
 
@@ -178,7 +179,8 @@ __contract__(
     // Normalised form of k == MLKEM_N / len - 1 - start / (2 * len)
     invariant(2 * len * k + start == 2 * MLKEM_N - 2 * len))
   {
-    int16_t zeta = zetas[k--];
+    int16_t zeta = zetas[k];
+    uint16_t zeta_twisted = zetas_twisted[k--];
     for (int j = start; j < start + len; j++)
     __loop__(
       invariant(start <= j && j <= start + len)
@@ -188,14 +190,18 @@ __contract__(
       int16_t t = r[j];
       r[j] = barrett_reduce(t + r[j + len]);
       r[j + len] = r[j + len] - t;
-      r[j + len] = fqmul(r[j + len], zeta);
+      r[j + len] = fqmul(r[j + len], zeta, zeta_twisted);
     }
   }
 }
 
+// QINV == -3327 converted to uint16_t == -3327 + 65536 == 62209
+static const uint32_t QINV = 62209;  // q^-1 mod 2^16
+
 void poly_invntt_tomont(poly *p)
 {
   const int16_t f = 1441;  // mont^2/128
+  const uint16_t f_twisted = (f * QINV) & UINT16_MAX;
   int16_t *r = p->coeffs;
 
   // Scale input polynomial to account for Montgomery factor
@@ -207,7 +213,7 @@ void poly_invntt_tomont(poly *p)
     invariant(0 <= j && j <= MLKEM_N)
     invariant(array_abs_bound(r, 0, j - 1, MLKEM_Q)))
   {
-    r[j] = fqmul(r[j], f);
+    r[j] = fqmul(r[j], f, f_twisted);
   }
 
   // Run the invNTT layers

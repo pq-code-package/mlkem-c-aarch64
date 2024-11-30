@@ -437,16 +437,20 @@ void poly_basemul_montgomery_cached(poly *r, const poly *a, const poly *b,
 }
 
 #if !defined(MLKEM_USE_NATIVE_POLY_TOMONT)
+// QINV == -3327 converted to uint16_t == -3327 + 65536 == 62209
+static const uint32_t QINV = 62209;  // q^-1 mod 2^16
+
 void poly_tomont(poly *r)
 {
   int i;
   const int16_t f = (1ULL << 32) % MLKEM_Q;  // 1353
+  const uint16_t f_twisted = (f * QINV) & UINT16_MAX;
   for (i = 0; i < MLKEM_N; i++)
   __loop__(
     invariant(i >= 0 && i <= MLKEM_N)
     invariant(array_abs_bound(r->coeffs ,0, (i - 1), (MLKEM_Q - 1))))
   {
-    r->coeffs[i] = fqmul(r->coeffs[i], f);
+    r->coeffs[i] = fqmul(r->coeffs[i], f, f_twisted);
   }
 
   POLY_BOUND(r, MLKEM_Q);
@@ -517,8 +521,10 @@ void poly_mulcache_compute(poly_mulcache *x, const poly *a)
   for (i = 0; i < MLKEM_N / 4; i++)
   __loop__(invariant(i >= 0 && i <= MLKEM_N / 4))
   {
-    x->coeffs[2 * i + 0] = fqmul(a->coeffs[4 * i + 1], zetas[64 + i]);
-    x->coeffs[2 * i + 1] = fqmul(a->coeffs[4 * i + 3], -zetas[64 + i]);
+    x->coeffs[2 * i + 0] =
+        fqmul(a->coeffs[4 * i + 1], zetas[64 + i], zetas_twisted[64 + i]);
+    x->coeffs[2 * i + 1] =
+        fqmul(a->coeffs[4 * i + 3], -zetas[64 + i], -zetas_twisted[64 + i]);
   }
   POLY_BOUND(x, MLKEM_Q);
 }

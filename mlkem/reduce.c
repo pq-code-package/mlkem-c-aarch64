@@ -34,33 +34,10 @@ static inline int16_t cast_uint16_to_int16(uint16_t x)
 #pragma CPROVER check pop
 #endif
 
-/*************************************************
- * Name:        montgomery_reduce_generic
- *
- * Description: Generic Montgomery reduction; given a 32-bit integer a, computes
- *              16-bit integer congruent to a * R^-1 mod q, where R=2^16
- *
- * Arguments:   - int32_t a: input integer to be reduced
- *
- * Returns:     integer congruent to a * R^-1 modulo q
- *
- *              Bounds: For any C such that |a| < q * C, the return value
- *              has absolute value < q (C/2^16 + 1/2).
- *
- *              Notable special cases:
- *              - The Montgomery multiplication of a value of absolute value
- *                < q * C with a signed-canonical value ( < q/2 ) has
- *                absolute value q * (0.0254 * C + 1/2).
- *              - The Montgomery multiplication of a value of absolute value
- *                < q * C with a value t of |t| < q has absolute value
- *                < q * (0.0508 * C + 1/2).
- *              - The Montgomery multiplication of a value of absolute value
- *                < C with a value of abs < q has absolute value
- *                < q (C/2^16 + 1/2).
- **************************************************/
-ALWAYS_INLINE
-static inline int16_t montgomery_reduce_generic(int32_t a)
+int16_t montgomery_reduce(int32_t a)
 {
+  SCALAR_BOUND(a, 2 * MLKEM_Q * 32768, "montgomery_reduce input");
+
   // Bounds on paper
   //
   // - Case |a| < q * C, for some C
@@ -88,27 +65,22 @@ static inline int16_t montgomery_reduce_generic(int32_t a)
   // we assume it's sign-preserving "arithmetic" shift right. (C99 6.5.7 (5))
   r = r >> 16;
 
-  return (int16_t)r;
+  SCALAR_BOUND(r, (3 * (MLKEM_Q + 1)) / 2, "montgomery_reduce output");
+  return r;
 }
 
-int16_t montgomery_reduce(int32_t a)
-{
-  SCALAR_BOUND(a, 2 * MLKEM_Q * 32768, "montgomery_reduce input");
-
-  int16_t res = montgomery_reduce_generic(a);
-
-  SCALAR_BOUND(res, (3 * (MLKEM_Q + 1)) / 2, "montgomery_reduce output");
-  return res;
-}
-
-int16_t fqmul(int16_t a, int16_t b)
+int16_t fqmul(int16_t a, int16_t b, uint16_t b_twisted)
 {
   SCALAR_BOUND(b, HALF_Q, "fqmul input");
 
-  int16_t res = montgomery_reduce((int32_t)a * (int32_t)b);
+  const int16_t low = cast_uint16_to_int16(a * b_twisted);
 
-  SCALAR_BOUND(res, MLKEM_Q, "fqmul output");
-  return res;
+  int16_t r = ((int32_t)a * b) >> 16;
+  int16_t t = ((int32_t)low * MLKEM_Q) >> 16;
+  r -= t;
+
+  SCALAR_BOUND(r, MLKEM_Q, "fqmul output");
+  return r;
 }
 
 // To divide by MLKEM_Q using Barrett multiplication, the "magic number"

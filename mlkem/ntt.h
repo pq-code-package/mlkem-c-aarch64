@@ -13,6 +13,9 @@
 #define zetas MLKEM_NAMESPACE(zetas)
 extern const int16_t zetas[128];
 
+#define zetas_twisted MLKEM_NAMESPACE(zetas_twisted)
+extern const int16_t zetas_twisted[128];
+
 /*************************************************
  * Name:        poly_ntt
  *
