@@ -130,6 +130,8 @@ static void unpack_ciphertext(polyvec *b, poly *v,
   poly_decompress_dv(v, c + MLKEM_POLYVECCOMPRESSEDBYTES_DU);
 }
 
+#define MLKEM_GEN_MATRIX_NBLOCKS 1
+
 #ifndef MLKEM_GEN_MATRIX_NBLOCKS
 #define MLKEM_GEN_MATRIX_NBLOCKS \
   ((12 * MLKEM_N / 8 * (1 << 12) / MLKEM_Q + SHAKE128_RATE) / SHAKE128_RATE)

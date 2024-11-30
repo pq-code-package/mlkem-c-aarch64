@@ -97,6 +97,7 @@ runs:
         comment-on-alert: true
         summary-always: true
         alert-threshold: ${{ inputs.alert_threshold }}
+        comment-always: true
     - name: Reset gh-pages if result is not pushed to gh-pages
       shell: ${{ env.SHELL }}
       if: ${{ inputs.store_results != 'true' }}
