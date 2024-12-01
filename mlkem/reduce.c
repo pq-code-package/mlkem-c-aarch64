@@ -111,6 +111,16 @@ int16_t fqmul(int16_t a, int16_t b)
   return res;
 }
 
+int16_t fqmul_bar(int16_t a, int16_t b)
+{
+  SCALAR_BOUND(b, HALF_Q, "fqmul_bar input");
+
+  int16_t res = barrett_reduce32((int32_t)a * (int32_t)b);
+
+  SCALAR_BOUND(res, MLKEM_Q, "fqmul_bar output");
+  return res;
+}
+
 // To divide by MLKEM_Q using Barrett multiplication, the "magic number"
 // multiplier is round_to_nearest(2**26/MLKEM_Q)
 #define BPOWER 26
@@ -141,4 +151,29 @@ int16_t barrett_reduce(int16_t a)
   // t is in -10 .. +10, so we need 32-bit math to
   // evaluate t * MLKEM_Q and the subsequent subtraction
   return (int16_t)(a - t * MLKEM_Q);
+}
+
+/*************************************************
+ * Name:        barrett_reduce32
+ *
+ * Description: Barrett reduction; given a 32-bit integer a, computes
+ *              representative congruent to a mod q in {{{TODO}}}
+ *
+ * Arguments:   - int32_t a: input integer to be reduced
+ *
+ * Returns:     integer in {{{TODO}}} congruent to a modulo q.
+ **************************************************/
+int16_t barrett_reduce32(int32_t a)
+{
+  // Compute round_to_nearest(a/MLKEM_Q) using the multiplier
+  // above and shift by BPOWER places.
+  //
+  // PORTABILITY: Right-shift on a signed integer is, strictly-speaking,
+  // implementation-defined for negative left argument. Here,
+  // we assume it's sign-preserving "arithmetic" shift right. (C99 6.5.7 (5))
+  const unsigned barrett_shift = 24;
+  const int64_t barrett_multiplier32 = ((uint64_t)1 << barrett_shift) / MLKEM_Q;
+  const int32_t quotient = (barrett_multiplier32 * a) >> barrett_shift;
+
+  return (int16_t)(a - quotient * MLKEM_Q);
 }

@@ -36,6 +36,9 @@ __contract__(
   ensures(return_value > -HALF_Q && return_value < HALF_Q)
 );
 
+#define barrett_reduce32 MLKEM_NAMESPACE(barrett_reduce32)
+int16_t barrett_reduce32(int32_t a);
+
 /*************************************************
  * Name:        fqmul
  *
@@ -57,6 +60,9 @@ __contract__(
   requires(b < HALF_Q)
   ensures(return_value > -MLKEM_Q && return_value < MLKEM_Q)
 );
+
+#define fqmul_bar MLKEM_NAMESPACE(fqmul_bar)
+int16_t fqmul_bar(int16_t a, int16_t b);
 
 
 #endif

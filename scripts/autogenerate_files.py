@@ -68,7 +68,7 @@ def gen_c_zetas():
 
     zeta = []
     for i in range(128):
-        zeta.append(signed_reduce(pow(root_of_unity, i, modulus) * montgomery_factor))
+        zeta.append(signed_reduce(pow(root_of_unity, i, modulus)))
 
     # The source code stores the zeta table in bit reversed form
     yield from (zeta[bitreverse(i,7)] for i in range(128))

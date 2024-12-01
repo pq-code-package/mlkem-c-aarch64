@@ -69,7 +69,7 @@ __contract__(
     invariant(array_abs_bound(r, j + len,     MLKEM_N - 1,     bound)))
   {
     int16_t t;
-    t = fqmul(r[j + len], zeta);
+    t = fqmul_bar(r[j + len], zeta);
     r[j + len] = r[j] - t;
     r[j] = r[j] + t;
   }
@@ -188,7 +188,7 @@ __contract__(
       int16_t t = r[j];
       r[j] = barrett_reduce(t + r[j + len]);
       r[j + len] = r[j + len] - t;
-      r[j + len] = fqmul(r[j + len], zeta);
+      r[j + len] = fqmul_bar(r[j + len], zeta);
     }
   }
 }
