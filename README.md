@@ -27,13 +27,6 @@ functionally verified.
 are imported into a consuming project's source tree and built using that project's build system. The build system
 provided in this repository is for experimental and development purposes only.
 
-#### Secure Compilation
-
-**mlkem-native** includes functions that are susceptible to compiler-induced variable-time code when inlined into
-their call-sites. Those functions are contained in [`mlkem/verify.c`](mlkem/verify.c). To ensure secure compilation, you
-MUST NOT enable link time optimization (LTO) for `mlkem/verify.c`. To the best of our knowledge, it is safe to compile
-the rest of the source tree with LTO.
-
 ### Current state
 
 **mlkem-native** is work in progress. **WE DO NOT CURRENTLY RECOMMEND RELYING ON THIS LIBRARY IN A PRODUCTION

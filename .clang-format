@@ -18,5 +18,6 @@ IncludeBlocks: Preserve
 BreakBeforeBraces: Allman
 WhitespaceSensitiveMacros: ['__contract__', '__loop__' ]
 Macros:
- - __contract__(x)={} void foo()
+ # Make this artifically long to avoid function bodies after short contracts
+ - __contract__(x)={ void a; void b; void c; void d; void e; void f; } void abcdefghijklmnopqrstuvw()
  - __loop__(x)={}

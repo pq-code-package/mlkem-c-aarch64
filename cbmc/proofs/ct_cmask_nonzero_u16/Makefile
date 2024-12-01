@@ -3,11 +3,11 @@
 include ../Makefile_params.common
 
 HARNESS_ENTRY = harness
-HARNESS_FILE = cmov_int16_harness
+HARNESS_FILE = ct_cmask_nonzero_u16_harness
 
 # This should be a unique identifier for this proof, and will appear on the
 # Litani dashboard. It can be human-readable and contain spaces if you wish.
-PROOF_UID = cmov_int16
+PROOF_UID = ct_cmask_nonzero_u16
 
 DEFINES +=
 INCLUDES +=
@@ -16,10 +16,10 @@ REMOVE_FUNCTION_BODY +=
 UNWINDSET +=
 
 PROOF_SOURCES += $(PROOFDIR)/$(HARNESS_FILE).c
-PROJECT_SOURCES += $(SRCDIR)/mlkem/verify.c
+PROJECT_SOURCES += $(SRCDIR)/mlkem/poly.c # Dummy because the Makefile wants _some_ project source
 
-CHECK_FUNCTION_CONTRACTS=$(MLKEM_NAMESPACE)cmov_int16
-USE_FUNCTION_CONTRACTS=
+CHECK_FUNCTION_CONTRACTS=ct_cmask_nonzero_u16
+USE_FUNCTION_CONTRACTS=value_barrier_u32
 APPLY_LOOP_CONTRACTS=on
 USE_DYNAMIC_FRAMES=1
 
@@ -27,7 +27,7 @@ USE_DYNAMIC_FRAMES=1
 EXTERNAL_SAT_SOLVER=
 CBMCFLAGS=--smt2
 
-FUNCTION_NAME = $(MLKEM_NAMESPACE)cmov_int16
+FUNCTION_NAME = ct_cmask_nonzero_u16
 
 # If this proof is found to consume huge amounts of RAM, you can set the
 # EXPENSIVE variable. With new enough versions of the proof tools, this will

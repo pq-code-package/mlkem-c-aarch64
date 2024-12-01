@@ -19,13 +19,13 @@ PROOF_SOURCES += $(PROOFDIR)/$(HARNESS_FILE).c
 PROJECT_SOURCES += $(SRCDIR)/mlkem/poly.c
 
 CHECK_FUNCTION_CONTRACTS=$(MLKEM_NAMESPACE)poly_frommsg
-USE_FUNCTION_CONTRACTS=$(MLKEM_NAMESPACE)cmov_int16
+USE_FUNCTION_CONTRACTS=ct_sel_int16 value_barrier_u8
 APPLY_LOOP_CONTRACTS=on
 USE_DYNAMIC_FRAMES=1
 
 # Disable any setting of EXTERNAL_SAT_SOLVER, and choose SMT backend instead
 EXTERNAL_SAT_SOLVER=
-CBMCFLAGS=--smt2
+CBMCFLAGS=--bitwuzla
 
 FUNCTION_NAME = $(MLKEM_NAMESPACE)poly_frommsg
 
@@ -36,7 +36,7 @@ FUNCTION_NAME = $(MLKEM_NAMESPACE)poly_frommsg
 # EXPENSIVE = true
 
 # This function is large enough to need...
-CBMC_OBJECT_BITS = 8
+CBMC_OBJECT_BITS = 9
 
 # If you require access to a file-local ("static") function or object to conduct
 # your proof, set the following (and do not include the original source file
