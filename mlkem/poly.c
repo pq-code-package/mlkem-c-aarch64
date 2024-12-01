@@ -517,8 +517,10 @@ void poly_mulcache_compute(poly_mulcache *x, const poly *a)
   for (i = 0; i < MLKEM_N / 4; i++)
   __loop__(invariant(i >= 0 && i <= MLKEM_N / 4))
   {
-    x->coeffs[2 * i + 0] = fqmul(a->coeffs[4 * i + 1], zetas[64 + i]);
-    x->coeffs[2 * i + 1] = fqmul(a->coeffs[4 * i + 3], -zetas[64 + i]);
+    x->coeffs[2 * i + 0] =
+        fqmul_bar(a->coeffs[4 * i + 1], zetas[64 + i], zetas_twisted[64 + i]);
+    x->coeffs[2 * i + 1] =
+        fqmul_bar(a->coeffs[4 * i + 3], -zetas[64 + i], -zetas_twisted[64 + i]);
   }
   POLY_BOUND(x, MLKEM_Q);
 }

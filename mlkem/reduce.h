@@ -58,5 +58,23 @@ __contract__(
   ensures(return_value > -MLKEM_Q && return_value < MLKEM_Q)
 );
 
+/*************************************************
+ * Name:        fqmul
+ *
+ * Description: Barrett multiplication modulo q=3329
+ *              (https://eprint.iacr.org/2021/986)
+ *
+ * Arguments:   - int16_t a: first factor
+ *                  Can be any int16_t.
+ *              - int16_t b: second factor.
+ *                  Must be signed canonical (abs value <(q+1)/2)
+ *              - int16_t b_twisted: Barrett twist of second factor
+ *
+ * Returns 16-bit integer congruent to a*b*R^{-1} mod q, and
+ * smaller than q in absolute value.
+ *
+ **************************************************/
+#define fqmul_bar MLKEM_NAMESPACE(fqmul_bar)
+int16_t fqmul_bar(int16_t a, int16_t b, int16_t b_twisted);
 
 #endif

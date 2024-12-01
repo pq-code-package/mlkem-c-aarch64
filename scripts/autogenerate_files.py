@@ -4,6 +4,7 @@
 
 import subprocess
 import argparse
+import math
 import os
 
 modulus = 3329
@@ -59,7 +60,46 @@ def signed_reduce(a):
         c -= modulus
     return c
 
-def gen_c_zetas():
+def prepare_root_for_montmul(root):
+    """Takes a constant that the code needs to Montgomery-multiply with,
+    and returns the pair of (a) the signed canonical representative of its
+    Montgomery form, (b) the twisted constant used in the low-mul part of
+    the Montgomery multiplication."""
+
+    # Convert to Montgomery form and pick canonical signed representative
+    root = signed_reduce(root * montgomery_factor)
+    root_twisted = signed_reduce_u16(root * pow(modulus, -1, 2**16))
+    return root, root_twisted
+
+def prepare_root_for_barrett(root, even=True):
+    """Takes a constant that the code needs to Barrett-multiply with,
+    and returns the pair of (a) its signed canonical form, (b) the
+    twisted constant used in the high-mul part of the Barrett multiplication."""
+
+    # Signed canonical reduction
+    root = signed_reduce(root)
+
+    def round_to_suitable(t):
+        if even is True:
+            rt = round(t)
+            if rt % 2 == 0:
+                return rt
+            # Make sure to pick a rounding target
+            # that's <= 1 away from x in absolute value.
+            if rt <= t:
+                return rt + 1
+            return rt - 1
+        else:
+            return math.floor(t)
+
+    root_twisted = round_to_suitable((root * 2**16) / modulus)
+
+    if even is True:
+        root_twisted = root_twisted // 2
+
+    return root, root_twisted
+
+def gen_c_zetas(twisted=False):
     """Generate source and header file for zeta values used in
     the reference NTT and invNTT"""
 
@@ -68,7 +108,11 @@ def gen_c_zetas():
 
     zeta = []
     for i in range(128):
-        zeta.append(signed_reduce(pow(root_of_unity, i, modulus) * montgomery_factor))
+        root, root_twisted = prepare_root_for_barrett(pow(root_of_unity, i, modulus), even=False)
+        if twisted is False:
+            zeta.append(root)
+        else:
+            zeta.append(root_twisted)
 
     # The source code stores the zeta table in bit reversed form
     yield from (zeta[bitreverse(i,7)] for i in range(128))
@@ -84,28 +128,11 @@ def gen_c_zeta_file(dry_run=False):
         yield from map(lambda t: str(t) + ",", gen_c_zetas())
         yield "};"
         yield ""
+        yield "const int16_t zetas_twisted[128] = {"
+        yield from map(lambda t: str(t) + ",", gen_c_zetas(twisted=True))
+        yield "};"
+        yield ""
     update_file("mlkem/zetas.c", '\n'.join(gen()), dry_run=dry_run)
-
-def prepare_root_for_barrett(root):
-    """Takes a constant that the code needs to Barrett-multiply with,
-    and returns the pair of (a) its signed canonical form, (b) the
-    twisted constant used in the high-mul part of the Barrett multiplication."""
-
-    # Signed canonical reduction
-    root = signed_reduce(root)
-
-    def round_to_even(t):
-        rt = round(t)
-        if rt % 2 == 0:
-            return rt
-        # Make sure to pick a rounding target
-        # that's <= 1 away from x in absolute value.
-        if rt <= t:
-            return rt + 1
-        return rt - 1
-
-    root_twisted = round_to_even((root * 2**16) / modulus) // 2
-    return root, root_twisted
 
 def gen_aarch64_root_of_unity_for_block(layer, block, inv=False):
     # We are computing a negacyclic NTT; the twiddles needed here is
@@ -259,17 +286,6 @@ def signed_reduce_u16(x):
     if x >= 2**15:
         x -= 2**16
     return x
-
-def prepare_root_for_montmul(root):
-    """Takes a constant that the code needs to Montgomery-multiply with,
-    and returns the pair of (a) the signed canonical representative of its
-    Montgomery form, (b) the twisted constant used in the low-mul part of
-    the Montgomery multiplication."""
-
-    # Convert to Montgomery form and pick canonical signed representative
-    root = signed_reduce(root * montgomery_factor)
-    root_twisted = signed_reduce_u16(root * pow(modulus, -1, 2**16))
-    return root, root_twisted
 
 def gen_avx2_root_of_unity_for_block(layer, block, inv=False):
     # We are computing a negacyclic NTT; the twiddles needed here is

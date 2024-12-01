@@ -111,6 +111,19 @@ int16_t fqmul(int16_t a, int16_t b)
   return res;
 }
 
+int16_t fqmul_bar(int16_t a, int16_t b, int16_t b_twisted)
+{
+  SCALAR_BOUND(b, HALF_Q, "fqmul input");
+
+  int16_t quot = ((int32_t)a * b_twisted) >> 16;
+  uint16_t prod_low = a * b;
+  uint16_t round_low = quot * MLKEM_Q;
+  uint16_t r = prod_low - round_low;
+
+  SCALAR_BOUND(r, MLKEM_Q, "fqmul output");
+  return (int16_t)r;
+}
+
 // To divide by MLKEM_Q using Barrett multiplication, the "magic number"
 // multiplier is round_to_nearest(2**26/MLKEM_Q)
 #define BPOWER 26
