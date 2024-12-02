@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2024 The mlkem-native project authors
  * SPDX-License-Identifier: Apache-2.0
- */ 
+ */
 
-/* 
+/*
  * Implementation from Kyber reference repository
  * https://github.com/pq-crystals/kyber/blob/main/avx2
  */
@@ -32,8 +32,8 @@ vpand		%ymm0,%ymm\x,%ymm\x
 vpaddw		%ymm\x,%ymm\r,%ymm\r
 .endm
 
-// Montgomery multiplication between b and ah,
-// with Montgomery twist of ah in al.
+/* Montgomery multiplication between b and ah,
+ * with Montgomery twist of ah in al. */
 .macro fqmulprecomp al,ah,b,x=12
 vpmullw		%ymm\al,%ymm\b,%ymm\x
 vpmulhw		%ymm\ah,%ymm\b,%ymm\b
