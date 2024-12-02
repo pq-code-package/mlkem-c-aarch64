@@ -17,7 +17,7 @@
  * but no batched assembly implementation.
  */
 #define MLKEM_USE_FIPS202_X1_NATIVE
-static inline void keccak_f1600_x1_native(uint64_t *state)
+static INLINE void keccak_f1600_x1_native(uint64_t *state)
 {
   keccak_f1600_x1_scalar_asm_opt(state);
 }

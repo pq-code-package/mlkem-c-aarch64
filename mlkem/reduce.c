@@ -22,7 +22,7 @@ static const uint32_t QINV = 62209; /* q^-1 mod 2^16 */
 #pragma CPROVER check push
 #pragma CPROVER check disable "conversion"
 #endif
-static inline int16_t cast_uint16_to_int16(uint16_t x)
+static INLINE int16_t cast_uint16_to_int16(uint16_t x)
 {
   /*
    * PORTABILITY: This relies on uint16_t -> int16_t
@@ -62,7 +62,7 @@ static inline int16_t cast_uint16_to_int16(uint16_t x)
  *                < q (C/2^16 + 1/2).
  **************************************************/
 ALWAYS_INLINE
-static inline int16_t montgomery_reduce_generic(int32_t a)
+static INLINE int16_t montgomery_reduce_generic(int32_t a)
 {
   /*
    *Bounds on paper

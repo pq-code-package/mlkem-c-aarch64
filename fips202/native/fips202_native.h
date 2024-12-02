@@ -68,13 +68,13 @@
  */
 
 #if defined(MLKEM_USE_FIPS202_X1_NATIVE)
-static inline void keccak_f1600_x1_native(uint64_t *state);
+static INLINE void keccak_f1600_x1_native(uint64_t *state);
 #endif
 #if defined(MLKEM_USE_FIPS202_X2_NATIVE)
-static inline void keccak_f1600_x2_native(uint64_t *state);
+static INLINE void keccak_f1600_x2_native(uint64_t *state);
 #endif
 #if defined(MLKEM_USE_FIPS202_X4_NATIVE)
-static inline void keccak_f1600_x4_native(uint64_t *state);
+static INLINE void keccak_f1600_x4_native(uint64_t *state);
 #endif
 
 #endif /* MLKEM_USE_NATIVE */

@@ -70,7 +70,7 @@ typedef struct
 #pragma CPROVER check push
 #pragma CPROVER check disable "unsigned-overflow"
 #endif
-static inline uint32_t scalar_compress_d1(uint16_t u)
+static INLINE uint32_t scalar_compress_d1(uint16_t u)
 __contract__(
   requires(u <= MLKEM_Q - 1)
   ensures(return_value < 2)
@@ -105,7 +105,7 @@ __contract__(
 #pragma CPROVER check push
 #pragma CPROVER check disable "unsigned-overflow"
 #endif
-static inline uint32_t scalar_compress_d4(uint16_t u)
+static INLINE uint32_t scalar_compress_d4(uint16_t u)
 __contract__(
   requires(u <= MLKEM_Q - 1)
   ensures(return_value < 16)
@@ -129,7 +129,7 @@ __contract__(
  * Arguments: - u: Unsigned canonical modulus modulo 16
  *                 to be decompressed.
  ************************************************************/
-static inline uint16_t scalar_decompress_d4(uint32_t u)
+static INLINE uint16_t scalar_decompress_d4(uint32_t u)
 __contract__(
   requires(0 <= u && u < 16)
   ensures(return_value <= (MLKEM_Q - 1))
@@ -154,7 +154,7 @@ __contract__(
 #pragma CPROVER check push
 #pragma CPROVER check disable "unsigned-overflow"
 #endif
-static inline uint32_t scalar_compress_d5(uint16_t u)
+static INLINE uint32_t scalar_compress_d5(uint16_t u)
 __contract__(
   requires(u <= MLKEM_Q - 1)
   ensures(return_value < 32)
@@ -178,7 +178,7 @@ __contract__(
  * Arguments: - u: Unsigned canonical modulus modulo 32
  *                 to be decompressed.
  ************************************************************/
-static inline uint16_t scalar_decompress_d5(uint32_t u)
+static INLINE uint16_t scalar_decompress_d5(uint32_t u)
 __contract__(
   requires(0 <= u && u < 32)
   ensures(return_value <= MLKEM_Q - 1)
@@ -230,7 +230,7 @@ __contract__(
  * Arguments: - u: Unsigned canonical modulus modulo 16
  *                 to be decompressed.
  ************************************************************/
-static inline uint16_t scalar_decompress_d10(uint32_t u)
+static INLINE uint16_t scalar_decompress_d10(uint32_t u)
 __contract__(
   requires(0 <= u && u < 1024)
   ensures(return_value <= (MLKEM_Q - 1))

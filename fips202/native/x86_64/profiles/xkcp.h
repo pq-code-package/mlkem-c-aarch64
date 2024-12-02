@@ -15,7 +15,7 @@
 #if defined(MLKEM_USE_NATIVE_X86_64) && defined(SYS_X86_64_AVX2)
 
 #define MLKEM_USE_FIPS202_X4_NATIVE
-static inline void keccak_f1600_x4_native(uint64_t *state)
+static INLINE void keccak_f1600_x4_native(uint64_t *state)
 {
   KeccakP1600times4_PermuteAll_24rounds(state);
 }

@@ -11,8 +11,8 @@
 
 #ifndef CBMC
 
+#define STATIC_INLINE_TESTABLE static INLINE
 #define STATIC_TESTABLE static
-#define STATIC_INLINE_TESTABLE static inline
 
 #define __contract__(x)
 #define __loop__(x)
