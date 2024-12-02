@@ -15,6 +15,7 @@
 
 .include "shuffle.inc"
 
+// Compute steps 1,2 / 3 of Montgomery multiplication
 .macro mul rh0,rh1,rh2,rh3,zl0=15,zl1=15,zh0=2,zh1=2
 vpmullw		%ymm\zl0,%ymm\rh0,%ymm12
 vpmullw		%ymm\zl0,%ymm\rh1,%ymm13
@@ -29,6 +30,8 @@ vpmulhw		%ymm\zh1,%ymm\rh2,%ymm\rh2
 vpmulhw		%ymm\zh1,%ymm\rh3,%ymm\rh3
 .endm
 
+// Compute step 3 / 3 of Montgomery multiplication
+// Multiply-high is signed; outputs are bound by 2^15 * q in abs value
 .macro reduce
 vpmulhw		%ymm0,%ymm12,%ymm12
 vpmulhw		%ymm0,%ymm13,%ymm13
@@ -37,28 +40,42 @@ vpmulhw		%ymm0,%ymm14,%ymm14
 vpmulhw		%ymm0,%ymm15,%ymm15
 .endm
 
+// Finish Montgomery multiplication and compute add/sub steps in NTT butterfly
+//
+// At this point, the two high-products of 4 ongoing Montgomery multiplications
+// are in %ymm{12,13,14,15} and %ymm{rh{0,1,2,3}}, respectively.
+// The NTT coefficients that the results of the Montgomery multiplications should
+// be add/sub-ed with, are in %ymm{rl{0,1,2,3}}.
+//
+// What's interesting, here, is that rather than completing the Montgomery
+// multiplications by computing `%ymm{12+i} + %ymm{rh{i}}`, and then add/sub'ing
+// the result into %ymm{rl{0,1,2,3}}, we add/sub both `%ymm{12+i}` and
+// %ymm{rh{i}} to %ymm{rl{0,1,2,3}}, and then add the results.
+//
+// Functionally, though, this is still a signed Montgomery multiplication
+// followed by an add/sub.
+//
+// Since the result of the Montgomery multiplication is bounded
+// by q in absolute value, the coefficients overall grow by not
+// more than q in absolute value per layer.
 .macro update rln,rl0,rl1,rl2,rl3,rh0,rh1,rh2,rh3
-vpaddw		%ymm\rh0,%ymm\rl0,%ymm\rln
-vpsubw		%ymm\rh0,%ymm\rl0,%ymm\rh0
-vpaddw		%ymm\rh1,%ymm\rl1,%ymm\rl0
+vpaddw		%ymm\rh0,%ymm\rl0,%ymm\rln // rln = rl0 + rh0
+vpsubw		%ymm\rh0,%ymm\rl0,%ymm\rh0 // rh0 = rl0 - rh0
+vpaddw		%ymm\rh1,%ymm\rl1,%ymm\rl0 // rl0 = rl1 + rh1
+vpsubw		%ymm\rh1,%ymm\rl1,%ymm\rh1 // rh1 = rl1 - rh1
+vpaddw		%ymm\rh2,%ymm\rl2,%ymm\rl1 // rl1 = rl2 + rh2
+vpsubw		%ymm\rh2,%ymm\rl2,%ymm\rh2 // rh2 = rl2 - rh2
+vpaddw		%ymm\rh3,%ymm\rl3,%ymm\rl2 // rl2 = rl3 + rh3
+vpsubw		%ymm\rh3,%ymm\rl3,%ymm\rh3 // rh3 = rl3 - rh3
 
-vpsubw		%ymm\rh1,%ymm\rl1,%ymm\rh1
-vpaddw		%ymm\rh2,%ymm\rl2,%ymm\rl1
-vpsubw		%ymm\rh2,%ymm\rl2,%ymm\rh2
-
-vpaddw		%ymm\rh3,%ymm\rl3,%ymm\rl2
-vpsubw		%ymm\rh3,%ymm\rl3,%ymm\rh3
-
-vpsubw		%ymm12,%ymm\rln,%ymm\rln
-vpaddw		%ymm12,%ymm\rh0,%ymm\rh0
-vpsubw		%ymm13,%ymm\rl0,%ymm\rl0
-
-vpaddw		%ymm13,%ymm\rh1,%ymm\rh1
-vpsubw		%ymm14,%ymm\rl1,%ymm\rl1
-vpaddw		%ymm14,%ymm\rh2,%ymm\rh2
-
-vpsubw		%ymm15,%ymm\rl2,%ymm\rl2
-vpaddw		%ymm15,%ymm\rh3,%ymm\rh3
+vpsubw		%ymm12,%ymm\rln,%ymm\rln // rln = rh0 + rl0 - ymm12 = rl0 + (rh0 - ymm12)
+vpaddw		%ymm12,%ymm\rh0,%ymm\rh0 // rh0 = rl0 - rh0 + ymm12 = rl0 - (rh0 - ymm12)
+vpsubw		%ymm13,%ymm\rl0,%ymm\rl0 // rl0 = rl1 + rh1 - ymm13 = rl1 + (rh1 - ymm13)
+vpaddw		%ymm13,%ymm\rh1,%ymm\rh1 // rh1 = rl1 - rh1 + ymm13 = rl1 - (rh1 - ymm13)
+vpsubw		%ymm14,%ymm\rl1,%ymm\rl1 // rl1 = rh2 + rl2 - ymm14 = rl2 + (rh2 - ymm14)
+vpaddw		%ymm14,%ymm\rh2,%ymm\rh2 // rh2 = rl2 - rh2 + ymm14 = rl2 - (rh2 - ymm14)
+vpsubw		%ymm15,%ymm\rl2,%ymm\rl2 // rl2 = rh3 + rl3 - ymm15 = rl3 + (rh3 - ymm15)
+vpaddw		%ymm15,%ymm\rh3,%ymm\rh3 // rh3 = rl3 - rh3 + ymm15 = rl3 - (rh3 - ymm15)
 .endm
 
 .macro level0 off
