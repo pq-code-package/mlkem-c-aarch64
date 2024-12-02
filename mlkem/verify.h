@@ -1,5 +1,7 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 #ifndef VERIFY_H
 #define VERIFY_H
 
@@ -45,12 +47,14 @@
 
 #if !defined(MLKEM_USE_ASM_VALUE_BARRIER)
 
-// Declaration of global volatile that the global value barrier
-// is loading from and masking with.
+/*
+ * Declaration of global volatile that the global value barrier
+ * is loading from and masking with.
+ */
 #define ct_opt_blocker_u64 MLKEM_NAMESPACE(ct_opt_blocker_u64)
 extern volatile uint64_t ct_opt_blocker_u64;
 
-// Helper functions for obtaining masks of various sizes
+/* Helper functions for obtaining masks of various sizes */
 STATIC_INLINE_TESTABLE uint8_t get_optblocker_u8(void)
 __contract__(ensures(return_value == 0)) { return (uint8_t)ct_opt_blocker_u64; }
 
@@ -94,9 +98,11 @@ __contract__(ensures(return_value == b))
 
 #endif /* MLKEM_USE_ASM_VALUE_BARRIER */
 
-// The ct_cmask_nonzero_xxx functions below make deliberate use of unsigned
-// overflow, which is fully defined behaviour in C. It is thus safe to disable
-// this warning.
+/*
+ * The ct_cmask_nonzero_xxx functions below make deliberate use of unsigned
+ * overflow, which is fully defined behaviour in C. It is thus safe to disable
+ * this warning.
+ */
 #ifdef CBMC
 #pragma CPROVER check push
 #pragma CPROVER check disable "unsigned-overflow"
@@ -132,14 +138,16 @@ __contract__(ensures(return_value == ((x == 0) ? 0 : 0xFF)))
   return tmp;
 }
 
-// Put unsigned overflow warnings in CBMC back into scope
+/* Put unsigned overflow warnings in CBMC back into scope */
 #ifdef CBMC
 #pragma CPROVER check pop
 #endif
 
-// The ct_cmask_neg_i16 function below makes deliberate use of
-// signed to unsigned integer conversion, which is fully defined
-// behaviour in C. It is thus safe to disable this warning.
+/*
+ * The ct_cmask_neg_i16 function below makes deliberate use of
+ * signed to unsigned integer conversion, which is fully defined
+ * behaviour in C. It is thus safe to disable this warning.
+ */
 #ifdef CBMC
 #pragma CPROVER check push
 #pragma CPROVER check disable "conversion"
@@ -160,15 +168,17 @@ __contract__(ensures(return_value == ((x < 0) ? 0xFFFF : 0)))
   return (int16_t)tmp;
 }
 
-// Put unsigned-to-signed warnings in CBMC back into scope
+/* Put unsigned-to-signed warnings in CBMC back into scope */
 #ifdef CBMC
 #pragma CPROVER check pop
 #endif
 
-// The ct_csel_xxx functions below make deliberate use of unsigned
-// to signed integer conversion, which is implementation-defined
-// behaviour. Here, we assume that uint16_t -> int16_t is inverse
-// to int16_t -> uint16_t.
+/*
+ * The ct_csel_xxx functions below make deliberate use of unsigned
+ * to signed integer conversion, which is implementation-defined
+ * behaviour. Here, we assume that uint16_t -> int16_t is inverse
+ * to int16_t -> uint16_t.
+ */
 #ifdef CBMC
 #pragma CPROVER check push
 #pragma CPROVER check disable "conversion"
@@ -193,7 +203,7 @@ __contract__(ensures(return_value == (cond ? a : b)))
   return (int16_t)res;
 }
 
-// Put unsigned-to-signed warnings in CBMC back into scope
+/* Put unsigned-to-signed warnings in CBMC back into scope */
 #ifdef CBMC
 #pragma CPROVER check pop
 #endif
@@ -237,9 +247,11 @@ __contract__(
 {
   uint8_t r = 0, s = 0;
 
-  // Switch to a _signed_ ilen value, so that our loop counter
-  // can also be signed, and thus (i - 1) in the loop invariant
-  // can yield -1 as required.
+  /*
+   * Switch to a _signed_ ilen value, so that our loop counter
+   * can also be signed, and thus (i - 1) in the loop invariant
+   * can yield -1 as required.
+   */
   const int ilen = (int)len;
 
   for (int i = 0; i < ilen; i++)
@@ -248,15 +260,17 @@ __contract__(
     invariant((r == 0) == (forall(int, k, 0, (i - 1), (a[k] == b[k])))))
   {
     r |= a[i] ^ b[i];
-    // s is useless, but prevents the loop from being aborted once r=0xff.
+    /* s is useless, but prevents the loop from being aborted once r=0xff. */
     s ^= a[i] ^ b[i];
   }
 
-  // - Convert r into a mask; this may not be necessary, but is an additional
-  //   safeguard
-  //   towards leaking information about a and b.
-  // - XOR twice with s, separated by a value barrier, to prevent the compiler
-  //   from dropping the s computation in the loop.
+  /*
+   * - Convert r into a mask; this may not be necessary, but is an additional
+   *   safeguard
+   *   towards leaking information about a and b.
+   * - XOR twice with s, separated by a value barrier, to prevent the compile
+   *   from dropping the s computation in the loop.
+   */
   return (value_barrier_u8(ct_cmask_nonzero_u8(r) ^ s) ^ s);
 }
 

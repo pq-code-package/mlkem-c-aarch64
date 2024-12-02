@@ -1,5 +1,7 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 #include <inttypes.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -73,112 +75,112 @@ static int bench(void)
                     1 * SHAKE128_RATE))
 
   /* poly */
-  // poly_compress_du
+  /* poly_compress_du */
   BENCH("poly_compress_du", poly_compress_du((uint8_t *)data0, (poly *)data1))
 
-  // poly_decompress_du
+  /* poly_decompress_du */
   BENCH("poly_decompress_du",
         poly_decompress_du((poly *)data0, (uint8_t *)data1))
 
-  // poly_compress_dv
+  /* poly_compress_dv */
   BENCH("poly_compress_dv", poly_compress_dv((uint8_t *)data0, (poly *)data1))
 
-  // poly_decompress_dv
+  /* poly_decompress_dv */
   BENCH("poly_decompress_dv",
         poly_decompress_dv((poly *)data0, (uint8_t *)data1))
 
-  // poly_tobytes
+  /* poly_tobytes */
   BENCH("poly_tobytes", poly_tobytes((uint8_t *)data0, (poly *)data1))
 
-  // poly_frombytes
+  /* poly_frombytes */
   BENCH("poly_frombytes", poly_frombytes((poly *)data0, (uint8_t *)data1))
 
-  // poly_frommsg
+  /* poly_frommsg */
   BENCH("poly_frommsg", poly_frommsg((poly *)data0, (uint8_t *)data1))
 
-  // poly_tomsg
+  /* poly_tomsg */
   BENCH("poly_tomsg", poly_tomsg((uint8_t *)data0, (poly *)data1))
 
-  // poly_getnoise_eta1_4x
+  /* poly_getnoise_eta1_4x */
   BENCH("poly_getnoise_eta1_4x",
         poly_getnoise_eta1_4x((poly *)data0, (poly *)data1, (poly *)data2,
                               (poly *)data3, (uint8_t *)data4, nonce0, nonce1,
                               nonce2, nonce3))
 
-  // poly_getnoise_eta2
+  /* poly_getnoise_eta2 */
   BENCH("poly_getnoise_eta2",
         poly_getnoise_eta2((poly *)data0, (uint8_t *)data1, nonce0))
 
-  // poly_getnoise_eta1122_4x
+  /* poly_getnoise_eta1122_4x */
   BENCH("poly_getnoise_eta1122_4x",
         poly_getnoise_eta1122_4x((poly *)data0, (poly *)data1, (poly *)data2,
                                  (poly *)data3, (uint8_t *)data4, nonce0,
                                  nonce1, nonce2, nonce3))
 
-  // poly_basemul_montgomery_cached
+  /* poly_basemul_montgomery_cached */
   BENCH("poly_basemul_montgomery_cached",
         poly_basemul_montgomery_cached((poly *)data0, (poly *)data1,
                                        (poly *)data2, (poly_mulcache *)data3))
 
-  // poly_tomont
+  /* poly_tomont */
   BENCH("poly_tomont", poly_tomont((poly *)data0))
 
-  // poly_mulcache_compute
+  /* poly_mulcache_compute */
   BENCH("poly_mulcache_compute",
         poly_mulcache_compute((poly_mulcache *)data0, (poly *)data1))
 
-  // poly_reduce
+  /* poly_reduce */
   BENCH("poly_reduce", poly_reduce((poly *)data0))
 
-  // poly_add
+  /* poly_add */
   BENCH("poly_add", poly_add((poly *)data0, (poly *)data1))
 
-  // poly_sub
+  /* poly_sub */
   BENCH("poly_sub", poly_sub((poly *)data0, (poly *)data1))
 
   /* polyvec */
-  // polyvec_compress_du
+  /* polyvec_compress_du */
   BENCH("polyvec_compress_du",
         polyvec_compress_du((uint8_t *)data0, (polyvec *)data1))
 
-  // polyvec_decompress_du
+  /* polyvec_decompress_du */
   BENCH("polyvec_decompress_du",
         polyvec_decompress_du((polyvec *)data0, (uint8_t *)data1))
 
-  // polyvec_tobytes
+  /* polyvec_tobytes */
   BENCH("polyvec_tobytes", polyvec_tobytes((uint8_t *)data0, (polyvec *)data1))
 
-  // polyvec_frombytes
+  /* polyvec_frombytes */
   BENCH("polyvec_frombytes",
         polyvec_frombytes((polyvec *)data0, (uint8_t *)data1))
 
-  // polyvec_ntt
+  /* polyvec_ntt */
   BENCH("polyvec_ntt", polyvec_ntt((polyvec *)data0))
 
-  // polyvec_invntt_tomont
+  /* polyvec_invntt_tomont */
   BENCH("polyvec_invntt_tomont", polyvec_invntt_tomont((polyvec *)data0))
 
-  // polyvec_basemul_acc_montgomery_cached
+  /* polyvec_basemul_acc_montgomery_cached */
   BENCH("polyvec_basemul_acc_montgomery_cached",
         polyvec_basemul_acc_montgomery_cached((poly *)data0, (polyvec *)data1,
                                               (polyvec *)data2,
                                               (polyvec_mulcache *)data3))
 
-  // polyvec_mulcache_compute
+  /* polyvec_mulcache_compute */
   BENCH("polyvec_mulcache_compute",
         polyvec_mulcache_compute((polyvec_mulcache *)data0, (polyvec *)data1))
 
-  // polyvec_reduce
+  /* polyvec_reduce */
   BENCH("polyvec_reduce", polyvec_reduce((polyvec *)data0))
 
-  // polyvec_add
+  /* polyvec_add */
   BENCH("polyvec_add", polyvec_add((polyvec *)data0, (polyvec *)data1))
 
-  // polyvec_tomont
+  /* polyvec_tomont */
   BENCH("polyvec_tomont", polyvec_tomont((polyvec *)data0))
 
   /* indcpa */
-  // gen_matrix
+  /* gen_matrix */
   BENCH("gen_matrix", gen_matrix((polyvec *)data0, (uint8_t *)data1, 0))
 
 

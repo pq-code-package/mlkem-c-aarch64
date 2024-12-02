@@ -1,5 +1,7 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 #ifndef MLKEM_ARITH_NATIVE_H
 #define MLKEM_ARITH_NATIVE_H
 
@@ -36,12 +38,13 @@
  * polynomials in NTT domain from bitreversed to the custom order.
  */
 
-// Those functions are meant to be trivial wrappers around
-// the chosen native implementation. The are static inline
-// to avoid unnecessary calls.
-//
-// The macro before each declaration controls whether a native
-// implementation is present.
+/*
+ * Those functions are meant to be trivial wrappers around
+ * the chosen native implementation. The are static inline
+ * to avoid unnecessary calls.
+ * The macro before each declaration controls whether a native
+ * implementation is present.
+ */
 
 #if defined(MLKEM_USE_NATIVE_NTT)
 /*************************************************
@@ -62,9 +65,11 @@ static inline void ntt_native(poly *);
 #endif /* MLKEM_USE_NATIVE_NTT */
 
 #if defined(MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER)
-// This must only be set if NTT, invNTT, basemul, mulcache, and
-// to/from byte stream conversions all have native implementations
-// that are adapted to the custom order.
+/*
+ * This must only be set if NTT, invNTT, basemul, mulcache, and
+ * to/from byte stream conversions all have native implementations
+ * that are adapted to the custom order.
+ */
 #if !defined(MLKEM_USE_NATIVE_NTT) || !defined(MLKEM_USE_NATIVE_INTT) || \
     !defined(MLKEM_USE_NATIVE_POLY_MULCACHE_COMPUTE) ||                  \
     !defined(MLKEM_USE_NATIVE_POLYVEC_BASEMUL_ACC_MONTGOMERY_CACHED) ||  \

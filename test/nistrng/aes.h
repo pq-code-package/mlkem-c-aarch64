@@ -1,5 +1,7 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: MIT
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: MIT
+ */
 
 #ifndef AES_H
 #define AES_H
@@ -13,7 +15,7 @@
 #define AESCTR_NONCEBYTES 12
 #define AES_BLOCKBYTES 16
 
-// We've put these states on the heap to make sure ctx_release is used.
+/* We've put these states on the heap to make sure ctx_release is used. */
 #define PQC_AES128_STATESIZE 88
 typedef struct
 {

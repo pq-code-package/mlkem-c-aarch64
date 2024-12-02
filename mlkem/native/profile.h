@@ -1,5 +1,7 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 #ifndef MLKEM_ARITH_NATIVE_PROFILE_CHOICE_H
 #define MLKEM_ARITH_NATIVE_PROFILE_CHOICE_H
 
@@ -29,20 +31,22 @@
  * CFLAGS.
  */
 
-// Option 2: Manually written profile
+/* Option 2: Manually written profile */
 #if defined(MLKEM_ARITH_NATIVE_PROFILE)
 
 #define STRINGIFY_(x) #x
 #define STRINGIFY(x) STRINGIFY_(x)
 #include STRINGIFY(MLKEM_ARITH_NATIVE_PROFILE)
 
-// Option 1: Choose from shipped list of profiles
+/* Option 1: Choose from shipped list of profiles */
 #elif !defined(MLKEM_ARITH_NATIVE_MANUAL)
 
 #ifdef SYS_AARCH64
-// For now, we only have clean and opt profiles.
-// In the future, this is likely to branch further depending
-// on the microarchitecture.
+/*
+ * For now, we only have clean and opt profiles.
+ * In the future, this is likely to branch further depending
+ * on the microarchitecture.
+ */
 #if defined(MLKEM_USE_NATIVE_AARCH64_CLEAN)
 #include "aarch64/profiles/clean.h"
 #else /* MLKEM_USE_NATIVE_AARCH64_CLEAN */
@@ -51,9 +55,11 @@
 #endif /* SYS_AARCH64 */
 
 #ifdef SYS_X86_64_AVX2
-// For now, there's only one x86_64 profile, which is essentially
-// the AVX2 code from the Kyber repository
-// https://github.com/pq-crystals/kyber
+/*
+ * For now, there's only one x86_64 profile, which is essentially
+ * the AVX2 code from the Kyber repository
+ * https://github.com/pq-crystals/kyber
+ */
 #include "x86_64/profiles/default.h"
 #endif /* SYS_X86_64 */
 

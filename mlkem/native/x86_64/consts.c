@@ -1,8 +1,12 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
-// Implementation from Kyber reference repository
-// https://github.com/pq-crystals/kyber/blob/main/avx2/consts.c
+/*
+ * Implementation from Kyber reference repository
+ * https://github.com/pq-crystals/kyber/blob/main/avx2/consts.c
+ */
 
 #include "config.h"
 
@@ -13,13 +17,13 @@
 #include "params.h"
 
 #define Q MLKEM_Q
-#define MONT -1044      // 2^16 mod q
-#define QINV -3327      // q^-1 mod 2^16
-#define V 20159         // floor(2^26/q + 0.5)
-#define FHI 1441        // mont^2/128
-#define FLO -10079      // qinv*FHI
-#define MONTSQHI 1353   // mont^2
-#define MONTSQLO 20553  // qinv*MONTSQHI
+#define MONT -1044     /* 2^16 mod q */
+#define QINV -3327     /* q^-1 mod 2^16 */
+#define V 20159        /* floor(2^26/q + 0.5) */
+#define FHI 1441       /* mont^2/128 */
+#define FLO -10079     /* qinv*FHI */
+#define MONTSQHI 1353  /* mont^2 */
+#define MONTSQLO 20553 /* qinv*MONTSQHI */
 #define MASK 4095
 #define SHIFT 32
 
@@ -83,6 +87,6 @@ const qdata_t qdata = {{
     SHIFT,    SHIFT,    SHIFT,    SHIFT}};
 
 #else  /* MLKEM_USE_NATIVE_X86_64 && SYS_X86_64_AVX2 */
-// Dummy declaration for compilers disliking empty compilation units
+/* Dummy declaration for compilers disliking empty compilation units */
 int empty_cu_consts;
 #endif /* MLKEM_USE_NATIVE_X86_64 && SYS_X86_64_AVX2 */

@@ -1,8 +1,12 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
-// Implementation from Kyber reference repository
-// https://github.com/pq-crystals/kyber/blob/main/avx2/consts.h
+/*
+ * Implementation from Kyber reference repository
+ * https://github.com/pq-crystals/kyber/blob/main/avx2/consts.h
+ */
 
 #ifndef CONSTS_H
 #define CONSTS_H

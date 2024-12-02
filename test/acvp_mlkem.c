@@ -1,5 +1,7 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
@@ -57,8 +59,10 @@ static int decode_hex(const char *prefix, unsigned char *out, size_t out_len,
   size_t hex_len = strlen(hex);
   size_t prefix_len = strlen(prefix);
 
-  // Check that hex starts with `prefix=`
-  // Use memcmp, not strcmp
+  /*
+   * Check that hex starts with `prefix=`
+   * Use memcmp, not strcmp
+   */
   if (hex_len < prefix_len + 1 || memcmp(prefix, hex, prefix_len) != 0 ||
       hex[prefix_len] != '=')
   {

@@ -1,5 +1,7 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 #ifndef FIPS_202X4_H
 #define FIPS_202X4_H
 
@@ -63,7 +65,7 @@ void shake256x4(uint8_t *out0, uint8_t *out1, uint8_t *out2, uint8_t *out3,
                 size_t outlen, uint8_t *in0, uint8_t *in1, uint8_t *in2,
                 uint8_t *in3, size_t inlen)
 __contract__(
-// Refine +prove this spec, e.g. add disjointness constraints?
+/* Refine +prove this spec, e.g. add disjointness constraints? */
   requires(readable(in0, inlen))
   requires(readable(in1, inlen))
   requires(readable(in2, inlen))

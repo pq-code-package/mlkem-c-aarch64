@@ -1,5 +1,7 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 #ifndef SYMMETRIC_H
 #define SYMMETRIC_H
 
@@ -64,15 +66,15 @@ __contract__(
 );
 
 
-// Macros denoting FIPS-203 specific Hash functions
+/* Macros denoting FIPS-203 specific Hash functions */
 
-// Hash function H, FIPS-201 4.1 (eq 4.4)
+/* Hash function H, FIPS-201 4.1 (eq 4.4) */
 #define hash_h(OUT, IN, INBYTES) sha3_256(OUT, IN, INBYTES)
 
-// Hash function G, FIPS-201 4.1 (eq 4.5)
+/* Hash function G, FIPS-201 4.1 (eq 4.5) */
 #define hash_g(OUT, IN, INBYTES) sha3_512(OUT, IN, INBYTES)
 
-// Macros denoting FIPS-203 specific PRFs
+/* Macros denoting FIPS-203 specific PRFs */
 #define prf(OUT, OUTBYTES, KEY, NONCE) \
   mlkem_shake256_prf(OUT, OUTBYTES, KEY, NONCE)
 #define rkprf(OUT, KEY, INPUT) mlkem_shake256_rkprf(OUT, KEY, INPUT)

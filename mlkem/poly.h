@@ -1,5 +1,7 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 #ifndef POLY_H
 #define POLY_H
 
@@ -10,10 +12,10 @@
 #include "reduce.h"
 #include "verify.h"
 
-// Absolute exclusive upper bound for the output of the inverse NTT
+/* Absolute exclusive upper bound for the output of the inverse NTT */
 #define INVNTT_BOUND (8 * MLKEM_Q)
 
-// Absolute exclusive upper bound for the output of the forward NTT
+/* Absolute exclusive upper bound for the output of the forward NTT */
 #define NTT_BOUND (8 * MLKEM_Q)
 
 /*
@@ -29,8 +31,10 @@ typedef struct
  * INTERNAL presentation of precomputed data speeding up
  * the base multiplication of two polynomials in NTT domain.
  */
-// REF-CHANGE: This structure does not exist in the reference
-// implementation.
+/*
+ * REF-CHANGE: This structure does not exist in the reference
+ * implementation.
+ */
 typedef struct
 {
   int16_t coeffs[MLKEM_N >> 1];
@@ -58,8 +62,10 @@ typedef struct
  * Arguments: - u: Unsigned canonical modulus modulo q
  *                 to be compressed.
  ************************************************************/
-// The multiplication in this routine will exceed UINT32_MAX
-// and wrap around for large values of u. This is expected and required.
+/*
+ * The multiplication in this routine will exceed UINT32_MAX
+ * and wrap around for large values of u. This is expected and required.
+ */
 #ifdef CBMC
 #pragma CPROVER check push
 #pragma CPROVER check disable "unsigned-overflow"
@@ -91,8 +97,10 @@ __contract__(
  * Arguments: - u: Unsigned canonical modulus modulo q
  *                 to be compressed.
  ************************************************************/
-// The multiplication in this routine will exceed UINT32_MAX
-// and wrap around for large values of u. This is expected and required.
+/*
+ * The multiplication in this routine will exceed UINT32_MAX
+ * and wrap around for large values of u. This is expected and required.
+ */
 #ifdef CBMC
 #pragma CPROVER check push
 #pragma CPROVER check disable "unsigned-overflow"
@@ -103,8 +111,8 @@ __contract__(
   ensures(return_value < 16)
   ensures(return_value == (((uint32_t)u * 16 + MLKEM_Q / 2) / MLKEM_Q) % 16))
 {
-  uint32_t d0 = (uint32_t)u * 1290160;  // 16 * round(2^28 / MLKEM_Q)
-  return (d0 + (1u << 27)) >> 28;       // round(d0/2^28)
+  uint32_t d0 = (uint32_t)u * 1290160; /* 16 * round(2^28 / MLKEM_Q) */
+  return (d0 + (1u << 27)) >> 28;      /* round(d0/2^28) */
 }
 #ifdef CBMC
 #pragma CPROVER check pop
@@ -138,8 +146,10 @@ __contract__(
  * Arguments: - u: Unsigned canonical modulus modulo q
  *                 to be compressed.
  ************************************************************/
-// The multiplication in this routine will exceed UINT32_MAX
-// and wrap around for large values of u. This is expected and required.
+/*
+ * The multiplication in this routine will exceed UINT32_MAX
+ * and wrap around for large values of u. This is expected and required.
+ */
 #ifdef CBMC
 #pragma CPROVER check push
 #pragma CPROVER check disable "unsigned-overflow"
@@ -150,8 +160,8 @@ __contract__(
   ensures(return_value < 32)
   ensures(return_value == (((uint32_t)u * 32 + MLKEM_Q / 2) / MLKEM_Q) % 32)  )
 {
-  uint32_t d0 = (uint32_t)u * 1290176;  // 2^5 * round(2^27 / MLKEM_Q)
-  return (d0 + (1u << 26)) >> 27;       // round(d0/2^27)
+  uint32_t d0 = (uint32_t)u * 1290176; /* 2^5 * round(2^27 / MLKEM_Q) */
+  return (d0 + (1u << 26)) >> 27;      /* round(d0/2^27) */
 }
 #ifdef CBMC
 #pragma CPROVER check pop
@@ -185,13 +195,15 @@ __contract__(
  * Arguments: - u: Unsigned canonical modulus modulo q
  *                 to be compressed.
  ************************************************************/
-// The multiplication in this routine will exceed UINT32_MAX
-// and wrap around for large values of u. This is expected and required.
+/*
+ * The multiplication in this routine will exceed UINT32_MAX
+ * and wrap around for large values of u. This is expected and required.
+ */
 #ifdef CBMC
 #pragma CPROVER check push
 #pragma CPROVER check disable "unsigned-overflow"
 #endif
-// TODO: do the same for the other static inline functions
+/* TODO: do the same for the other static inline functions */
 STATIC_INLINE_TESTABLE
 uint32_t scalar_compress_d10(uint16_t u)
 __contract__(
@@ -199,7 +211,7 @@ __contract__(
   ensures(return_value < (1u << 10))
   ensures(return_value == (((uint32_t)u * (1u << 10) + MLKEM_Q / 2) / MLKEM_Q) % (1 << 10)))
 {
-  uint64_t d0 = (uint64_t)u * 2642263040;  // 2^10 * round(2^32 / MLKEM_Q)
+  uint64_t d0 = (uint64_t)u * 2642263040; /* 2^10 * round(2^32 / MLKEM_Q) */
   d0 = (d0 + ((uint64_t)1u << 32)) >> 33;
   return (d0 & 0x3FF);
 }
@@ -235,8 +247,10 @@ __contract__(
  * Arguments: - u: Unsigned canonical modulus modulo q
  *                 to be compressed.
  ************************************************************/
-// The multiplication in this routine will exceed UINT32_MAX
-// and wrap around for large values of u. This is expected and required.
+/*
+ * The multiplication in this routine will exceed UINT32_MAX
+ * and wrap around for large values of u. This is expected and required.
+ */
 #ifdef CBMC
 #pragma CPROVER check push
 #pragma CPROVER check disable "unsigned-overflow"
@@ -248,7 +262,7 @@ __contract__(
   ensures(return_value < (1u << 11))
   ensures(return_value == (((uint32_t)u * (1u << 11) + MLKEM_Q / 2) / MLKEM_Q) % (1 << 11)))
 {
-  uint64_t d0 = (uint64_t)u * 5284526080;  // 2^11 * round(2^33 / MLKEM_Q)
+  uint64_t d0 = (uint64_t)u * 5284526080; /* 2^11 * round(2^33 / MLKEM_Q) */
   d0 = (d0 + ((uint64_t)1u << 32)) >> 33;
   return (d0 & 0x7FF);
 }
@@ -299,13 +313,13 @@ __contract__(
   ensures(return_value >= 0 && return_value <= (MLKEM_Q - 1))
   ensures(return_value == (int32_t)c + (((int32_t)c < 0) * MLKEM_Q)))
 {
-  // Add Q if c is negative, but in constant time
+  /* Add Q if c is negative, but in constant time */
   c = ct_sel_int16(c + MLKEM_Q, c, ct_cmask_neg_i16(c));
 
   cassert(c >= 0, "scalar_signed_to_unsigned_q result lower bound");
   cassert(c < MLKEM_Q, "scalar_signed_to_unsigned_q result upper bound");
 
-  // and therefore cast to uint16_t is safe.
+  /* and therefore cast to uint16_t is safe. */
   return (uint16_t)c;
 }
 
@@ -552,9 +566,11 @@ __contract__(
 #endif /* MLKEM_K */
 
 #if MLKEM_ETA1 == MLKEM_ETA2
-// We only require poly_getnoise_eta2_4x for ml-kem-768 and ml-kem-1024
-// where MLKEM_ETA2 = MLKEM_ETA1 = 2.
-// For ml-kem-512, poly_getnoise_eta1122_4x is used instead.
+/*
+ * We only require poly_getnoise_eta2_4x for ml-kem-768 and ml-kem-1024
+ * where MLKEM_ETA2 = MLKEM_ETA1 = 2.
+ * For ml-kem-512, poly_getnoise_eta1122_4x is used instead.
+ */
 #define poly_getnoise_eta2_4x poly_getnoise_eta1_4x
 #endif /* MLKEM_ETA1 == MLKEM_ETA2 */
 
@@ -660,7 +676,7 @@ __contract__(
   ensures(array_abs_bound(r->coeffs, 0, MLKEM_N - 1, (MLKEM_Q - 1)))
 );
 
-// REF-CHANGE: This function does not exist in the reference implementation
+/* REF-CHANGE: This function does not exist in the reference implementation */
 #define poly_mulcache_compute MLKEM_NAMESPACE(poly_mulcache_compute)
 /************************************************************
  * Name: poly_mulcache_compute
@@ -679,9 +695,11 @@ __contract__(
  * Arguments: - x: Pointer to mulcache to be populated
  *            - a: Pointer to input polynomial
  ************************************************************/
-// NOTE: The default C implementation of this function populates
-// the mulcache with values in (-q,q), but this is not needed for the
-// higher level safety proofs, and thus not part of the spec.
+/*
+ * NOTE: The default C implementation of this function populates
+ * the mulcache with values in (-q,q), but this is not needed for the
+ * higher level safety proofs, and thus not part of the spec.
+ */
 void poly_mulcache_compute(poly_mulcache *x, const poly *a)
 __contract__(
   requires(memory_no_alias(x, sizeof(poly_mulcache)))
@@ -700,11 +718,13 @@ __contract__(
  *
  * Arguments:   - poly *r: pointer to input/output polynomial
  **************************************************/
-// REF-CHANGE: The semantics of poly_reduce() is different in
-//             the reference implementation, which requires
-//             signed canonical output data. Unsigned canonical
-//             outputs are better suited to the only remaining
-//             use of poly_reduce() in the context of (de)serialization.
+/*
+ * REF-CHANGE: The semantics of poly_reduce() is different in
+ * the reference implementation, which requires
+ * signed canonical output data. Unsigned canonical
+ * outputs are better suited to the only remaining
+ * use of poly_reduce() in the context of (de)serialization.
+ */
 void poly_reduce(poly *r)
 __contract__(
   requires(memory_no_alias(r, sizeof(poly)))
@@ -726,9 +746,11 @@ __contract__(
  * not overflow. Otherwise, the behaviour of this function is undefined.
  *
  ************************************************************/
-// REF-CHANGE:
-// The reference implementation uses a 3-argument poly_add.
-// We specialize to the accumulator form to avoid reasoning about aliasing.
+/*
+ * REF-CHANGE:
+ * The reference implementation uses a 3-argument poly_add.
+ * We specialize to the accumulator form to avoid reasoning about aliasing.
+ */
 void poly_add(poly *r, const poly *b)
 __contract__(
   requires(memory_no_alias(r, sizeof(poly)))
@@ -749,9 +771,11 @@ __contract__(
  *to.
  *            - const poly *b: Pointer to second input polynomial
  **************************************************/
-// REF-CHANGE:
-// The reference implementation uses a 3-argument poly_sub.
-// We specialize to the accumulator form to avoid reasoning about aliasing.
+/*
+ * REF-CHANGE:
+ * The reference implementation uses a 3-argument poly_sub.
+ * We specialize to the accumulator form to avoid reasoning about aliasing.
+ */
 void poly_sub(poly *r, const poly *b)
 __contract__(
   requires(memory_no_alias(r, sizeof(poly)))

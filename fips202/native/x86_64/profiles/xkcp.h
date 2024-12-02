@@ -1,7 +1,9 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
-// Default FIPS202 assembly profile for AArch64 systems
+/* Default FIPS202 assembly profile for AArch64 systems */
 
 #ifdef FIPS202_NATIVE_PROFILE_H
 #error Only one FIPS202 assembly profile can be defined -- did you include multiple profiles?

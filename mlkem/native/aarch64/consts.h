@@ -1,5 +1,7 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 #if !defined(MLKEM_NATIVE_AARCH64_CONSTS)
 #define MLKEM_NATIVE_AARCH64_CONSTS

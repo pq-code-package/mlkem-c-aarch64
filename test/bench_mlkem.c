@@ -1,5 +1,7 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 #include <inttypes.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -60,7 +62,7 @@ static int bench(void)
     randombytes(kg_rand, 2 * CRYPTO_BYTES);
     randombytes(enc_rand, CRYPTO_BYTES);
 
-    // Key-pair generation
+    /* Key-pair generation */
     for (j = 0; j < NWARMUP; j++)
     {
       crypto_kem_keypair_derand(pk, sk, kg_rand);
@@ -75,7 +77,7 @@ static int bench(void)
     cycles_kg[i] = t1 - t0;
 
 
-    // Encapsulation
+    /* Encapsulation */
     for (j = 0; j < NWARMUP; j++)
     {
       crypto_kem_enc_derand(ct, key_a, pk, enc_rand);
@@ -88,7 +90,7 @@ static int bench(void)
     t1 = get_cyclecounter();
     cycles_enc[i] = t1 - t0;
 
-    // Decapsulation
+    /* Decapsulation */
     for (j = 0; j < NWARMUP; j++)
     {
       crypto_kem_dec(key_b, ct, sk);

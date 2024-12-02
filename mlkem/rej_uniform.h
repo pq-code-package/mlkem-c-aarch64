@@ -1,5 +1,7 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 #ifndef REJ_UNIFORM_H
 #define REJ_UNIFORM_H
 
@@ -39,10 +41,12 @@
  * is provided on how many bytes of the input buffer have been consumed.
  **************************************************/
 
-// REF-CHANGE: The signature differs from the Kyber reference implementation
-// in that it adds the offset and always expects the base of the target
-// buffer. This avoids shifting the buffer base in the caller, which appears
-// tricky to reason about.
+/*
+ * REF-CHANGE: The signature differs from the Kyber reference implementation
+ * in that it adds the offset and always expects the base of the target
+ * buffer. This avoids shifting the buffer base in the caller, which appears
+ * tricky to reason about.
+ */
 unsigned int rej_uniform(int16_t *r, unsigned int target, unsigned int offset,
                          const uint8_t *buf, unsigned int buflen)
 __contract__(

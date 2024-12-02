@@ -1,5 +1,7 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 #include "kem.h"
 #include <stddef.h>
 #include <stdint.h>
@@ -11,7 +13,7 @@
 #include "verify.h"
 
 #if defined(CBMC)
-// Redeclaration with contract needed for CBMC only
+/* Redeclaration with contract needed for CBMC only */
 int memcmp(const void *str1, const void *str2, size_t n)
 __contract__(
   requires(memory_no_alias(str1, n))
@@ -38,7 +40,7 @@ static int check_pk(const uint8_t pk[MLKEM_PUBLICKEYBYTES])
   polyvec_frombytes(&p, pk);
   polyvec_reduce(&p);
   polyvec_tobytes(p_reencoded, &p);
-  // Data is public, so a variable-time memcmp() is OK
+  /* Data is public, so a variable-time memcmp() is OK */
   if (memcmp(pk, p_reencoded, MLKEM_POLYVECBYTES))
   {
     return -1;
@@ -62,9 +64,11 @@ static int check_pk(const uint8_t pk[MLKEM_PUBLICKEYBYTES])
 static int check_sk(const uint8_t sk[MLKEM_SECRETKEYBYTES])
 {
   uint8_t test[MLKEM_SYMBYTES];
-  // The parts of `sk` being hashed and compared here are public, so
-  // no public information is leaked through the runtime or the return value
-  // of this function.
+  /*
+   * The parts of `sk` being hashed and compared here are public, so
+   * no public information is leaked through the runtime or the return value
+   * of this function.
+   */
   hash_h(test, sk + MLKEM_INDCPA_SECRETKEYBYTES, MLKEM_PUBLICKEYBYTES);
   if (memcmp(sk + MLKEM_SECRETKEYBYTES - 2 * MLKEM_SYMBYTES, test,
              MLKEM_SYMBYTES))

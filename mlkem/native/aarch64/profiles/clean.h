@@ -1,7 +1,9 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
-// ML-KEM arithmetic native profile for clean assembly
+/* ML-KEM arithmetic native profile for clean assembly */
 
 #ifdef MLKEM_ARITH_NATIVE_PROFILE_H
 #error Only one MLKEM_ARITH assembly profile can be defined -- did you include multiple profiles?

@@ -1,5 +1,7 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 #ifndef POLYVEC_H
 #define POLYVEC_H
 
@@ -12,7 +14,7 @@ typedef struct
   poly vec[MLKEM_K];
 } ALIGN polyvec;
 
-// REF-CHANGE: This struct does not exist in the reference implementation
+/* REF-CHANGE: This struct does not exist in the reference implementation */
 typedef struct
 {
   poly_mulcache vec[MLKEM_K];
@@ -157,7 +159,7 @@ __contract__(
 void polyvec_basemul_acc_montgomery(poly *r, const polyvec *a,
                                     const polyvec *b);
 
-// REF-CHANGE: This function does not exist in the reference implementation
+/* REF-CHANGE: This function does not exist in the reference implementation */
 #define polyvec_basemul_acc_montgomery_cached \
   MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached)
 /*************************************************
@@ -185,13 +187,13 @@ __contract__(
   requires(memory_no_alias(a, sizeof(polyvec)))
   requires(memory_no_alias(b, sizeof(polyvec)))
   requires(memory_no_alias(b_cache, sizeof(polyvec_mulcache)))
-// Input is coefficient-wise < q in absolute value
+/* Input is coefficient-wise < q in absolute value */
   requires(forall(int, k1, 0, MLKEM_K - 1,
  array_abs_bound(a->vec[k1].coeffs, 0, MLKEM_N - 1, (MLKEM_Q - 1))))
   assigns(memory_slice(r, sizeof(poly)))
 );
 
-// REF-CHANGE: This function does not exist in the reference implementation
+/* REF-CHANGE: This function does not exist in the reference implementation */
 #define polyvec_mulcache_compute MLKEM_NAMESPACE(polyvec_mulcache_compute)
 /************************************************************
  * Name: polyvec_mulcache_compute
@@ -213,9 +215,11 @@ __contract__(
  * Arguments: - x: Pointer to mulcache to be populated
  *            - a: Pointer to input polynomial vector
  ************************************************************/
-// NOTE: The default C implementation of this function populates
-// the mulcache with values in (-q,q), but this is not needed for the
-// higher level safety proofs, and thus not part of the spec.
+/*
+ * NOTE: The default C implementation of this function populates
+ * the mulcache with values in (-q,q), but this is not needed for the
+ * higher level safety proofs, and thus not part of the spec.
+ */
 void polyvec_mulcache_compute(polyvec_mulcache *x, const polyvec *a)
 __contract__(
   requires(memory_no_alias(x, sizeof(polyvec_mulcache)))
@@ -233,11 +237,13 @@ __contract__(
  *
  * Arguments:   - polyvec *r: pointer to input/output polynomial
  **************************************************/
-// REF-CHANGE: The semantics of polyvec_reduce() is different in
-//             the reference implementation, which requires
-//             signed canonical output data. Unsigned canonical
-//             outputs are better suited to the only remaining
-//             use of poly_reduce() in the context of (de)serialization.
+/*
+ * REF-CHANGE: The semantics of polyvec_reduce() is different in
+ *             the reference implementation, which requires
+ *             signed canonical output data. Unsigned canonical
+ *             outputs are better suited to the only remaining
+ *             use of poly_reduce() in the context of (de)serialization.
+ */
 void polyvec_reduce(polyvec *r)
 __contract__(
   requires(memory_no_alias(r, sizeof(polyvec)))

@@ -1,5 +1,7 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 #ifndef MLKEM_DEBUG_H
 #define MLKEM_DEBUG_H
 
@@ -149,7 +151,7 @@ void mlkem_debug_print_error(const char *file, int line, const char *msg);
                       "polyvec unsigned bound for " #ptr ".vec[i]");     \
   } while (0)
 
-// Following AWS-LC to define a C99-compliant static assert
+/* Following AWS-LC to define a C99-compliant static assert */
 #define MLKEM_STATIC_ASSERT_DEFINE(cond, msg)                            \
   typedef struct                                                         \
   {                                                                      \

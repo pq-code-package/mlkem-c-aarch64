@@ -1,5 +1,7 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: CC0-1.0
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 /* Based on the CC0 implementation in https://github.com/mupq/mupq and
  * the public domain implementation in
  * crypto_hash/keccakc512/simple/ from http://bench.cr.yp.to/supercop.html
