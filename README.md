@@ -2,9 +2,9 @@
 
 # mlkem-native
 
-**mlkem-native** is a C99 implementation of [ML-KEM](https://doi.org/10.6028/NIST.FIPS.203.ipd) targeting
+**mlkem-native** is a C90 implementation of [ML-KEM](https://doi.org/10.6028/NIST.FIPS.203.ipd) targeting
 PC, mobile and server platforms. It is a fork of the ML-KEM [reference
-implementation](https://github.com/pq-crystals/kyber/tree/main/ref), deviating only to (a) accommodate an
+implementation](https://github.com/pq-crystals/kyber/tree/main/ref), deviating primarily to (a) accommodate an
 interface for native code (e.g. assembler), and (b) facilitate formal verification. **mlkem-native** provides
 native code backends in C, AArch64 and x86_64, offering state of the art performance on most Arm, Intel and AMD
 platforms.
