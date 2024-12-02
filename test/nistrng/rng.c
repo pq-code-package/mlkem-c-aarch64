@@ -49,7 +49,7 @@ static void nistkat_update(const unsigned char *provided_data,
 {
   int i;
   int len = AES256_KEYBYTES + AES_BLOCKBYTES;
-  uint8_t tmp[len];
+  uint8_t tmp[AES256_KEYBYTES + AES_BLOCKBYTES];
 
   for (i = 0; i < len / AES_BLOCKBYTES; i++)
   {
@@ -76,7 +76,7 @@ void nist_kat_init(
 {
   int i;
   int len = AES256_KEYBYTES + AES_BLOCKBYTES;
-  uint8_t seed_material[len];
+  uint8_t seed_material[AES256_KEYBYTES + AES_BLOCKBYTES];
   (void)security_strength;
 
   memcpy(seed_material, entropy_input, len);
