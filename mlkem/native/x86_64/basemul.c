@@ -43,10 +43,12 @@ void polyvec_basemul_acc_montgomery_cached_avx2(poly *r, const polyvec *a,
   unsigned int i;
   poly t;
 
-  ((void)b_cache); /* cache unused */
+  /* TODO: Use mulcache for AVX2. So far, it is unused. */
+  ((void)b_cache);
 
-  /* TODO! Think through bounds */
-
+  /* Coefficient-wise bound of each basemul is 2q.
+   * Since we are accumulating at most 4 times, the
+   * overall bound is 8q < INT16_MAX. */
   poly_basemul_montgomery_avx2(r, &a->vec[0], &b->vec[0]);
   for (i = 1; i < MLKEM_K; i++)
   {
