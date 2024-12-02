@@ -1,5 +1,7 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 #ifndef MLKEM_DEBUG_H
 #define MLKEM_DEBUG_H
 
@@ -127,29 +129,31 @@ void mlkem_debug_print_error(const char *file, int line, const char *msg);
 /* Check absolute bounds on coefficients in vector of polynomials
  * ptr: polyvec* or polyvec_mulcache* pointer to vector of polynomials to check
  * abs_bound: Exclusive upper bound on absolute value to check */
-#define POLYVEC_BOUND(ptr, abs_bound)                                    \
-  do                                                                     \
-  {                                                                      \
-    for (unsigned _debug_polyvec_bound_idx = 0;                          \
-         _debug_polyvec_bound_idx < MLKEM_K; _debug_polyvec_bound_idx++) \
-      POLY_BOUND_MSG(&(ptr)->vec[_debug_polyvec_bound_idx], (abs_bound), \
-                     "polyvec absolute bound for " #ptr ".vec[i]");      \
+#define POLYVEC_BOUND(ptr, abs_bound)                                      \
+  do                                                                       \
+  {                                                                        \
+    unsigned _debug_polyvec_bound_idx;                                     \
+    for (_debug_polyvec_bound_idx = 0; _debug_polyvec_bound_idx < MLKEM_K; \
+         _debug_polyvec_bound_idx++)                                       \
+      POLY_BOUND_MSG(&(ptr)->vec[_debug_polyvec_bound_idx], (abs_bound),   \
+                     "polyvec absolute bound for " #ptr ".vec[i]");        \
   } while (0)
 
 /* Check unsigned bounds on coefficients in vector of polynomials
  * ptr: polyvec* or polyvec_mulcache* pointer to vector of polynomials to check
  * ubound: Exclusive upper bound on value to check. Inclusive lower bound is 0.
  */
-#define POLYVEC_UBOUND(ptr, ubound)                                      \
-  do                                                                     \
-  {                                                                      \
-    for (unsigned _debug_polyvec_bound_idx = 0;                          \
-         _debug_polyvec_bound_idx < MLKEM_K; _debug_polyvec_bound_idx++) \
-      POLY_UBOUND_MSG(&(ptr)->vec[_debug_polyvec_bound_idx], (ubound),   \
-                      "polyvec unsigned bound for " #ptr ".vec[i]");     \
+#define POLYVEC_UBOUND(ptr, ubound)                                        \
+  do                                                                       \
+  {                                                                        \
+    unsigned _debug_polyvec_bound_idx;                                     \
+    for (_debug_polyvec_bound_idx = 0; _debug_polyvec_bound_idx < MLKEM_K; \
+         _debug_polyvec_bound_idx++)                                       \
+      POLY_UBOUND_MSG(&(ptr)->vec[_debug_polyvec_bound_idx], (ubound),     \
+                      "polyvec unsigned bound for " #ptr ".vec[i]");       \
   } while (0)
 
-// Following AWS-LC to define a C99-compliant static assert
+/* Following AWS-LC to define a C99-compliant static assert */
 #define MLKEM_STATIC_ASSERT_DEFINE(cond, msg)                            \
   typedef struct                                                         \
   {                                                                      \
@@ -168,47 +172,47 @@ void mlkem_debug_print_error(const char *file, int line, const char *msg);
 
 #else /* MLKEM_DEBUG */
 
-#define CASSERT(...) \
-  do                 \
-  {                  \
-  } while (0)
-#define SCALAR_BOUND(...) \
+#define CASSERT(val, msg) \
   do                      \
   {                       \
   } while (0)
-#define BOUND(...) \
-  do               \
-  {                \
+#define SCALAR_BOUND(val, abs_bound, msg) \
+  do                                      \
+  {                                       \
   } while (0)
-#define POLY_BOUND(...) \
-  do                    \
-  {                     \
+#define BOUND(ptr, len, abs_bound, msg) \
+  do                                    \
+  {                                     \
   } while (0)
-#define POLYVEC_BOUND(...) \
-  do                       \
-  {                        \
+#define POLY_BOUND(ptr, abs_bound) \
+  do                               \
+  {                                \
   } while (0)
-#define POLY_BOUND_MSG(...) \
-  do                        \
-  {                         \
+#define POLYVEC_BOUND(ptr, abs_bound) \
+  do                                  \
+  {                                   \
   } while (0)
-#define UBOUND(...) \
-  do                \
-  {                 \
+#define POLY_BOUND_MSG(ptr, ubound, abs_bound) \
+  do                                           \
+  {                                            \
   } while (0)
-#define POLY_UBOUND(...) \
-  do                     \
-  {                      \
+#define UBOUND(ptr, len, high_bound, msg) \
+  do                                      \
+  {                                       \
   } while (0)
-#define POLYVEC_UBOUND(...) \
-  do                        \
-  {                         \
+#define POLY_UBOUND(ptr, ubound) \
+  do                             \
+  {                              \
   } while (0)
-#define POLY_UBOUND_MSG(...) \
-  do                         \
-  {                          \
+#define POLYVEC_UBOUND(ptr, ubound) \
+  do                                \
+  {                                 \
   } while (0)
-#define STATIC_ASSERT(...)
+#define POLY_UBOUND_MSG(ptr, ubound, msg) \
+  do                                      \
+  {                                       \
+  } while (0)
+#define STATIC_ASSERT(cond, error)
 
 #endif /* MLKEM_DEBUG */
 

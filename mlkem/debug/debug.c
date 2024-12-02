@@ -1,6 +1,10 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
+#define _ISOC99_SOURCE
 #include "debug.h"
+#include <stdio.h>
 
 #if defined(MLKEM_DEBUG)
 

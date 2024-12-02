@@ -1,8 +1,12 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
-// Implementation from Kyber reference repository
-// https://github.com/pq-crystals/kyber/blob/main/avx2
+/*
+ * Implementation from Kyber reference repository
+ * https://github.com/pq-crystals/kyber/blob/main/avx2
+ */
 
 #include "config.h"
 
@@ -16,7 +20,7 @@
 #include "consts.h"
 #include "params.h"
 
-// #define BMI
+/* #define BMI */
 
 #ifndef BMI
 static const uint8_t idx[256][8] = {
@@ -153,7 +157,7 @@ static const uint8_t idx[256][8] = {
 #define _mm256_cmpge_epu16(a, b) _mm256_cmpeq_epi16(_mm256_max_epu16(a, b), a)
 #define _mm_cmpge_epu16(a, b) _mm_cmpeq_epi16(_mm_max_epu16(a, b), a)
 
-unsigned int rej_uniform_avx2(int16_t *restrict r, const uint8_t *buf)
+unsigned int rej_uniform_avx2(int16_t *RESTRICT r, const uint8_t *buf)
 {
   unsigned int ctr, pos;
   uint16_t val0, val1;
@@ -174,7 +178,7 @@ unsigned int rej_uniform_avx2(int16_t *restrict r, const uint8_t *buf)
   while (ctr <= MLKEM_N - 32 && pos <= REJ_UNIFORM_AVX_BUFLEN - 48)
   {
     f0 = _mm256_loadu_si256((__m256i *)&buf[pos]);
-    // Don't load from offset 24, as this would over-read the buffer
+    /* Don't load from offset 24, as this would over-read the buffer */
     f1 = _mm256_loadu_si256((__m256i *)&buf[pos + 16]);
     f0 = _mm256_permute4x64_epi64(f0, 0x94 /* 0b10010100 ~= (2,1,1,0) */);
     f1 = _mm256_permute4x64_epi64(f1, 0xe9 /* 0x11101001 ~= (3,2,2,1) */);
@@ -287,6 +291,6 @@ unsigned int rej_uniform_avx2(int16_t *restrict r, const uint8_t *buf)
 }
 
 #else  /* MLKEM_USE_NATIVE_X86_64 && SYS_X86_64_AVX2 */
-// Dummy declaration for compilers disliking empty compilation units
+/* Dummy declaration for compilers disliking empty compilation units */
 int empty_cu_rej_uniform_avx2;
 #endif /* MLKEM_USE_NATIVE_X86_64 && SYS_X86_64_AVX2 */

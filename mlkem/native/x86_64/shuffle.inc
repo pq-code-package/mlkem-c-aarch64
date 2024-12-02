@@ -1,5 +1,7 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */ 
 
 .macro shuffle8 r0,r1,r2,r3
 vperm2i128	$0x20,%ymm\r1,%ymm\r0,%ymm\r2

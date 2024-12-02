@@ -1,5 +1,7 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 #ifndef FIPS202_NATIVE_H
 #define FIPS202_NATIVE_H
 
@@ -27,20 +29,20 @@
  * 3. Set FIPS202_NATIVE_MANUAL and use an adhoc profile specified via CFLAGS.
  */
 
-// Option 2: Manually written profile
+/* Option 2: Manually written profile */
 #if defined(FIPS202_NATIVE_PROFILE)
 
 #define STRINGIFY_(x) #x
 #define STRINGIFY(x) STRINGIFY_(x)
 #include STRINGIFY(FIPS202_NATIVE_PROFILE)
 
-// Option 1: Choose from shipped list of profiles
+/* Option 1: Choose from shipped list of profiles */
 #elif !defined(FIPS202_NATIVE_MANUAL)
 
 #ifdef SYS_AARCH64
-// Pick exactly one profile from the following list
+/* Pick exactly one profile from the following list */
 #include "aarch64/profiles/default.h"
-// #include "aarch64/profiles/cortex_a55.h"
+/* #include "aarch64/profiles/cortex_a55.h" */
 #endif
 
 #if defined(SYS_X86_64) && defined(SYS_X86_64_AVX2)
@@ -57,21 +59,22 @@
  * FIPS202 native interface
  */
 
-// Those functions are meant to be trivial wrappers around
-// the chosen native implementation. The are static inline
-// to avoid unnecessary calls.
-//
-// The macro before each declaration controls whether a native
-// implementation is present.
+/*
+ * Those functions are meant to be trivial wrappers around
+ *  the chosen native implementation. The are static inline
+ * to avoid unnecessary calls.
+ * The macro before each declaration controls whether a native
+ * implementation is present.
+ */
 
 #if defined(MLKEM_USE_FIPS202_X1_NATIVE)
-static inline void keccak_f1600_x1_native(uint64_t *state);
+static INLINE void keccak_f1600_x1_native(uint64_t *state);
 #endif
 #if defined(MLKEM_USE_FIPS202_X2_NATIVE)
-static inline void keccak_f1600_x2_native(uint64_t *state);
+static INLINE void keccak_f1600_x2_native(uint64_t *state);
 #endif
 #if defined(MLKEM_USE_FIPS202_X4_NATIVE)
-static inline void keccak_f1600_x4_native(uint64_t *state);
+static INLINE void keccak_f1600_x4_native(uint64_t *state);
 #endif
 
 #endif /* MLKEM_USE_NATIVE */

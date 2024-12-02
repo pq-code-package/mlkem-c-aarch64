@@ -1,8 +1,12 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
-// Implementation from Kyber reference repository
-// https://github.com/pq-crystals/kyber/blob/main/avx2/align.h
+/*
+ * Implementation from Kyber reference repository
+ * https://github.com/pq-crystals/kyber/blob/main/avx2/align.h
+ */
 
 #ifndef ALIGN_H
 #define ALIGN_H

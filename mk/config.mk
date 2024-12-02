@@ -32,6 +32,7 @@ CFLAGS += \
 	-Wmissing-prototypes \
 	-Wshadow \
 	-Wpointer-arith \
+	-Wno-long-long \
 	-Wno-unknown-pragmas \
         -Wno-unused-command-line-argument \
 	-O3 \

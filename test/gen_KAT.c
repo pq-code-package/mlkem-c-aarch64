@@ -1,5 +1,7 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
@@ -11,8 +13,9 @@
 
 static void print_hex(const char *label, const uint8_t *data, size_t size)
 {
+  size_t i;
   printf("%s = ", label);
-  for (size_t i = 0; i < size; i++)
+  for (i = 0; i < size; i++)
   {
     printf("%02x", data[i]);
   }
@@ -29,6 +32,7 @@ static void shake256_absorb(shake256incctx *state, const uint8_t *input,
 
 int main(void)
 {
+  unsigned int i;
   ALIGN uint8_t coins[3 * MLKEM_SYMBYTES];
   ALIGN uint8_t pk[CRYPTO_PUBLICKEYBYTES];
   ALIGN uint8_t sk[CRYPTO_SECRETKEYBYTES];
@@ -46,7 +50,7 @@ int main(void)
   shake256incctx state;
   shake256_absorb(&state, seed, sizeof(seed));
 
-  for (unsigned int i = 0; i < NTESTS; i++)
+  for (i = 0; i < NTESTS; i++)
   {
     shake256_inc_squeeze(coins, sizeof(coins), &state);
 

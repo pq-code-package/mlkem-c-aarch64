@@ -1,5 +1,7 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: CC0-1.0
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 #ifndef FIPS202_H
 #define FIPS202_H
 
@@ -16,13 +18,13 @@
 #define SHA3_512_RATE 72
 
 
-// Context for non-incremental API
+/* Context for non-incremental API */
 typedef struct
 {
   uint64_t ctx[25];
 } shake128ctx;
 
-// Context for incremental API
+/* Context for incremental API */
 typedef struct
 {
   uint64_t ctx[26];

@@ -144,8 +144,10 @@ uint64_t get_cyclecounter(void)
   return cpu_cycles;
 }
 #elif defined(M1_CYCLES)
-// based on
-// https://gist.github.com/dougallj/5bafb113492047c865c0c8cfbc930155#file-m1_robsize-c-L390
+/*
+ * based on
+ * https://gist.github.com/dougallj/5bafb113492047c865c0c8cfbc930155#file-m1_robsize-c-L390
+ */
 
 #include <dlfcn.h>
 #include <pthread.h>

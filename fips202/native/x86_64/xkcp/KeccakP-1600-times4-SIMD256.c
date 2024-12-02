@@ -1,5 +1,7 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: CC0-1.0
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 /*
 Implementation by the Keccak, Keyak and Ketje Teams, namely, Guido Bertoni,
@@ -90,8 +92,10 @@ static const UINT64 rho56[4] = {0x0007060504030201, 0x080F0E0D0C0B0A09,
   Co = XOR256(Abo, XOR256(Ago, XOR256(Ako, XOR256(Amo, Aso)))); \
   Cu = XOR256(Abu, XOR256(Agu, XOR256(Aku, XOR256(Amu, Asu))));
 
-/* --- Theta Rho Pi Chi Iota Prepare-theta */
-/* --- 64-bit lanes mapped to 64-bit words */
+/*
+ * --- Theta Rho Pi Chi Iota Prepare-theta
+ * --- 64-bit lanes mapped to 64-bit words
+ */
 #define thetaRhoPiChiIotaPrepareTheta(i, A, E)                \
   ROL64in256(Ce1, Ce, 1);                                     \
   Da = XOR256(Cu, Ce1);                                       \
@@ -211,8 +215,10 @@ static const UINT64 rho56[4] = {0x0007060504030201, 0x080F0E0D0C0B0A09,
   XOReq256(Cu, E##su);
 
 
-/* --- Theta Rho Pi Chi Iota */
-/* --- 64-bit lanes mapped to 64-bit words */
+/*
+ * --- Theta Rho Pi Chi Iota
+ * --- 64-bit lanes mapped to 64-bit words
+ */
 #define thetaRhoPiChiIota(i, A, E)                            \
   ROL64in256(Ce1, Ce, 1);                                     \
   Da = XOR256(Cu, Ce1);                                       \
@@ -440,7 +446,7 @@ void KeccakP1600times4_PermuteAll_24rounds(void *states)
 
 #else
 
-// Dummy constant to keep compiler happy despite empty CU
+/* Dummy constant to keep compiler happy despite empty CU */
 int empty_cu_avx2_keccakx4;
 
 #endif /* MLKEM_USE_NATIVE_X86_64 && SYS_X86_64_AVX2 */

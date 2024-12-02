@@ -265,7 +265,7 @@ round_constants:
     st1 {Asu.d}[1], [input_addr], #8
 .endm
 
-#define STACK_SIZE (16*4 + 16*6) // VREGS (16*4) + GPRS (TODO: Remove)
+#define STACK_SIZE (16*4 + 16*6) /* VREGS (16*4) + GPRS (TODO: Remove) */
 
 #define STACK_BASE_GPRS (16*4)
 .macro alloc_stack
@@ -401,7 +401,7 @@ round_constants:
     bcax_m1 Abo, Abo_, Aba_, Abu_
     bcax_m0 Abu, Abu_, Abe_, Aba_
 
-    // iota step
+    /* iota step */
     eor Aba.16b, Aba.16b, v28.16b
 
 .endm

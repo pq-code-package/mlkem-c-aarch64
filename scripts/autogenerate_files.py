@@ -16,11 +16,15 @@ montgomery_factor = pow(2, 16, modulus)
 # - zeta values for the reference NTT and invNTT
 
 def gen_header():
-    yield "// Copyright (c) 2024 The mlkem-native project authors"
-    yield "// SPDX-License-Identifier: Apache-2.0"
+    yield "/*"
+    yield " * Copyright (c) 2024 The mlkem-native project authors"
+    yield " * SPDX-License-Identifier: Apache-2.0"
+    yield " */"
     yield ""
-    yield "// WARNING: This file is auto-generated from scripts/autogenerate_files.py"
-    yield "//          Do not modify it directly."
+    yield "/*"
+    yield " * WARNING: This file is auto-generated from scripts/autogenerate_files.py"
+    yield " *          Do not modify it directly."
+    yield " */"
     yield ""
 
 def update_file(filename, content, dry_run=False):
@@ -78,8 +82,10 @@ def gen_c_zeta_file(dry_run=False):
         yield from gen_header()
         yield "#include \"ntt.h\""
         yield ""
-        yield "// Table of zeta values used in the reference NTT and inverse NTT."
-        yield "// See autogenerate_files.py for details."
+        yield "/*"
+        yield " * Table of zeta values used in the reference NTT and inverse NTT."
+        yield " * See autogenerate_files.py for details."
+        yield " */"
         yield "const int16_t zetas[128] = {"
         yield from map(lambda t: str(t) + ",", gen_c_zetas())
         yield "};"
@@ -221,8 +227,10 @@ def gen_aarch64_fwd_ntt_zeta_file(dry_run=False):
         yield ""
         yield "#ifdef MLKEM_USE_NATIVE_AARCH64"
         yield ""
-        yield "// Table of zeta values used in the AArch64 forward NTT"
-        yield "// See autogenerate_files.py for details."
+        yield "/*" 
+        yield " * Table of zeta values used in the AArch64 forward NTT"
+        yield " * See autogenerate_files.py for details."
+        yield " */"
         yield "const int16_t aarch64_ntt_zetas_layer01234[] = {"
         yield from map(lambda t: str(t) + ",", gen_aarch64_fwd_ntt_zetas_layer01234())
         yield "};"
@@ -248,7 +256,7 @@ def gen_aarch64_fwd_ntt_zeta_file(dry_run=False):
         yield "};"
         yield ""
         yield "#else /* MLKEM_USE_NATIVE_AARCH64 */"
-        yield "// Dummy declaration for compilers disliking empty compilation units"
+        yield "/* Dummy declaration for compilers disliking empty compilation units */"
         yield "int empty_cu_aarch64_zetas;"
         yield "#endif /* MLKEM_USE_NATIVE_AARCH64 */"
         yield ""
@@ -313,8 +321,10 @@ def gen_avx2_fwd_ntt_zetas():
 def gen_avx2_fwd_ntt_zeta_file(dry_run=False):
     def gen():
         yield from gen_header()
-        yield "// Table of zeta values used in the AVX2 NTTs"
-        yield "// See autogenerate_files.py for details."
+        yield "/*"
+        yield " * Table of zeta values used in the AVX2 NTTs"
+        yield " * See autogenerate_files.py for details."
+        yield " */"
         yield ""
         yield from map(lambda t: str(t) + ",", gen_avx2_fwd_ntt_zetas())
         yield ""

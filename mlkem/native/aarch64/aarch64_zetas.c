@@ -1,15 +1,21 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
-// WARNING: This file is auto-generated from scripts/autogenerate_files.py
-//          Do not modify it directly.
+/*
+ * WARNING: This file is auto-generated from scripts/autogenerate_files.py
+ *          Do not modify it directly.
+ */
 
 #include "arith_native_aarch64.h"
 
 #ifdef MLKEM_USE_NATIVE_AARCH64
 
-// Table of zeta values used in the AArch64 forward NTT
-// See autogenerate_files.py for details.
+/*
+ * Table of zeta values used in the AArch64 forward NTT
+ * See autogenerate_files.py for details.
+ */
 const int16_t aarch64_ntt_zetas_layer01234[] = {
     -1600, -15749, -749,  -7373,  -40,   -394,   -687, -6762, 630,  6201,
     -1432, -14095, 848,   8347,   0,     0,      1062, 10453, 296,  2914,
@@ -158,6 +164,6 @@ const int16_t aarch64_zetas_mulcache_twisted_native[] = {
 };
 
 #else  /* MLKEM_USE_NATIVE_AARCH64 */
-// Dummy declaration for compilers disliking empty compilation units
+/* Dummy declaration for compilers disliking empty compilation units */
 int empty_cu_aarch64_zetas;
 #endif /* MLKEM_USE_NATIVE_AARCH64 */

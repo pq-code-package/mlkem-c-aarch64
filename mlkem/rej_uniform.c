@@ -1,5 +1,7 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 #include "params.h"
 
 #include "arith_native.h"
@@ -43,7 +45,7 @@ static unsigned int rej_uniform_scalar(int16_t *r, unsigned int target,
 
   ctr = offset;
   pos = 0;
-  // pos + 3 cannot overflow due to the assumption buflen <= 4096
+  /* pos + 3 cannot overflow due to the assumption buflen <= 4096 */
   while (ctr < target && pos + 3 <= buflen)
   __loop__(
     invariant(offset <= ctr && ctr <= target && pos <= buflen)
@@ -78,7 +80,7 @@ unsigned int rej_uniform(int16_t *r, unsigned int target, unsigned int offset,
 {
   int ret;
 
-  // Sample from large buffer with full lane as much as possible.
+  /* Sample from large buffer with full lane as much as possible. */
   ret = rej_uniform_native(r + offset, target - offset, buf, buflen);
   if (ret != -1)
     return offset + (unsigned)ret;

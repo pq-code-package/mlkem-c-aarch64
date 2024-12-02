@@ -1,11 +1,17 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
-// WARNING: This file is auto-generated from scripts/autogenerate_files.py
-//          Do not modify it directly.
+/*
+ * WARNING: This file is auto-generated from scripts/autogenerate_files.py
+ *          Do not modify it directly.
+ */
 
-// Table of zeta values used in the AVX2 NTTs
-// See autogenerate_files.py for details.
+/*
+ * Table of zeta values used in the AVX2 NTTs
+ * See autogenerate_files.py for details.
+ */
 
 31498, 31498, 31498, 31498, -758, -758, -758, -758, 0, 0, 0, 0, 0, 0, 0, 0,
     14745, 14745, 14745, 14745, 14745, 14745, 14745, 14745, 14745, 14745, 14745,

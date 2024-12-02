@@ -1,5 +1,7 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 #ifndef MLKEM_ARITH_NATIVE_H
 #define MLKEM_ARITH_NATIVE_H
 
@@ -36,12 +38,13 @@
  * polynomials in NTT domain from bitreversed to the custom order.
  */
 
-// Those functions are meant to be trivial wrappers around
-// the chosen native implementation. The are static inline
-// to avoid unnecessary calls.
-//
-// The macro before each declaration controls whether a native
-// implementation is present.
+/*
+ * Those functions are meant to be trivial wrappers around
+ * the chosen native implementation. The are static inline
+ * to avoid unnecessary calls.
+ * The macro before each declaration controls whether a native
+ * implementation is present.
+ */
 
 #if defined(MLKEM_USE_NATIVE_NTT)
 /*************************************************
@@ -58,13 +61,15 @@
  *
  * Arguments:   - poly *p: pointer to in/output polynomial
  **************************************************/
-static inline void ntt_native(poly *);
+static INLINE void ntt_native(poly *);
 #endif /* MLKEM_USE_NATIVE_NTT */
 
 #if defined(MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER)
-// This must only be set if NTT, invNTT, basemul, mulcache, and
-// to/from byte stream conversions all have native implementations
-// that are adapted to the custom order.
+/*
+ * This must only be set if NTT, invNTT, basemul, mulcache, and
+ * to/from byte stream conversions all have native implementations
+ * that are adapted to the custom order.
+ */
 #if !defined(MLKEM_USE_NATIVE_NTT) || !defined(MLKEM_USE_NATIVE_INTT) || \
     !defined(MLKEM_USE_NATIVE_POLY_MULCACHE_COMPUTE) ||                  \
     !defined(MLKEM_USE_NATIVE_POLYVEC_BASEMUL_ACC_MONTGOMERY_CACHED) ||  \
@@ -88,7 +93,7 @@ and to/from bytes conversions."
  * Arguments:   - poly *p: pointer to in/output polynomial
  *
  **************************************************/
-static inline void poly_permute_bitrev_to_custom(poly *);
+static INLINE void poly_permute_bitrev_to_custom(poly *);
 #endif /* MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER */
 
 #if defined(MLKEM_USE_NATIVE_INTT)
@@ -106,7 +111,7 @@ static inline void poly_permute_bitrev_to_custom(poly *);
  *
  * Arguments:   - uint16_t *a: pointer to in/output polynomial
  **************************************************/
-static inline void intt_native(poly *);
+static INLINE void intt_native(poly *);
 #endif /* MLKEM_USE_NATIVE_INTT */
 
 #if defined(MLKEM_USE_NATIVE_POLY_REDUCE)
@@ -117,7 +122,7 @@ static inline void intt_native(poly *);
  *
  * Arguments:   - poly *r: pointer to input/output polynomial
  **************************************************/
-static inline void poly_reduce_native(poly *);
+static INLINE void poly_reduce_native(poly *);
 #endif /* MLKEM_USE_NATIVE_POLY_REDUCE */
 
 #if defined(MLKEM_USE_NATIVE_POLY_TOMONT)
@@ -129,7 +134,7 @@ static inline void poly_reduce_native(poly *);
  *
  * Arguments:   - poly *r: pointer to input/output polynomial
  **************************************************/
-static inline void poly_tomont_native(poly *);
+static INLINE void poly_tomont_native(poly *);
 #endif /* MLKEM_USE_NATIVE_POLY_TOMONT */
 
 #if defined(MLKEM_USE_NATIVE_POLY_MULCACHE_COMPUTE)
@@ -154,7 +159,7 @@ static inline void poly_tomont_native(poly *);
  *              OUTPUT
  *              - cache: pointer to multiplication cache
  **************************************************/
-static inline void poly_mulcache_compute_native(poly_mulcache *cache,
+static INLINE void poly_mulcache_compute_native(poly_mulcache *cache,
                                                 const poly *poly);
 #endif /* MLKEM_USE_NATIVE_POLY_MULCACHE_COMPUTE */
 
@@ -177,7 +182,7 @@ static inline void poly_mulcache_compute_native(poly_mulcache *cache,
  *              - r: Result of the base multiplication. This is again
  *                   in NTT domain, and of the same order as a and b.
  **************************************************/
-static inline void polyvec_basemul_acc_montgomery_cached_native(
+static INLINE void polyvec_basemul_acc_montgomery_cached_native(
     poly *r, const polyvec *a, const polyvec *b,
     const polyvec_mulcache *b_cache);
 #endif
@@ -197,7 +202,7 @@ static inline void polyvec_basemul_acc_montgomery_cached_native(
  *              - r: pointer to output byte array
  *                   (of MLKEM_POLYBYTES bytes)
  **************************************************/
-static inline void poly_tobytes_native(uint8_t r[MLKEM_POLYBYTES],
+static INLINE void poly_tobytes_native(uint8_t r[MLKEM_POLYBYTES],
                                        const poly *a);
 #endif /* MLKEM_USE_NATIVE_POLY_TOBYTES */
 
@@ -215,7 +220,7 @@ static inline void poly_tobytes_native(uint8_t r[MLKEM_POLYBYTES],
  *              - a: const pointer to input byte aray
  *                   (of MLKEM_POLYBYTES bytes)
  **************************************************/
-static inline void poly_frombytes_native(poly *a,
+static INLINE void poly_frombytes_native(poly *a,
                                          const uint8_t r[MLKEM_POLYBYTES]);
 #endif /* MLKEM_USE_NATIVE_POLY_FROMBYTES */
 
@@ -237,7 +242,7 @@ static inline void poly_frombytes_native(poly *a,
  * Otherwise, returns non-negative number of sampled 16-bit integers (at most
  *len).
  **************************************************/
-static inline int rej_uniform_native(int16_t *r, unsigned int len,
+static INLINE int rej_uniform_native(int16_t *r, unsigned int len,
                                      const uint8_t *buf, unsigned int buflen);
 #endif /* MLKEM_USE_NATIVE_REJ_UNIFORM */
 

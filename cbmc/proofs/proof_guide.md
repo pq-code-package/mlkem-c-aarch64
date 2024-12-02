@@ -22,7 +22,8 @@ This document uses the abbreviated forms of the [CBMC contracts](https://diffblu
 The most common, and easiest, patten is a "for" loop that has a counter starting at 0, and counting up to some upper bound, like this:
 
 ```
-for (int i = 0; i < C; i++) {
+int i;
+for (i = 0; i < C; i++) {
     S;
 }
 ```
@@ -35,7 +36,8 @@ CBMC requires basic assigns, loop-invariant, and decreases contracts _in exactly
 further enclose the entire loop annotations in a `__loop__` macro. Note that the contracts appear _before_ the opening.
 
 ```
-for (int i = 0; i < C; i++)
+int i;
+for (i = 0; i < C; i++)
 __loop__(
   assigns(i) // plus whatever else S does
   invariant(i >= 0)
@@ -66,7 +68,8 @@ The body:
 ```
 void zero_array_ts (uint8_t *dst, int len)
 {
-    for (int i = 0; i < len; i++)
+    int i;
+    for (i = 0; i < len; i++)
     __loop__(
       assigns(i, object_whole(dst))
       invariant(i >= 0 && i <= len)
@@ -101,7 +104,8 @@ The body is the same, but with a stronger loop invariant. The invariant says tha
 ```
 void zero_array_correct (uint8_t *dst, int len)
 {
-    for (int i = 0; i < len; i++)
+    int i;
+    for (i = 0; i < len; i++)
     __loop__(
       assigns(i, object_whole(dst))
       invariant(i >= 0 && i <= len)
@@ -380,7 +384,8 @@ __contract__(
 `poly_tobytes` has a single loop statement:
 
 ```
-  for (int i = 0; i < MLKEM_N / 2; i++)
+  int i;
+  for (i = 0; i < MLKEM_N / 2; i++)
   { ... }
 ```
 
@@ -392,7 +397,8 @@ A candidate loop contract needs to state that:
 Therefore, we add:
 
 ```
-  for (int i = 0; i < MLKEM_N / 2; i++)
+  int i;
+  for (i = 0; i < MLKEM_N / 2; i++)
   __loop__(
     assigns(i, object_whole(r))
     invariant(i >= 0)

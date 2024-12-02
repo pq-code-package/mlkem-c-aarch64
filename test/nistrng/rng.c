@@ -1,5 +1,7 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 #include <assert.h>
 #include <stdint.h>
@@ -28,7 +30,8 @@ static void _aes256_ecb(unsigned char key[AES256_KEYBYTES],
 
 static void aes256_block_update(uint8_t block[AES_BLOCKBYTES])
 {
-  for (int j = AES_BLOCKBYTES - 1; j >= 0; j--)
+  int j;
+  for (j = AES_BLOCKBYTES - 1; j >= 0; j--)
   {
     ctx.ctr[j]++;
 
@@ -44,17 +47,18 @@ static void aes256_block_update(uint8_t block[AES_BLOCKBYTES])
 static void nistkat_update(const unsigned char *provided_data,
                            unsigned char *key, unsigned char *ctr)
 {
+  int i;
   int len = AES256_KEYBYTES + AES_BLOCKBYTES;
-  uint8_t tmp[len];
+  uint8_t tmp[AES256_KEYBYTES + AES_BLOCKBYTES];
 
-  for (int i = 0; i < len / AES_BLOCKBYTES; i++)
+  for (i = 0; i < len / AES_BLOCKBYTES; i++)
   {
     aes256_block_update(tmp + AES_BLOCKBYTES * i);
   }
 
   if (provided_data)
   {
-    for (int i = 0; i < len; i++)
+    for (i = 0; i < len; i++)
     {
       tmp[i] ^= provided_data[i];
     }
@@ -70,14 +74,15 @@ void nist_kat_init(
         personalization_string[AES256_KEYBYTES + AES_BLOCKBYTES],
     int security_strength)
 {
+  int i;
   int len = AES256_KEYBYTES + AES_BLOCKBYTES;
-  uint8_t seed_material[len];
+  uint8_t seed_material[AES256_KEYBYTES + AES_BLOCKBYTES];
   (void)security_strength;
 
   memcpy(seed_material, entropy_input, len);
   if (personalization_string)
   {
-    for (int i = 0; i < len; i++)
+    for (i = 0; i < len; i++)
     {
       seed_material[i] ^= personalization_string[i];
     }
@@ -89,12 +94,13 @@ void nist_kat_init(
 
 void randombytes(uint8_t *buf, size_t n)
 {
+  size_t i;
   uint8_t block[AES_BLOCKBYTES];
 
   size_t nb = n / AES_BLOCKBYTES;
   size_t tail = n % AES_BLOCKBYTES;
 
-  for (size_t i = 0; i < nb; i++)
+  for (i = 0; i < nb; i++)
   {
     aes256_block_update(block);
     memcpy(buf + i * AES_BLOCKBYTES, block, AES_BLOCKBYTES);

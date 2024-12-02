@@ -1,5 +1,7 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 #include "indcpa.h"
 #include <stddef.h>
 #include <stdint.h>
@@ -58,9 +60,11 @@ static void unpack_pk(polyvec *pk, uint8_t seed[MLKEM_SYMBYTES],
   polyvec_frombytes(pk, packedpk);
   memcpy(seed, packedpk + MLKEM_POLYVECBYTES, MLKEM_SYMBYTES);
 
-  // TODO! pk must be subject to a "modulus check" at the top-level
-  // crypto_kem_enc_derand(). Once that's done, the reduction is no
-  // longer necessary here.
+  /*
+   * TODO! pk must be subject to a "modulus check" at the top-level
+   * crypto_kem_enc_derand(). Once that's done, the reduction is no
+   * longer necessary here.
+   */
   polyvec_reduce(pk);
 }
 
@@ -135,8 +139,10 @@ static void unpack_ciphertext(polyvec *b, poly *v,
   ((12 * MLKEM_N / 8 * (1 << 12) / MLKEM_Q + SHAKE128_RATE) / SHAKE128_RATE)
 #endif
 
-// Generate four A matrix entries from a seed, using rejection
-// sampling on the output of a XOF.
+/*
+ * Generate four A matrix entries from a seed, using rejection
+ * sampling on the output of a XOF.
+ */
 STATIC_TESTABLE
 void gen_matrix_entry_x4(poly *vec, uint8_t *seed[4])
 __contract__(
@@ -152,23 +158,25 @@ __contract__(
   ensures(array_bound(vec[2].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1)))
   ensures(array_bound(vec[3].coeffs, 0, MLKEM_N - 1, 0, (MLKEM_Q - 1))))
 {
-  // Temporary buffers for XOF output before rejection sampling
+  /* Temporary buffers for XOF output before rejection sampling */
   uint8_t buf0[MLKEM_GEN_MATRIX_NBLOCKS * SHAKE128_RATE];
   uint8_t buf1[MLKEM_GEN_MATRIX_NBLOCKS * SHAKE128_RATE];
   uint8_t buf2[MLKEM_GEN_MATRIX_NBLOCKS * SHAKE128_RATE];
   uint8_t buf3[MLKEM_GEN_MATRIX_NBLOCKS * SHAKE128_RATE];
 
-  // Tracks the number of coefficients we have already sampled
+  /* Tracks the number of coefficients we have already sampled */
   unsigned int ctr[KECCAK_WAY];
   keccakx4_state statex;
   unsigned int buflen;
 
-  // seed is MLKEM_SYMBYTES + 2 bytes long, but padded to MLKEM_SYMBYTES + 16
+  /* seed is MLKEM_SYMBYTES + 2 bytes long, but padded to MLKEM_SYMBYTES + 16 */
   shake128x4_absorb(&statex, seed[0], seed[1], seed[2], seed[3],
                     MLKEM_SYMBYTES + 2);
 
-  // Initially, squeeze heuristic number of MLKEM_GEN_MATRIX_NBLOCKS.
-  // This should generate the matrix entries with high probability.
+  /*
+   * Initially, squeeze heuristic number of MLKEM_GEN_MATRIX_NBLOCKS.
+   * This should generate the matrix entries with high probability.
+   */
   shake128x4_squeezeblocks(buf0, buf1, buf2, buf3, MLKEM_GEN_MATRIX_NBLOCKS,
                            &statex);
   buflen = MLKEM_GEN_MATRIX_NBLOCKS * SHAKE128_RATE;
@@ -177,8 +185,10 @@ __contract__(
   ctr[2] = rej_uniform(vec[2].coeffs, MLKEM_N, 0, buf2, buflen);
   ctr[3] = rej_uniform(vec[3].coeffs, MLKEM_N, 0, buf3, buflen);
 
-  // So long as not all matrix entries have been generated, squeeze
-  // one more block a time until we're done.
+  /*
+   * So long as not all matrix entries have been generated, squeeze
+   * one more block a time until we're done.
+   */
   buflen = SHAKE128_RATE;
   while (ctr[0] < MLKEM_N || ctr[1] < MLKEM_N || ctr[2] < MLKEM_N ||
          ctr[3] < MLKEM_N)
@@ -202,8 +212,10 @@ __contract__(
   shake128x4_ctx_release(&statex);
 }
 
-// Generate a single A matrix entry from a seed, using rejection
-// sampling on the output of a XOF.
+/*
+ * Generate a single A matrix entry from a seed, using rejection
+ * sampling on the output of a XOF.
+ */
 STATIC_TESTABLE
 void gen_matrix_entry(poly *entry, uint8_t seed[MLKEM_SYMBYTES + 2])
 __contract__(
@@ -218,13 +230,14 @@ __contract__(
 
   shake128_absorb(&state, seed, MLKEM_SYMBYTES + 2);
 
-  // Initially, squeeze + sample heuristic number of MLKEM_GEN_MATRIX_NBLOCKS.
-  // This should generate the matrix entry with high probability.
+  /* Initially, squeeze + sample heuristic number of MLKEM_GEN_MATRIX_NBLOCKS.
+   */
+  /* This should generate the matrix entry with high probability. */
   shake128_squeezeblocks(buf, MLKEM_GEN_MATRIX_NBLOCKS, &state);
   buflen = MLKEM_GEN_MATRIX_NBLOCKS * SHAKE128_RATE;
   ctr = rej_uniform(entry->coeffs, MLKEM_N, 0, buf, buflen);
 
-  // Squeeze + sample one more block a time until we're done
+  /* Squeeze + sample one more block a time until we're done */
   buflen = SHAKE128_RATE;
   while (ctr < MLKEM_N)
   __loop__(
@@ -252,35 +265,45 @@ __contract__(
  *              - const uint8_t *seed: pointer to input seed
  *              - int transposed: boolean deciding whether A or A^T is generated
  **************************************************/
-// Not static for benchmarking
+/* Not static for benchmarking */
 void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES], int transposed)
 {
   int i;
-  // We generate four separate seed arrays rather than a single one to work
-  // around limitations in CBMC function contracts dealing with disjoint slices
-  // of the same parent object.
+  unsigned int j;
+  /*
+   * We generate four separate seed arrays rather than a single one to work
+   * around limitations in CBMC function contracts dealing with disjoint slices
+   * of the same parent object.
+   */
+
   ALIGN uint8_t seed0[MLKEM_SYMBYTES + 2];
   ALIGN uint8_t seed1[MLKEM_SYMBYTES + 2];
   ALIGN uint8_t seed2[MLKEM_SYMBYTES + 2];
   ALIGN uint8_t seed3[MLKEM_SYMBYTES + 2];
-  uint8_t *seedxy[] = {seed0, seed1, seed2, seed3};
+  uint8_t *seedxy[4];
+  seedxy[0] = seed0;
+  seedxy[1] = seed1;
+  seedxy[2] = seed2;
+  seedxy[3] = seed3;
 
-  for (unsigned j = 0; j < KECCAK_WAY; j++)
+  for (j = 0; j < KECCAK_WAY; j++)
   {
     memcpy(seedxy[j], seed, MLKEM_SYMBYTES);
   }
 
-  // TODO: All loops in this function should be unrolled for decent
-  // performance.
-  //
-  // Either add suitable pragmas, or split gen_matrix according to MLKEM_K
-  // and unroll by hand.
+  /*
+   * TODO: All loops in this function should be unrolled for decent
+   * performance.
+   * Either add suitable pragmas, or split gen_matrix according to MLKEM_K
+   * and unroll by hand.
+   */
+
   for (i = 0; i < (MLKEM_K * MLKEM_K / KECCAK_WAY) * KECCAK_WAY;
        i += KECCAK_WAY)
   {
     uint8_t x, y;
 
-    for (unsigned int j = 0; j < KECCAK_WAY; j++)
+    for (j = 0; j < KECCAK_WAY; j++)
     {
       x = (i + j) / MLKEM_K;
       y = (i + j) % MLKEM_K;
@@ -296,12 +319,14 @@ void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES], int transposed)
       }
     }
 
-    // This call writes across polyvec boundaries for K=2 and K=3.
-    // This is intentional and safe.
+    /*
+     * This call writes across polyvec boundaries for K=2 and K=3.
+     * This is intentional and safe.
+     */
     gen_matrix_entry_x4(&a[0].vec[0] + i, seedxy);
   }
 
-  // For left over polynomial, we use single keccak.
+  /* For left over polynomial, we use single keccak. */
   if (i < MLKEM_K * MLKEM_K)
   {
     uint8_t x, y;
@@ -327,11 +352,13 @@ void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES], int transposed)
           "gen_matrix: failed to generate whole matrix");
 
 #if defined(MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER)
-  // The public matrix is generated in NTT domain. If the native backend
-  // uses a custom order in NTT domain, permute A accordingly.
+  /*
+   * The public matrix is generated in NTT domain. If the native backend
+   * uses a custom order in NTT domain, permute A accordingly.
+   */
   for (i = 0; i < MLKEM_K; i++)
   {
-    for (int j = 0; j < MLKEM_K; j++)
+    for (j = 0; j < MLKEM_K; j++)
     {
       poly_permute_bitrev_to_custom(&a[i].vec[j]);
     }
@@ -365,7 +392,8 @@ __contract__(
     array_abs_bound(a[k0].vec[k1].coeffs, 0, MLKEM_N - 1, (MLKEM_Q - 1)))))
   assigns(object_whole(out)))
 {
-  for (int i = 0; i < MLKEM_K; i++)
+  int i;
+  for (i = 0; i < MLKEM_K; i++)
   __loop__(
     assigns(i, object_whole(out))
     invariant(i >= 0 && i <= MLKEM_K))
@@ -401,7 +429,7 @@ void indcpa_keypair_derand(uint8_t pk[MLKEM_INDCPA_PUBLICKEYBYTES],
   polyvec_mulcache skpv_cache;
 
   ALIGN uint8_t coins_with_domain_separator[MLKEM_SYMBYTES + 1];
-  // Concatenate coins with MLKEM_K for domain separation of security levels
+  /* Concatenate coins with MLKEM_K for domain separation of security levels */
   memcpy(coins_with_domain_separator, coins, MLKEM_SYMBYTES);
   coins_with_domain_separator[MLKEM_SYMBYTES] = MLKEM_K;
 
@@ -413,12 +441,14 @@ void indcpa_keypair_derand(uint8_t pk[MLKEM_INDCPA_PUBLICKEYBYTES],
   poly_getnoise_eta1_4x(skpv.vec + 0, skpv.vec + 1, e.vec + 0, e.vec + 1,
                         noiseseed, 0, 1, 2, 3);
 #elif MLKEM_K == 3
-  // Only the first three output buffers are needed.
-  // The laster parameter is a dummy that's overwritten later.
+  /*
+   * Only the first three output buffers are needed.
+   * The laster parameter is a dummy that's overwritten later.
+   */
   poly_getnoise_eta1_4x(skpv.vec + 0, skpv.vec + 1, skpv.vec + 2,
                         pkpv.vec + 0 /* irrelevant */, noiseseed, 0, 1, 2,
                         0xFF /* irrelevant */);
-  // Same here
+  /* Same here */
   poly_getnoise_eta1_4x(e.vec + 0, e.vec + 1, e.vec + 2,
                         pkpv.vec + 0 /* irrelevant */, noiseseed, 3, 4, 5,
                         0xFF /* irrelevant */);
@@ -436,7 +466,7 @@ void indcpa_keypair_derand(uint8_t pk[MLKEM_INDCPA_PUBLICKEYBYTES],
   matvec_mul(&pkpv, a, &skpv, &skpv_cache);
   polyvec_tomont(&pkpv);
 
-  // Arithmetic cannot overflow, see static assertion at the top
+  /* Arithmetic cannot overflow, see static assertion at the top */
   polyvec_add(&pkpv, &e);
   polyvec_reduce(&pkpv);
   polyvec_reduce(&skpv);
@@ -461,7 +491,7 @@ void indcpa_keypair_derand(uint8_t pk[MLKEM_INDCPA_PUBLICKEYBYTES],
  *seed (of length MLKEM_SYMBYTES) to deterministically generate all randomness
  **************************************************/
 
-// Check that the arithmetic in indcpa_enc() does not overflow
+/* Check that the arithmetic in indcpa_enc() does not overflow */
 STATIC_ASSERT(INVNTT_BOUND + MLKEM_ETA1 < INT16_MAX, indcpa_enc_bound_0)
 STATIC_ASSERT(INVNTT_BOUND + MLKEM_ETA2 + MLKEM_Q < INT16_MAX,
               indcpa_enc_bound_1)
@@ -485,11 +515,13 @@ void indcpa_enc(uint8_t c[MLKEM_INDCPA_BYTES],
                            coins, 0, 1, 2, 3);
   poly_getnoise_eta2(&epp, coins, 4);
 #elif MLKEM_K == 3
-  // In this call, only the first three output buffers are needed.
-  // The last parameter is a dummy that's overwritten later.
+  /*
+   * In this call, only the first three output buffers are needed.
+   * The last parameter is a dummy that's overwritten later.
+   */
   poly_getnoise_eta1_4x(sp.vec + 0, sp.vec + 1, sp.vec + 2, &b.vec[0], coins, 0,
                         1, 2, 0xFF);
-  // The fourth output buffer in this call _is_ used.
+  /* The fourth output buffer in this call _is_ used. */
   poly_getnoise_eta2_4x(ep.vec + 0, ep.vec + 1, ep.vec + 2, &epp, coins, 3, 4,
                         5, 6);
 #elif MLKEM_K == 4
@@ -509,7 +541,7 @@ void indcpa_enc(uint8_t c[MLKEM_INDCPA_BYTES],
   polyvec_invntt_tomont(&b);
   poly_invntt_tomont(&v);
 
-  // Arithmetic cannot overflow, see static assertion at the top
+  /* Arithmetic cannot overflow, see static assertion at the top */
   polyvec_add(&b, &ep);
   poly_add(&v, &epp);
   poly_add(&v, &k);
@@ -520,7 +552,7 @@ void indcpa_enc(uint8_t c[MLKEM_INDCPA_BYTES],
   pack_ciphertext(c, &b, &v);
 }
 
-// Check that the arithmetic in indcpa_dec() does not overflow
+/* Check that the arithmetic in indcpa_dec() does not overflow */
 STATIC_ASSERT(INVNTT_BOUND + MLKEM_Q < INT16_MAX, indcpa_dec_bound_0)
 
 void indcpa_dec(uint8_t m[MLKEM_INDCPA_MSGBYTES],
@@ -537,7 +569,7 @@ void indcpa_dec(uint8_t m[MLKEM_INDCPA_MSGBYTES],
   polyvec_basemul_acc_montgomery(&sb, &skpv, &b);
   poly_invntt_tomont(&sb);
 
-  // Arithmetic cannot overflow, see static assertion at the top
+  /* Arithmetic cannot overflow, see static assertion at the top */
   poly_sub(&v, &sb);
   poly_reduce(&v);
 

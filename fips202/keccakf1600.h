@@ -1,5 +1,7 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: CC0-1.0
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 #ifndef KECCAKF1600_H
 #define KECCAKF1600_H
 
@@ -10,13 +12,13 @@
 #define KECCAK_WAY 4
 #define KECCAK_LANES 25
 
-// WARNING:
-//
-// The contents of this structure, including the placement
-// and interleaving of Keccak lanes, are IMPLEMENTATION-DEFINED.
-//
-// The struct is only exposed here to allow its construction on the stack.
-//
+/*
+ * WARNING:
+ * The contents of this structure, including the placement
+ * and interleaving of Keccak lanes, are IMPLEMENTATION-DEFINED.
+ * The struct is only exposed here to allow its construction on the stack.
+ */
+
 typedef ALIGN uint64_t keccakx4_state[KECCAK_WAY * KECCAK_LANES];
 
 #define KeccakF1600_StateExtractBytes \

@@ -1,5 +1,7 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: MIT
+/* 
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: MIT
+ */
 
 #if __APPLE__
 #define ASM_LOAD(dst, symbol)                                                  \

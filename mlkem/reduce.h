@@ -1,5 +1,7 @@
-// Copyright (c) 2024 The mlkem-native project authors
-// SPDX-License-Identifier: Apache-2.0
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
 #ifndef REDUCE_H
 #define REDUCE_H
 
@@ -8,8 +10,8 @@
 #include "debug/debug.h"
 #include "params.h"
 
-#define MONT -1044                  // 2^16 mod q
-#define HALF_Q ((MLKEM_Q + 1) / 2)  // 1665
+#define MONT -1044                 /* 2^16 mod q */
+#define HALF_Q ((MLKEM_Q + 1) / 2) /* 1665 */
 
 /*************************************************
  * Name:        montgomery_reduce
