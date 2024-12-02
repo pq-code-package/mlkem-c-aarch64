@@ -30,10 +30,8 @@
 #define MLKEM_USE_NATIVE_POLY_TOBYTES
 #define MLKEM_USE_NATIVE_POLY_FROMBYTES
 
-/*  Bound from the official Kyber repository */
-#define INVNTT_BOUND_NATIVE (14870 + 1)
-/*  Bound from the official Kyber repository */
-#define NTT_BOUND_NATIVE (16118 + 1)
+#define INVNTT_BOUND_NATIVE (8 * MLKEM_Q)
+#define NTT_BOUND_NATIVE (8 * MLKEM_Q)
 
 static INLINE void poly_permute_bitrev_to_custom(poly *data)
 {
