@@ -3,9 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */ 
 
-// Implementation from Kyber reference repository
+// Implementation based on Kyber repository
 // https://github.com/pq-crystals/kyber/blob/main/avx2
-
+//
+// Changes to placement of modular reductions have
+// been made to simplify reasoning of non-overflow
 #include "config.h"
 
 #if defined(MLKEM_USE_NATIVE_X86_64) && defined(SYS_X86_64_AVX2)
@@ -93,13 +95,12 @@ vpshufb		%ymm12,%ymm3,%ymm3
 
 butterfly	4,5,8,9,6,7,10,11,15,1,2,3
 
-// Montgomery multiplication of a value <C*q with a signed canonical
-// twiddle has absolute value < q*(0.0254 * C + 1/2) (see reduce.c).
-// In the above butterfly, the values multiplied with twiddles have
-// absolute value <2q, so we get an absolute bound < q*(1/2 + 2 * 0.0254),
-// which is < INT16_MAX/16.
+// Montgmoery multiplication with a signed canonical twiddle
+// always has absolute value < q. This is used henceforth to
+// normalize the absolute bounds on the second half inputs
+// to the current butterfly
 //
-// 4,5,8,9 abs bound < 2q; 6,7,10,11 abs bound < INT16_MAX/16
+// 4,5,8,9 abs bound < 2q; 6,7,10,11 abs bound < q
 
 /* level 1 */
 vpermq		$0x4E,(_ZETAS_EXP+(1-\off)*224+144)*2(%rsi),%ymm2
@@ -113,7 +114,7 @@ butterfly	4,5,6,7,8,9,10,11,2,2,3,3
 // For 8,9,10,11, it is sufficient to use the bound <q (much weaker
 // than what we used above) for the absolute value of the Montgomery
 // multiplication with a twiddle.
-// 4,5 abs bound < 4q; 6,7 abs bound < INT16_MAX/8; 8,9,10,11 abs bound <q.
+// 4,5 abs bound < 4q; 6,7 abs bound < 2q; 8,9,10,11 abs bound <q.
 
 shuffle1	4,5,3,5      // 3,5  abs bound < 4q
 shuffle1	6,7,4,7      // 4,7  abs bound < INT16_MAX/8
@@ -126,15 +127,13 @@ vpermd		(_ZETAS_EXP+(1-\off)*224+112)*2(%rsi),%ymm12,%ymm2
 vpermd		(_ZETAS_EXP+(1-\off)*224+128)*2(%rsi),%ymm12,%ymm10
 
 butterfly	3,4,6,8,5,7,9,11,2,2,10,10
-// 3 abs bound < 8q, 4 abs bound < INT16_MAX/4, 6,8 abs bound < 2q, 5,7,9,11 abs bound < q
+// 3 abs bound < 8q, 4 abs bound < 4q, 6,8 abs bound < 2q, 5,7,9,11 abs bound < q
 
 vmovdqa		_16XV*2(%rsi),%ymm1
 red16		3
-// 4 abs bound < INT16_MAX/4, 6,8 abs bound < 2q, 3,5,7,9,11 abs bound < q
+// 4 abs bound < 4q, 6,8 abs bound < 2q, 3,5,7,9,11 abs bound < q
 
-shuffle2	3,4,10,4   // see comment for shuffle2;
-                           // 10,4: even 16-bit pairs from 3, so abs bound <q
-                           // 10,4: odd  16-bit pairs from 4, so abs bound <INT16_MAX/4
+shuffle2	3,4,10,4   // 4,10 abs bound < 4q
 shuffle2	6,8,3,8    // 3,8 abs bound < 2q
 shuffle2	5,7,6,7    // 6,7 abs bound < q
 shuffle2	9,11,5,11  // 5,11 abs bound < q
@@ -144,11 +143,23 @@ vpermq		$0x1B,(_ZETAS_EXP+(1-\off)*224+80)*2(%rsi),%ymm2
 vpermq		$0x1B,(_ZETAS_EXP+(1-\off)*224+96)*2(%rsi),%ymm9
 
 butterfly	10,3,6,5,4,8,7,11,2,2,9,9
-// 10 abs bound < INT16_MAX/2
-// 3 abs bound < 4q, 5,6 abs bound < 2q
+// 10 abs bound < 8q
+// 3 abs bound < 4q
+// 5,6 abs bound < 2q
 // 4,8,7,11 abs bound < q
 
-shuffle4	10,3,9,3   // 3,9  abs bound < INT16_MAX/2
+// REF-CHANGE: The official AVX2 implementation from
+// https://github.com/pq-crystals/kyber/blob/main/avx2
+// does not have this reduction. We add it here to simplify reasoning of
+// non-overflow. Without it, one has to work with more precise bounds for
+// the output of a Montgomery multiplication; with this reduction,
+// in turn, the generic bound by q is sufficient.
+red16 10
+// 3 abs bound < 4q
+// 5,6 abs bound < 2q
+// 4,8,7,10,11 abs bound < q
+
+shuffle4	10,3,9,3   // 3,9  abs bound < 4q
 shuffle4	6,5,10,5   // 5,10 abs bound < 2q
 shuffle4	4,8,6,8    // 6,8  abs bound < q
 shuffle4	7,11,4,11  // 4,11 abs bound < q
@@ -158,11 +169,13 @@ vpermq		$0x4E,(_ZETAS_EXP+(1-\off)*224+48)*2(%rsi),%ymm2
 vpermq		$0x4E,(_ZETAS_EXP+(1-\off)*224+64)*2(%rsi),%ymm7
 
 butterfly	9,10,6,4,3,5,8,11,2,2,7,7
-// 9 abs bound < INT16_MAX
-// 10 abs bound < 4q, 4,6 abs bound <2q
+// 9 abs bound < 8q
+// 10 abs bound < 4q
+// 4,6 abs bound <2q
 // 3,5,8,11 abs bound < q
-red16		9
-// 10 abs bound < 4q, 4,6 abs bound <2q
+red16 9
+// 10 abs bound < 4q
+// 4,6 abs bound <2q
 // 3,5,8,9,11 abs bound < q
 
 shuffle8	9,10,7,10  // 7,10 abs bound < 4q
