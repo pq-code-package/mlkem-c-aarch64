@@ -47,7 +47,7 @@
             # NOTE:
               # - native toolchain should be equipped in the shell via `mkShellWithCC` (see `mkShell`)
               # - only install extra cross-compiled toolchains if not on darwin or `cross` is specifally set to true
-              # - providing cross compilation toolchain (x86_64/aarch64-linux) for darwin can be cumbersome 
+              # - providing cross compilation toolchain (x86_64/aarch64-linux) for darwin can be cumbersome
               #   and won't just work for now
               # - equip all toolchains if cross is explicitly set to true
               # - On some machines, `native-gcc` needed to be evaluated lastly (placed as the last element of the toolchain list), or else would result in environment variables (CC, AR, ...) overriding issue.
@@ -110,7 +110,7 @@
               };
             };
 
-          packages.cbmc = pkgs.callPackage ./cbmc { }; # 6.3.1
+          packages.cbmc = pkgs.callPackage ./cbmc/nix { }; # 6.4.0
 
           packages.base = pkgs.buildEnv {
             name = "pqcp-base";
