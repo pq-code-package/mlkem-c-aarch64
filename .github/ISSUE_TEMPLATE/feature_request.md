@@ -1,20 +1,31 @@
 ---
 name: Feature request
 about: Suggest an idea for this project
-title: ''
 labels: enhancement
-assignees: ''
-
 ---
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+**Platform**: 
+Which platform does this concern?
+- [ ] platform independent
+- [ ] aarch64
+- [ ] x86_64
+- [ ] rv64
+- [ ] other
+
+**Issue category**:
+
+Which part(s) of mlkem-native does this issue concern:
+
+- [ ] core crypto: ML-KEM
+- [ ] core crypto: FIPS202
+- [ ] documentation
+- [ ] integration
+- [ ] CBMC
+- [ ] CI
+- [ ] Testing
 
 **Describe the solution you'd like**
 A clear and concise description of what you want to happen.
-
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
 
 **Additional context**
 Add any other context or screenshots about the feature request here.

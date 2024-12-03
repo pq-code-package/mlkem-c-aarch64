@@ -1,8 +1,21 @@
-[//]: # (SPDX-License-Identifier: CC-BY-4.0)
-<!-- Please give a brief explanation of the purpose of this pull request. -->
+<!-- 
+Security reports
 
-<!-- Does this PR resolve any issue?  If so, please reference it using automatic-closing keywords like "Fixes #123." -->
+DO NOT submit pull requests related to security issues directly - instead use Github's [private vulnerability reporting](https://github.com/pq-code-package/mlkem-native/security). 
+-->
 
-<!-- Any PR adding a new feature is expected to contain a test; the test should be part of CI testing, preferably within the ".github/workflows" directory tree. Please add an explanation to the PR if/when (why) this cannot be done. -->
+**Summary**:
+Provide a brief summary of your changes.
 
-<!-- Once your pull request is ready for review and passing continuous integration tests, please convert from a draft PR to a normal PR, and request a review. -->
+**Steps**:
+If your pull request consists of multiple sequential changes, please describe them here:
+
+**Performed local tests**:
+ - [ ] `lint` passing
+ - [ ] `tests all` passing
+ - [ ] `tests bench` passing
+ - [ ] `tests cbmc` passing
+
+**Do you expect this change to impact performance**: Yes/No
+
+If yes, please provide local benchmarking results.

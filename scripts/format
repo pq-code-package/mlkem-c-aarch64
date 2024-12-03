@@ -34,7 +34,7 @@ clang-format -i $(git ls-files ":/*.c" ":/*.h")
 info "Checking for eol"
 check-eol()
 {
-  for file in $(git ls-files -- ":/"); do
+  for file in $(git ls-files -- ":/" ":/!:*.png"); do
     if [[ $(tail -c1 "$file" | wc -l) == 0 ]]; then
       echo "" >>"$file"
       echo "$file"
