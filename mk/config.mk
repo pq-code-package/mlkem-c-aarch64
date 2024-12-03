@@ -34,10 +34,10 @@ CFLAGS += \
 	-Wpointer-arith \
 	-Wno-long-long \
 	-Wno-unknown-pragmas \
-        -Wno-unused-command-line-argument \
+	-Wno-unused-command-line-argument \
 	-O3 \
 	-fomit-frame-pointer \
-        -std=c99 \
+	-std=c99 \
 	-pedantic \
 	-MMD \
 	$(CPPFLAGS)

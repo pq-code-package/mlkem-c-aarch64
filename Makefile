@@ -14,7 +14,7 @@ buildall: mlkem nistkat kat acvp
 	$(Q)echo "  Everything builds fine!"
 
 quickcheck: buildall
-        # Run basic functionality checks
+	# Run basic functionality checks
 	$(MLKEM512_DIR)/bin/test_mlkem512
 	$(MLKEM768_DIR)/bin/test_mlkem768
 	$(MLKEM1024_DIR)/bin/test_mlkem1024
@@ -47,9 +47,9 @@ nistkat: \
 	$(MLKEM1024_DIR)/bin/gen_NISTKAT1024
 
 kat: \
-  $(MLKEM512_DIR)/bin/gen_KAT512 \
-  $(MLKEM768_DIR)/bin/gen_KAT768 \
-  $(MLKEM1024_DIR)/bin/gen_KAT1024
+	$(MLKEM512_DIR)/bin/gen_KAT512 \
+	$(MLKEM768_DIR)/bin/gen_KAT768 \
+	$(MLKEM1024_DIR)/bin/gen_KAT1024
 
 # emulate ARM64 binary on x86_64 machine
 emulate:
