@@ -293,13 +293,6 @@ void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES], int transposed)
     memcpy(seedxy[j], seed, MLKEM_SYMBYTES);
   }
 
-  /*
-   * TODO: All loops in this function should be unrolled for decent
-   * performance.
-   * Either add suitable pragmas, or split gen_matrix according to MLKEM_K
-   * and unroll by hand.
-   */
-
   for (i = 0; i < (MLKEM_K * MLKEM_K / KECCAK_WAY) * KECCAK_WAY;
        i += KECCAK_WAY)
   {
