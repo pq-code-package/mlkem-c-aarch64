@@ -67,6 +67,9 @@ env:
   AWS_ROLE: arn:aws:iam::559050233797:role/mlkem-c-aarch64-gh-action
   AMI_UBUNTU_LATEST_X86_64: ami-0e86e20dae9224db8
   AMI_UBUNTU_LATEST_AARCH64: ami-096ea6a12ea24a797
+
+permissions: read-all
+
 jobs:
   start-ec2-runner:
     name: Start ${{ inputs.name }} (${{ inputs.ec2_instance_type }})
