@@ -46,7 +46,6 @@ runs:
       - name: Run CBMC proofs (MLKEM_K=${{ inputs.mlkem_k }})
         shell: ${{ env.SHELL }}
         run: |
-          cd cbmc/proofs;
           echo "::group::cbmc_${{ inputs.mlkem_k }}"
-          MLKEM_K=${{ inputs.mlkem_k }} ./run-cbmc-proofs.py --summarize --no-coverage -j8;
+          tests cbmc --k ${{ inputs.mlkem_k }};
           echo "::endgroup::"

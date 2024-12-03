@@ -291,5 +291,28 @@ def all(
     Tests(opts).all(func, kat, nistkat, acvp)
 
 
+@cli.command(
+    short_help="Run the CBMC proofs for all parameter sets",
+    context_settings={"show_default": True},
+)
+@click.make_pass_decorator(Options, ensure=True)
+@add_options(
+    [
+        click.option(
+            "--k",
+            expose_value=False,
+            nargs=1,
+            type=click.Choice(["2", "3", "4", "ALL"]),
+            show_default=True,
+            default="ALL",
+            help="MLKEM parameter set (MLKEM_K).",
+            callback=__callback("k"),
+        )
+    ]
+)
+def cbmc(opts: Options):
+    Tests(opts).cbmc(opts.k)
+
+
 if __name__ == "__main__":
     cli()

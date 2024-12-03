@@ -50,6 +50,7 @@ class Options(object):
         self.run = True
         self.exec_wrapper = ""
         self.run_as_root = ""
+        self.k = "ALL"
 
 
 class Base:
@@ -709,3 +710,22 @@ class Tests:
             exit_code = exit_code or all(True)
 
         exit(exit_code)
+
+    def cbmc(self, k):
+        config_logger(self.verbose)
+        def run_cbmc(mlkem_k):
+            envvars = {"MLKEM_K": mlkem_k}
+            cpucount = os.cpu_count()
+            p = subprocess.Popen(
+                ["python3", "run-cbmc-proofs.py", "--summarize",  "--no-coverage", f"-j{cpucount}"],
+                cwd="cbmc/proofs",
+                env=os.environ.copy() | envvars,
+            )
+            p.communicate()
+            assert p.returncode == 0
+        if k == "ALL":
+            run_cbmc("2")
+            run_cbmc("3")
+            run_cbmc("4")
+        else: 
+            run_cbmc(k)
