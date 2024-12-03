@@ -456,6 +456,8 @@ void poly_basemul_montgomery_cached(poly *r, const poly *a, const poly *b,
                                     const poly_mulcache *b_cache)
 {
   int i;
+  POLY_BOUND(b_cache, MLKEM_Q);
+
   for (i = 0; i < MLKEM_N / 4; i++)
   __loop__(
     assigns(i, object_whole(r))
@@ -559,6 +561,8 @@ void poly_mulcache_compute(poly_mulcache *x, const poly *a)
 void poly_mulcache_compute(poly_mulcache *x, const poly *a)
 {
   poly_mulcache_compute_native(x, a);
-  POLY_BOUND(x, MLKEM_Q);
+  /* Omitting POLY_BOUND(x, MLKEM_Q) since native implementations may
+   * decide not to use a mulcache. Note that the C backend implementation
+   * of poly_basemul_montgomery_cached() does still include the check. */
 }
 #endif /* MLKEM_USE_NATIVE_POLY_MULCACHE_COMPUTE */

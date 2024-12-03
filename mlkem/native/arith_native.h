@@ -240,7 +240,7 @@ static INLINE void poly_frombytes_native(poly *a,
  *
  * Return -1 if the native implementation does not support the input lengths.
  * Otherwise, returns non-negative number of sampled 16-bit integers (at most
- *len).
+ * len).
  **************************************************/
 static INLINE int rej_uniform_native(int16_t *r, unsigned int len,
                                      const uint8_t *buf, unsigned int buflen);

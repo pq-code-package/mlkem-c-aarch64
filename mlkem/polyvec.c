@@ -128,7 +128,9 @@ void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a,
 {
   POLYVEC_BOUND(a, MLKEM_Q);
   POLYVEC_BOUND(b, NTT_BOUND);
-  POLYVEC_BOUND(b_cache, MLKEM_Q);
+  /* Omitting POLYVEC_BOUND(b_cache, MLKEM_Q) since native implementations may
+   * decide not to use a mulcache. Note that the C backend implementation
+   * of poly_basemul_montgomery_cached() does still include the check. */
   polyvec_basemul_acc_montgomery_cached_native(r, a, b, b_cache);
 }
 #endif /* MLKEM_USE_NATIVE_POLYVEC_BASEMUL_ACC_MONTGOMERY_CACHED */

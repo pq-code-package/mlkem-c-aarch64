@@ -20,7 +20,6 @@
   ((12 * MLKEM_N / 8 * (1 << 12) / MLKEM_Q + SHAKE128_RATE) / SHAKE128_RATE)
 #define REJ_UNIFORM_AVX_BUFLEN (REJ_UNIFORM_AVX_NBLOCKS * SHAKE128_RATE)
 
-/* TODO: Document buffer constraints */
 #define rej_uniform_avx2 MLKEM_NAMESPACE(rej_uniform_avx2)
 unsigned int rej_uniform_avx2(int16_t *r, const uint8_t *buf);
 

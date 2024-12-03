@@ -74,13 +74,7 @@ static INLINE void poly_mulcache_compute_native(poly_mulcache *x, const poly *y)
 {
   /* AVX2 backend does not use mulcache */
   ((void)y);
-
-  /*
-   * TODO! The mulcache is subject to the absolute bound < q
-   * This needs to be dropped if the mulcache is not present.
-   * Until that's done, memset to 0 to avoid failure.
-   */
-  memset(x, 0, sizeof(poly_mulcache));
+  ((void)x);
 }
 
 static INLINE void polyvec_basemul_acc_montgomery_cached_native(

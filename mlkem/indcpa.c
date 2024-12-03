@@ -61,9 +61,11 @@ static void unpack_pk(polyvec *pk, uint8_t seed[MLKEM_SYMBYTES],
   memcpy(seed, packedpk + MLKEM_POLYVECBYTES, MLKEM_SYMBYTES);
 
   /*
-   * TODO! pk must be subject to a "modulus check" at the top-level
-   * crypto_kem_enc_derand(). Once that's done, the reduction is no
-   * longer necessary here.
+   * TODO! We know from the modulus check that this will result in an
+   * unsigned canonical polynomial, but CBMC does not know it. We should
+   * weaken the specification of `unpack_pk()` and all depending functions
+   * to work with the weaker 4096-bound, so that the proofs go through
+   * without the need of this redundant call to polyvec_reduce().
    */
   polyvec_reduce(pk);
 }
@@ -290,13 +292,6 @@ void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES], int transposed)
   {
     memcpy(seedxy[j], seed, MLKEM_SYMBYTES);
   }
-
-  /*
-   * TODO: All loops in this function should be unrolled for decent
-   * performance.
-   * Either add suitable pragmas, or split gen_matrix according to MLKEM_K
-   * and unroll by hand.
-   */
 
   for (i = 0; i < (MLKEM_K * MLKEM_K / KECCAK_WAY) * KECCAK_WAY;
        i += KECCAK_WAY)
