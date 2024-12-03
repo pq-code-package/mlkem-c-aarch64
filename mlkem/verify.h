@@ -225,7 +225,6 @@ __contract__(ensures(return_value == (cond ? a : b)))
   return b ^ (ct_cmask_nonzero_u8(cond) & (a ^ b));
 }
 
-#define ct_memcmp MLKEM_NAMESPACE(ct_memcmp)
 /*************************************************
  * Name:        ct_memcmp
  *
@@ -275,7 +274,6 @@ __contract__(
   return (value_barrier_u8(ct_cmask_nonzero_u8(r) ^ s) ^ s);
 }
 
-#define ct_cmov_zero MLKEM_NAMESPACE(ct_cmov_zero)
 /*************************************************
  * Name:        ct_cmov_zero
  *
