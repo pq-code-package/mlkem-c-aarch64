@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2024 The mlkem-native project authors
  * SPDX-License-Identifier: Apache-2.0
- */ 
+ */
 //
 // AArch64 re-implementation of the asymmetric base multiplication from:
 //

@@ -22,9 +22,9 @@ CHECK_FUNCTION_CONTRACTS=$(MLKEM_NAMESPACE)poly_decompress_dv
 
 # For K = 2 or 3, the code calls scalar_decompress_d4, so
 ifeq ($(MLKEM_K),4)
-USE_FUNCTION_CONTRACTS = $(MLKEM_NAMESPACE)scalar_decompress_d5
+USE_FUNCTION_CONTRACTS = scalar_decompress_d5
 else
-USE_FUNCTION_CONTRACTS = $(MLKEM_NAMESPACE)scalar_decompress_d4
+USE_FUNCTION_CONTRACTS = scalar_decompress_d4
 endif
 
 APPLY_LOOP_CONTRACTS=on
