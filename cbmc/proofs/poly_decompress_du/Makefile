@@ -20,12 +20,15 @@ PROJECT_SOURCES += $(SRCDIR)/mlkem/poly.c
 
 CHECK_FUNCTION_CONTRACTS=$(MLKEM_NAMESPACE)poly_decompress_du
 
+USE_FUNCTION_CONTRACTS =
+# TODO: We should be calling scalar_decompress_xxx by contract here,
+# but it does not seem to work yet because they are marked as static inline.
 # For K = 2 or 3, the code calls scalar_decompress_d10, so
-ifeq ($(MLKEM_K),4)
-USE_FUNCTION_CONTRACTS = scalar_decompress_d11
-else
-USE_FUNCTION_CONTRACTS = scalar_decompress_d10
-endif
+# ifeq ($(MLKEM_K),4)
+# USE_FUNCTION_CONTRACTS = scalar_decompress_d11
+# else
+# USE_FUNCTION_CONTRACTS = scalar_decompress_d10
+# endif
 
 APPLY_LOOP_CONTRACTS=on
 USE_DYNAMIC_FRAMES=1

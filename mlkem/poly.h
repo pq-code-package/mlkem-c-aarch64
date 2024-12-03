@@ -192,9 +192,7 @@ __contract__(
 #pragma CPROVER check push
 #pragma CPROVER check disable "unsigned-overflow"
 #endif
-/* TODO: do the same for the other static inline functions */
-STATIC_INLINE_TESTABLE
-uint32_t scalar_compress_d10(uint16_t u)
+static INLINE uint32_t scalar_compress_d10(uint16_t u)
 __contract__(
   requires(u <= MLKEM_Q - 1)
   ensures(return_value < (1u << 10))
@@ -244,8 +242,7 @@ __contract__(
 #pragma CPROVER check push
 #pragma CPROVER check disable "unsigned-overflow"
 #endif
-STATIC_INLINE_TESTABLE
-uint32_t scalar_compress_d11(uint16_t u)
+static INLINE uint32_t scalar_compress_d11(uint16_t u)
 __contract__(
   requires(u <= MLKEM_Q - 1)
   ensures(return_value < (1u << 11))
@@ -270,8 +267,7 @@ __contract__(
  * Arguments: - u: Unsigned canonical modulus modulo 16
  *                 to be decompressed.
  ************************************************************/
-STATIC_INLINE_TESTABLE
-uint16_t scalar_decompress_d11(uint32_t u)
+static INLINE uint16_t scalar_decompress_d11(uint32_t u)
 __contract__(
   requires(0 <= u && u < 2048)
   ensures(return_value <= (MLKEM_Q - 1))
@@ -295,8 +291,7 @@ __contract__(
  *
  * Arguments: c: signed coefficient to be converted
  ************************************************************/
-STATIC_INLINE_TESTABLE
-uint16_t scalar_signed_to_unsigned_q(int16_t c)
+static INLINE uint16_t scalar_signed_to_unsigned_q(int16_t c)
 __contract__(
   requires(c >= -(MLKEM_Q - 1) && c <= (MLKEM_Q - 1))
   ensures(return_value >= 0 && return_value <= (MLKEM_Q - 1))
