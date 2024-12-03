@@ -21,9 +21,9 @@ PROJECT_SOURCES += $(SRCDIR)/mlkem/poly.c
 CHECK_FUNCTION_CONTRACTS=$(MLKEM_NAMESPACE)poly_compress_du
 # For K = 2 or 3, the code calls scalar_compress_d10, so
 ifeq ($(MLKEM_K),4)
-USE_FUNCTION_CONTRACTS = $(MLKEM_NAMESPACE)scalar_compress_d11
+USE_FUNCTION_CONTRACTS = scalar_compress_d11
 else
-USE_FUNCTION_CONTRACTS = $(MLKEM_NAMESPACE)scalar_compress_d10
+USE_FUNCTION_CONTRACTS = scalar_compress_d10
 endif
 
 APPLY_LOOP_CONTRACTS=on
