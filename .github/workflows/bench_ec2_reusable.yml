@@ -68,7 +68,9 @@ env:
   AMI_UBUNTU_LATEST_X86_64: ami-0e86e20dae9224db8
   AMI_UBUNTU_LATEST_AARCH64: ami-096ea6a12ea24a797
 
-permissions: read-all
+permissions:
+  contents: read
+  pull-requests: read
 
 jobs:
   start-ec2-runner:
