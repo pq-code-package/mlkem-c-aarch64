@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2024 The mlkem-native project authors
  * SPDX-License-Identifier: Apache-2.0
- */ 
+ */
 
 // Implementation based on Kyber reference repository
 // https://github.com/pq-crystals/kyber/blob/main/avx2
