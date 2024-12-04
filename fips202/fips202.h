@@ -61,21 +61,43 @@ void shake128_ctx_release(shake128ctx *state);
 
 /* Initialize incremental hashing API */
 #define shake256_inc_init FIPS202_NAMESPACE(shake256_inc_init)
-void shake256_inc_init(shake256incctx *state);
+void shake256_inc_init(shake256incctx *state)
+__contract__(
+  requires(memory_no_alias(state, sizeof(shake256incctx)))
+  assigns(memory_slice(state, sizeof(shake256incctx)))
+);
+
+
 #define shake256_inc_absorb FIPS202_NAMESPACE(shake256_inc_absorb)
 void shake256_inc_absorb(shake256incctx *state, const uint8_t *input,
-                         size_t inlen);
+                         size_t inlen)
+__contract__(
+  requires(memory_no_alias(state, sizeof(shake256incctx)))
+  requires(memory_no_alias(input, inlen))
+  assigns(memory_slice(state, sizeof(shake256incctx)))
+);
+
+
 /* Prepares for squeeze phase */
 #define shake256_inc_finalize FIPS202_NAMESPACE(shake256_inc_finalize)
-void shake256_inc_finalize(shake256incctx *state);
+void shake256_inc_finalize(shake256incctx *state)
+__contract__(
+  requires(memory_no_alias(state, sizeof(shake256incctx)))
+  assigns(memory_slice(state, sizeof(shake256incctx)))
+);
 
 /* Squeeze output out of the sponge.
  *
  * Supports being called multiple times
  */
 #define shake256_inc_squeeze FIPS202_NAMESPACE(shake256_inc_squeeze)
-void shake256_inc_squeeze(uint8_t *output, size_t outlen,
-                          shake256incctx *state);
+void shake256_inc_squeeze(uint8_t *output, size_t outlen, shake256incctx *state)
+__contract__(
+  requires(memory_no_alias(state, sizeof(shake256incctx)))
+  requires(memory_no_alias(output, outlen))
+  assigns(memory_slice(output, outlen))
+  assigns(memory_slice(state, sizeof(shake256incctx)))
+);
 
 /* Free the state */
 #define shake256_inc_ctx_release FIPS202_NAMESPACE(shake256_inc_ctx_release)
