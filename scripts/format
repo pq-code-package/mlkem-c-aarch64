@@ -26,7 +26,7 @@ info "Formatting shell scripts"
 shfmt -s -w -l -i 2 -ci -fn $(shfmt -f $(git grep -l '' :/))
 
 info "Formatting python scripts"
-black --include scripts/tests "$ROOT"
+black --include "(scripts/tests|\.py$)" "$ROOT"
 
 info "Formatting c files"
 clang-format -i $(git ls-files ":/*.c" ":/*.h")

@@ -71,11 +71,14 @@ def get_project_name():
     cmd = [
         "make",
         "--no-print-directory",
-        "-f", "Makefile.common",
+        "-f",
+        "Makefile.common",
         "echo-project-name",
     ]
     logging.debug(" ".join(cmd))
-    proc = subprocess.run(cmd, universal_newlines=True, stdout=subprocess.PIPE, check=False)
+    proc = subprocess.run(
+        cmd, universal_newlines=True, stdout=subprocess.PIPE, check=False
+    )
     if proc.returncode:
         logging.critical("could not run make to determine project name")
         sys.exit(1)
@@ -83,84 +86,103 @@ def get_project_name():
         logging.warning(
             "project name has not been set; using generic name instead. "
             "Set the PROJECT_NAME value in Makefile-project-defines to "
-            "remove this warning")
+            "remove this warning"
+        )
         return "<PROJECT NAME HERE>"
     return proc.stdout.strip()
 
 
 def get_args():
     pars = argparse.ArgumentParser(
-        description=DESCRIPTION, epilog=EPILOG,
-        formatter_class=argparse.RawDescriptionHelpFormatter)
-    for arg in [{
+        description=DESCRIPTION,
+        epilog=EPILOG,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    for arg in [
+        {
             "flags": ["-j", "--parallel-jobs"],
             "type": int,
             "metavar": "N",
             "help": "run at most N proof jobs in parallel",
-    }, {
+        },
+        {
             "flags": ["--fail-on-proof-failure"],
             "action": "store_true",
             "help": "exit with return code `10' if any proof failed"
-                    " (default: exit 0)",
-    }, {
+            " (default: exit 0)",
+        },
+        {
             "flags": ["--no-standalone"],
             "action": "store_true",
             "help": "only configure proofs: do not initialize nor run",
-    }, {
+        },
+        {
             "flags": ["-p", "--proofs"],
             "nargs": "+",
             "metavar": "DIR",
             "help": "only run proof in directory DIR (can pass more than one)",
-    }, {
+        },
+        {
             "flags": ["--project-name"],
             "metavar": "NAME",
             "default": get_project_name(),
             "help": "project name for report. Default: %(default)s",
-    }, {
+        },
+        {
             "flags": ["--marker-file"],
             "metavar": "FILE",
             "default": "cbmc-proof.txt",
             "help": (
-                "name of file that marks proof directories. Default: "
-                "%(default)s"),
-    }, {
+                "name of file that marks proof directories. Default: " "%(default)s"
+            ),
+        },
+        {
             "flags": ["--no-memory-profile"],
             "action": "store_true",
-            "help": "disable memory profiling, even if Litani supports it"
-    }, {
+            "help": "disable memory profiling, even if Litani supports it",
+        },
+        {
             "flags": ["--no-expensive-limit"],
             "action": "store_true",
             "help": "do not limit parallelism of 'EXPENSIVE' jobs",
-    }, {
+        },
+        {
             "flags": ["--expensive-jobs-parallelism"],
             "metavar": "N",
             "default": 1,
             "type": int,
             "help": (
                 "how many proof jobs marked 'EXPENSIVE' to run in parallel. "
-                "Default: %(default)s"),
-    }, {
+                "Default: %(default)s"
+            ),
+        },
+        {
             "flags": ["--verbose"],
             "action": "store_true",
             "help": "verbose output",
-    }, {
+        },
+        {
             "flags": ["--debug"],
             "action": "store_true",
             "help": "debug output",
-    }, {
+        },
+        {
             "flags": ["--summarize"],
             "action": "store_true",
             "help": "summarize proof results with two tables on stdout",
-    }, {
+        },
+        {
             "flags": ["--version"],
             "action": "version",
             "version": "CBMC starter kit 2.10",
-            "help": "display version and exit"
-    }, {
+            "help": "display version and exit",
+        },
+        {
             "flags": ["--no-coverage"],
             "action": "store_true",
-            "help": "do property checking without coverage checking"
-    }]:
+            "help": "do property checking without coverage checking",
+        },
+    ]:
         flags = arg.pop("flags")
         pars.add_argument(*flags, **arg)
     return pars.parse_args()
@@ -171,8 +193,7 @@ def set_up_logging(verbose):
         level = logging.DEBUG
     else:
         level = logging.WARNING
-    logging.basicConfig(
-        format="run-cbmc-proofs: %(message)s", level=level)
+    logging.basicConfig(format="run-cbmc-proofs: %(message)s", level=level)
 
 
 def task_pool_size():
@@ -184,8 +205,12 @@ def task_pool_size():
 
 def print_counter(counter):
     # pylint: disable=consider-using-f-string
-    print("\rConfiguring CBMC proofs: "
-          "{complete:{width}} / {total:{width}}".format(**counter), end="", file=sys.stderr)
+    print(
+        "\rConfiguring CBMC proofs: "
+        "{complete:{width}} / {total:{width}}".format(**counter),
+        end="",
+        file=sys.stderr,
+    )
 
 
 def get_proof_dirs(proof_root, proof_list, marker_file):
@@ -207,8 +232,8 @@ def get_proof_dirs(proof_root, proof_list, marker_file):
 
     if proofs_remaining:
         logging.critical(
-            "The following proofs were not found: %s",
-            ", ".join(proofs_remaining))
+            "The following proofs were not found: %s", ", ".join(proofs_remaining)
+        )
         sys.exit(1)
 
 
@@ -237,16 +262,20 @@ def run_build(litani, jobs, fail_on_proof_failure, summarize):
         logging.error("One or more proofs failed")
         sys.exit(10)
 
+
 def get_litani_path(proof_root):
     cmd = [
         "make",
         "--no-print-directory",
         f"PROOF_ROOT={proof_root}",
-        "-f", "Makefile.common",
+        "-f",
+        "Makefile.common",
         "litani-path",
     ]
     logging.debug(" ".join(cmd))
-    proc = subprocess.run(cmd, universal_newlines=True, stdout=subprocess.PIPE, check=False)
+    proc = subprocess.run(
+        cmd, universal_newlines=True, stdout=subprocess.PIPE, check=False
+    )
     if proc.returncode:
         logging.critical("Could not determine path to litani")
         sys.exit(1)
@@ -256,7 +285,8 @@ def get_litani_path(proof_root):
 def get_litani_capabilities(litani_path):
     cmd = [litani_path, "print-capabilities"]
     proc = subprocess.run(
-        cmd, text=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=False)
+        cmd, text=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=False
+    )
     if proc.returncode:
         return []
     try:
@@ -279,11 +309,14 @@ def check_uid_uniqueness(proof_dir, proof_uids):
             logging.critical(
                 "The Makefile in directory '%s' should have a different "
                 "PROOF_UID than the Makefile in directory '%s'",
-                proof_dir, proof_uids[match["uid"]])
+                proof_dir,
+                proof_uids[match["uid"]],
+            )
             sys.exit(1)
 
     logging.critical(
-        "The Makefile in directory '%s' should contain a line like", proof_dir)
+        "The Makefile in directory '%s' should contain a line like", proof_dir
+    )
     logging.critical("PROOF_UID = ...")
     logging.critical("with a unique identifier for the proof.")
     sys.exit(1)
@@ -301,8 +334,15 @@ def should_enable_pools(litani_caps, args):
     return "pools" in litani_caps
 
 
-async def configure_proof_dirs( # pylint: disable=too-many-arguments
-        queue, counter, proof_uids, enable_pools, enable_memory_profiling, report_target, debug):
+async def configure_proof_dirs(  # pylint: disable=too-many-arguments
+    queue,
+    counter,
+    proof_uids,
+    enable_pools,
+    enable_memory_profiling,
+    report_target,
+    debug,
+):
     while True:
         print_counter(counter)
         path = str(await queue.get())
@@ -310,19 +350,32 @@ async def configure_proof_dirs( # pylint: disable=too-many-arguments
         check_uid_uniqueness(path, proof_uids)
 
         pools = ["ENABLE_POOLS=true"] if enable_pools else []
-        profiling = [
-            "ENABLE_MEMORY_PROFILING=true"] if enable_memory_profiling else []
+        profiling = ["ENABLE_MEMORY_PROFILING=true"] if enable_memory_profiling else []
 
         # delete old reports
         proc = await asyncio.create_subprocess_exec(
-            "make", "veryclean", cwd=path,
-            stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+            "make",
+            "veryclean",
+            cwd=path,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
 
         # Allow interactive tasks to preempt proof configuration
         proc = await asyncio.create_subprocess_exec(
-            "nice", "-n", "15", "make", *pools,
-            *profiling, "-B", report_target, "" if debug else "--quiet", cwd=path,
-            stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+            "nice",
+            "-n",
+            "15",
+            "make",
+            *pools,
+            *profiling,
+            "-B",
+            report_target,
+            "" if debug else "--quiet",
+            cwd=path,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
         stdout, stderr = await proc.communicate()
         logging.debug("returncode: %s", str(proc.returncode))
         logging.debug("stdout:")
@@ -341,13 +394,20 @@ async def configure_proof_dirs( # pylint: disable=too-many-arguments
 
 def add_tool_version_job():
     cmd = [
-        "litani", "add-job",
-        "--command", "./lib/print_tool_versions.py .",
-        "--description", "printing out tool versions",
-        "--phony-outputs", str(uuid.uuid4()),
-        "--pipeline-name", "print_tool_versions",
-        "--ci-stage", "report",
-        "--tags", "front-page-text",
+        "litani",
+        "add-job",
+        "--command",
+        "./lib/print_tool_versions.py .",
+        "--description",
+        "printing out tool versions",
+        "--phony-outputs",
+        str(uuid.uuid4()),
+        "--pipeline-name",
+        "print_tool_versions",
+        "--ci-stage",
+        "report",
+        "--tags",
+        "front-page-text",
     ]
     proc = subprocess.run(cmd)
     if proc.returncode:
@@ -355,7 +415,7 @@ def add_tool_version_job():
         sys.exit(1)
 
 
-async def main(): # pylint: disable=too-many-locals
+async def main():  # pylint: disable=too-many-locals
     args = get_args()
     set_up_logging(args.verbose)
 
@@ -364,13 +424,19 @@ async def main(): # pylint: disable=too-many-locals
 
     litani_caps = get_litani_capabilities(litani)
     enable_pools = should_enable_pools(litani_caps, args)
-    init_pools = [
-        "--pools", f"expensive:{args.expensive_jobs_parallelism}"
-    ] if enable_pools else []
+    init_pools = (
+        ["--pools", f"expensive:{args.expensive_jobs_parallelism}"]
+        if enable_pools
+        else []
+    )
 
     if not args.no_standalone:
         cmd = [
-            str(litani), "init", *init_pools, "--project", args.project_name,
+            str(litani),
+            "init",
+            *init_pools,
+            "--project",
+            args.project_name,
             "--no-print-out-dir",
         ]
 
@@ -378,13 +444,19 @@ async def main(): # pylint: disable=too-many-locals
             out_prefix = proof_root / "output"
             out_symlink = out_prefix / "latest"
             out_index = out_symlink / "html" / "index.html"
-            cmd.extend([
-                "--output-prefix", str(out_prefix),
-                "--output-symlink", str(out_symlink),
-            ])
+            cmd.extend(
+                [
+                    "--output-prefix",
+                    str(out_prefix),
+                    "--output-symlink",
+                    str(out_symlink),
+                ]
+            )
             print(
                 "\nFor your convenience, the output of this run will be symbolically linked to ",
-                out_index, "\n")
+                out_index,
+                "\n",
+            )
 
         logging.debug(" ".join(cmd))
         proc = subprocess.run(cmd, check=False)
@@ -392,8 +464,7 @@ async def main(): # pylint: disable=too-many-locals
             logging.critical("Failed to run litani init")
             sys.exit(1)
 
-    proof_dirs = list(get_proof_dirs(
-        proof_root, args.proofs, args.marker_file))
+    proof_dirs = list(get_proof_dirs(proof_root, args.proofs, args.marker_file))
     if not proof_dirs:
         logging.critical("No proof directories found")
         sys.exit(1)
@@ -407,7 +478,7 @@ async def main(): # pylint: disable=too-many-locals
         "fail": [],
         "complete": 0,
         "total": len(proof_dirs),
-        "width": int(math.log10(len(proof_dirs))) + 1
+        "width": int(math.log10(len(proof_dirs))) + 1,
     }
 
     proof_uids = {}
@@ -417,9 +488,17 @@ async def main(): # pylint: disable=too-many-locals
     report_target = "_report_no_coverage" if args.no_coverage else "_report"
 
     for _ in range(task_pool_size()):
-        task = asyncio.create_task(configure_proof_dirs(
-            proof_queue, counter, proof_uids, enable_pools,
-            enable_memory_profiling, report_target, args.debug))
+        task = asyncio.create_task(
+            configure_proof_dirs(
+                proof_queue,
+                counter,
+                proof_uids,
+                enable_pools,
+                enable_memory_profiling,
+                report_target,
+                args.debug,
+            )
+        )
         tasks.append(task)
 
     await proof_queue.join()
@@ -431,12 +510,15 @@ async def main(): # pylint: disable=too-many-locals
 
     if counter["fail"]:
         logging.critical(
-            "Failed to configure the following proofs:\n%s", "\n".join(
-                [str(f) for f in counter["fail"]]))
+            "Failed to configure the following proofs:\n%s",
+            "\n".join([str(f) for f in counter["fail"]]),
+        )
         sys.exit(1)
 
     if not args.no_standalone:
-        run_build(litani, args.parallel_jobs, args.fail_on_proof_failure, args.summarize)
+        run_build(
+            litani, args.parallel_jobs, args.fail_on_proof_failure, args.summarize
+        )
 
 
 if __name__ == "__main__":

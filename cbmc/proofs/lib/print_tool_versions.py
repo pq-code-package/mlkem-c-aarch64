@@ -29,11 +29,12 @@ def _format_versions(table):
         if version:
             v_str = f'<code><pre style="margin: 0">{version}</pre></code>'
         else:
-            v_str = '<em>not found</em>'
+            v_str = "<em>not found</em>"
         lines.append(
             f'<tr><td style="font-weight: bold; padding-right: 1em; '
             f'text-align: right;">{tool}:</td>'
-            f'<td>{v_str}</td></tr>')
+            f"<td>{v_str}</td></tr>"
+        )
     lines.append("</table>")
     return "\n".join(lines)
 
@@ -55,7 +56,8 @@ def _get_tool_versions():
             continue
         if proc.returncode:
             logging.error(
-                "%s'%s --version' returned %s", err, tool, str(proc.returncode))
+                "%s'%s --version' returned %s", err, tool, str(proc.returncode)
+            )
             continue
         ret[tool] = out.strip()
     return ret
