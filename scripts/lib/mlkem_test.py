@@ -602,11 +602,7 @@ class Tests:
             output = False
 
         if mac_taskpolicy:
-            if exec_wrapper:
-                logging.error(f"cannot set both --mac-taskpolicy and --exec-wrapper")
-                sys.exit(1)
-            else:
-                exec_wrapper = f"taskpolicy -c {mac_taskpolicy}"
+            self.cmd_prefix.extend(["taskpolicy", "-c", f"{mac_taskpolicy}"])
 
         # NOTE: We haven't yet decided how to output both opt/no-opt benchmark results
         if self.opt.lower() == "all":
