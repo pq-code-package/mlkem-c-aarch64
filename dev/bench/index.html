@@ -96,6 +96,12 @@
         <strong class="header-label">Repository:</strong>
         <a id="repository-link" rel="noopener"></a>
       </div>
+      <div class="header-item">
+        <strong class="header-label">Note that the following benchmarks are for the standard FIPS-203 API.
+          In particular, the public and private keys are stored in packed form and are subject to input validation.
+          In applications where the private key can be retained in expanded form (e.g., TLS), performance of mlkem-native will be much better.
+        </strong>
+      </div>
     </header>
     <main id="main"></main>
     <footer>
