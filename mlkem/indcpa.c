@@ -255,18 +255,7 @@ __contract__(
   shake128_ctx_release(&state);
 }
 
-/*************************************************
- * Name:        gen_matrix
- *
- * Description: Deterministically generate matrix A (or the transpose of A)
- *              from a seed. Entries of the matrix are polynomials that look
- *              uniformly random. Performs rejection sampling on output of
- *              a XOF
- *
- * Arguments:   - polyvec *a: pointer to ouptput matrix A
- *              - const uint8_t *seed: pointer to input seed
- *              - int transposed: boolean deciding whether A or A^T is generated
- **************************************************/
+
 /* Not static for benchmarking */
 void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES], int transposed)
 {
@@ -397,19 +386,7 @@ __contract__(
   }
 }
 
-/*************************************************
- * Name:        indcpa_keypair_derand
- *
- * Description: Generates public and private key for the CPA-secure
- *              public-key encryption scheme underlying ML-KEM
- *
- * Arguments:   - uint8_t *pk: pointer to output public key
- *                             (of length MLKEM_INDCPA_PUBLICKEYBYTES bytes)
- *              - uint8_t *sk: pointer to output private key
- *                             (of length MLKEM_INDCPA_SECRETKEYBYTES bytes)
- *              - const uint8_t *coins: pointer to input randomness
- *                             (of length MLKEM_SYMBYTES bytes)
- **************************************************/
+
 
 STATIC_ASSERT(NTT_BOUND + MLKEM_Q < INT16_MAX, indcpa_enc_bound_0)
 
@@ -470,21 +447,6 @@ void indcpa_keypair_derand(uint8_t pk[MLKEM_INDCPA_PUBLICKEYBYTES],
   pack_pk(pk, &pkpv, publicseed);
 }
 
-/*************************************************
- * Name:        indcpa_enc
- *
- * Description: Encryption function of the CPA-secure
- *              public-key encryption scheme underlying Kyber.
- *
- * Arguments:   - uint8_t *c: pointer to output ciphertext
- *                            (of length MLKEM_INDCPA_BYTES bytes)
- *              - const uint8_t *m: pointer to input message
- *                                  (of length MLKEM_INDCPA_MSGBYTES bytes)
- *              - const uint8_t *pk: pointer to input public key
- *                                   (of length MLKEM_INDCPA_PUBLICKEYBYTES)
- *              - const uint8_t *coins: pointer to input random coins used as
- *seed (of length MLKEM_SYMBYTES) to deterministically generate all randomness
- **************************************************/
 
 /* Check that the arithmetic in indcpa_enc() does not overflow */
 STATIC_ASSERT(INVNTT_BOUND + MLKEM_ETA1 < INT16_MAX, indcpa_enc_bound_0)

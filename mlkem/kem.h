@@ -23,6 +23,22 @@
 #endif
 
 #define crypto_kem_keypair_derand MLKEM_NAMESPACE(keypair_derand)
+/*************************************************
+ * Name:        crypto_kem_keypair_derand
+ *
+ * Description: Generates public and private key
+ *              for CCA-secure ML-KEM key encapsulation mechanism
+ *
+ * Arguments:   - uint8_t *pk: pointer to output public key
+ *                (an already allocated array of MLKEM_PUBLICKEYBYTES bytes)
+ *              - uint8_t *sk: pointer to output private key
+ *                (an already allocated array of MLKEM_SECRETKEYBYTES bytes)
+ *              - uint8_t *coins: pointer to input randomness
+ *                (an already allocated array filled with 2*MLKEM_SYMBYTES
+ *random bytes)
+ **
+ * Returns 0 (success)
+ **************************************************/
 int crypto_kem_keypair_derand(uint8_t *pk, uint8_t *sk, const uint8_t *coins)
 __contract__(
   requires(memory_no_alias(pk, MLKEM_PUBLICKEYBYTES))

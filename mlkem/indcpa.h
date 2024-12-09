@@ -12,7 +12,18 @@
 
 
 #define gen_matrix MLKEM_NAMESPACE(gen_matrix)
-
+/*************************************************
+ * Name:        gen_matrix
+ *
+ * Description: Deterministically generate matrix A (or the transpose of A)
+ *              from a seed. Entries of the matrix are polynomials that look
+ *              uniformly random. Performs rejection sampling on output of
+ *              a XOF
+ *
+ * Arguments:   - polyvec *a: pointer to ouptput matrix A
+ *              - const uint8_t *seed: pointer to input seed
+ *              - int transposed: boolean deciding whether A or A^T is generated
+ **************************************************/
 void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES], int transposed)
 __contract__(
   requires(memory_no_alias(a, sizeof(polyvec) * MLKEM_K))
@@ -24,6 +35,19 @@ __contract__(
 );
 
 #define indcpa_keypair_derand MLKEM_NAMESPACE(indcpa_keypair_derand)
+/*************************************************
+ * Name:        indcpa_keypair_derand
+ *
+ * Description: Generates public and private key for the CPA-secure
+ *              public-key encryption scheme underlying ML-KEM
+ *
+ * Arguments:   - uint8_t *pk: pointer to output public key
+ *                             (of length MLKEM_INDCPA_PUBLICKEYBYTES bytes)
+ *              - uint8_t *sk: pointer to output private key
+ *                             (of length MLKEM_INDCPA_SECRETKEYBYTES bytes)
+ *              - const uint8_t *coins: pointer to input randomness
+ *                             (of length MLKEM_SYMBYTES bytes)
+ **************************************************/
 void indcpa_keypair_derand(uint8_t pk[MLKEM_INDCPA_PUBLICKEYBYTES],
                            uint8_t sk[MLKEM_INDCPA_SECRETKEYBYTES],
                            const uint8_t coins[MLKEM_SYMBYTES])
@@ -37,17 +61,19 @@ __contract__(
 
 #define indcpa_enc MLKEM_NAMESPACE(indcpa_enc)
 /*************************************************
- * Name:        indcpa_dec
+ * Name:        indcpa_enc
  *
- * Description: Decryption function of the CPA-secure
+ * Description: Encryption function of the CPA-secure
  *              public-key encryption scheme underlying Kyber.
  *
- * Arguments:   - uint8_t *m: pointer to output decrypted message
- *                            (of length MLKEM_INDCPA_MSGBYTES)
- *              - const uint8_t *c: pointer to input ciphertext
- *                                  (of length MLKEM_INDCPA_BYTES)
- *              - const uint8_t *sk: pointer to input secret key
- *                                   (of length MLKEM_INDCPA_SECRETKEYBYTES)
+ * Arguments:   - uint8_t *c: pointer to output ciphertext
+ *                            (of length MLKEM_INDCPA_BYTES bytes)
+ *              - const uint8_t *m: pointer to input message
+ *                                  (of length MLKEM_INDCPA_MSGBYTES bytes)
+ *              - const uint8_t *pk: pointer to input public key
+ *                                   (of length MLKEM_INDCPA_PUBLICKEYBYTES)
+ *              - const uint8_t *coins: pointer to input random coins used as
+ *seed (of length MLKEM_SYMBYTES) to deterministically generate all randomness
  **************************************************/
 void indcpa_enc(uint8_t c[MLKEM_INDCPA_BYTES],
                 const uint8_t m[MLKEM_INDCPA_MSGBYTES],
@@ -62,6 +88,19 @@ __contract__(
 );
 
 #define indcpa_dec MLKEM_NAMESPACE(indcpa_dec)
+/*************************************************
+ * Name:        indcpa_dec
+ *
+ * Description: Decryption function of the CPA-secure
+ *              public-key encryption scheme underlying Kyber.
+ *
+ * Arguments:   - uint8_t *m: pointer to output decrypted message
+ *                            (of length MLKEM_INDCPA_MSGBYTES)
+ *              - const uint8_t *c: pointer to input ciphertext
+ *                                  (of length MLKEM_INDCPA_BYTES)
+ *              - const uint8_t *sk: pointer to input secret key
+ *                                   (of length MLKEM_INDCPA_SECRETKEYBYTES)
+ **************************************************/
 void indcpa_dec(uint8_t m[MLKEM_INDCPA_MSGBYTES],
                 const uint8_t c[MLKEM_INDCPA_BYTES],
                 const uint8_t sk[MLKEM_INDCPA_SECRETKEYBYTES])

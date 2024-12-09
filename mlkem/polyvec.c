@@ -71,24 +71,6 @@ void polyvec_invntt_tomont(polyvec *r)
   }
 }
 
-/*************************************************
- * Name:        polyvec_basemul_acc_montgomery
- *
- * Description: Multiply elements of a and b in NTT domain, accumulate into r,
- *              and multiply by 2^-16.
- *
- *              Bounds:
- *              - a is assumed to be coefficient-wise < q in absolute value.
- *              - b is assumed to be the output of a forward NTT and
- *                thus coefficient-wise bound by NTT_BOUND
- *              - b_cache is assumed to be coefficient-wise bound by
- *                MLKEM_Q.
- *
- * Arguments: - poly *r: pointer to output polynomial
- *            - const polyvec *a: pointer to first input vector of polynomials
- *            - const polyvec *b: pointer to second input vector of polynomials
- *            - const polyvec_mulcache *b_cache: mulcache for b
- **************************************************/
 #if !defined(MLKEM_USE_NATIVE_POLYVEC_BASEMUL_ACC_MONTGOMERY_CACHED)
 void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a,
                                            const polyvec *b,
@@ -135,16 +117,6 @@ void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a,
 }
 #endif /* MLKEM_USE_NATIVE_POLYVEC_BASEMUL_ACC_MONTGOMERY_CACHED */
 
-/*************************************************
- * Name:        polyvec_basemul_acc_montgomery
- *
- * Description: Multiply elements of a and b in NTT domain, accumulate into r,
- *              and multiply by 2^-16.
- *
- * Arguments: - poly *r: pointer to output polynomial
- *            - const polyvec *a: pointer to first input vector of polynomials
- *            - const polyvec *b: pointer to second input vector of polynomials
- **************************************************/
 void polyvec_basemul_acc_montgomery(poly *r, const polyvec *a, const polyvec *b)
 {
   polyvec_mulcache b_cache;
@@ -152,16 +124,6 @@ void polyvec_basemul_acc_montgomery(poly *r, const polyvec *a, const polyvec *b)
   polyvec_basemul_acc_montgomery_cached(r, a, b, &b_cache);
 }
 
-/*************************************************
- * Name:        polyvec_mulcache_compute
- *
- * Description: Precompute values speeding up
- *              base multiplications of polynomials
- *              in NTT domain.
- *
- * Arguments: - polyvec_mulcache *x: pointer to output cache.
- *            - const poly *a: pointer to input polynomial
- **************************************************/
 void polyvec_mulcache_compute(polyvec_mulcache *x, const polyvec *a)
 {
   unsigned int i;
@@ -171,16 +133,6 @@ void polyvec_mulcache_compute(polyvec_mulcache *x, const polyvec *a)
   }
 }
 
-
-/*************************************************
- * Name:        polyvec_reduce
- *
- * Description: Applies Barrett reduction to each coefficient
- *              of each element of a vector of polynomials;
- *              for details of the Barrett reduction see comments in reduce.c
- *
- * Arguments:   - polyvec *r: pointer to input/output polynomial
- **************************************************/
 void polyvec_reduce(polyvec *r)
 {
   unsigned int i;

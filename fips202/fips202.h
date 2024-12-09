@@ -36,6 +36,18 @@ typedef struct
  * with the same state.
  */
 #define shake128_absorb FIPS202_NAMESPACE(shake128_absorb)
+/*************************************************
+ * Name:        shake128_absorb
+ *
+ * Description: Absorb step of the SHAKE128 XOF.
+ *              non-incremental, starts by zeroeing the state.
+ *
+ * Arguments:   - uint64_t *state:      pointer to (uninitialized) output Keccak
+ *state
+ *              - const uint8_t *input: pointer to input to be absorbed into
+ *state
+ *              - size_t inlen:         length of input in bytes
+ **************************************************/
 void shake128_absorb(shake128ctx *state, const uint8_t *input, size_t inlen)
 __contract__(
   requires(memory_no_alias(state, sizeof(shake128ctx)))
@@ -48,6 +60,18 @@ __contract__(
  * Supports being called multiple times
  */
 #define shake128_squeezeblocks FIPS202_NAMESPACE(shake128_squeezeblocks)
+/*************************************************
+ * Name:        shake128_squeezeblocks
+ *
+ * Description: Squeeze step of SHAKE128 XOF. Squeezes full blocks of
+ *SHAKE128_RATE bytes each. Modifies the state. Can be called multiple times to
+ *keep squeezing, i.e., is incremental.
+ *
+ * Arguments:   - uint8_t *output:     pointer to output blocks
+ *              - size_t nblocks:      number of blocks to be squeezed (written
+ *to output)
+ *              - shake128ctx *state:  pointer to in/output Keccak state
+ **************************************************/
 void shake128_squeezeblocks(uint8_t *output, size_t nblocks, shake128ctx *state)
 __contract__(
   requires(memory_no_alias(state, sizeof(shake128ctx)))
@@ -106,6 +130,16 @@ void shake256_inc_ctx_release(shake256incctx *state);
 /* One-stop SHAKE256 call. Aliasing between input and
  * output is not permitted */
 #define shake256 FIPS202_NAMESPACE(shake256)
+/*************************************************
+ * Name:        shake256
+ *
+ * Description: SHAKE256 XOF with non-incremental API
+ *
+ * Arguments:   - uint8_t *output:      pointer to output
+ *              - size_t outlen:        requested output length in bytes
+ *              - const uint8_t *input: pointer to input
+ *              - size_t inlen:         length of input in bytes
+ **************************************************/
 void shake256(uint8_t *output, size_t outlen, const uint8_t *input,
               size_t inlen)
 __contract__(
@@ -118,6 +152,15 @@ __contract__(
  * output is not permitted */
 #define SHA3_256_HASHBYTES 32
 #define sha3_256 FIPS202_NAMESPACE(sha3_256)
+/*************************************************
+ * Name:        sha3_256
+ *
+ * Description: SHA3-256 with non-incremental API
+ *
+ * Arguments:   - uint8_t *output:      pointer to output
+ *              - const uint8_t *input: pointer to input
+ *              - size_t inlen:         length of input in bytes
+ **************************************************/
 void sha3_256(uint8_t *output, const uint8_t *input, size_t inlen)
 __contract__(
   requires(memory_no_alias(input, inlen))
@@ -129,6 +172,15 @@ __contract__(
  * output is not permitted */
 #define SHA3_512_HASHBYTES 64
 #define sha3_512 FIPS202_NAMESPACE(sha3_512)
+/*************************************************
+ * Name:        sha3_512
+ *
+ * Description: SHA3-512 with non-incremental API
+ *
+ * Arguments:   - uint8_t *output:      pointer to output
+ *              - const uint8_t *input: pointer to input
+ *              - size_t inlen:         length of input in bytes
+ **************************************************/
 void sha3_512(uint8_t *output, const uint8_t *input, size_t inlen)
 __contract__(
   requires(memory_no_alias(input, inlen))
