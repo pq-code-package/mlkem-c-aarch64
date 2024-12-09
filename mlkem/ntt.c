@@ -242,21 +242,6 @@ void poly_invntt_tomont(poly *p)
 }
 #endif /* MLKEM_USE_NATIVE_INTT */
 
-/*************************************************
- * Name:        basemul_cached
- *
- * Description: Multiplication of polynomials in Zq[X]/(X^2-zeta)
- *              used for multiplication of elements in Rq in NTT domain
- *
- *              Bounds:
- *              - a is assumed to be < q in absolute value.
- *              - Return value < 3/2 q in absolute value
- *
- * Arguments:   - int16_t r[2]: pointer to the output polynomial
- *              - const int16_t a[2]: pointer to the first factor
- *              - const int16_t b[2]: pointer to the second factor
- *              - int16_t b_cached: Cached precomputation of b[1] * zeta
- **************************************************/
 void basemul_cached(int16_t r[2], const int16_t a[2], const int16_t b[2],
                     int16_t b_cached)
 {

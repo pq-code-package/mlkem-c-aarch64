@@ -15,6 +15,7 @@
 #define zetas MLKEM_NAMESPACE(zetas)
 extern const int16_t zetas[128];
 
+#define poly_ntt MLKEM_NAMESPACE(poly_ntt)
 /*************************************************
  * Name:        poly_ntt
  *
@@ -32,8 +33,6 @@ extern const int16_t zetas[128];
  *
  * Arguments:   - poly *p: pointer to in/output polynomial
  **************************************************/
-
-#define poly_ntt MLKEM_NAMESPACE(poly_ntt)
 void poly_ntt(poly *r)
 __contract__(
   requires(memory_no_alias(r, sizeof(poly)))
@@ -42,6 +41,7 @@ __contract__(
   ensures(array_abs_bound(r->coeffs, 0, MLKEM_N - 1, NTT_BOUND - 1))
 );
 
+#define poly_invntt_tomont MLKEM_NAMESPACE(poly_invntt_tomont)
 /*************************************************
  * Name:        poly_invntt_tomont
  *
@@ -58,7 +58,6 @@ __contract__(
  *
  * Arguments:   - uint16_t *a: pointer to in/output polynomial
  **************************************************/
-#define poly_invntt_tomont MLKEM_NAMESPACE(poly_invntt_tomont)
 void poly_invntt_tomont(poly *r)
 __contract__(
   requires(memory_no_alias(r, sizeof(poly)))

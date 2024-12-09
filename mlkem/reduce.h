@@ -13,6 +13,7 @@
 #define MONT -1044                 /* 2^16 mod q */
 #define HALF_Q ((MLKEM_Q + 1) / 2) /* 1665 */
 
+#define montgomery_reduce MLKEM_NAMESPACE(montgomery_reduce)
 /*************************************************
  * Name:        montgomery_reduce
  *
@@ -24,7 +25,6 @@
  * Returns:     integer congruent to a * R^-1 modulo q,
  *              smaller than 3/2 q in absolute value.
  **************************************************/
-#define montgomery_reduce MLKEM_NAMESPACE(montgomery_reduce)
 int16_t montgomery_reduce(int32_t a)
 __contract__(
   requires(a > -(2 * MLKEM_Q * 32768))
@@ -33,6 +33,17 @@ __contract__(
 );
 
 #define barrett_reduce MLKEM_NAMESPACE(barrett_reduce)
+/*************************************************
+ * Name:        barrett_reduce
+ *
+ * Description: Barrett reduction; given a 16-bit integer a, computes
+ *              centered representative congruent to a mod q in
+ *              {-(q-1)/2,...,(q-1)/2}
+ *
+ * Arguments:   - int16_t a: input integer to be reduced
+ *
+ * Returns:     integer in {-(q-1)/2,...,(q-1)/2} congruent to a modulo q.
+ **************************************************/
 int16_t barrett_reduce(int16_t a)
 __contract__(
   ensures(return_value > -HALF_Q && return_value < HALF_Q)

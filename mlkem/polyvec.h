@@ -156,6 +156,16 @@ __contract__(
 
 #define polyvec_basemul_acc_montgomery \
   MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery)
+/*************************************************
+ * Name:        polyvec_basemul_acc_montgomery
+ *
+ * Description: Multiply elements of a and b in NTT domain, accumulate into r,
+ *              and multiply by 2^-16.
+ *
+ * Arguments: - poly *r: pointer to output polynomial
+ *            - const polyvec *a: pointer to first input vector of polynomials
+ *            - const polyvec *b: pointer to second input vector of polynomials
+ **************************************************/
 void polyvec_basemul_acc_montgomery(poly *r, const polyvec *a,
                                     const polyvec *b);
 

@@ -241,18 +241,7 @@ void shake256_inc_squeeze(uint8_t *output, size_t outlen, shake256incctx *state)
 
 void shake256_inc_ctx_release(shake256incctx *state) { (void)state; }
 
-/*************************************************
- * Name:        shake128_absorb
- *
- * Description: Absorb step of the SHAKE128 XOF.
- *              non-incremental, starts by zeroeing the state.
- *
- * Arguments:   - uint64_t *state:      pointer to (uninitialized) output Keccak
- *state
- *              - const uint8_t *input: pointer to input to be absorbed into
- *state
- *              - size_t inlen:         length of input in bytes
- **************************************************/
+
 void shake128_absorb(shake128ctx *state, const uint8_t *input, size_t inlen)
 {
   int i;
@@ -264,18 +253,6 @@ void shake128_absorb(shake128ctx *state, const uint8_t *input, size_t inlen)
   keccak_absorb(state->ctx, SHAKE128_RATE, input, inlen, 0x1F);
 }
 
-/*************************************************
- * Name:        shake128_squeezeblocks
- *
- * Description: Squeeze step of SHAKE128 XOF. Squeezes full blocks of
- *SHAKE128_RATE bytes each. Modifies the state. Can be called multiple times to
- *keep squeezing, i.e., is incremental.
- *
- * Arguments:   - uint8_t *output:     pointer to output blocks
- *              - size_t nblocks:      number of blocks to be squeezed (written
- *to output)
- *              - shake128ctx *state:  pointer to in/output Keccak state
- **************************************************/
 void shake128_squeezeblocks(uint8_t *output, size_t nblocks, shake128ctx *state)
 {
   keccak_squeezeblocks(output, nblocks, state->ctx, SHAKE128_RATE);
@@ -284,16 +261,6 @@ void shake128_squeezeblocks(uint8_t *output, size_t nblocks, shake128ctx *state)
 
 void shake128_ctx_release(shake128ctx *state) { (void)state; }
 
-/*************************************************
- * Name:        shake256
- *
- * Description: SHAKE256 XOF with non-incremental API
- *
- * Arguments:   - uint8_t *output:      pointer to output
- *              - size_t outlen:        requested output length in bytes
- *              - const uint8_t *input: pointer to input
- *              - size_t inlen:         length of input in bytes
- **************************************************/
 void shake256(uint8_t *output, size_t outlen, const uint8_t *input,
               size_t inlen)
 {
@@ -309,15 +276,6 @@ void shake256(uint8_t *output, size_t outlen, const uint8_t *input,
   keccak_inc_squeeze(output, outlen, state.ctx, SHAKE256_RATE);
 }
 
-/*************************************************
- * Name:        sha3_256
- *
- * Description: SHA3-256 with non-incremental API
- *
- * Arguments:   - uint8_t *output:      pointer to output
- *              - const uint8_t *input: pointer to input
- *              - size_t inlen:         length of input in bytes
- **************************************************/
 void sha3_256(uint8_t *output, const uint8_t *input, size_t inlen)
 {
   uint64_t ctx[26];
@@ -331,15 +289,6 @@ void sha3_256(uint8_t *output, const uint8_t *input, size_t inlen)
   keccak_inc_squeeze(output, 32, ctx, SHA3_256_RATE);
 }
 
-/*************************************************
- * Name:        sha3_512
- *
- * Description: SHA3-512 with non-incremental API
- *
- * Arguments:   - uint8_t *output:      pointer to output
- *              - const uint8_t *input: pointer to input
- *              - size_t inlen:         length of input in bytes
- **************************************************/
 void sha3_512(uint8_t *output, const uint8_t *input, size_t inlen)
 {
   uint64_t ctx[26];

@@ -124,17 +124,6 @@ int16_t fqmul(int16_t a, int16_t b)
 static const int32_t barrett_multiplier =
     ((1 << BPOWER) + MLKEM_Q / 2) / MLKEM_Q;
 
-/*************************************************
- * Name:        barrett_reduce
- *
- * Description: Barrett reduction; given a 16-bit integer a, computes
- *              centered representative congruent to a mod q in
- *              {-(q-1)/2,...,(q-1)/2}
- *
- * Arguments:   - int16_t a: input integer to be reduced
- *
- * Returns:     integer in {-(q-1)/2,...,(q-1)/2} congruent to a modulo q.
- **************************************************/
 int16_t barrett_reduce(int16_t a)
 {
   /*
