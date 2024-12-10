@@ -20,16 +20,16 @@
  * Description: Montgomery reduction
  *
  * Arguments:   - int32_t a: input integer to be reduced
- *                  Must be smaller than 2 * q * 2^15 in absolute value.
+ *                  Must be smaller than 2 * 2^12 * 2^15 in absolute value.
  *
  * Returns:     integer congruent to a * R^-1 modulo q,
- *              smaller than 3/2 q in absolute value.
+ *              smaller than 2 * q in absolute value.
  **************************************************/
 int16_t montgomery_reduce(int32_t a)
 __contract__(
-  requires(a > -(2 * MLKEM_Q * 32768))
-  requires(a <  (2 * MLKEM_Q * 32768))
-  ensures(return_value > -(3 * HALF_Q) && return_value < (3 * HALF_Q))
+  requires(a > -(2 * 4096 * 32768))
+  requires(a <  (2 * 4096 * 32768))
+  ensures(return_value > -2 * MLKEM_Q && return_value < 2 * MLKEM_Q)
 );
 
 #define barrett_reduce MLKEM_NAMESPACE(barrett_reduce)

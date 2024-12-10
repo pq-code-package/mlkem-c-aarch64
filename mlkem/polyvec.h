@@ -93,7 +93,7 @@ __contract__(
  *
  * Arguments:   - const polyvec *a: pointer to output vector of polynomials
  *                 (of length MLKEM_POLYVECBYTES). Output will have coefficients
- *                 normalized to [0,..,q-1].
+ *                 normalized in [0..4095].
  *              - uint8_t *r: pointer to input byte array
  **************************************************/
 void polyvec_frombytes(polyvec *r, const uint8_t a[MLKEM_POLYVECBYTES])
@@ -102,7 +102,7 @@ __contract__(
   requires(memory_no_alias(a, MLKEM_POLYVECBYTES))
   assigns(object_whole(r))
   ensures(forall(int, k0, 0, MLKEM_K - 1,
-        array_bound(r->vec[k0].coeffs, 0, (MLKEM_N - 1), 0, 4095)))
+        array_bound(r->vec[k0].coeffs, 0, (MLKEM_N - 1), 0, UINT12_MAX)))
 );
 
 #define polyvec_ntt MLKEM_NAMESPACE(polyvec_ntt)
@@ -171,9 +171,8 @@ __contract__(
   requires(memory_no_alias(r, sizeof(poly)))
   requires(memory_no_alias(a, sizeof(polyvec)))
   requires(memory_no_alias(b, sizeof(polyvec)))
-/* Input is coefficient-wise < q in absolute value */
   requires(forall(int, k1, 0, MLKEM_K - 1,
- array_abs_bound(a->vec[k1].coeffs, 0, MLKEM_N - 1, (MLKEM_Q - 1))))
+    array_abs_bound(a->vec[k1].coeffs, 0, MLKEM_N - 1, UINT12_MAX)))
   assigns(memory_slice(r, sizeof(poly)))
 );
 
@@ -188,7 +187,7 @@ __contract__(
  *              using mulcache for second operand.
  *
  *              Bounds:
- *              - a is assumed to be coefficient-wise < q in absolute value.
+ *              - a is assumed to be coefficient-wise < 4096 in absolute value.
  *              - No bounds guarantees for the coefficients in the result.
  *
  * Arguments:   - poly *r: pointer to output polynomial
@@ -206,9 +205,8 @@ __contract__(
   requires(memory_no_alias(a, sizeof(polyvec)))
   requires(memory_no_alias(b, sizeof(polyvec)))
   requires(memory_no_alias(b_cache, sizeof(polyvec_mulcache)))
-/* Input is coefficient-wise < q in absolute value */
   requires(forall(int, k1, 0, MLKEM_K - 1,
- array_abs_bound(a->vec[k1].coeffs, 0, MLKEM_N - 1, (MLKEM_Q - 1))))
+    array_abs_bound(a->vec[k1].coeffs, 0, MLKEM_N - 1, UINT12_MAX)))
   assigns(memory_slice(r, sizeof(poly)))
 );
 

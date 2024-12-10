@@ -60,14 +60,10 @@ static void unpack_pk(polyvec *pk, uint8_t seed[MLKEM_SYMBYTES],
   polyvec_frombytes(pk, packedpk);
   memcpy(seed, packedpk + MLKEM_POLYVECBYTES, MLKEM_SYMBYTES);
 
-  /*
-   * TODO! We know from the modulus check that this will result in an
-   * unsigned canonical polynomial, but CBMC does not know it. We should
-   * weaken the specification of `unpack_pk()` and all depending functions
-   * to work with the weaker 4096-bound, so that the proofs go through
-   * without the need of this redundant call to polyvec_reduce().
-   */
-  polyvec_reduce(pk);
+  /* NOTE: If a modulus check was conducted on the PK, we know at this
+   * point that the coefficients of `pk` are unsigned canonical. The
+   * specifications and proofs, however, do _not_ assume this, and instead
+   * work with the easily provable bound by 4096. */
 }
 
 /*************************************************
@@ -91,15 +87,14 @@ static void pack_sk(uint8_t r[MLKEM_INDCPA_SECRETKEYBYTES], polyvec *sk)
  * Description: De-serialize the secret key; inverse of pack_sk
  *
  * Arguments:   - polyvec *sk: pointer to output vector of polynomials (secret
- *key)
+ *                key)
  *              - const uint8_t *packedsk: pointer to input serialized secret
- *key
+ *                key
  **************************************************/
 static void unpack_sk(polyvec *sk,
                       const uint8_t packedsk[MLKEM_INDCPA_SECRETKEYBYTES])
 {
   polyvec_frombytes(sk, packedsk);
-  polyvec_reduce(sk);
 }
 
 /*************************************************
@@ -358,7 +353,7 @@ void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES], int transposed)
  *
  * Arguments:   - polyvec *out: Pointer to output polynomial vector
  *              - polyvec a[MLKEM_K]: Input matrix. Must be in NTT domain
- *                  and have coefficients of absolute value < MLKEM_Q.
+ *                  and have coefficients of absolute value < 4096.
  *              - polyvec *v: Input polynomial vector. Must be in NTT domain.
  *              - polyvec *vc: Mulcache for v, computed via
  *                  polyvec_mulcache_compute().
@@ -373,7 +368,7 @@ __contract__(
   requires(memory_no_alias(vc, sizeof(polyvec_mulcache)))
   requires(forall(int, k0, 0, MLKEM_K - 1,
   forall(int, k1, 0, MLKEM_K - 1,
-    array_abs_bound(a[k0].vec[k1].coeffs, 0, MLKEM_N - 1, (MLKEM_Q - 1)))))
+    array_abs_bound(a[k0].vec[k1].coeffs, 0, MLKEM_N - 1, UINT12_MAX))))
   assigns(object_whole(out)))
 {
   int i;

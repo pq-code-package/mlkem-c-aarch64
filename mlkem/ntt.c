@@ -59,7 +59,7 @@ __contract__(
   for (j = start; j < start + len; j++)
   __loop__(
     invariant(start <= j && j <= start + len)
-    /* 
+    /*
      * Coefficients are updated in strided pairs, so the bounds for the
      * intermediate states alternate twice between the old and new bound
      */
@@ -247,7 +247,7 @@ void basemul_cached(int16_t r[2], const int16_t a[2], const int16_t b[2],
 {
   int32_t t0, t1;
 
-  BOUND(a, 2, MLKEM_Q, "basemul input bound");
+  BOUND(a, 2, 4096, "basemul input bound");
 
   t0 = (int32_t)a[1] * b_cached;
   t0 += (int32_t)a[0] * b[0];
@@ -258,6 +258,5 @@ void basemul_cached(int16_t r[2], const int16_t a[2], const int16_t b[2],
   r[0] = montgomery_reduce(t0);
   r[1] = montgomery_reduce(t1);
 
-  /* |r[i]| < 3/2 q */
-  BOUND(r, 2, 3 * MLKEM_Q / 2, "basemul output bound");
+  BOUND(r, 2, 2 * MLKEM_Q, "basemul output bound");
 }

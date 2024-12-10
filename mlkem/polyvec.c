@@ -79,7 +79,7 @@ void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a,
   int i;
   poly t;
 
-  POLYVEC_BOUND(a, MLKEM_Q);
+  POLYVEC_BOUND(a, 4096);
   POLYVEC_BOUND(b, NTT_BOUND);
   POLYVEC_BOUND(b_cache, MLKEM_Q);
 
@@ -98,17 +98,17 @@ void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a,
    * them from the spec to not unnecessarily constraint native implementations.
    */
   cassert(
-      array_abs_bound(r->coeffs, 0, MLKEM_N - 1, MLKEM_K * (3 * HALF_Q - 1)),
+      array_abs_bound(r->coeffs, 0, MLKEM_N - 1, MLKEM_K * (2 * MLKEM_Q - 1)),
       "polyvec_basemul_acc_montgomery_cached output bounds");
   /* TODO: Integrate CBMC assertion into POLY_BOUND if CBMC is set */
-  POLY_BOUND(r, MLKEM_K * 3 * HALF_Q);
+  POLY_BOUND(r, MLKEM_K * 2 * MLKEM_Q);
 }
 #else  /* !MLKEM_USE_NATIVE_POLYVEC_BASEMUL_ACC_MONTGOMERY_CACHED */
 void polyvec_basemul_acc_montgomery_cached(poly *r, const polyvec *a,
                                            const polyvec *b,
                                            const polyvec_mulcache *b_cache)
 {
-  POLYVEC_BOUND(a, MLKEM_Q);
+  POLYVEC_BOUND(a, 4096);
   POLYVEC_BOUND(b, NTT_BOUND);
   /* Omitting POLYVEC_BOUND(b_cache, MLKEM_Q) since native implementations may
    * decide not to use a mulcache. Note that the C backend implementation

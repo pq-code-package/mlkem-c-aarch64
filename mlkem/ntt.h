@@ -78,9 +78,9 @@ __contract__(
  *
  * Arguments: - r: Pointer to output polynomial
  *                   Upon return, coefficients are bound by
- *                   3*(q+1)/2 in absolute value.
+ *                   2*MLKEM_Q in absolute value.
  *            - a: Pointer to first input polynomial
- *                   Must be coefficient-wise < q in absolute value.
+ *                   Must be coefficient-wise < 4096 in absolute value.
  *            - b: Pointer to second input polynomial
  *                   Can have arbitrary int16_t coefficients
  *            - b_cached: Some precomputed value, typically derived from
@@ -92,9 +92,9 @@ __contract__(
   requires(memory_no_alias(r, 2 * sizeof(int16_t)))
   requires(memory_no_alias(a, 2 * sizeof(int16_t)))
   requires(memory_no_alias(b, 2 * sizeof(int16_t)))
-  requires(array_abs_bound(a, 0, 1, MLKEM_Q - 1))
+  requires(array_abs_bound(a, 0, 1, UINT12_MAX))
   assigns(memory_slice(r, 2 * sizeof(int16_t)))
-  ensures(array_abs_bound(r, 0, 1, (3 * HALF_Q - 1)))
+  ensures(array_abs_bound(r, 0, 1, 2 * MLKEM_Q - 1))
 );
 
 

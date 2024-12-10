@@ -104,11 +104,8 @@ vpaddw		%ymm7,%ymm11,%ymm11
 vpsubw		%ymm13,%ymm10,%ymm13
 vpsubw		%ymm12,%ymm6,%ymm6
 
-/* Bounds: Note that we assume that a+b*X is coefficient-wise bound by q in
- * in absolute value: This is coming from the contract for
- * polyvec_basemul_acc_montgomery_cached().
- *
- * Then, each Montgomery multiplication has absolute value < q,
+/* Bounds: Since we are multiplying with signed canonical twiddles,
+ * each Montgomery multiplication has absolute value < q,
  * and hence the coefficients of the output have absolute value < 2q. */
 vmovdqa		%ymm13,(64*\off+ 0)*2(%rdi)
 vmovdqa		%ymm9,(64*\off+16)*2(%rdi)

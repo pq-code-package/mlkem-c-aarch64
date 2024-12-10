@@ -32,8 +32,8 @@
 // Computes products (a0*b0 + a0*b0t, a0*b1 + a1*b0) in 32-bit.
 //
 // Bounds:
-// - Assume |a| < q, |b|, |bt| < NTT_BOUND
-// - Result: < 2*q*NTT_BOUND
+// - Assume |a| < 4096,
+// - Result: < 2*4096*2^15 = 2^28
 .macro pmull d, a, b
         smull  \d\()0l.4s, \a\()0.4h, \b\()0.4h
         smull2 \d\()0h.4s, \a\()0.8h, \b\()0.8h
@@ -252,11 +252,8 @@ _MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_clean):
 
         // Bounds:
         //
-        // Each pmull is bound by 2*q*2^15, so the final value
-        // before Montgomery reduction is bound by q*2^18 ~ 2^29.7
-        //
-        // The Montgomery reduction is thus bound by
-        // q * (2^18/2^16 + 1/2) = 4.5 q < 14981
+        // Each pmull is bound by 2*4096*2^15=2^28, so the final value
+        // before Montgomery reduction is bound by 2^30.
 
         mov count, #(MLKEM_N / 16)
 k4_loop_start:
