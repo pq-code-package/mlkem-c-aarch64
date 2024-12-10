@@ -45,6 +45,13 @@ jobs:
           archflags: "-mcpu=cortex-a55 -march=armv8.2-a"
           cflags: "-flto -static -DFORCE_AARCH64 -DFIPS202_NATIVE_PROFILE=\"aarch64/profiles/cortex_a55.h\""
           bench_extra_args: -w exec-on-a55
+        - system: bpi
+          name: Bananapi bpi-f3 benchmarks
+          bench_pmu: PERF
+          archflags: "-march=rv64imafdc_zicsr_zifencei"
+          cflags: "-static"
+          bench_extra_args: -w exec-on-bpi
+          cross_prefix: riscv64-unknown-linux-gnu-
     if: github.repository_owner == 'pq-code-package' && (github.event.label.name == 'benchmark' || github.ref == 'refs/heads/main')
     runs-on: self-hosted-${{ matrix.target.system }}
     steps:
@@ -58,6 +65,9 @@ jobs:
           store_results: ${{ github.repository_owner == 'pq-code-package' && github.ref == 'refs/heads/main' }}
           bench_extra_args: ${{ matrix.target.bench_extra_args }}
           gh_token: ${{ secrets.AWS_GITHUB_TOKEN }}
+          nix-shell: ${{ matrix.target.cross_prefix != '' && 'ci-cross' || 'ci' }}
+          cross_prefix: ${{ matrix.target.cross_prefix }}
+
   ec2_all:
     name: ${{ matrix.target.name }} ${{ matrix.opt.name }}
     permissions:
