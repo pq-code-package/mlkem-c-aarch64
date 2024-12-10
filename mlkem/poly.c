@@ -311,7 +311,7 @@ void poly_frombytes(poly *r, const uint8_t a[MLKEM_POLYBYTES])
   for (i = 0; i < MLKEM_N / 2; i++)
   __loop__(
     invariant(i >= 0 && i <= MLKEM_N / 2)
-    invariant(array_bound(r->coeffs, 0, (2 * i - 1), 0, 4095)))
+    invariant(array_bound(r->coeffs, 0, (2 * i - 1), 0, UINT12_MAX)))
   {
     /* REF-CHANGE: Introduce some locals for better readability */
     const uint8_t t0 = a[3 * i + 0];
@@ -462,7 +462,7 @@ void poly_basemul_montgomery_cached(poly *r, const poly *a, const poly *b,
   __loop__(
     assigns(i, object_whole(r))
     invariant(i >= 0 && i <= MLKEM_N / 4)
-    invariant(array_abs_bound(r->coeffs, 0, (4 * i - 1), (3 * HALF_Q - 1))))
+    invariant(array_abs_bound(r->coeffs, 0, (4 * i - 1), 2 * MLKEM_Q - 1)))
   {
     basemul_cached(&r->coeffs[4 * i], &a->coeffs[4 * i], &b->coeffs[4 * i],
                    b_cache->coeffs[2 * i]);
