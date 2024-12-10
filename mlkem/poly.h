@@ -439,7 +439,7 @@ __contract__(
   requires(memory_no_alias(a, MLKEM_POLYBYTES))
   requires(memory_no_alias(r, sizeof(poly)))
   assigns(memory_slice(r, sizeof(poly)))
-  ensures(array_bound(r->coeffs, 0, (MLKEM_N - 1), 0, 4095))
+  ensures(array_bound(r->coeffs, 0, (MLKEM_N - 1), 0, UINT12_MAX))
 );
 
 
@@ -637,9 +637,9 @@ __contract__(
   requires(memory_no_alias(a, sizeof(poly)))
   requires(memory_no_alias(b, sizeof(poly)))
   requires(memory_no_alias(b_cache, sizeof(poly_mulcache)))
-  requires(array_abs_bound(a->coeffs, 0, MLKEM_N - 1, (MLKEM_Q - 1)))
+  requires(array_abs_bound(a->coeffs, 0, MLKEM_N - 1, UINT12_MAX))
   assigns(object_whole(r))
-  ensures(array_abs_bound(r->coeffs, 0, MLKEM_N - 1, (3 * HALF_Q - 1)))
+  ensures(array_abs_bound(r->coeffs, 0, MLKEM_N - 1, 2 * MLKEM_Q - 1))
 );
 
 #define poly_tomont MLKEM_NAMESPACE(poly_tomont)

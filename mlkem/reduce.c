@@ -97,7 +97,7 @@ static INLINE int16_t montgomery_reduce_generic(int32_t a)
 int16_t montgomery_reduce(int32_t a)
 {
   int16_t res;
-  SCALAR_BOUND(a, 2 * MLKEM_Q * 32768, "montgomery_reduce input");
+  SCALAR_BOUND(a, 2 * UINT12_MAX * 32768, "montgomery_reduce input");
 
   res = montgomery_reduce_generic(a);
 
