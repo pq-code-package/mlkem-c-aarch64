@@ -166,8 +166,17 @@ __contract__(
  *            - const polyvec *a: pointer to first input vector of polynomials
  *            - const polyvec *b: pointer to second input vector of polynomials
  **************************************************/
-void polyvec_basemul_acc_montgomery(poly *r, const polyvec *a,
-                                    const polyvec *b);
+void polyvec_basemul_acc_montgomery(poly *r, const polyvec *a, const polyvec *b)
+__contract__(
+  requires(memory_no_alias(r, sizeof(poly)))
+  requires(memory_no_alias(a, sizeof(polyvec)))
+  requires(memory_no_alias(b, sizeof(polyvec)))
+/* Input is coefficient-wise < q in absolute value */
+  requires(forall(int, k1, 0, MLKEM_K - 1,
+ array_abs_bound(a->vec[k1].coeffs, 0, MLKEM_N - 1, (MLKEM_Q - 1))))
+  assigns(memory_slice(r, sizeof(poly)))
+);
+
 
 /* REF-CHANGE: This function does not exist in the reference implementation */
 #define polyvec_basemul_acc_montgomery_cached \
