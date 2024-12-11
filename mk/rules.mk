@@ -2,17 +2,23 @@
 $(BUILD_DIR)/mlkem512/bin/%: $(CONFIG)
 	$(Q)echo "  LD      $@"
 	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
-	$(LD) $(CFLAGS) -o $@ $(filter %.o,$^)
+	$(LD) $(CFLAGS) -o $@ $(filter %.o,$^) $(LDLIBS)
 
 $(BUILD_DIR)/mlkem768/bin/%: $(CONFIG)
 	$(Q)echo "  LD      $@"
 	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
-	$(LD) $(CFLAGS) -o $@ $(filter %.o,$^)
+	$(LD) $(CFLAGS) -o $@ $(filter %.o,$^) $(LDLIBS)
 
 $(BUILD_DIR)/mlkem1024/bin/%: $(CONFIG)
 	$(Q)echo "  LD      $@"
 	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
-	$(LD) $(CFLAGS) -o $@ $(filter %.o,$^)
+	$(LD) $(CFLAGS) -o $@ $(filter %.o,$^) $(LDLIBS)
+
+$(BUILD_DIR)/%.a: $(CONFIG)
+	$(Q)echo "  AR      $@"
+	$(Q)[ -d $(@D) ] || mkdir -p $(@D)
+	$(Q)rm -f $@
+	$(Q)$(CC_AR) rcs $@ $(filter %.o,$^)
 
 $(BUILD_DIR)/%.c.o: %.c $(CONFIG)
 	$(Q)echo "  CC      $@"
