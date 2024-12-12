@@ -101,6 +101,12 @@ If your library has a FIPS-202 implementation, you can use it instead of the one
 [`fips202/fips202.h`](fips202/fips202.h) and [`fips202/fips202x4.h`] and the functionalities specified
 therein. See [FIPS202.md](FIPS202.md) for details.
 
+### Do I need to setup CBMC to use mlkem-native?
+
+No. While we recommend that you consider using it, mlkem-native will build + run fine without CBMC -- just make sure to
+include [cbmc.h](mlkem/cbmc.h) and have `CBMC` undefined. In particular, you do _not_ need to remove all function
+contracts and loop invariants from the code; they will be ignored unless `CBMC` is set.
+
 ## Have a Question?
 
 If you think you have found a security bug in mlkem-native, please report the vulnerability through
