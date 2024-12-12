@@ -24,8 +24,6 @@ typedef struct
   uint64_t ctx[25];
 } shake128ctx;
 
-typedef shake128ctx shake256ctx;
-
 /* Initialize the state and absorb the provided input.
  *
  * This function does not support being called multiple times
@@ -79,8 +77,8 @@ __contract__(
 );
 
 /* Free the state */
-#define shake128_ctx_release FIPS202_NAMESPACE(shake128_ctx_release)
-void shake128_ctx_release(shake128ctx *state);
+#define shake128_release FIPS202_NAMESPACE(shake128_release)
+void shake128_release(shake128ctx *state);
 
 /* One-stop SHAKE256 call. Aliasing between input and
  * output is not permitted */

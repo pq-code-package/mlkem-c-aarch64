@@ -41,13 +41,13 @@
   shake128_absorb_once((CTX), (IN), (INBYTES))
 #define xof_squeezeblocks(BUF, NBLOCKS, CTX) \
   shake128_squeezeblocks((BUF), (NBLOCKS), (CTX))
-#define xof_release(CTX) shake128_ctx_release((CTX))
+#define xof_release(CTX) shake128_release((CTX))
 
 #define xof_x4_absorb(CTX, IN0, IN1, IN2, IN3, INBYTES) \
   shake128x4_absorb_once((CTX), (IN0), (IN1), (IN2), (IN3), (INBYTES))
 #define xof_x4_squeezeblocks(BUF0, BUF1, BUF2, BUF3, NBLOCKS, CTX) \
   shake128x4_squeezeblocks((BUF0), (BUF1), (BUF2), (BUF3), (NBLOCKS), (CTX))
-#define xof_x4_release(CTX) shake128x4ctx_release((CTX))
+#define xof_x4_release(CTX) shake128x4_release((CTX))
 
 #define XOF_RATE SHAKE128_RATE
 

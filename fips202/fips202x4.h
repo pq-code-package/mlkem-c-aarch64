@@ -49,8 +49,8 @@ __contract__(
     object_whole(state))
 );
 
-#define shake128x4ctx_release FIPS202_NAMESPACE(shake128x4ctx_release)
-void shake128x4ctx_release(shake128x4ctx *state);
+#define shake128x4_release FIPS202_NAMESPACE(shake128x4_release)
+void shake128x4_release(shake128x4ctx *state);
 
 #define shake256x4 FIPS202_NAMESPACE(shake256x4)
 void shake256x4(uint8_t *out0, uint8_t *out1, uint8_t *out2, uint8_t *out3,
