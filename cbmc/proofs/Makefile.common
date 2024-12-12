@@ -148,12 +148,14 @@ PROOF_SOURCE = $(CBMC_ROOT)/sources
 PROOF_INCLUDE = $(CBMC_ROOT)/include
 PROOF_STUB = $(CBMC_ROOT)/stubs
 
-# Project-specific definitions to override default definitions below
-#   * Makefile-project-defines will never be overwritten
-#   * Makefile-template-defines may be overwritten when the starter
-#     kit is updated
-sinclude $(PROOF_ROOT)/Makefile-project-defines
-sinclude $(PROOF_ROOT)/Makefile-template-defines
+# Flag to pass to goto-cc to make all static symbols globally visible. Leave it
+# unset or set it to --export-file-local-symbols to enable this behavior. Else,
+# selectively enable access to such symbols via each proof's Makefile.
+EXPORT_FILE_LOCAL_SYMBOLS =
+
+SRCDIR ?= $(abspath $(PROOF_ROOT)/../..)
+LITANI ?= litani
+PROJECT_NAME = "mlkem-native"
 
 # SRCDIR is the path to the root of the source tree
 # This is a default definition that is frequently overridden in
