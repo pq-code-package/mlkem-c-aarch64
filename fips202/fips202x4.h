@@ -17,14 +17,14 @@
 typedef struct
 {
   uint64_t ctx[KECCAK_LANES * KECCAK_WAY];
-} shake128x4_ctx;
+} shake128x4ctx;
 
 #define shake128x4_absorb_once FIPS202_NAMESPACE(shake128x4_absorb_once)
-void shake128x4_absorb_once(shake128x4_ctx *state, const uint8_t *in0,
+void shake128x4_absorb_once(shake128x4ctx *state, const uint8_t *in0,
                             const uint8_t *in1, const uint8_t *in2,
                             const uint8_t *in3, size_t inlen)
 __contract__(
-  requires(memory_no_alias(state, sizeof(shake128x4_ctx)))
+  requires(memory_no_alias(state, sizeof(shake128x4ctx)))
   requires(memory_no_alias(in0, inlen))
   requires(memory_no_alias(in1, inlen))
   requires(memory_no_alias(in2, inlen))
@@ -35,9 +35,9 @@ __contract__(
 #define shake128x4_squeezeblocks FIPS202_NAMESPACE(shake128x4_squeezeblocks)
 void shake128x4_squeezeblocks(uint8_t *out0, uint8_t *out1, uint8_t *out2,
                               uint8_t *out3, size_t nblocks,
-                              shake128x4_ctx *state)
+                              shake128x4ctx *state)
 __contract__(
-  requires(memory_no_alias(state, sizeof(shake128x4_ctx)))
+  requires(memory_no_alias(state, sizeof(shake128x4ctx)))
   requires(memory_no_alias(out0, nblocks * SHAKE128_RATE))
   requires(memory_no_alias(out1, nblocks * SHAKE128_RATE))
   requires(memory_no_alias(out2, nblocks * SHAKE128_RATE))
@@ -49,8 +49,8 @@ __contract__(
     object_whole(state))
 );
 
-#define shake128x4_ctx_release FIPS202_NAMESPACE(shake128x4_ctx_release)
-void shake128x4_ctx_release(shake128x4_ctx *state);
+#define shake128x4ctx_release FIPS202_NAMESPACE(shake128x4ctx_release)
+void shake128x4ctx_release(shake128x4ctx *state);
 
 #define shake256x4 FIPS202_NAMESPACE(shake256x4)
 void shake256x4(uint8_t *out0, uint8_t *out1, uint8_t *out2, uint8_t *out3,

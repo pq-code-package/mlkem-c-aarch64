@@ -36,7 +36,7 @@
 
 /* XOF function, FIPS-203 4.1 */
 #define xof_ctx shake128ctx
-#define xof_x4_ctx shake128x4_ctx
+#define xof_x4_ctx shake128x4ctx
 #define xof_absorb(CTX, IN, INBYTES) \
   shake128_absorb_once((CTX), (IN), (INBYTES))
 #define xof_squeezeblocks(BUF, NBLOCKS, CTX) \
@@ -47,7 +47,7 @@
   shake128x4_absorb_once((CTX), (IN0), (IN1), (IN2), (IN3), (INBYTES))
 #define xof_x4_squeezeblocks(BUF0, BUF1, BUF2, BUF3, NBLOCKS, CTX) \
   shake128x4_squeezeblocks((BUF0), (BUF1), (BUF2), (BUF3), (NBLOCKS), (CTX))
-#define xof_x4_release(CTX) shake128x4_ctx_release((CTX))
+#define xof_x4_release(CTX) shake128x4ctx_release((CTX))
 
 #define XOF_RATE SHAKE128_RATE
 

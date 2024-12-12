@@ -7,7 +7,7 @@
 #include "fips202.h"
 #include "keccakf1600.h"
 
-typedef shake128x4_ctx shake256x4_ctx;
+typedef shake128x4ctx shake256x4_ctx;
 
 static void keccak_absorb_once_x4(uint64_t *s, uint32_t r, const uint8_t *in0,
                                   const uint8_t *in1, const uint8_t *in2,
@@ -60,30 +60,30 @@ static void keccak_squeezeblocks_x4(uint8_t *out0, uint8_t *out1, uint8_t *out2,
   }
 }
 
-void shake128x4_absorb_once(shake128x4_ctx *state, const uint8_t *in0,
+void shake128x4_absorb_once(shake128x4ctx *state, const uint8_t *in0,
                             const uint8_t *in1, const uint8_t *in2,
                             const uint8_t *in3, size_t inlen)
 {
-  memset(state, 0, sizeof(shake128x4_ctx));
+  memset(state, 0, sizeof(shake128x4ctx));
   keccak_absorb_once_x4(state->ctx, SHAKE128_RATE, in0, in1, in2, in3, inlen,
                         0x1F);
 }
 
 void shake128x4_squeezeblocks(uint8_t *out0, uint8_t *out1, uint8_t *out2,
                               uint8_t *out3, size_t nblocks,
-                              shake128x4_ctx *state)
+                              shake128x4ctx *state)
 {
   keccak_squeezeblocks_x4(out0, out1, out2, out3, nblocks, state->ctx,
                           SHAKE128_RATE);
 }
 
-void shake128x4_ctx_release(shake128x4_ctx *state) { (void)state; }
+void shake128x4ctx_release(shake128x4ctx *state) { (void)state; }
 
 static void shake256x4_absorb_once(shake256x4_ctx *state, const uint8_t *in0,
                                    const uint8_t *in1, const uint8_t *in2,
                                    const uint8_t *in3, size_t inlen)
 {
-  memset(state, 0, sizeof(shake128x4_ctx));
+  memset(state, 0, sizeof(shake128x4ctx));
   keccak_absorb_once_x4(state->ctx, SHAKE256_RATE, in0, in1, in2, in3, inlen,
                         0x1F);
 }
