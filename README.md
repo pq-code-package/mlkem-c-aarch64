@@ -69,10 +69,6 @@ mlkem-native is in alpha-release stage. We believe it is ready for use, and hope
 integration into other software before issuing a stable release. If you have any feedback, please reach out! See
 [RELEASE.md](RELEASE.md) for details.
 
-mlkem-native is intended to be used as a code package, where source files are imported into a consuming project's
-source tree and built using that project's build system. The build system provided in this repository is for
-experimental and development purposes only. If you prefer a library-build, please get in touch or open an issue.
-
 ## Design
 
 mlkem-native is split in a _frontend_ and two _backends_ for arithmetic and FIPS-202 (SHA3). The frontend is
@@ -86,6 +82,24 @@ PR.
 Our AArch64 assembly is developed using [SLOTHY](https://github.com/slothy-optimizer/slothy): We write
 'clean' assembly by hand and automate micro-optimizations (e.g. see the [clean](mlkem/native/aarch64/ntt_clean.S)
 vs [optimized](mlkem/native/aarch64/ntt_opt.S) AArch64 NTT).
+
+## How should I use mlkem-native?
+
+mlkem-native is currently intended to be used as a code package, where source files are imported into a consuming
+project's source tree and built using that project's build system. The build system provided in this repository is for
+experimental and development purposes only. If you prefer a library-build, please get in touch or open an issue.
+
+### Can I bring my own backend?
+
+Absolutely: You can add further backends for ML-KEM native arithmetic and/or for FIPS-202. Follow the existing backends
+as templates.
+
+### Can I bring my own FIPS-202?
+
+If your library has a FIPS-202 implementation, you can use it instead of the one shipped with mlkem-native: Replace
+[`fips202/*`](fips202) by your FIPS-202 implementation, and make sure to include replacements for the headers
+[`fips202/fips202.h`](fips202/fips202.h) and [`fips202/fips202x4.h`] and the functionalities specified
+therein. See [FIPS202.md](FIPS202.md) for details.
 
 ## Have a Question?
 
