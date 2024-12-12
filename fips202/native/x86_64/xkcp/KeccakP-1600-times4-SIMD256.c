@@ -445,8 +445,10 @@ void KeccakP1600times4_PermuteAll_24rounds(void *states)
 }
 
 #else
+#include "params.h"
 
 /* Dummy constant to keep compiler happy despite empty CU */
+#define empty_cu_avx2_keccakx4 MLKEM_NAMESPACE(empty_cu_avx2_keccakx4)
 int empty_cu_avx2_keccakx4;
 
 #endif /* MLKEM_USE_NATIVE_X86_64 && SYS_X86_64_AVX2 */

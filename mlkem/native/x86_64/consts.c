@@ -86,7 +86,10 @@ const qdata_t qdata = {{
     SHIFT,    SHIFT,    SHIFT,    SHIFT,    SHIFT,    SHIFT,
     SHIFT,    SHIFT,    SHIFT,    SHIFT}};
 
-#else  /* MLKEM_USE_NATIVE_X86_64 && SYS_X86_64_AVX2 */
+#else /* MLKEM_USE_NATIVE_X86_64 && SYS_X86_64_AVX2 */
+#include "params.h"
+
 /* Dummy declaration for compilers disliking empty compilation units */
+#define empty_cu_consts MLKEM_NAMESPACE(empty_cu_consts)
 int empty_cu_consts;
 #endif /* MLKEM_USE_NATIVE_X86_64 && SYS_X86_64_AVX2 */
