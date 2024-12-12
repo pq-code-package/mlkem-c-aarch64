@@ -45,36 +45,13 @@ static INLINE int16_t cast_uint16_to_int16(uint16_t x)
  *
  * Arguments:   - int32_t a: input integer to be reduced
  *
- * Returns:     integer congruent to a * R^-1 modulo q
+ * Returns:     integer congruent to a * R^-1 modulo q, with absolute value
+ *                <= ceil(|a| / 2^16) + (MLKEM_Q + 1)/2
  *
- *              Bounds: For any C such that |a| < q * C, the return value
- *              has absolute value < q (C/2^16 + 1/2).
- *
- *              Notable special cases:
- *              - The Montgomery multiplication of a value of absolute value
- *                < q * C with a signed-canonical value ( < q/2 ) has
- *                absolute value q * (0.0254 * C + 1/2).
- *              - The Montgomery multiplication of a value of absolute value
- *                < q * C with a value t of |t| < q has absolute value
- *                < q * (0.0508 * C + 1/2).
- *              - The Montgomery multiplication of a value of absolute value
- *                < C with a value of abs < q has absolute value
- *                < q (C/2^16 + 1/2).
  **************************************************/
 ALWAYS_INLINE
 static INLINE int16_t montgomery_reduce_generic(int32_t a)
 {
-  /*
-   *Bounds on paper
-   * - Case |a| < q * C, for some C
-   * |t| <= |a|/2^16 + |t|*q/2^16
-   *      < q * C / 2^16 + q/2
-   *      = q (C/2^16 + 1/2)
-   * - Case |a| < (q/2) * C * q, for some C
-   * Replace C -> C * q in the above and estimate
-   * q / 2^17 < 0.0254.
-   */
-
   /*  Compute a*q^{-1} mod 2^16 in unsigned representatives */
   const uint16_t a_reduced = a & UINT16_MAX;
   const uint16_t a_inverted = (a_reduced * QINV) & UINT16_MAX;
@@ -83,6 +60,7 @@ static INLINE int16_t montgomery_reduce_generic(int32_t a)
   const int16_t t = cast_uint16_to_int16(a_inverted);
 
   int32_t r = a - ((int32_t)t * MLKEM_Q);
+  /* Bounds: |r| <= |a| + 2^15 * MLKEM_Q */
 
   /*
    * PORTABILITY: Right-shift on a signed integer is, strictly-speaking,
@@ -90,6 +68,12 @@ static INLINE int16_t montgomery_reduce_generic(int32_t a)
    * we assume it's sign-preserving "arithmetic" shift right. (C99 6.5.7 (5))
    */
   r = r >> 16;
+  /* Bounds: |r >> 16| <= ceil(|r| / 2^16)
+   *                   <= ceil(|a| / 2^16 + MLKEM_Q / 2)
+   *                   <= ceil(|a| / 2^16) + (MLKEM_Q + 1) / 2
+   *
+   * (Note that |a >> n| = ceil(|a| / 2^16) for negative a)
+   */
 
   return (int16_t)r;
 }
@@ -100,8 +84,13 @@ int16_t montgomery_reduce(int32_t a)
   SCALAR_BOUND(a, 2 * UINT12_MAX * 32768, "montgomery_reduce input");
 
   res = montgomery_reduce_generic(a);
+  /* Bounds:
+   * |res| <= ceil(|a| / 2^16) + (MLKEM_Q + 1) / 2
+   *       <= ceil(2 * UINT12_MAX * 32768 / 65536) + (MLKEM_Q + 1) / 2
+   *       <= UINT12_MAX + (MLKEM_Q + 1) / 2
+   *        < 2 * MLKEM_Q */
 
-  SCALAR_BOUND(res, (3 * (MLKEM_Q + 1)) / 2, "montgomery_reduce output");
+  SCALAR_BOUND(res, 2 * MLKEM_Q, "montgomery_reduce output");
   return res;
 }
 
@@ -111,6 +100,12 @@ int16_t fqmul(int16_t a, int16_t b)
   SCALAR_BOUND(b, HALF_Q, "fqmul input");
 
   res = montgomery_reduce((int32_t)a * (int32_t)b);
+  /* Bounds:
+   * |res| <= ceil(|a| * |b| / 2^16) + (MLKEM_Q + 1) / 2
+   *       <= ceil(2^15 * ((MLKEM_Q - 1)/2) / 2^16) + (MLKEM_Q + 1) / 2
+   *       <= ceil((MLKEM_Q - 1) / 4) + (MLKEM_Q + 1) / 2
+   *        < MLKEM_Q
+   */
 
   SCALAR_BOUND(res, MLKEM_Q, "fqmul output");
   return res;
