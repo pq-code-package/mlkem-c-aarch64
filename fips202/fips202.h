@@ -79,8 +79,8 @@ __contract__(
 );
 
 /* Free the state */
-#define shake128_ctx_release FIPS202_NAMESPACE(shake128_ctx_release)
-void shake128_ctx_release(shake128ctx *state);
+#define shake128_release FIPS202_NAMESPACE(shake128_release)
+void shake128_release(shake128ctx *state);
 
 /* One-stop SHAKE256 call. Aliasing between input and
  * output is not permitted */
