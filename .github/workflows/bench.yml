@@ -107,6 +107,7 @@ jobs:
             ec2_ami: ubuntu-latest (x86_64)
             archflags: -mavx2 -mbmi2 -mpopcnt -maes
             cflags: "-flto -DFORCE_X86_64"
+            aws_region: "eu-west-2" # Use separate region for metal instance to avoid exceeding vCPU quota
             perf: PMU
           - name: AMD EPYC 3rd gen (c6a)
             ec2_instance_type: c6a.large
