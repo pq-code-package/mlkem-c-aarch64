@@ -7,7 +7,7 @@ If your library has a FIPS-202 implementation, you can use it instead of the one
 1. Replace `fips202/*` by your own FIPS-202 implementation.
 2. Provide replacements for the headers [`fips202/fips202.h`](fips202/fips202.h) and [`fips202/fips202x4.h`](fips202/fips202x4.h) and the
 functionalities specified therein:
-  * Structure definitions for `shake128ctx` and `shake128x4ctx`, `shake256ctx`
+  * Structure definitions for `shake128ctx` and `shake128x4ctx`
   * `shake128_absorb_once()`: Initialize a SHAKE-128 context and perform a single absorb step.
   * `shake128_squeezeblocks()`: Squeeze SHAKE-128 context
   * `shake128_release()`: Release a SHAKE-128 context after use

@@ -24,8 +24,6 @@ typedef struct
   uint64_t ctx[25];
 } shake128ctx;
 
-typedef shake128ctx shake256ctx;
-
 /* Initialize the state and absorb the provided input.
  *
  * This function does not support being called multiple times
