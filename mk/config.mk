@@ -89,6 +89,7 @@ include mk/auto.mk
 endif
 
 BUILD_DIR ?= test/build
+TMP_DIR ?= test/build/tmp
 
 MAKE_OBJS = $(2:%=$(1)/%.o)
 OBJS = $(call MAKE_OBJS,$(BUILD_DIR),$(1))

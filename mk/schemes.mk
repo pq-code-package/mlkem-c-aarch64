@@ -15,18 +15,18 @@ MLKEM1024_DIR = $(BUILD_DIR)/mlkem1024
 
 # build lib<scheme>.a
 define BUILD_LIB
-$(BUILD_DIR)/lib$(1).a: CFLAGS += -static
-$(BUILD_DIR)/lib$(1).a: $(call MAKE_OBJS,$(BUILD_DIR)/$(1),$(SOURCES))
+$(TMP_DIR)/libtmp_$(1).a: CFLAGS += -static
+$(TMP_DIR)/libtmp_$(1).a: $(call MAKE_OBJS,$(BUILD_DIR)/$(1),$(SOURCES))
 
 # NOTE:
 # - The order matters, or else the `MLKEM_K` preprocessor won't be properly set
 # - Merging multiple .a files with ar is more complex than building a single library directly from all the object files (.o). Hence, all .o files are added as dependencies here.
-$(BUILD_DIR)/libmlkem.a: $(BUILD_DIR)/lib$(1).a $(call MAKE_OBJS,$(BUILD_DIR)/$(1),$(SOURCES))
+$(TMP_DIR)/libtmp_mlkem.a: $(TMP_DIR)/libtmp_$(1).a $(call MAKE_OBJS,$(BUILD_DIR)/$(1),$(SOURCES))
 endef
 
-$(BUILD_DIR)/libmlkem512.a: CPPFLAGS += -DMLKEM_K=2
-$(BUILD_DIR)/libmlkem768.a: CPPFLAGS += -DMLKEM_K=3
-$(BUILD_DIR)/libmlkem1024.a: CPPFLAGS += -DMLKEM_K=4
+$(TMP_DIR)/libtmp_mlkem512.a: CPPFLAGS += -DMLKEM_K=2
+$(TMP_DIR)/libtmp_mlkem768.a: CPPFLAGS += -DMLKEM_K=3
+$(TMP_DIR)/libtmp_mlkem1024.a: CPPFLAGS += -DMLKEM_K=4
 
 # build libmlkem512.a libmlkem768.a libmlkem1024.a
 $(foreach scheme,mlkem512 mlkem768 mlkem1024, \
@@ -34,8 +34,8 @@ $(foreach scheme,mlkem512 mlkem768 mlkem1024, \
 
 # rules for compilation for all tests: mainly linking with mlkem static link library
 define ADD_SOURCE
-$(BUILD_DIR)/$(1)/bin/$(2)$(shell echo $(1) | tr -d -c 0-9): LDLIBS += -L$(BUILD_DIR) -l$(1)
-$(BUILD_DIR)/$(1)/bin/$(2)$(shell echo $(1) | tr -d -c 0-9): $(BUILD_DIR)/$(1)/test/$(2).c.o $(BUILD_DIR)/lib$(1).a
+$(BUILD_DIR)/$(1)/bin/$(2)$(shell echo $(1) | tr -d -c 0-9): LDLIBS += -L$(TMP_DIR) -ltmp_$(1)
+$(BUILD_DIR)/$(1)/bin/$(2)$(shell echo $(1) | tr -d -c 0-9): $(BUILD_DIR)/$(1)/test/$(2).c.o $(TMP_DIR)/libtmp_$(1).a
 endef
 
 $(MLKEM512_DIR)/bin/%: CPPFLAGS += -DMLKEM_K=2
