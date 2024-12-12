@@ -133,11 +133,6 @@ static void keccak_squeeze_once(uint8_t *h, size_t outlen, uint64_t *s,
 void shake128_absorb_once(shake128ctx *state, const uint8_t *input,
                           size_t inlen)
 {
-  int i;
-  for (i = 0; i < 25; i++)
-  {
-    state->ctx[i] = 0;
-  }
   keccak_absorb_once(state->ctx, SHAKE128_RATE, input, inlen, 0x1F);
 }
 
