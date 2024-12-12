@@ -16,7 +16,7 @@
 import subprocess
 import os
 
-def check_file(file_path, namespace):
+def check_file(file_path, namespaces):
     if file_path.endswith("debug.c.o"):
         print("skipping namespacing: {}".format(file_path))
         return
@@ -35,16 +35,22 @@ def check_file(file_path, namespace):
         if line.startswith("00"):
             symbols.append(line)
 
+    def is_namespaced(symbol):
+        for namespace in namespaces:
+            if (symbol.startswith(namespace) or
+                symbol.startswith('_' + namespace)):
+                return True
+        return False
+
     non_namespaced = []
     for symbolstr in symbols:
         *_, symtype, symbol = symbolstr.split()
         if symtype in 'TDRS':
-            if not (symbol.startswith(namespace) or
-                symbol.startswith('_' + namespace)):
+            if is_namespaced(symbol) is False:
                 non_namespaced.append(symbol)
 
-    if non_namespaced:
-        print("Missing namespace literal {}".format(namespace))
+    if len(non_namespaced) > 0:
+        print("Missing namespace literal from {}".format(namespaces))
         for symbol in non_namespaced:
             print("\tsymbol: {}".format(symbol))
     assert not non_namespaced, "Literals with missing namespaces"
@@ -61,14 +67,23 @@ def check_folder(folder, namespace):
     print("Checked {} files".format(checked))
     assert checked > 0
 
+def list_mlkem_namespaces(lvl):
+    return [ f"PQCP_MLKEM_NATIVE_MLKEM{lvl}_C",
+             f"PQCP_MLKEM_NATIVE_MLKEM{lvl}_AARCH64",
+             f"PQCP_MLKEM_NATIVE_MLKEM{lvl}_X86_64" ]
+
+def list_fips202_namespaces():
+    return [ f"PQCP_MLKEM_NATIVE_FIPS202_C",
+             f"PQCP_MLKEM_NATIVE_FIPS202_AARCH64",
+             f"PQCP_MLKEM_NATIVE_FIPS202_X86_64" ]
 
 def run():
-    check_folder("test/build/mlkem512/mlkem", "PQCP_MLKEM_NATIVE_MLKEM512_")
-    check_folder("test/build/mlkem768/mlkem", "PQCP_MLKEM_NATIVE_MLKEM768_")
-    check_folder("test/build/mlkem1024/mlkem", "PQCP_MLKEM_NATIVE_MLKEM1024_")
-    check_folder("test/build/mlkem512/fips202", "PQCP_MLKEM_NATIVE_FIPS202_")
-    check_folder("test/build/mlkem768/fips202", "PQCP_MLKEM_NATIVE_FIPS202_")
-    check_folder("test/build/mlkem1024/fips202", "PQCP_MLKEM_NATIVE_FIPS202_")
+    check_folder("test/build/mlkem512/mlkem", list_mlkem_namespaces(512))
+    check_folder("test/build/mlkem768/mlkem", list_mlkem_namespaces(768))
+    check_folder("test/build/mlkem1024/mlkem", list_mlkem_namespaces(1024))
+    check_folder("test/build/mlkem512/fips202", list_fips202_namespaces())
+    check_folder("test/build/mlkem768/fips202", list_fips202_namespaces())
+    check_folder("test/build/mlkem1024/fips202", list_fips202_namespaces())
 
 if __name__ == "__main__":
     run()
