@@ -101,7 +101,7 @@ int16_t montgomery_reduce(int32_t a)
 
   res = montgomery_reduce_generic(a);
 
-  SCALAR_BOUND(res, (3 * (MLKEM_Q + 1)) / 2, "montgomery_reduce output");
+  SCALAR_BOUND(res, 2 * MLKEM_Q, "montgomery_reduce output");
   return res;
 }
 
