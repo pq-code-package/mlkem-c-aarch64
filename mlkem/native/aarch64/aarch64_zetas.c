@@ -163,7 +163,10 @@ const int16_t aarch64_zetas_mulcache_twisted_native[] = {
     -11566, 11566,
 };
 
-#else  /* MLKEM_USE_NATIVE_AARCH64 */
+#else /* MLKEM_USE_NATIVE_AARCH64 */
+#include "params.h"
+
 /* Dummy declaration for compilers disliking empty compilation units */
+#define empty_cu_aarch64_zetas MLKEM_NAMESPACE(empty_cu_aarch64_zetas)
 int empty_cu_aarch64_zetas;
 #endif /* MLKEM_USE_NATIVE_AARCH64 */

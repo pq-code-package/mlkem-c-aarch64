@@ -328,7 +328,10 @@ def gen_aarch64_fwd_ntt_zeta_file(dry_run=False):
         yield "};"
         yield ""
         yield "#else /* MLKEM_USE_NATIVE_AARCH64 */"
+        yield '#include "params.h"'
+        yield ""
         yield "/* Dummy declaration for compilers disliking empty compilation units */"
+        yield "#define empty_cu_aarch64_zetas MLKEM_NAMESPACE(empty_cu_aarch64_zetas)"
         yield "int empty_cu_aarch64_zetas;"
         yield "#endif /* MLKEM_USE_NATIVE_AARCH64 */"
         yield ""

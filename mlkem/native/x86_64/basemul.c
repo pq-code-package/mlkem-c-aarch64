@@ -58,8 +58,11 @@ void polyvec_basemul_acc_montgomery_cached_avx2(poly *r, const polyvec *a,
 }
 
 #else
+#include "params.h"
 
 /* Dummy constant to keep compiler happy despite empty CU */
+
+#define empty_cu_avx2_basemul MLKEM_NAMESPACE(empty_cu_avx2_basemul)
 int empty_cu_avx2_basemul;
 
 #endif /* MLKEM_USE_NATIVE_X86_64 && SYS_X86_64_AVX2 */

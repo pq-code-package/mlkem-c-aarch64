@@ -290,7 +290,10 @@ unsigned int rej_uniform_avx2(int16_t *RESTRICT r, const uint8_t *buf)
   return ctr;
 }
 
-#else  /* MLKEM_USE_NATIVE_X86_64 && SYS_X86_64_AVX2 */
+#else /* MLKEM_USE_NATIVE_X86_64 && SYS_X86_64_AVX2 */
+#include "params.h"
+
 /* Dummy declaration for compilers disliking empty compilation units */
+#define empty_cu_rej_uniform_avx2 MLKEM_NAMESPACE(empty_cu_rej_uniform_avx2)
 int empty_cu_rej_uniform_avx2;
 #endif /* MLKEM_USE_NATIVE_X86_64 && SYS_X86_64_AVX2 */
