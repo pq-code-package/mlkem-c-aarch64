@@ -98,7 +98,7 @@ as templates.
 
 If your library has a FIPS-202 implementation, you can use it instead of the one shipped with mlkem-native: Replace
 [`fips202/*`](fips202) by your FIPS-202 implementation, and make sure to include replacements for the headers
-[`fips202/fips202.h`](fips202/fips202.h) and [`fips202/fips202x4.h`] and the functionalities specified
+[`fips202/fips202.h`](fips202/fips202.h) and [`fips202/fips202x4.h`](fips202/fips202x4.h) and the functionalities specified
 therein. See [FIPS202.md](FIPS202.md) for details.
 
 ### Do I need to setup CBMC to use mlkem-native?
