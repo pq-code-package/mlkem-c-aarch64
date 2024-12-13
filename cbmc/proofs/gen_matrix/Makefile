@@ -13,13 +13,13 @@ DEFINES +=
 INCLUDES +=
 
 REMOVE_FUNCTION_BODY +=
-UNWINDSET += $(MLKEM_NAMESPACE)gen_matrix.0:4 $(MLKEM_NAMESPACE)gen_matrix.1:4 $(MLKEM_NAMESPACE)gen_matrix.2:4
+UNWINDSET += $(MLKEM_NAMESPACE)gen_matrix.0:4 $(MLKEM_NAMESPACE)gen_matrix.1:4 $(MLKEM_NAMESPACE)gen_matrix.2:4 $(MLKEM_NAMESPACE)gen_matrix.3:4 $(MLKEM_NAMESPACE)gen_matrix.4:4
 
 PROOF_SOURCES += $(PROOFDIR)/$(HARNESS_FILE).c
 PROJECT_SOURCES += $(SRCDIR)/mlkem/indcpa.c
 
 CHECK_FUNCTION_CONTRACTS=$(MLKEM_NAMESPACE)gen_matrix
-USE_FUNCTION_CONTRACTS=gen_matrix_entry gen_matrix_entry_x4
+USE_FUNCTION_CONTRACTS=gen_matrix_entry gen_matrix_entry_x4 poly_permute_bitrev_to_custom
 APPLY_LOOP_CONTRACTS=on
 USE_DYNAMIC_FRAMES=1
 
@@ -36,7 +36,7 @@ FUNCTION_NAME = $(MLKEM_NAMESPACE)gen_matrix
 # EXPENSIVE = true
 
 # This function is large enough to need...
-CBMC_OBJECT_BITS = 8
+CBMC_OBJECT_BITS = 10
 
 # If you require access to a file-local ("static") function or object to conduct
 # your proof, set the following (and do not include the original source file

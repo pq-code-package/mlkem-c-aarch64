@@ -250,6 +250,17 @@ __contract__(
   xof_release(&state);
 }
 
+#if !defined(MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER)
+STATIC_INLINE_TESTABLE
+void poly_permute_bitrev_to_custom(poly *data)
+__contract__(
+  /* We don't specify that this should be a permutation, but only
+   * that it does not change the bound established at the end of gen_matrix. */
+  requires(memory_no_alias(data, sizeof(poly)))
+  requires(array_bound(data->coeffs, 0, MLKEM_N - 1, 0, MLKEM_Q - 1))
+  assigns(memory_slice(data, sizeof(poly)))
+  ensures(array_bound(data->coeffs, 0, MLKEM_N - 1, 0, MLKEM_Q - 1))) { ((void)data); }
+#endif /* MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER */
 
 /* Not static for benchmarking */
 void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES], int transposed)
@@ -330,7 +341,6 @@ void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES], int transposed)
   cassert(i == MLKEM_K * MLKEM_K,
           "gen_matrix: failed to generate whole matrix");
 
-#if defined(MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER)
   /*
    * The public matrix is generated in NTT domain. If the native backend
    * uses a custom order in NTT domain, permute A accordingly.
@@ -342,7 +352,6 @@ void gen_matrix(polyvec *a, const uint8_t seed[MLKEM_SYMBYTES], int transposed)
       poly_permute_bitrev_to_custom(&a[i].vec[j]);
     }
   }
-#endif /* MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER */
 }
 
 /*************************************************
