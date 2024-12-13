@@ -23,16 +23,16 @@ $(BUILD_DIR)/%.a: $(CONFIG)
 # NOTE:
 # 	$AR doesn't care about duplicated symbols, one can only find it out via actually linking.
 # 	The easiest one to do this that one can think of is to create a dummy C file with empty main function on the fly, pipe it to $CC and link with the built library
-	$(eval _LIB := $(subst $(shell dirname $@)/lib,,$(@:%.a=%)))
+	$(eval _LIB := $(subst $(BUILD_DIR)/lib,,$(@:%.a=%)))
 ifneq ($(findstring clang,$(shell $(CC) --version)),) # if CC is clang
 	$(Q)echo "int main() {return 0;}" \
-		| $(CC) -x c - -L$(shell dirname $@) \
+		| $(CC) -x c - -L$(BUILD_DIR) \
 		 -all_load -Wl,-undefined,dynamic_lookup -l$(_LIB) \
 		 -Imlkem $(wildcard test/notrandombytes/*.c)
 	$(Q)rm -f a.out
 else                                                  # if CC is not clang
 	$(Q)echo "int main() {return 0;}" \
-		| $(CC) -x c - -L$(shell dirname $@) \
+		| $(CC) -x c - -L$(BUILD_DIR) \
 		-Wl,--whole-archive,--unresolved-symbols=ignore-in-object-files -l$(_LIB) \
 		-Wl,--no-whole-archive \
 		-Imlkem $(wildcard test/notrandombytes/*.c)
