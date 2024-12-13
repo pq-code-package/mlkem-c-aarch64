@@ -37,17 +37,28 @@
  *              - uint8_t p:         domain-separation byte for different
  *                                   Keccak-derived functions
  **************************************************/
-static void keccak_absorb_once(uint64_t *s, uint32_t r, const uint8_t *m,
-                               size_t mlen, uint8_t p)
+STATIC_TESTABLE
+void keccak_absorb_once(uint64_t *s, uint32_t r, const uint8_t *m, size_t mlen,
+                        uint8_t p)
+__contract__(
+    requires(r <= sizeof(uint64_t) * KECCAK_LANES)
+    requires(memory_no_alias(s, sizeof(uint64_t) * KECCAK_LANES))
+    requires(memory_no_alias(m, mlen))
+    assigns(memory_slice(s, sizeof(uint64_t) * KECCAK_LANES)))
 {
   /* Initialize state */
   size_t i;
   for (i = 0; i < 25; ++i)
+  __loop__(invariant(i <= 25))
   {
     s[i] = 0;
   }
 
   while (mlen >= r)
+  __loop__(
+    assigns(mlen, m, memory_slice(s, sizeof(uint64_t) * KECCAK_LANES))
+    invariant(mlen <= loop_entry(mlen))
+    invariant(m == loop_entry(m) + (loop_entry(mlen) - mlen)))
   {
     KeccakF1600_StateXORBytes(s, m, 0, r);
     KeccakF1600_StatePermute(s);
@@ -74,20 +85,32 @@ static void keccak_absorb_once(uint64_t *s, uint32_t r, const uint8_t *m,
 }
 
 /*************************************************
- * Name:        keccak_inc_squeeze
+ * Name:        keccak_squeezeblocks
  *
  * Description: block-level Keccak squeeze
  *
  * Arguments:   - uint8_t *h: pointer to output bytes
- *              - size_t outlen: number of blocks to be squeezed
+ *              - size_t nblocks: number of blocks to be squeezed
  *              - uint64_t *s_inc: pointer to input/output state
  *              - uint32_t r: rate in bytes (e.g., 168 for SHAKE128)
  **************************************************/
-static void keccak_squeezeblocks(uint8_t *h, size_t nblocks, uint64_t *s,
-                                 uint32_t r)
+STATIC_TESTABLE
+void keccak_squeezeblocks(uint8_t *h, size_t nblocks, uint64_t *s, uint32_t r)
+__contract__(
+    requires(r <= sizeof(uint64_t) * KECCAK_LANES)
+    requires(nblocks <= 8 /* somewhat arbitrary bound */)
+    requires(memory_no_alias(s, sizeof(uint64_t) * KECCAK_LANES))
+    requires(memory_no_alias(h, nblocks * r))
+    assigns(memory_slice(s, sizeof(uint64_t) * KECCAK_LANES))
+    assigns(memory_slice(h, nblocks *r)))
 {
-  /* Then squeeze the remaining necessary blocks */
   while (nblocks > 0)
+  __loop__(
+    assigns(h, nblocks,
+      memory_slice(s, sizeof(uint64_t) * KECCAK_LANES),
+      memory_slice(h, nblocks * r))
+    invariant(nblocks <= loop_entry(nblocks) &&
+      h == loop_entry(h) + r * (loop_entry(nblocks) - nblocks)))
   {
     KeccakF1600_StatePermute(s);
     KeccakF1600_StateExtractBytes(s, h, 0, r);
@@ -108,11 +131,23 @@ static void keccak_squeezeblocks(uint8_t *h, size_t nblocks, uint64_t *s,
  *              - uint64_t *s_inc: pointer to Keccak state
  *              - uint32_t r: rate in bytes (e.g., 168 for SHAKE128)
  **************************************************/
-static void keccak_squeeze_once(uint8_t *h, size_t outlen, uint64_t *s,
-                                uint32_t r)
+STATIC_TESTABLE
+void keccak_squeeze_once(uint8_t *h, size_t outlen, uint64_t *s, uint32_t r)
+__contract__(
+    requires(r <= sizeof(uint64_t) * KECCAK_LANES)
+    requires(memory_no_alias(s, sizeof(uint64_t) * KECCAK_LANES))
+    requires(memory_no_alias(h, outlen))
+    assigns(memory_slice(s, sizeof(uint64_t) * KECCAK_LANES))
+    assigns(memory_slice(h, outlen)))
 {
   size_t len;
   while (outlen > 0)
+  __loop__(
+    assigns(len, h, outlen,
+      memory_slice(s, sizeof(uint64_t) * KECCAK_LANES),
+      memory_slice(h, outlen))
+    invariant(outlen <= loop_entry(outlen) &&
+      h == loop_entry(h) + (loop_entry(outlen) - outlen)))
   {
     KeccakF1600_StatePermute(s);
 
