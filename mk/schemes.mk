@@ -19,8 +19,9 @@ $(BUILD_DIR)/lib$(1).a: CFLAGS += -static
 $(BUILD_DIR)/lib$(1).a: $(call MAKE_OBJS,$(BUILD_DIR)/$(1),$(SOURCES))
 
 # NOTE:
-# - The order matters, or else the `MLKEM_K` preprocessor won't be properly set
-# - Merging multiple .a files with ar is more complex than building a single library directly from all the object files (.o). Hence, all .o files are added as dependencies here.
+# libmlkem.a does not link against libmlkem{512,768,1024}.a, but the underlying object files.
+# Still, we currently need a dependency on libmlkem{512,768,1024}.a here as otherwise there is
+# a hiccup with the setting of MLKEM_K (TODO: look at this more closely)
 $(BUILD_DIR)/libmlkem.a: $(BUILD_DIR)/lib$(1).a $(call MAKE_OBJS,$(BUILD_DIR)/$(1),$(SOURCES))
 endef
 
