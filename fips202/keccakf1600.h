@@ -9,6 +9,7 @@
 #include "fips202_native.h"
 #include "namespace.h"
 
+#include "cbmc.h"
 #define KECCAK_LANES 25
 
 /*
@@ -21,11 +22,25 @@
 #define KeccakF1600_StateExtractBytes \
   FIPS202_NAMESPACE(KeccakF1600_StateExtractBytes)
 void KeccakF1600_StateExtractBytes(uint64_t *state, unsigned char *data,
-                                   unsigned int offset, unsigned int length);
+                                   unsigned int offset, unsigned int length)
+__contract__(
+    requires(0 <= offset && offset <= KECCAK_LANES * sizeof(uint64_t) &&
+	     0 <= length && length <= KECCAK_LANES * sizeof(uint64_t) - offset)
+    requires(memory_no_alias(state, sizeof(uint64_t) * KECCAK_LANES))
+    requires(memory_no_alias(data, length))
+    assigns(memory_slice(data, length))
+);
 
 #define KeccakF1600_StateXORBytes FIPS202_NAMESPACE(KeccakF1600_StateXORBytes)
 void KeccakF1600_StateXORBytes(uint64_t *state, const unsigned char *data,
-                               unsigned int offset, unsigned int length);
+                               unsigned int offset, unsigned int length)
+__contract__(
+    requires(0 <= offset && offset <= KECCAK_LANES * sizeof(uint64_t) &&
+	     0 <= length && length <= KECCAK_LANES * sizeof(uint64_t) - offset)
+    requires(memory_no_alias(state, sizeof(uint64_t) * KECCAK_LANES))
+    requires(memory_no_alias(data, length))
+    assigns(memory_slice(state, sizeof(uint64_t) * KECCAK_LANES))
+);
 
 #define KeccakF1600x4_StateExtractBytes \
   FIPS202_NAMESPACE(KeccakF1600x4_StateExtractBytes)
@@ -47,7 +62,12 @@ void KeccakF1600x4_StatePermute(uint64_t *state);
 
 #if !defined(MLKEM_USE_FIPS202_X1_ASM)
 #define KeccakF1600_StatePermute FIPS202_NAMESPACE(KeccakF1600_StatePermute)
-void KeccakF1600_StatePermute(uint64_t *state);
+void KeccakF1600_StatePermute(uint64_t *state)
+__contract__(
+    requires(memory_no_alias(state, sizeof(uint64_t) * KECCAK_LANES))
+    assigns(memory_slice(state, sizeof(uint64_t) * KECCAK_LANES))
+);
+
 #else
 #define KeccakF1600_StatePermute FIPS202_NAMESPACE(keccak_f1600_x1_asm)
 #endif

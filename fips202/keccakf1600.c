@@ -17,6 +17,7 @@
 #include "config.h"
 #include "fips202_native.h"
 
+#include "cbmc.h"
 
 #define NROUNDS 24
 #define ROL(a, offset) ((a << offset) ^ (a >> (64 - offset)))
@@ -28,6 +29,7 @@ void KeccakF1600_StateExtractBytes(uint64_t *state, unsigned char *data,
 #if defined(SYS_LITTLE_ENDIAN)
   uint8_t *state_ptr = (uint8_t *)state + offset;
   for (i = 0; i < length; i++)
+  __loop__(invariant(0 <= i && i <= length))
   {
     data[i] = state_ptr[i];
   }
@@ -47,6 +49,7 @@ void KeccakF1600_StateXORBytes(uint64_t *state, const unsigned char *data,
 #if defined(SYS_LITTLE_ENDIAN)
   uint8_t *state_ptr = (uint8_t *)state + offset;
   for (i = 0; i < length; i++)
+  __loop__(invariant(i <= length))
   {
     state_ptr[i] ^= data[i];
   }
@@ -162,6 +165,7 @@ void KeccakF1600_StatePermute(uint64_t *state)
   Asu = state[24];
 
   for (round = 0; round < NROUNDS; round += 2)
+  __loop__(invariant(0 <= round && round <= NROUNDS && round % 2 == 0))
   {
     /*    prepareTheta */
     BCa = Aba ^ Aga ^ Aka ^ Ama ^ Asa;
