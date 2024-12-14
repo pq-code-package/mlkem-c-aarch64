@@ -56,7 +56,7 @@
               (pkgs.lib.optional (! pkgs.stdenv.hostPlatform.isx86_64) x86_64-gcc)
               (pkgs.lib.optional (! pkgs.stdenv.hostPlatform.isAarch64) aarch64-gcc)
               (pkgs.lib.optional (! pkgs.stdenv.hostPlatform.isRiscV64) riscv64-gcc)
-              (pkgs.lib.optional (! pkgs.stdenv.hostPlatform.isMips64)  mips64-gcc)
+              (pkgs.lib.optional (! pkgs.stdenv.hostPlatform.isMips64) mips64-gcc)
               native-gcc
             ]
             ++ builtins.attrValues {

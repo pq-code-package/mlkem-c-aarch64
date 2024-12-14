@@ -80,6 +80,12 @@ runs:
             - $(bash --version | grep -m1 "")
             - $(${{ inputs.cross_prefix }}${CC} --version | grep -m1 "")
           EOF
+      - name: MIPS64 adjustments
+        if: ${{ contains(inputs.cross_prefix, 'mips64') }}
+        shell: ${{ env.SHELL }}
+        run: |
+          echo AR_CC="ar" >> $GITHUB_ENV
+          echo CC="gcc-14" >> $GITHUB_ENV
       - name: ${{ env.MODE }} ${{ inputs.opt }} tests (${{ env.FUNC }}, ${{ env.KAT }}, ${{ env.NISTKAT }})
         shell: ${{ env.SHELL }}
         run: |

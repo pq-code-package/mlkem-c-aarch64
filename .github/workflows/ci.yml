@@ -145,6 +145,10 @@ jobs:
            mode: cross-riscv64
          - runner: pqcp-x64
            name: 'ubuntu-latest (x86_64)'
+           arch: mips64
+           mode: cross-mips64
+         - runner: pqcp-x64
+           name: 'ubuntu-latest (x86_64)'
            arch: x86_64
            mode: native
          - runner: pqcp-x64
@@ -177,6 +181,13 @@ jobs:
              target: {
                runner: pqcp-x64,
                name: 'ubuntu-latest (x86_64)',
+               arch: mips64,
+               mode: cross-mips64
+             }}
+          - {external: true,
+             target: {
+               runner: pqcp-x64,
+               name: 'ubuntu-latest (x86_64)',
                arch: x86_64,
                mode: native
              }}
@@ -198,8 +209,8 @@ jobs:
           nix-cache: ${{ matrix.target.mode == 'native' && 'false' || 'true' }}
           gh_token: ${{ secrets.GITHUB_TOKEN }}
           compile_mode: ${{ matrix.target.mode }}
-          # There is no native code on R-V yet, so no point running opt tests
-          opt: ${{ matrix.target.arch != 'riscv64' && 'all' || 'no_opt' }}
+          # There is no native code on R-V or MIPS64, so no point running opt tests
+          opt: ${{ (matrix.target.arch != 'riscv64' && matrix.target.arch != 'mips64') && 'all' || 'no_opt' }}
       - name: build + test (+debug+memsan+ubsan)
         uses: ./.github/actions/multi-functest
         if: ${{ matrix.target.mode == 'native' }}
