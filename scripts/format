@@ -35,7 +35,8 @@ info "Checking for eol"
 check-eol()
 {
   for file in $(git ls-files -- ":/" ":/!:*.png"); do
-    if [[ $(tail -c1 "$file" | wc -l) == 0 ]]; then
+    # Ignore symlinks
+    if [[ ! -L $file && $(tail -c1 "$file" | wc -l) == 0 ]]; then
       echo "" >>"$file"
       echo "$file"
     fi

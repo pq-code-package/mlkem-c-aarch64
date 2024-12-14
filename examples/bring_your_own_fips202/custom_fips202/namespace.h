@@ -1,0 +1,30 @@
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
+#ifndef NAMESPACE_H
+#define NAMESPACE_H
+
+#include "config.h"
+
+#if defined(MLKEM_USE_NATIVE_X86_64)
+#define MLKEM_NATIVE_BACKEND X86_64
+#elif defined(MLKEM_USE_NATIVE_AARCH64)
+#define MLKEM_NATIVE_BACKEND AARCH64
+#else
+#define MLKEM_NATIVE_BACKEND C
+#endif
+
+#define ___FIPS202_NAMESPACE(x1, x2, x3) x1##_##x2##_##x3
+#define __FIPS202_NAMESPACE(x1, x2, x3) ___FIPS202_NAMESPACE(x1, x2, x3)
+
+/*
+ * NAMESPACE is PQCP_MLKEM_NATIVE_FIPS202_<BACKEND>_
+ * e.g., PQCP_MLKEM_NATIVE_FIPS202_AARCH64_
+ */
+#define FIPS202_NAMESPACE(s) \
+  __FIPS202_NAMESPACE(PQCP_MLKEM_NATIVE_FIPS202, MLKEM_NATIVE_BACKEND, s)
+#define _FIPS202_NAMESPACE(s) \
+  __FIPS202_NAMESPACE(_PQCP_MLKEM_NATIVE_FIPS202, MLKEM_NATIVE_BACKEND, s)
+
+#endif

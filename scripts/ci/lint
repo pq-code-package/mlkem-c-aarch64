@@ -64,7 +64,8 @@ echo "::endgroup::"
 check-eol-dry-run()
 {
   for file in $(git ls-files -- ":/" ":/!:*.png"); do
-    if [[ $(tail -c1 "$file" | wc -l) == 0 ]]; then
+    # Ignore symlinks
+    if [[ ! -L $file && $(tail -c1 "$file" | wc -l) == 0 ]]; then
       l=$(wc -l <"$file")
       echo "$file $l"
     fi
@@ -78,13 +79,15 @@ check-spdx()
 {
   local success=true
   for file in $(git ls-files -- ":/" ":/!:*.json" ":/!:*.png" ":/!:*LICENSE*" ":/!:.git*" ":/!:flake.lock"); do
-    if [[ $(grep "SPDX-License-Identifier:" $file | wc -l) == 0 ]]; then
+    # Ignore symlinks
+    if [[ ! -L $file && $(grep "SPDX-License-Identifier:" $file | wc -l) == 0 ]]; then
       echo "::error file=$file,line=${line:-1},title=Missing license header error::$file is missing SPDX License header"
       success=false
     fi
   done
-  for file in $(git ls-files -- "*.[chsS]" "*.py" ":/!cbmc/**/*.py"); do
-    if [[ $(grep "Copyright (c) 2024 The mlkem-native project authors" $file | wc -l) == 0 ]]; then
+  for file in $(git ls-files -- "*.[chsS]" "*.py" ":/!cbmc/**/*.py" ":/!examples/bring_your_own_fips202/custom_fips202/tiny_sha3/*"); do
+    # Ignore symlinks
+    if [[ ! -L $file && $(grep "Copyright (c) 2024 The mlkem-native project authors" $file | wc -l) == 0 ]]; then
       echo "::error file=$file,line=${line:-1},title=Missing copyright header error::$file is missing copyright header"
       success=false
     fi
