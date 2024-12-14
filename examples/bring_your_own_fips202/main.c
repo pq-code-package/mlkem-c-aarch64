@@ -8,6 +8,11 @@
 
 #include <kem.h>
 
+const uint8_t expected_key[] = {0xe9, 0x13, 0x77, 0x84, 0x0e, 0x6b, 0x66, 0x94,
+                                0xea, 0xa9, 0xf0, 0x1c, 0x97, 0xff, 0x68, 0x87,
+                                0x4e, 0x8b, 0x0c, 0x52, 0x0b, 0x00, 0xc2, 0xcd,
+                                0xe3, 0x7c, 0x4f, 0xc2, 0x39, 0x62, 0x6e, 0x70};
+
 int main(void)
 {
   uint8_t pk[CRYPTO_PUBLICKEYBYTES];
@@ -38,7 +43,15 @@ int main(void)
 
   if (memcmp(key_a, key_b, CRYPTO_BYTES))
   {
-    printf("ERROR\n");
+    printf("ERROR: Mismatching keys\n");
+    return 1;
+  }
+
+  /* Check against hardcoded result to make sure that
+   * we integrated custom FIPS202 correctly */
+  if (memcmp(key_a, expected_key, CRYPTO_BYTES) != 0)
+  {
+    printf("ERROR: Unexpected result\n");
     return 1;
   }
 

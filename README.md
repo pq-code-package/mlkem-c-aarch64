@@ -86,8 +86,9 @@ vs [optimized](mlkem/native/aarch64/ntt_opt.S) AArch64 NTT).
 ## How should I use mlkem-native?
 
 mlkem-native is currently intended to be used as a code package, where source files are imported into a consuming
-project's source tree and built using that project's build system. The build system provided in this repository is for
-experimental and development purposes only. If you prefer a library-build, please get in touch or open an issue.
+project's source tree and built using that project's build system. See
+[examples/mlkem_native_as_code_package](examples/mlkem_native_as_code_package) for an example. The build system provided
+in this repository is for experimental and development purposes only. If you prefer a library-build, please get in touch or open an issue.
 
 ### Can I bring my own backend?
 
@@ -99,7 +100,9 @@ as templates.
 If your library has a FIPS-202 implementation, you can use it instead of the one shipped with mlkem-native: Replace
 [`fips202/*`](fips202) by your FIPS-202 implementation, and make sure to include replacements for the headers
 [`fips202/fips202.h`](fips202/fips202.h) and [`fips202/fips202x4.h`](fips202/fips202x4.h) and the functionalities specified
-therein. See [FIPS202.md](FIPS202.md) for details.
+therein. See [FIPS202.md](FIPS202.md) for details, and
+[examples/bring_your_own_fips202](examples/bring_your_own_fips202) for an example using
+[tiny_sha3](https://github.com/mjosaarinen/tiny_sha3/).
 
 ### Do I need to setup CBMC to use mlkem-native?
 

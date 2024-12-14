@@ -116,6 +116,9 @@ jobs:
       - name: mlkem_native_as_code_package
         run: |
           make run -C examples/mlkem_native_as_code_package
+      - name: bring_your_own_fips202
+        run: |
+          make run -C examples/bring_your_own_fips202
   build_kat:
     needs: [quickcheck, quickcheck-windows]
     strategy:
