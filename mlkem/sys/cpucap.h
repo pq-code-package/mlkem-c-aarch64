@@ -6,9 +6,15 @@
 #ifndef CPUCAP_H
 #define CPUCAP_H
 
-/* Check if we're running on an AArch64 system. _M_ARM64 is set by MSVC. */
+/* Check if we're running on an AArch64 little endian system. _M_ARM64 is set by
+ * MSVC. */
 #if defined(__AARCH64EL__) || defined(_M_ARM64)
 #define SYS_AARCH64
+#endif
+
+/* Check if we're running on an AArch64 big endian system. */
+#if defined(__AARCH64EB__)
+#define SYS_AARCH64_EB
 #endif
 
 #if defined(__x86_64__)
@@ -33,6 +39,12 @@
 /* If FORCE_AARCH64 is set, assert that we're indeed on an AArch64 system. */
 #if defined(FORCE_AARCH64) && !defined(SYS_AARCH64)
 #error "FORCE_AARCH64 is set, but we don't seem to be on an AArch64 system."
+#endif
+
+/* If FORCE_AARCH64_EB is set, assert that we're indeed on a big endian AArch64
+ * system. */
+#if defined(FORCE_AARCH64_EB) && !defined(SYS_AARCH64_EB)
+#error "FORCE_AARCH64_EB is set, but we don't seem to be on an AArch64 system."
 #endif
 
 /* If FORCE_X86_64 is set, assert that we're indeed on an X86_64 system. */
