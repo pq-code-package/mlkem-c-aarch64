@@ -295,6 +295,8 @@ class Tests:
                 logging.info(f"Emulating with QEMU")
                 if "x86_64" in opts.cross_prefix:
                     self.cmd_prefix.append("qemu-x86_64")
+                elif "aarch64_be" in opts.cross_prefix:
+                    self.cmd_prefix.append("qemu-aarch64_be")
                 elif "aarch64" in opts.cross_prefix:
                     self.cmd_prefix.append("qemu-aarch64")
                 elif "riscv64" in opts.cross_prefix:

@@ -43,6 +43,7 @@
               x86_64-gcc = wrap-gcc pkgs.pkgsCross.gnu64;
               aarch64-gcc = wrap-gcc pkgs.pkgsCross.aarch64-multiplatform;
               riscv64-gcc = wrap-gcc pkgs.pkgsCross.riscv64;
+              aarch64_be-gcc = (pkgs.callPackage ./aarch64_be-none-linux-gnu-gcc.nix { });
             in
             # NOTE:
               # - native toolchain should be equipped in the shell via `mkShellWithCC` (see `mkShell`)
@@ -55,6 +56,7 @@
               (pkgs.lib.optional (! pkgs.stdenv.hostPlatform.isx86_64) x86_64-gcc)
               (pkgs.lib.optional (! pkgs.stdenv.hostPlatform.isAarch64) aarch64-gcc)
               (pkgs.lib.optional (! pkgs.stdenv.hostPlatform.isRiscV64) riscv64-gcc)
+              (pkgs.lib.optional (pkgs.stdenv.hostPlatform.isx86_64) aarch64_be-gcc)
               native-gcc
             ]
             ++ builtins.attrValues {
