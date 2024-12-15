@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Emitted when running CBMC proofs
-proofs/**/logs
-proofs/**/gotos
-proofs/**/report
-proofs/**/html
-proofs/output
+**/logs
+**/gotos
+**/report
+**/html
+output
 
 # Emitted by CBMC Viewer
 TAGS-*

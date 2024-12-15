@@ -723,7 +723,7 @@ class Tests:
                     "--no-coverage",
                     f"-j{cpucount}",
                 ],
-                cwd="cbmc/proofs",
+                cwd="cbmc",
                 env=os.environ.copy() | envvars,
             )
             p.communicate()
