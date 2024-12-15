@@ -43,7 +43,7 @@
               x86_64-gcc = wrap-gcc pkgs.pkgsCross.gnu64;
               aarch64-gcc = wrap-gcc pkgs.pkgsCross.aarch64-multiplatform;
               riscv64-gcc = wrap-gcc pkgs.pkgsCross.riscv64;
-              aarch64_be-gcc = (pkgs.callPackage ./aarch64_be-none-linux-gnu-gcc.nix { });
+              aarch64_be-gcc = (pkgs.callPackage ./nix/aarch64_be-none-linux-gnu-gcc.nix { });
             in
             # NOTE:
               # - native toolchain should be equipped in the shell via `mkShellWithCC` (see `mkShell`)
@@ -112,7 +112,7 @@
               };
             };
 
-          packages.cbmc = pkgs.callPackage ./cbmc/nix { }; # 6.4.0
+          packages.cbmc = pkgs.callPackage ./nix/cbmc { }; # 6.4.0
 
           packages.base = pkgs.buildEnv {
             name = "pqcp-base";
