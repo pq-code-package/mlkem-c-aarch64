@@ -14,12 +14,12 @@ buildEnv {
   paths =
     builtins.attrValues {
       cbmc = cbmc.overrideAttrs (old: rec {
-        version = "6.4.0"; # remember to adjust this in ../flake.nix too
+        version = "6.4.1"; # remember to adjust this in ../flake.nix too
         src = fetchFromGitHub {
           owner = "diffblue";
           repo = old.pname;
           rev = "${old.pname}-${version}";
-          hash = "sha256-PZZnseOE3nodE0zwyG+82gm55BO4rsCcP4T+fZq7L6I=";
+          hash = "sha256-O8aZTW+Eylshl9bmm9GzbljWB0+cj2liZHs2uScERkM=";
         };
         patches = [
           ./0001-Do-not-download-sources-in-cmake.patch
@@ -27,7 +27,7 @@ buildEnv {
         nativeBuildInputs = old.nativeBuildInputs ++ [ libgcc ];
       });
       litani = callPackage ./litani.nix { }; # 1.29.0
-      cbmc-viewer = callPackage ./cbmc-viewer.nix { }; # 3.9
+      cbmc-viewer = callPackage ./cbmc-viewer.nix { }; # 3.10
 
       z3 = callPackage ./z3.nix {
         version = "4.13.3";

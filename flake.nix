@@ -112,7 +112,7 @@
               };
             };
 
-          packages.cbmc = pkgs.callPackage ./nix/cbmc { }; # 6.4.0
+          packages.cbmc = pkgs.callPackage ./nix/cbmc { }; # 6.4.1
 
           packages.base = pkgs.buildEnv {
             name = "pqcp-base";
