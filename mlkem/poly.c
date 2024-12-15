@@ -35,8 +35,6 @@ void poly_compress_du(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES_DU], const poly *a)
     }
 
     /*
-     * REF-CHANGE: Use array indexing into
-     * r rather than pointer-arithmetic to simplify verification
      * Make all implicit truncation explicit. No data is being
      * truncated for the LHS's since each t[i] is 11-bit in size.
      */
@@ -68,8 +66,6 @@ void poly_compress_du(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES_DU], const poly *a)
     }
 
     /*
-     * REF-CHANGE: Use array indexing into
-     * r rather than pointer-arithmetic to simplify verification
      * Make all implicit truncation explicit. No data is being
      * truncated for the LHS's since each t[i] is 10-bit in size.
      */
@@ -160,14 +156,9 @@ void poly_compress_dv(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES_DV], const poly *a)
       invariant(i >= 0 && i <= MLKEM_N / 8 && j >= 0 && j <= 8)
       invariant(array_bound(t, 0, (j-1), 0, 15)))
     {
-      /* REF-CHANGE: Precondition change, we assume unsigned canonical data */
       t[j] = scalar_compress_d4(a->coeffs[8 * i + j]);
     }
 
-    /*
-     * REF-CHANGE: Use array indexing into
-     * r rather than pointer-arithmetic to simplify verification
-     */
     r[i * 4] = t[0] | (t[1] << 4);
     r[i * 4 + 1] = t[2] | (t[3] << 4);
     r[i * 4 + 2] = t[4] | (t[5] << 4);
@@ -184,12 +175,11 @@ void poly_compress_dv(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES_DV], const poly *a)
       invariant(i >= 0 && i <= MLKEM_N / 8 && j >= 0 && j <= 8)
       invariant(array_bound(t, 0, (j-1), 0, 31)))
     {
-      /* REF-CHANGE: Precondition change, we assume unsigned canonical data */
       t[j] = scalar_compress_d5(a->coeffs[8 * i + j]);
     }
 
     /*
-     * REF-CHANGE: Explicitly truncate to avoid warning about
+     * Explicitly truncate to avoid warning about
      * implicit truncation in CBMC, and use array indexing into
      * r rather than pointer-arithmetic to simplify verification
      */
@@ -213,7 +203,6 @@ void poly_decompress_dv(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES_DV])
     invariant(i >= 0 && i <= MLKEM_N / 2)
     invariant(array_bound(r->coeffs, 0, (2 * i - 1), 0, (MLKEM_Q - 1))))
   {
-    /* REF-CHANGE: Hoist scalar decompression into separate function */
     r->coeffs[2 * i + 0] = scalar_decompress_d4((a[i] >> 0) & 0xF);
     r->coeffs[2 * i + 1] = scalar_decompress_d4((a[i] >> 4) & 0xF);
   }
@@ -227,7 +216,7 @@ void poly_decompress_dv(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES_DV])
     uint8_t t[8];
     const int offset = i * 5;
     /*
-     * REF-CHANGE: Explicitly truncate to avoid warning about
+     * Explicitly truncate to avoid warning about
      * implicit truncation in CBMC and unwind loop for ease
      * of proof.
      */
@@ -251,7 +240,6 @@ void poly_decompress_dv(poly *r, const uint8_t a[MLKEM_POLYCOMPRESSEDBYTES_DV])
       invariant(j >= 0 && j <= 8 && i >= 0 && i <= MLKEM_N / 8)
       invariant(array_bound(r->coeffs, 0, (8 * i + j - 1), 0, (MLKEM_Q - 1))))
     {
-      /* REF-CHANGE: Hoist scalar decompression into separate function */
       r->coeffs[8 * i + j] = scalar_decompress_d5(t[j]);
     }
   }
@@ -274,8 +262,6 @@ void poly_tobytes(uint8_t r[MLKEM_POLYBYTES], const poly *a)
   {
     const uint16_t t0 = a->coeffs[2 * i];
     const uint16_t t1 = a->coeffs[2 * i + 1];
-    /* REF-CHANGE: Precondition change, we assume unsigned canonical data */
-
     /*
      * t0 and t1 are both < MLKEM_Q, so contain at most 12 bits each of
      * significant data, so these can be packed into 24 bits or exactly
@@ -313,7 +299,6 @@ void poly_frombytes(poly *r, const uint8_t a[MLKEM_POLYBYTES])
     invariant(i >= 0 && i <= MLKEM_N / 2)
     invariant(array_bound(r->coeffs, 0, (2 * i - 1), 0, UINT12_MAX)))
   {
-    /* REF-CHANGE: Introduce some locals for better readability */
     const uint8_t t0 = a[3 * i + 0];
     const uint8_t t1 = a[3 * i + 1];
     const uint8_t t2 = a[3 * i + 2];

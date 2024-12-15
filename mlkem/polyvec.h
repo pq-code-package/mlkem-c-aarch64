@@ -14,7 +14,6 @@ typedef struct
   poly vec[MLKEM_K];
 } ALIGN polyvec;
 
-/* REF-CHANGE: This struct does not exist in the reference implementation */
 typedef struct
 {
   poly_mulcache vec[MLKEM_K];
@@ -177,7 +176,6 @@ __contract__(
 );
 
 
-/* REF-CHANGE: This function does not exist in the reference implementation */
 #define polyvec_basemul_acc_montgomery_cached \
   MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached)
 /*************************************************
@@ -210,7 +208,6 @@ __contract__(
   assigns(memory_slice(r, sizeof(poly)))
 );
 
-/* REF-CHANGE: This function does not exist in the reference implementation */
 #define polyvec_mulcache_compute MLKEM_NAMESPACE(polyvec_mulcache_compute)
 /************************************************************
  * Name: polyvec_mulcache_compute
@@ -255,11 +252,11 @@ __contract__(
  * Arguments:   - polyvec *r: pointer to input/output polynomial
  **************************************************/
 /*
- * REF-CHANGE: The semantics of polyvec_reduce() is different in
- *             the reference implementation, which requires
- *             signed canonical output data. Unsigned canonical
- *             outputs are better suited to the only remaining
- *             use of poly_reduce() in the context of (de)serialization.
+ * NOTE: The semantics of polyvec_reduce() is different in
+ *       the reference implementation, which requires
+ *       signed canonical output data. Unsigned canonical
+ *       outputs are better suited to the only remaining
+ *       use of poly_reduce() in the context of (de)serialization.
  */
 void polyvec_reduce(polyvec *r)
 __contract__(

@@ -120,10 +120,7 @@ __contract__(
  * but this is not needed in the calling code. Should we change the
  * base multiplication strategy to require smaller NTT output bounds,
  * the proof may need strengthening.
- * REF-CHANGE: Removed indirection poly_ntt -> ntt()
- * and integrated polynomial reduction into the NTT.
  */
-
 
 void poly_ntt(poly *p)
 {
