@@ -42,7 +42,7 @@
  **************************************************/
 
 /*
- * REF-CHANGE: The signature differs from the Kyber reference implementation
+ * NOTE: The signature differs from the Kyber reference implementation
  * in that it adds the offset and always expects the base of the target
  * buffer. This avoids shifting the buffer base in the caller, which appears
  * tricky to reason about.

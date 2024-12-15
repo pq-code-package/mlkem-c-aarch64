@@ -31,10 +31,6 @@ typedef struct
  * INTERNAL presentation of precomputed data speeding up
  * the base multiplication of two polynomials in NTT domain.
  */
-/*
- * REF-CHANGE: This structure does not exist in the reference
- * implementation.
- */
 typedef struct
 {
   int16_t coeffs[MLKEM_N >> 1];
@@ -660,7 +656,6 @@ __contract__(
   ensures(array_abs_bound(r->coeffs, 0, MLKEM_N - 1, (MLKEM_Q - 1)))
 );
 
-/* REF-CHANGE: This function does not exist in the reference implementation */
 #define poly_mulcache_compute MLKEM_NAMESPACE(poly_mulcache_compute)
 /************************************************************
  * Name: poly_mulcache_compute
@@ -703,7 +698,7 @@ __contract__(
  * Arguments:   - poly *r: pointer to input/output polynomial
  **************************************************/
 /*
- * REF-CHANGE: The semantics of poly_reduce() is different in
+ * NOTE: The semantics of poly_reduce() is different in
  * the reference implementation, which requires
  * signed canonical output data. Unsigned canonical
  * outputs are better suited to the only remaining
@@ -731,8 +726,7 @@ __contract__(
  *
  ************************************************************/
 /*
- * REF-CHANGE:
- * The reference implementation uses a 3-argument poly_add.
+ * NOTE: The reference implementation uses a 3-argument poly_add.
  * We specialize to the accumulator form to avoid reasoning about aliasing.
  */
 void poly_add(poly *r, const poly *b)
@@ -756,8 +750,7 @@ __contract__(
  *            - const poly *b: Pointer to second input polynomial
  **************************************************/
 /*
- * REF-CHANGE:
- * The reference implementation uses a 3-argument poly_sub.
+ * NOTE: The reference implementation uses a 3-argument poly_sub.
  * We specialize to the accumulator form to avoid reasoning about aliasing.
  */
 void poly_sub(poly *r, const poly *b)
