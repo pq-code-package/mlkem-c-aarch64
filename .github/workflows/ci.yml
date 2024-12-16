@@ -119,6 +119,9 @@ jobs:
       - name: bring_your_own_fips202
         run: |
           make run -C examples/bring_your_own_fips202
+      - name: custom_backend
+        run: |
+          make run -C examples/custom_backend
   build_kat:
     needs: [quickcheck, quickcheck-windows]
     strategy:
