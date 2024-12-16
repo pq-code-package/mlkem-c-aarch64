@@ -8,7 +8,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "cbmc.h"
-#include "params.h"
+#include "common.h"
 #include "reduce.h"
 #include "verify.h"
 

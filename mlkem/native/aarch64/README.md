@@ -16,4 +16,4 @@ This backend comes with two profiles: "clean" and optimized. The "clean" backend
 read and modify; for example, is heavily leverages register aliases and assembly macros. The optimized profile is
 automatically generated from the clean profile via [SLOTHY](https://github.com/slothy-optimizer/slothy). Currently, the
 target architecture is Cortex-A55, but you can easily re-optimize the code for a different microarchitecture supported
-by SLOTHY, by adjusting the parameters in [optimize.sh](optimize.sh).
+by SLOTHY, by adjusting the parameters in [optimize.sh](src/optimize.sh).

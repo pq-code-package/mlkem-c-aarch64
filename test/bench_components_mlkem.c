@@ -12,7 +12,7 @@
 #include "randombytes.h"
 #include "rej_uniform.h"
 
-#include "../mlkem/native/arith_native.h"
+#include "../mlkem/arith_backend.h"
 #include "fips202.h"
 #include "indcpa.h"
 #include "keccakf1600.h"
@@ -184,7 +184,7 @@ static int bench(void)
   BENCH("gen_matrix", gen_matrix((polyvec *)data0, (uint8_t *)data1, 0))
 
 
-#if defined(MLKEM_USE_NATIVE_AARCH64)
+#if defined(MLKEM_NATIVE_ARITH_BACKEND_AARCH64_CLEAN)
   BENCH("ntt-clean",
         ntt_asm_clean((int16_t *)data0, (int16_t *)data1, (int16_t *)data2));
   BENCH("intt-clean",
@@ -200,7 +200,9 @@ static int bench(void)
         polyvec_basemul_acc_montgomery_cached_asm_clean(
             (int16_t *)data0, (int16_t *)data1, (int16_t *)data2,
             (int16_t *)data3));
+#endif /* MLKEM_NATIVE_ARITH_BACKEND_AARCH64_CLEAN */
 
+#if defined(MLKEM_NATIVE_ARITH_BACKEND_AARCH64_OPT)
   BENCH("ntt-opt",
         ntt_asm_opt((int16_t *)data0, (int16_t *)data1, (int16_t *)data2));
   BENCH("intt-opt",
@@ -214,7 +216,7 @@ static int bench(void)
         polyvec_basemul_acc_montgomery_cached_asm_opt(
             (int16_t *)data0, (int16_t *)data1, (int16_t *)data2,
             (int16_t *)data3));
-#endif
+#endif /* MLKEM_NATIVE_ARITH_BACKEND_AARCH64_OPT */
 
   return 0;
 }

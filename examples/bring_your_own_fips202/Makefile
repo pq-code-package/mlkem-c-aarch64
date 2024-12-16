@@ -19,7 +19,6 @@ INC=
 INC+=-Imlkem_native/mlkem
 INC+=-Imlkem_native/mlkem
 INC+=-Imlkem_native/mlkem/native
-INC+=-Imlkem_native/mlkem/sys
 
 # Part B:
 #

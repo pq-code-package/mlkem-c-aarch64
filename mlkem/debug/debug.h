@@ -5,6 +5,8 @@
 #ifndef MLKEM_DEBUG_H
 #define MLKEM_DEBUG_H
 
+#include "common.h"
+
 #if defined(MLKEM_DEBUG)
 #include <stdint.h>
 #include <stdio.h>
@@ -152,6 +154,9 @@ void mlkem_debug_print_error(const char *file, int line, const char *msg);
       POLY_UBOUND_MSG(&(ptr)->vec[_debug_polyvec_bound_idx], (ubound),     \
                       "polyvec unsigned bound for " #ptr ".vec[i]");       \
   } while (0)
+
+#define MLKEM_CONCAT_(left, right) left##right
+#define MLKEM_CONCAT(left, right) MLKEM_CONCAT_(left, right)
 
 /* Following AWS-LC to define a C99-compliant static assert */
 #define MLKEM_STATIC_ASSERT_DEFINE(cond, msg)                            \

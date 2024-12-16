@@ -295,9 +295,13 @@ def gen_aarch64_mulcache_twiddles_twisted():
 def gen_aarch64_fwd_ntt_zeta_file(dry_run=False):
     def gen():
         yield from gen_header()
-        yield '#include "arith_native_aarch64.h"'
+        yield '#include "common.h"'
         yield ""
-        yield "#ifdef MLKEM_USE_NATIVE_AARCH64"
+        yield "#if defined(MLKEM_NATIVE_ARITH_BACKEND_AARCH64_CLEAN) || \\"
+        yield "    defined(MLKEM_NATIVE_ARITH_BACKEND_AARCH64_OPT)"
+        yield ""
+        yield "#include <stdint.h>"
+        yield '#include "arith_native_aarch64.h"'
         yield ""
         yield "/*"
         yield " * Table of zeta values used in the AArch64 forward NTT"
@@ -327,17 +331,17 @@ def gen_aarch64_fwd_ntt_zeta_file(dry_run=False):
         yield from map(lambda t: str(t) + ",", gen_aarch64_mulcache_twiddles_twisted())
         yield "};"
         yield ""
-        yield "#else /* MLKEM_USE_NATIVE_AARCH64 */"
+        yield "#else"
         yield '#include "params.h"'
         yield ""
         yield "/* Dummy declaration for compilers disliking empty compilation units */"
         yield "#define empty_cu_aarch64_zetas MLKEM_NAMESPACE(empty_cu_aarch64_zetas)"
         yield "int empty_cu_aarch64_zetas;"
-        yield "#endif /* MLKEM_USE_NATIVE_AARCH64 */"
+        yield "#endif"
         yield ""
 
     update_file(
-        "mlkem/native/aarch64/aarch64_zetas.c", "\n".join(gen()), dry_run=dry_run
+        "mlkem/native/aarch64/src/aarch64_zetas.c", "\n".join(gen()), dry_run=dry_run
     )
 
 
@@ -414,7 +418,9 @@ def gen_avx2_fwd_ntt_zeta_file(dry_run=False):
         yield from map(lambda t: str(t) + ",", gen_avx2_fwd_ntt_zetas())
         yield ""
 
-    update_file("mlkem/native/x86_64/x86_64_zetas.i", "\n".join(gen()), dry_run=dry_run)
+    update_file(
+        "mlkem/native/x86_64/src/x86_64_zetas.i", "\n".join(gen()), dry_run=dry_run
+    )
 
 
 def _main():

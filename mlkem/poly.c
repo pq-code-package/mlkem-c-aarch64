@@ -2,20 +2,19 @@
  * Copyright (c) 2024 The mlkem-native project authors
  * SPDX-License-Identifier: Apache-2.0
  */
-#include "poly.h"
 #include <stdint.h>
 #include <string.h>
+
+#include "arith_backend.h"
 #include "cbd.h"
 #include "cbmc.h"
+#include "debug/debug.h"
 #include "fips202x4.h"
 #include "ntt.h"
-#include "params.h"
+#include "poly.h"
 #include "reduce.h"
 #include "symmetric.h"
 #include "verify.h"
-
-#include "arith_native.h"
-#include "debug/debug.h"
 
 void poly_compress_du(uint8_t r[MLKEM_POLYCOMPRESSEDBYTES_DU], const poly *a)
 {

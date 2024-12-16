@@ -6,7 +6,7 @@
 #define CBD_H
 
 #include <stdint.h>
-#include "params.h"
+#include "common.h"
 #include "poly.h"
 
 #define poly_cbd_eta1 MLKEM_NAMESPACE(poly_cbd_eta1)

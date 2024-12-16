@@ -2,14 +2,12 @@
  * Copyright (c) 2024 The mlkem-native project authors
  * SPDX-License-Identifier: Apache-2.0
  */
-#include "ntt.h"
 #include <stdint.h>
-#include "params.h"
-#include "reduce.h"
 
-#include "arith_native.h"
+#include "arith_backend.h"
 #include "debug/debug.h"
 #include "ntt.h"
+#include "reduce.h"
 
 #if !defined(MLKEM_USE_NATIVE_NTT)
 /*
