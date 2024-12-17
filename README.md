@@ -74,8 +74,8 @@ integration into other software before issuing a stable release. If you have any
 mlkem-native is split in a _frontend_ and two _backends_ for arithmetic and FIPS-202 (SHA3). The frontend is
 fixed, written in C and covers all routines that are not critical to performance. The backends are flexible, take care of
 performance-sensitive routines, and can be implemented in C or native code (assembly/intrinsics); see
-[mlkem/native/arith_native.h](mlkem/native/arith_native.h) for the arithmetic backend and
-[mlkem/fips202/native/fips202_native.h](mlkem/fips202/native/fips202_native.h) for the FIPS-202 backend. mlkem-native currently
+[mlkem/native/api.h](mlkem/native/api.h) for the arithmetic backend and
+[mlkem/fips202/native/api.h](mlkem/fips202/native/api.h) for the FIPS-202 backend. mlkem-native currently
 offers three backends for C, AArch64 and x86_64 - if you'd like contribute new backends, please reach out or just open a
 PR.
 
