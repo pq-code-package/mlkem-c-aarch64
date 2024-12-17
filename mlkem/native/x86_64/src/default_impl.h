@@ -14,6 +14,7 @@
 
 #include "arith_native_x86_64.h"
 #include "poly.h"
+#include "polyvec.h"
 
 #define MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER
 
