@@ -32,7 +32,7 @@ make nistkat
 make kat
 ```
 
-The resulting binaries can then be found in [test/build](test/build).
+The resulting binaries can then be found in `test/build`.
 
 ### Using `tests` script
 

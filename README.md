@@ -57,7 +57,7 @@ through suitable barriers and constant-time patterns.
 
 We use the [C Bounded Model Checker (CBMC)](https://github.com/diffblue/cbmc) to prove absence of various classes of
 undefined behaviour in C, including out of bounds memory accesses and integer overflows. At present, the proofs cover
-all C code in [mlkem/*](mlkem) involved in running mlkem-native with its C backend. See [cbmc/proofs](cbmc/proofs) for
+all C code in [mlkem/*](mlkem) involved in running mlkem-native with its C backend. See [cbmc](cbmc) for
 details.
 
 Initial experiments are underway to verify assembly using the [HOL-Light](https://hol-light.github.io/) theorem prover
@@ -80,8 +80,8 @@ offers three backends for C, AArch64 and x86_64 - if you'd like contribute new b
 PR.
 
 Our AArch64 assembly is developed using [SLOTHY](https://github.com/slothy-optimizer/slothy): We write
-'clean' assembly by hand and automate micro-optimizations (e.g. see the [clean](mlkem/native/aarch64/ntt_clean.S)
-vs [optimized](mlkem/native/aarch64/ntt_opt.S) AArch64 NTT).
+'clean' assembly by hand and automate micro-optimizations (e.g. see the [clean](mlkem/native/aarch64/src/ntt_clean.S)
+vs [optimized](mlkem/native/aarch64/src/ntt_opt.S) AArch64 NTT).
 
 ## How should I use mlkem-native?
 
@@ -98,7 +98,7 @@ as templates, or see [examples/custom_backend](examples/custom_backend) for a mi
 ### Can I bring my own FIPS-202?
 
 If your library has a FIPS-202 implementation, you can use it instead of the one shipped with mlkem-native: Replace
-[`mlkem/fips202/*`](fips202) by your FIPS-202 implementation, and make sure to include replacements for the headers
+[`mlkem/fips202/*`](mlkem/fips202) by your FIPS-202 implementation, and make sure to include replacements for the headers
 [`mlkem/fips202/fips202.h`](mlkem/fips202/fips202.h) and [`mlkem/fips202/fips202x4.h`](mlkem/fips202/fips202x4.h) and the functionalities specified
 therein. See [FIPS202.md](FIPS202.md) for details, and
 [examples/bring_your_own_fips202](examples/bring_your_own_fips202) for an example using
