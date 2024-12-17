@@ -15,7 +15,7 @@
 #include <stdint.h>
 
 #include "config.h"
-#include "fips202_native.h"
+#include "fips202_backend.h"
 
 #include "cbmc.h"
 

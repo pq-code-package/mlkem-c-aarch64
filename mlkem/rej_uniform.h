@@ -8,7 +8,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "cbmc.h"
-#include "params.h"
+#include "common.h"
 
 #define rej_uniform MLKEM_NAMESPACE(rej_uniform)
 /*************************************************

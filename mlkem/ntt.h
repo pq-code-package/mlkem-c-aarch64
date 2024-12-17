@@ -6,9 +6,8 @@
 #define NTT_H
 
 #include <stdint.h>
-#include "arith_native.h"
 #include "cbmc.h"
-#include "params.h"
+#include "common.h"
 #include "poly.h"
 #include "reduce.h"
 

@@ -2,64 +2,28 @@
  * Copyright (c) 2024 The mlkem-native project authors
  * SPDX-License-Identifier: Apache-2.0
  */
-#ifndef COMMON_H
-#define COMMON_H
+#ifndef MLKEM_NATIVE_COMMON_H
+#define MLKEM_NATIVE_COMMON_H
 
+#if defined(MLKEM_NATIVE_CONFIG_FILE)
+#include MLKEM_NATIVE_CONFIG_FILE
+#endif /* MLKEM_NATIVE_CONFIG_FILE */
 
-/*
- * C90 does not have the inline compiler directive yet.
- * We don't use it in C90 builds.
- * However, in that case the compiler warns about some inline functions in
- * header files not being used in every compilation unit that includes that
- * header. To work around it we silence that warning in that case using
- * __attribute__((unused)).
- */
+#include "params.h"
+#include "sys.h"
 
-/* Do not use inline for C90 builds*/
-#if !defined(inline)
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
-#define INLINE inline
-#define ALWAYS_INLINE __attribute__((always_inline))
-#elif defined(_MSC_VER)
-#define INLINE __inline
-#define ALWAYS_INLINE __forceinline
-#else
-#define INLINE __attribute__((unused))
-#define ALWAYS_INLINE
+/* Include backend metadata */
+#if defined(MLKEM_USE_NATIVE)
+#if defined(MLKEM_NATIVE_ARITH_BACKEND)
+#include MLKEM_NATIVE_ARITH_BACKEND
+#endif
+#if defined(MLKEM_NATIVE_FIPS202_BACKEND)
+#include MLKEM_NATIVE_FIPS202_BACKEND
+#endif
 #endif
 
-#else
-#define INLINE inline
-#define ALWAYS_INLINE __attribute__((always_inline))
-#endif
+/* This must come after the inclusion of the backend metadata
+ * since the backend choice may be part of the namespace. */
+#include "namespace.h"
 
-
-/*
- * C90 does not have the restrict compiler directive yet.
- * We don't use it in C90 builds.
- */
-#if !defined(restrict)
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
-#define RESTRICT restrict
-#else
-#define RESTRICT
-#endif
-
-#else
-
-#define RESTRICT restrict
-#endif
-
-#define DEFAULT_ALIGN 32
-#if defined(_WIN32)
-#define ALIGN __declspec(align(DEFAULT_ALIGN))
-#define asm __asm
-#else
-#define asm __asm__
-#define ALIGN __attribute__((aligned(DEFAULT_ALIGN)))
-#endif
-
-#define MLKEM_CONCAT_(left, right) left##right
-#define MLKEM_CONCAT(left, right) MLKEM_CONCAT_(left, right)
-
-#endif
+#endif /* MLKEM_NATIVE_COMMON_H */

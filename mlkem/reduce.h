@@ -7,8 +7,8 @@
 
 #include <stdint.h>
 #include "cbmc.h"
+#include "common.h"
 #include "debug/debug.h"
-#include "params.h"
 
 #define HALF_Q ((MLKEM_Q + 1) / 2) /* 1665 */
 

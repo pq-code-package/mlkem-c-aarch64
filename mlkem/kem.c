@@ -7,7 +7,6 @@
 #include <stdint.h>
 #include <string.h>
 #include "indcpa.h"
-#include "params.h"
 #include "randombytes.h"
 #include "symmetric.h"
 #include "verify.h"

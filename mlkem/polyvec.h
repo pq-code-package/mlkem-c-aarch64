@@ -6,7 +6,7 @@
 #define POLYVEC_H
 
 #include <stdint.h>
-#include "params.h"
+#include "common.h"
 #include "poly.h"
 
 typedef struct

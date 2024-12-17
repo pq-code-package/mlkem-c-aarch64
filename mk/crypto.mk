@@ -2,7 +2,7 @@
 CPPFLAGS += -Ifips202 -Ifips202/native
 FIPS202_SRCS = $(wildcard fips202/*.c)
 ifeq ($(OPT),1)
-	FIPS202_SRCS += $(wildcard fips202/native/aarch64/*.S) $(wildcard fips202/native/x86_64/xkcp/*.c)
+	FIPS202_SRCS += $(wildcard fips202/native/aarch64/src/*.S) $(wildcard fips202/native/x86_64/src/*.c)
 endif
 
 $(BUILD_DIR)/libmlkem.a: $(call OBJS, $(FIPS202_SRCS))

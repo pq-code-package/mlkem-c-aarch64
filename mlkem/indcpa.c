@@ -10,14 +10,13 @@
 #include "fips202x4.h"
 #include "indcpa.h"
 #include "ntt.h"
-#include "params.h"
 #include "poly.h"
 #include "polyvec.h"
 #include "randombytes.h"
 #include "rej_uniform.h"
 #include "symmetric.h"
 
-#include "arith_native.h"
+#include "arith_backend.h"
 #include "debug/debug.h"
 
 #include "cbmc.h"

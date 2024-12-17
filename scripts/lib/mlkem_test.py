@@ -98,9 +98,7 @@ class Base:
             f"{self.test_type}",
         ] + extra_make_args
 
-        make_envs = (
-            {"CFLAGS": f"{self.cflags}"} if self.cflags is not None else {}
-        ) | (
+        make_envs = ({"CFLAGS": self.cflags} if self.cflags is not None else {}) | (
             {"ARCH_FLAGS": f"{self.arch_flags}"} if self.arch_flags is not None else {}
         )
         extra_make_envs.update(make_envs)

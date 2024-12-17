@@ -1,0 +1,24 @@
+/*
+ * Copyright (c) 2024 The mlkem-native project authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/* FIPS202 assembly profile targeting Cortex-A55 */
+
+#ifdef FIPS202_NATIVE_PROFILE_H
+#error Only one FIPS202 assembly profile can be defined -- did you include multiple profiles?
+#else
+#define FIPS202_NATIVE_PROFILE_H
+
+/* Identifier for this backend so that source and assembly files
+ * in the build can be appropriately guarded. */
+#define MLKEM_NATIVE_FIPS202_BACKEND_AARCH64_A55
+
+#define MLKEM_NATIVE_FIPS202_BACKEND_NAME AARCH64_A55
+
+/* Filename of the C backend implementation.
+ * This is not inlined here because this header is included in assembly
+ * files as well. */
+#define MLKEM_NATIVE_FIPS202_BACKEND_IMPL "aarch64/src/cortex_a55_impl.h"
+
+#endif /* FIPS202_NATIVE_PROFILE_H */

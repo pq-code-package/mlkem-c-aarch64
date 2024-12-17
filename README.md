@@ -93,7 +93,7 @@ in this repository is for experimental and development purposes only. If you pre
 ### Can I bring my own backend?
 
 Absolutely: You can add further backends for ML-KEM native arithmetic and/or for FIPS-202. Follow the existing backends
-as templates.
+as templates, or see [examples/custom_backend](examples/custom_backend) for a minimal example how to register a custom backend.
 
 ### Can I bring my own FIPS-202?
 

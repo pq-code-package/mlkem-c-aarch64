@@ -11,7 +11,7 @@
 #ifndef FIPS202_H
 #define FIPS202_H
 
-#include "namespace.h"
+#include "common.h"
 #include "tiny_sha3/sha3.h"
 
 #define SHAKE128_RATE 168

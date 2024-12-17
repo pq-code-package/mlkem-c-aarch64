@@ -12,3 +12,8 @@ See [mlkem_native_as_code_package](mlkem_native_as_code_package).
 
 See [bring_your_own_fips202](bring_your_own_fips202) for an example of how to use mlkem-native with your own FIPS-202
 implementation.
+
+## Using mlkem-native as a code package, custom config + custom FIPS-202 backend
+
+See [custom_backend](custom_backend) for an example of how to use mlkem-native with a custom configuration file and a
+custom FIPS-202 backend.

@@ -2,10 +2,9 @@
  * Copyright (c) 2024 The mlkem-native project authors
  * SPDX-License-Identifier: Apache-2.0
  */
-#include "params.h"
 
-#include "arith_native.h"
 #include "rej_uniform.h"
+#include "arith_backend.h"
 
 /*************************************************
  * Name:        rej_uniform_scalar

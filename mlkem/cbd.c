@@ -4,7 +4,6 @@
  */
 #include "cbd.h"
 #include <stdint.h>
-#include "params.h"
 
 /*************************************************
  * Name:        load32_littleendian
