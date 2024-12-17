@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
-CFLAGS = /nologo /O2 /Imlkem /Ifips202 /Ifips202/native /Imlkem/sys /Imlkem/native
+CFLAGS = /nologo /O2 /Imlkem /Imlkem/fips202 /Imlkem/fips202/native /Imlkem/sys /Imlkem/native
 
 OBJ_FILES = .\mlkem\*.obj \
-            .\fips202\*.obj \
+            .\mlkem\fips202\*.obj \
 
 BUILD_DIR = test\build
 MLKEM512_BUILD_DIR = $(BUILD_DIR)\mlkem512
@@ -28,9 +28,9 @@ OPT = 0
     @if NOT EXIST $(MLKEM512_BUILD_DIR)\mlkem mkdir $(MLKEM512_BUILD_DIR)\mlkem
     $(CC) $(CFLAGS) /D MLKEM_K=2 /c /Fo$(MLKEM512_BUILD_DIR)\mlkem\ $<
 
-{fips202}.c{$(MLKEM512_BUILD_DIR)\fips202}.obj::
-    @if NOT EXIST $(MLKEM512_BUILD_DIR)\fips202 mkdir $(MLKEM512_BUILD_DIR)\fips202
-    $(CC) $(CFLAGS) /D MLKEM_K=2 /c /Fo$(MLKEM512_BUILD_DIR)\fips202\ $<
+{mlkem\fips202}.c{$(MLKEM512_BUILD_DIR)\mlkem\fips202}.obj::
+    @if NOT EXIST $(MLKEM512_BUILD_DIR)\mlkem\fips202 mkdir $(MLKEM512_BUILD_DIR)\mlkem\fips202
+    $(CC) $(CFLAGS) /D MLKEM_K=2 /c /Fo$(MLKEM512_BUILD_DIR)\mlkem\fips202\ $<
 
 {test}.c{$(MLKEM512_BUILD_DIR)\test}.obj::
     @if NOT EXIST $(MLKEM512_BUILD_DIR)\test mkdir $(MLKEM512_BUILD_DIR)\test
@@ -41,9 +41,9 @@ OPT = 0
     @if NOT EXIST $(MLKEM768_BUILD_DIR)\mlkem mkdir $(MLKEM768_BUILD_DIR)\mlkem
     $(CC) $(CFLAGS) /D MLKEM_K=3 /c /Fo$(MLKEM768_BUILD_DIR)\mlkem\ $<
 
-{fips202}.c{$(MLKEM768_BUILD_DIR)\fips202}.obj::
-    @if NOT EXIST $(MLKEM768_BUILD_DIR)\fips202 mkdir $(MLKEM768_BUILD_DIR)\fips202
-    $(CC) $(CFLAGS) /D MLKEM_K=3 /c /Fo$(MLKEM768_BUILD_DIR)\fips202\ $<
+{mlkem\fips202}.c{$(MLKEM768_BUILD_DIR)\mlkem\fips202}.obj::
+    @if NOT EXIST $(MLKEM768_BUILD_DIR)\mlkem\fips202 mkdir $(MLKEM768_BUILD_DIR)\mlkem\fips202
+    $(CC) $(CFLAGS) /D MLKEM_K=3 /c /Fo$(MLKEM768_BUILD_DIR)\mlkem\fips202\ $<
 
 {test}.c{$(MLKEM768_BUILD_DIR)\test}.obj::
     @if NOT EXIST $(MLKEM768_BUILD_DIR)\test mkdir $(MLKEM768_BUILD_DIR)\test
@@ -54,9 +54,9 @@ OPT = 0
     @if NOT EXIST $(MLKEM1024_BUILD_DIR)\mlkem mkdir $(MLKEM1024_BUILD_DIR)\mlkem
     $(CC) $(CFLAGS) /D MLKEM_K=4 /c /Fo$(MLKEM1024_BUILD_DIR)\mlkem\ $<
 
-{fips202}.c{$(MLKEM1024_BUILD_DIR)\fips202}.obj::
-    @if NOT EXIST $(MLKEM1024_BUILD_DIR)\fips202 mkdir $(MLKEM1024_BUILD_DIR)\fips202
-    $(CC) $(CFLAGS) /D MLKEM_K=4 /c /Fo$(MLKEM1024_BUILD_DIR)\fips202\ $<
+{mlkem\fips202}.c{$(MLKEM1024_BUILD_DIR)\mlkem\fips202}.obj::
+    @if NOT EXIST $(MLKEM1024_BUILD_DIR)\mlkem\fips202 mkdir $(MLKEM1024_BUILD_DIR)\mlkem\fips202
+    $(CC) $(CFLAGS) /D MLKEM_K=4 /c /Fo$(MLKEM1024_BUILD_DIR)\mlkem\fips202\ $<
 
 {test}.c{$(MLKEM1024_BUILD_DIR)\test}.obj::
     @if NOT EXIST $(MLKEM1024_BUILD_DIR)\test mkdir $(MLKEM1024_BUILD_DIR)\test

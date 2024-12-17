@@ -85,7 +85,7 @@ def run():
     check_folder("test/build/mlkem512/mlkem", list_mlkem_namespaces(512))
     check_folder("test/build/mlkem768/mlkem", list_mlkem_namespaces(768))
     check_folder("test/build/mlkem1024/mlkem", list_mlkem_namespaces(1024))
-    check_folder("test/build/fips202", list_fips202_namespaces())
+    check_folder("test/build/mlkem/fips202", list_fips202_namespaces())
 
 
 if __name__ == "__main__":
