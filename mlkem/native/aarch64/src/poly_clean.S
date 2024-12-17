@@ -226,6 +226,60 @@ poly_tobytes_asm_clean_asm_loop_start:
         .unreq src
         .unreq count
 
+/********************************************
+ *             poly_frombytes()             *
+ ********************************************/
+.global MLKEM_NAMESPACE(poly_frombytes_asm_clean)
+.global _MLKEM_NAMESPACE(poly_frombytes_asm_clean)
+
+        out0 .req v0
+        out1 .req v1
+
+        in0  .req v2
+        in1  .req v3
+        in2  .req v4
+
+        dst   .req x0
+        src   .req x1
+        count .req x2
+
+MLKEM_NAMESPACE(poly_frombytes_asm_clean):
+_MLKEM_NAMESPACE(poly_frombytes_asm_clean):
+
+        mov count, #16
+poly_frombytes_asm_clean_asm_loop_start:
+        ld3 {in0.8b, in1.8b, in2.8b}, [src], #24
+
+        // This is little-endian specific
+        // r[2 * i + 0] = t0 | (t1 << 8)
+        zip1 out0.16b, in0.16b, in1.16b
+        // r[2 * i + 0] = (t0 | (t1 << 8)) & 0xFFF
+        bic out0.8h, #0xF0, lsl #8
+
+        // r[2 * i + 1] = (t2 << 4), in 16-bit
+        ushll out1.8h, in2.8b, #4
+        // tmp = (t1 >> 4), in 8-bit
+        ushr in1.8b, in1.8b, #4
+        // tmp = (t1 >> 4), in 16-bit
+        uxtl in1.8h, in1.8b
+        // r[2 * i + 1] = (t1 >> 4) | (t2 << 4), in 16-bit
+        eor out1.16b, out1.16b, in1.16b
+
+        st2 {out0.8h, out1.8h}, [dst], #32
+
+        subs count, count, #1
+        cbnz count, poly_frombytes_asm_clean_asm_loop_start
+        ret
+
+        .unreq out0
+        .unreq out1
+        .unreq in0
+        .unreq in1
+        .unreq in2
+        .unreq dst
+        .unreq src
+        .unreq count
+
 /**********************************
  *          poly_tomont()         *
  **********************************/

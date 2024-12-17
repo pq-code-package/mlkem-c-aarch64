@@ -23,6 +23,7 @@
 #define MLKEM_USE_NATIVE_POLY_MULCACHE_COMPUTE
 #define MLKEM_USE_NATIVE_POLYVEC_BASEMUL_ACC_MONTGOMERY_CACHED
 #define MLKEM_USE_NATIVE_POLY_TOBYTES
+#define MLKEM_USE_NATIVE_POLY_FROMBYTES
 #define MLKEM_USE_NATIVE_REJ_UNIFORM
 
 #define NTT_BOUND_NATIVE (6 * MLKEM_Q)
@@ -66,6 +67,12 @@ static INLINE void poly_tobytes_native(uint8_t r[MLKEM_POLYBYTES],
                                        const poly *a)
 {
   poly_tobytes_asm_opt(r, a->coeffs);
+}
+
+static INLINE void poly_frombytes_native(poly *a,
+                                         uint8_t const r[MLKEM_POLYBYTES])
+{
+  poly_frombytes_asm_opt(a->coeffs, r);
 }
 
 static INLINE int rej_uniform_native(int16_t *r, unsigned int len,

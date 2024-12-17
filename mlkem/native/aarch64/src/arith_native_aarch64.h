@@ -72,6 +72,12 @@ void poly_tobytes_asm_clean(uint8_t *r, const int16_t *a);
 #define poly_tobytes_asm_opt MLKEM_NAMESPACE(poly_tobytes_asm_opt)
 void poly_tobytes_asm_opt(uint8_t *r, const int16_t *a);
 
+#define poly_frombytes_asm_clean MLKEM_NAMESPACE(poly_frombytes_asm_clean)
+void poly_frombytes_asm_clean(int16_t *a, uint8_t const *r);
+
+#define poly_frombytes_asm_opt MLKEM_NAMESPACE(poly_frombytes_asm_opt)
+void poly_frombytes_asm_opt(int16_t *a, uint8_t const *r);
+
 #define polyvec_basemul_acc_montgomery_cached_asm_clean \
   MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_clean)
 void polyvec_basemul_acc_montgomery_cached_asm_clean(int16_t *r,
