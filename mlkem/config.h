@@ -52,7 +52,7 @@
  *              _FIPS202_NAMESPACE
  *
  * Description: The macros to use to namespace global symbols
- *              from fips202/.
+ *              from mlkem/fips202/.
  *****************************************************************************/
 #define FIPS202_NAMESPACE(sym) FIPS202_DEFAULT_NAMESPACE(sym)
 #define _FIPS202_NAMESPACE(sym) _FIPS202_DEFAULT_NAMESPACE(sym)
@@ -96,7 +96,7 @@
  *
  *****************************************************************************/
 #if defined(MLKEM_USE_NATIVE) && !defined(MLKEM_NATIVE_FIPS202_BACKEND)
-#define MLKEM_NATIVE_FIPS202_BACKEND "../fips202/native/default.h"
+#define MLKEM_NATIVE_FIPS202_BACKEND "fips202/native/default.h"
 #endif /* MLKEM_NATIVE_FIPS202_BACKEND */
 
 #endif /* MLkEM_NATIVE_CONFIG_H */

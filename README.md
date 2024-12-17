@@ -75,7 +75,7 @@ mlkem-native is split in a _frontend_ and two _backends_ for arithmetic and FIPS
 fixed, written in C and covers all routines that are not critical to performance. The backends are flexible, take care of
 performance-sensitive routines, and can be implemented in C or native code (assembly/intrinsics); see
 [mlkem/native/arith_native.h](mlkem/native/arith_native.h) for the arithmetic backend and
-[fips202/native/fips202_native.h](fips202/native/fips202_native.h) for the FIPS-202 backend. mlkem-native currently
+[mlkem/fips202/native/fips202_native.h](mlkem/fips202/native/fips202_native.h) for the FIPS-202 backend. mlkem-native currently
 offers three backends for C, AArch64 and x86_64 - if you'd like contribute new backends, please reach out or just open a
 PR.
 
@@ -98,8 +98,8 @@ as templates, or see [examples/custom_backend](examples/custom_backend) for a mi
 ### Can I bring my own FIPS-202?
 
 If your library has a FIPS-202 implementation, you can use it instead of the one shipped with mlkem-native: Replace
-[`fips202/*`](fips202) by your FIPS-202 implementation, and make sure to include replacements for the headers
-[`fips202/fips202.h`](fips202/fips202.h) and [`fips202/fips202x4.h`](fips202/fips202x4.h) and the functionalities specified
+[`mlkem/fips202/*`](fips202) by your FIPS-202 implementation, and make sure to include replacements for the headers
+[`mlkem/fips202/fips202.h`](mlkem/fips202/fips202.h) and [`mlkem/fips202/fips202x4.h`](mlkem/fips202/fips202x4.h) and the functionalities specified
 therein. See [FIPS202.md](FIPS202.md) for details, and
 [examples/bring_your_own_fips202](examples/bring_your_own_fips202) for an example using
 [tiny_sha3](https://github.com/mjosaarinen/tiny_sha3/).

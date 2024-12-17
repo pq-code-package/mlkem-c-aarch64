@@ -51,7 +51,7 @@
  *              _FIPS202_NAMESPACE
  *
  * Description: The macros to use to namespace global symbols
- *              from fips202/.
+ *              from mlkem/fips202/.
  *****************************************************************************/
 #define FIPS202_NAMESPACE(sym) CONC(CUSTOM_TINY_SHA3_, sym)
 #define _FIPS202_NAMESPACE(sym) CONC(_CUSTOM_TINY_SHA3_, sym)
