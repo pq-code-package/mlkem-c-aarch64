@@ -7,7 +7,7 @@ on the use of _contracts_ to achieve _unbounded_ and _modular_ proofs of type-sa
 and correctness properties.
 
 This document uses the abbreviated forms of the [CBMC contracts](https://diffblue.github.io/cbmc/contracts-user.html) defined by macros in the
-[cbmc.h](../../mlkem/cbmc.h) header file in the mlkem-native sources.
+[cbmc.h](../mlkem/cbmc.h) header file in the mlkem-native sources.
 
 ## Common Proof Patterns
 
