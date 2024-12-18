@@ -173,114 +173,6 @@ mulcache_compute_loop_start:
         .unreq dst
 
 /********************************************
- *             poly_tobytes()               *
- ********************************************/
-.global MLKEM_NAMESPACE(poly_tobytes_asm_clean)
-.global _MLKEM_NAMESPACE(poly_tobytes_asm_clean)
-
-        data0 .req v0
-        data1 .req v1
-
-        out0  .req v2
-        out1  .req v3
-        out2  .req v4
-
-        tmp     .req v5
-
-        dst   .req x0
-        src   .req x1
-        count .req x2
-
-MLKEM_NAMESPACE(poly_tobytes_asm_clean):
-_MLKEM_NAMESPACE(poly_tobytes_asm_clean):
-
-        mov count, #16
-poly_tobytes_asm_clean_asm_loop_start:
-        ld2 {data0.8h, data1.8h}, [src], #32
-
-        // r[3 * i + 0] = (t0 >> 0);
-        xtn out0.8b, data0.8h
-
-        // r[3 * i + 1] = (t0 >> 8);
-        shrn out1.8b, data0.8h, #8
-        xtn tmp.8b, data1.8h
-        // r[3 * i + 1] = (t0 >> 8) | (t1 << 4);
-        sli out1.8b, tmp.8b, #4
-
-        // r[3 * i + 2] = (t1 >> 4);
-        shrn out2.8b, data1.8h, #4
-
-        st3 {out0.8b, out1.8b, out2.8b}, [dst], #24
-
-        subs count, count, #1
-        cbnz count, poly_tobytes_asm_clean_asm_loop_start
-        ret
-
-        .unreq data0
-        .unreq data1
-        .unreq out0
-        .unreq out1
-        .unreq out2
-        .unreq tmp
-        .unreq dst
-        .unreq src
-        .unreq count
-
-/********************************************
- *             poly_frombytes()             *
- ********************************************/
-.global MLKEM_NAMESPACE(poly_frombytes_asm_clean)
-.global _MLKEM_NAMESPACE(poly_frombytes_asm_clean)
-
-        out0 .req v0
-        out1 .req v1
-
-        in0  .req v2
-        in1  .req v3
-        in2  .req v4
-
-        dst   .req x0
-        src   .req x1
-        count .req x2
-
-MLKEM_NAMESPACE(poly_frombytes_asm_clean):
-_MLKEM_NAMESPACE(poly_frombytes_asm_clean):
-
-        mov count, #16
-poly_frombytes_asm_clean_asm_loop_start:
-        ld3 {in0.8b, in1.8b, in2.8b}, [src], #24
-
-        // This is little-endian specific
-        // r[2 * i + 0] = t0 | (t1 << 8)
-        zip1 out0.16b, in0.16b, in1.16b
-        // r[2 * i + 0] = (t0 | (t1 << 8)) & 0xFFF
-        bic out0.8h, #0xF0, lsl #8
-
-        // r[2 * i + 1] = (t2 << 4), in 16-bit
-        ushll out1.8h, in2.8b, #4
-        // tmp = (t1 >> 4), in 8-bit
-        ushr in1.8b, in1.8b, #4
-        // tmp = (t1 >> 4), in 16-bit
-        uxtl in1.8h, in1.8b
-        // r[2 * i + 1] = (t1 >> 4) | (t2 << 4), in 16-bit
-        eor out1.16b, out1.16b, in1.16b
-
-        st2 {out0.8h, out1.8h}, [dst], #32
-
-        subs count, count, #1
-        cbnz count, poly_frombytes_asm_clean_asm_loop_start
-        ret
-
-        .unreq out0
-        .unreq out1
-        .unreq in0
-        .unreq in1
-        .unreq in2
-        .unreq dst
-        .unreq src
-        .unreq count
-
-/********************************************
  *             poly_transpose()             *
  ********************************************/
 
@@ -347,6 +239,164 @@ poly_transpose_asm_clean_asm_loop_start:
         .unreq t2
         .unreq t3
         .unreq ptr
+        .unreq count
+
+/********************************************
+ *             poly_tobytes()               *
+ ********************************************/
+.global MLKEM_NAMESPACE(poly_tobytes_asm_clean)
+.global _MLKEM_NAMESPACE(poly_tobytes_asm_clean)
+
+        data0 .req v0
+        data1 .req v1
+
+        out0  .req v2
+        out1  .req v3
+        out2  .req v4
+
+        tmp     .req v5
+
+        dst   .req x0
+        src   .req x1
+        count .req x2
+
+MLKEM_NAMESPACE(poly_tobytes_asm_clean):
+_MLKEM_NAMESPACE(poly_tobytes_asm_clean):
+
+        mov count, #16
+poly_tobytes_asm_clean_asm_loop_start:
+        ld2 {data0.8h, data1.8h}, [src], #32
+
+        // r[3 * i + 0] = (t0 >> 0);
+        xtn out0.8b, data0.8h
+
+        // r[3 * i + 1] = (t0 >> 8);
+        shrn out1.8b, data0.8h, #8
+        xtn tmp.8b, data1.8h
+        // r[3 * i + 1] = (t0 >> 8) | (t1 << 4);
+        sli out1.8b, tmp.8b, #4
+
+        // r[3 * i + 2] = (t1 >> 4);
+        shrn out2.8b, data1.8h, #4
+
+        st3 {out0.8b, out1.8b, out2.8b}, [dst], #24
+
+        subs count, count, #1
+        cbnz count, poly_tobytes_asm_clean_asm_loop_start
+        ret
+
+        .unreq data0
+        .unreq data1
+        .unreq out0
+        .unreq out1
+        .unreq out2
+        .unreq tmp
+        .unreq dst
+        .unreq src
+        .unreq count
+
+/********************************************
+ *             poly_frombytes()             *
+ ********************************************/
+.global MLKEM_NAMESPACE(poly_frombytes_asm_clean)
+.global _MLKEM_NAMESPACE(poly_frombytes_asm_clean)
+
+        out0 .req v6
+        out1 .req v7
+        out2 .req v4
+        out3 .req v5
+        q_out0 .req q6
+        q_out1 .req q7
+        q_out2 .req q4
+        q_out3 .req q5
+
+        in0  .req v2
+        in1  .req v3
+        in2  .req v4
+
+        t0 .req v0
+        t1 .req v1
+        t2 .req v2
+        t3 .req v3
+
+        dst   .req x0
+        src   .req x1
+        count .req x2
+
+MLKEM_NAMESPACE(poly_frombytes_asm_clean):
+_MLKEM_NAMESPACE(poly_frombytes_asm_clean):
+
+        mov count, #8
+poly_frombytes_asm_clean_asm_loop_start:
+        ld3 {in0.8b, in1.8b, in2.8b}, [src], #24
+
+        // This is little-endian specific
+        // r[2 * i + 0] = t0 | (t1 << 8)
+        zip1 t0.16b, in0.16b, in1.16b
+        // r[2 * i + 0] = (t0 | (t1 << 8)) & 0xFFF
+        bic t0.8h, #0xF0, lsl #8
+
+        // r[2 * i + 1] = (t2 << 4), in 16-bit
+        ushll t1.8h, in2.8b, #4
+        // tmp = (t1 >> 4), in 8-bit
+        ushr in1.8b, in1.8b, #4
+        // tmp = (t1 >> 4), in 16-bit
+        uxtl in1.8h, in1.8b
+        // r[2 * i + 1] = (t1 >> 4) | (t2 << 4), in 16-bit
+        eor t1.16b, t1.16b, in1.16b
+
+        zip1 out0.8h, t0.8h, t1.8h
+        zip2 out1.8h, t0.8h, t1.8h
+
+        // Second half
+
+        ld3 {in0.8b, in1.8b, in2.8b}, [src], #24
+
+        // This is little-endian specific
+        // r[2 * i + 0] = t0 | (t1 << 8)
+        zip1 t0.16b, in0.16b, in1.16b
+        // r[2 * i + 0] = (t0 | (t1 << 8)) & 0xFFF
+        bic t0.8h, #0xF0, lsl #8
+
+        // r[2 * i + 1] = (t2 << 4), in 16-bit
+        ushll t1.8h, in2.8b, #4
+        // tmp = (t1 >> 4), in 8-bit
+        ushr in1.8b, in1.8b, #4
+        // tmp = (t1 >> 4), in 16-bit
+        uxtl in1.8h, in1.8b
+        // r[2 * i + 1] = (t1 >> 4) | (t2 << 4), in 16-bit
+        eor t1.16b, t1.16b, in1.16b
+
+        zip1 out2.8h, t0.8h, t1.8h
+        zip2 out3.8h, t0.8h, t1.8h
+
+        transpose4 out
+        str q_out0, [dst], #(4*16)
+        str q_out1, [dst, #(-3*16)]
+        str q_out2, [dst, #(-2*16)]
+        str q_out3, [dst, #(-1*16)]
+
+        subs count, count, #1
+        cbnz count, poly_frombytes_asm_clean_asm_loop_start
+        ret
+
+        .unreq out0
+        .unreq out1
+        .unreq out2
+        .unreq out3
+        .unreq q_out0
+        .unreq q_out1
+        .unreq q_out2
+        .unreq q_out3
+        .unreq in0
+        .unreq in1
+        .unreq in2
+        .unreq t0
+        .unreq t1
+        .unreq t2
+        .unreq t3
+        .unreq dst
+        .unreq src
         .unreq count
 
 /**********************************
