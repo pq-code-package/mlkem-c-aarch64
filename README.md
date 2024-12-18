@@ -60,8 +60,10 @@ undefined behaviour in C, including out of bounds memory accesses and integer ov
 all C code in [mlkem/*](mlkem) involved in running mlkem-native with its C backend. See [cbmc](cbmc) for
 details.
 
-Initial experiments are underway to verify assembly using the [HOL-Light](https://hol-light.github.io/) theorem prover
-and the [s2n-bignum](https://github.com/awslabs/s2n-bignum) infrastructure.
+Experiments are underway to verify assembly using the [HOL-Light](https://hol-light.github.io/) theorem prover
+and the [s2n-bignum](https://github.com/awslabs/s2n-bignum) infrastructure (e.g. see
+[here](https://github.com/jargh/s2n-bignum-dev/tree/mlkem) for proofs of SLOTHY-optimized versions of the AArch64 NTT
+and invNTT by John Harrison).
 
 ## State
 
