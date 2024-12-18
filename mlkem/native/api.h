@@ -2,28 +2,37 @@
  * Copyright (c) 2024 The mlkem-native project authors
  * SPDX-License-Identifier: Apache-2.0
  */
-#ifndef MLKEM_ARITH_NATIVE_H
-#define MLKEM_ARITH_NATIVE_H
+
+/*
+ * Native arithmetic interface
+ *
+ * This header is primarily for documentation purposes.
+ * It should not be included by backend implementations.
+ *
+ * To ensure consistency with backends, the header will be
+ * included automatically after inclusion of the active
+ * backend, to ensure consistency of function signatures,
+ * and run sanity checks.
+ */
+#ifdef MLKEM_NATIVE_ARITH_NATIVE_API_H
+#error \
+    "The arithmetic backend API `mlkem/native/api.h` "		\
+    "should not be directly included. Please include the relevant "	\
+    "structure headers directly."
+#else /* MLKEM_NATIVE_ARITH_NATIVE_API_H */
+#define MLKEM_NATIVE_ARITH_NATIVE_API_H
 
 #include <stdint.h>
-
-#include "cbmc.h"
 #include "poly.h"
 #include "polyvec.h"
 
-#include "common.h"
-
 /*
- * MLKEM native arithmetic interface
+ * This is the C<->native interface allowing for the drop-in of
+ * native code for performance critical arithmetic components of ML-KEM.
  *
- * This is the C<->native arithmetic interface used in this repository
- * to allow for the drop-in of native code for performance critical
- * components of ML-KEM.
+ * A _backend_ is a specific implementation of (part of) this interface.
  *
- * A _profile_ is a specific implementation of (part of) this interface.
- * The active profile (if any) is determined in profile.h.
- *
- * To add a function to a profile, define MLKEM_USE_NATIVE_XXX and
+ * To add a function to a backend, define MLKEM_USE_NATIVE_XXX and
  * implement `static inline xxx(...)` in the profile header.
  *
  * The only exception is MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER. This option can
@@ -37,9 +46,8 @@
  */
 
 /*
- * Those functions are meant to be trivial wrappers around
- * the chosen native implementation. The are static inline
- * to avoid unnecessary calls.
+ * Those functions are meant to be trivial wrappers around the chosen native
+ * implementation. The are static inline to avoid unnecessary calls.
  * The macro before each declaration controls whether a native
  * implementation is present.
  */
@@ -244,4 +252,4 @@ static INLINE int rej_uniform_native(int16_t *r, unsigned int len,
                                      const uint8_t *buf, unsigned int buflen);
 #endif /* MLKEM_USE_NATIVE_REJ_UNIFORM */
 
-#endif /* MLKEM_ARITH_NATIVE_H */
+#endif /* MLKEM_NATIVE_ARITH_NATIVE_API_H */

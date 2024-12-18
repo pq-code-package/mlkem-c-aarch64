@@ -12,6 +12,9 @@
 
 #include "arith_native_aarch64.h"
 
+#include "poly.h"
+#include "polyvec.h"
+
 /* Set of primitives that this backend replaces */
 #define MLKEM_USE_NATIVE_NTT
 #define MLKEM_USE_NATIVE_INTT

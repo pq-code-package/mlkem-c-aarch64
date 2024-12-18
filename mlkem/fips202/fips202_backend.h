@@ -8,11 +8,16 @@
 #else
 #define MLKEM_NATIVE_FIPS202_IMPL_H
 
-/* Include to enforce consistency of API and implementation */
-#include "native/api.h"
-
 #if defined(MLKEM_NATIVE_FIPS202_BACKEND_IMPL)
 #include MLKEM_NATIVE_FIPS202_BACKEND_IMPL
+
+/* Include to enforce consistency of API and implementation,
+ * and conduct sanity checks on the backend.
+ *
+ * Keep this _after_ the inclusion of the backend; otherwise,
+ * the sanity checks won't have an effect. */
+#include "fips202/native/api.h"
 #endif
+
 
 #endif /* MLKEM_NATIVE_FIPS202_IMPL_H */

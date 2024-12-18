@@ -2,22 +2,33 @@
  * Copyright (c) 2024 The mlkem-native project authors
  * SPDX-License-Identifier: Apache-2.0
  */
-#ifndef FIPS202_NATIVE_H
-#define FIPS202_NATIVE_H
+
+/*
+ * FIPS-202 native interface
+ *
+ * This header is primarily for documentation purposes.
+ * It should not be included by backend implementations.
+ */
+#ifdef MLKEM_NATIVE_FIPS202_NATIVE_API_H
+#error \
+    "The FIPS-202 backend API `mlkem/fips202/native/api.h` "		\
+    "should not be directly included. Please include the relevant "	\
+    "structure headers directly."
+#else /* MLKEM_NATIVE_FIPS202_NATIVE_API_H */
+#define MLKEM_NATIVE_FIPS202_NATIVE_API_H
 
 #include <stdint.h>
-#include "common.h"
 
 /*
- * FIPS202 native interface
- */
-
-/*
- * Those functions are meant to be trivial wrappers around
- *  the chosen native implementation. The are static inline
- * to avoid unnecessary calls.
- * The macro before each declaration controls whether a native
- * implementation is present.
+ * This is the C<->native interface allowing for the drop-in
+ * of custom Keccak-F1600 implementations.
+ *
+ * A _backend_ is a specific implementation of parts of this interface.
+ *
+ * You can replace 1-fold, 2-fold, or 4-fold batched Keccak-F1600.
+ * To enable, set MLKEM_USE_FIPS202_X{1,2,4}_NATIVE in your backend,
+ * and define the inline wrapper keccak_f1600_x{1,2,4}_native() to
+ * forward to your implementation.
  */
 
 #if defined(MLKEM_USE_FIPS202_X1_NATIVE)
@@ -30,4 +41,4 @@ static INLINE void keccak_f1600_x2_native(uint64_t *state);
 static INLINE void keccak_f1600_x4_native(uint64_t *state);
 #endif
 
-#endif /* FIPS202_NATIVE_H */
+#endif /* MLKEM_NATIVE_FIPS202_NATIVE_API_H */
