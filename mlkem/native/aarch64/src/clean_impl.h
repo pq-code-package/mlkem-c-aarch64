@@ -15,7 +15,8 @@
 #include "poly.h"
 #include "polyvec.h"
 
-/* Set of primitives that this backend replaces */
+#define MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER
+
 #define MLKEM_USE_NATIVE_NTT
 #define MLKEM_USE_NATIVE_INTT
 #define MLKEM_USE_NATIVE_POLY_REDUCE
@@ -25,6 +26,11 @@
 #define MLKEM_USE_NATIVE_POLY_TOBYTES
 #define MLKEM_USE_NATIVE_POLY_FROMBYTES
 #define MLKEM_USE_NATIVE_REJ_UNIFORM
+
+static INLINE void poly_permute_bitrev_to_custom(poly *data)
+{
+  poly_transpose_asm_clean(data->coeffs);
+}
 
 static INLINE void ntt_native(poly *data)
 {

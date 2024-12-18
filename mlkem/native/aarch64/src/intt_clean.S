@@ -270,8 +270,6 @@ layer3456_start:
         ldr q_data2, [inp, #(16*2)]
         ldr q_data3, [inp, #(16*3)]
 
-        transpose4 data // manual ld4
-
         load_next_roots_56
 
         // Layer 7

@@ -17,7 +17,7 @@
  *
  * In the future, this may branch further depending on the microarchitecture.
  */
-#include "aarch64/opt.h"
+#include "aarch64/clean.h"
 #endif /* SYS_AARCH64 */
 
 #ifdef SYS_X86_64_AVX2

@@ -526,6 +526,75 @@ poly_frombytes_asm_opt_asm_loop_start:
         .unreq src
         .unreq count
 
+/********************************************
+ *             poly_transpose()             *
+ ********************************************/
+
+.macro transpose4 data
+        trn1 t0.4s, \data\()0.4s, \data\()1.4s
+        trn2 t1.4s, \data\()0.4s, \data\()1.4s
+        trn1 t2.4s, \data\()2.4s, \data\()3.4s
+        trn2 t3.4s, \data\()2.4s, \data\()3.4s
+
+        trn2 \data\()2.2d, t0.2d, t2.2d
+        trn2 \data\()3.2d, t1.2d, t3.2d
+        trn1 \data\()0.2d, t0.2d, t2.2d
+        trn1 \data\()1.2d, t1.2d, t3.2d
+.endm
+
+.global MLKEM_NAMESPACE(poly_transpose_asm_opt)
+.global _MLKEM_NAMESPACE(poly_transpose_asm_opt)
+
+        data0  .req v0
+        data1  .req v1
+        data2  .req v2
+        data3  .req v3
+
+        q_data0  .req q0
+        q_data1  .req q1
+        q_data2  .req q2
+        q_data3  .req q3
+
+        t0  .req v4
+        t1  .req v5
+        t2  .req v6
+        t3  .req v7
+
+        ptr   .req x0
+        count .req x1
+
+MLKEM_NAMESPACE(poly_transpose_asm_opt):
+_MLKEM_NAMESPACE(poly_transpose_asm_opt):
+
+        mov count, #8
+poly_transpose_asm_opt_asm_loop_start:
+        ldr q_data0, [ptr]
+        ldr q_data1, [ptr, #(1*16)]
+        ldr q_data2, [ptr, #(2*16)]
+        ldr q_data3, [ptr, #(3*16)]
+
+        transpose4 data
+
+        str q_data0, [ptr], #(4*16)
+        str q_data1, [ptr, #(-3*16)]
+        str q_data2, [ptr, #(-2*16)]
+        str q_data3, [ptr, #(-1*16)]
+
+        subs count, count, #1
+        cbnz count, poly_transpose_asm_opt_asm_loop_start
+        ret
+
+        .unreq data0
+        .unreq data1
+        .unreq data2
+        .unreq data3
+        .unreq t0
+        .unreq t1
+        .unreq t2
+        .unreq t3
+        .unreq ptr
+        .unreq count
+
 /**********************************
  *          poly_tomont()         *
  **********************************/

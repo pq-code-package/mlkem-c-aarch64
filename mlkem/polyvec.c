@@ -34,11 +34,24 @@ void polyvec_decompress_du(polyvec *r,
   POLYVEC_UBOUND(r, MLKEM_Q);
 }
 
+#if !defined(MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER)
+STATIC_INLINE_TESTABLE
+void poly_permute_bitrev_to_custom(poly *data)
+__contract__(
+  /* We don't specify that this should be a permutation, but only
+   * that it does not change the bound established at the end of gen_matrix. */
+  requires(memory_no_alias(data, sizeof(poly)))
+  requires(array_bound(data->coeffs, 0, MLKEM_N - 1, 0, MLKEM_Q - 1))
+  assigns(memory_slice(data, sizeof(poly)))
+  ensures(array_bound(data->coeffs, 0, MLKEM_N - 1, 0, MLKEM_Q - 1))) { ((void)data); }
+#endif /* MLKEM_USE_NATIVE_NTT_CUSTOM_ORDER */
+
 void polyvec_tobytes(uint8_t r[MLKEM_POLYVECBYTES], const polyvec *a)
 {
   unsigned int i;
   for (i = 0; i < MLKEM_K; i++)
   {
+    poly_permute_bitrev_to_custom((poly*)&a->vec[i]);
     poly_tobytes(r + i * MLKEM_POLYBYTES, &a->vec[i]);
   }
 }
@@ -49,6 +62,7 @@ void polyvec_frombytes(polyvec *r, const uint8_t a[MLKEM_POLYVECBYTES])
   for (i = 0; i < MLKEM_K; i++)
   {
     poly_frombytes(&r->vec[i], a + i * MLKEM_POLYBYTES);
+    poly_permute_bitrev_to_custom(&r->vec[i]);
   }
 }
 

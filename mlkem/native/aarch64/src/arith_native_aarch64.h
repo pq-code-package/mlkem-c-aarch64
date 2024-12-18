@@ -49,6 +49,12 @@ void poly_reduce_asm_clean(int16_t *);
 #define poly_reduce_asm_opt MLKEM_NAMESPACE(poly_reduce_asm_opt)
 void poly_reduce_asm_opt(int16_t *);
 
+#define poly_transpose_asm_clean MLKEM_NAMESPACE(poly_transpose_asm_clean)
+void poly_transpose_asm_clean(int16_t *);
+
+#define poly_transpose_asm_opt MLKEM_NAMESPACE(poly_transpose_asm_opt)
+void poly_transpose_asm_opt(int16_t *);
+
 #define poly_tomont_asm_clean MLKEM_NAMESPACE(poly_tomont_asm_clean)
 void poly_tomont_asm_clean(int16_t *);
 

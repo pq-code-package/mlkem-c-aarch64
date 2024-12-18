@@ -278,21 +278,57 @@ def gen_aarch64_inv_ntt_zetas_layer56():
             )
 
 
-def gen_aarch64_mulcache_twiddles():
+# Generates the twiddles for the mulcache in the bitreversed order.
+def gen_aarch64_mulcache_twiddles_core():
     for idx in range(64):
         root = pow(root_of_unity, bitreverse(64 + idx, 7), modulus)
         yield prepare_root_for_barrett(root)[0]
         yield prepare_root_for_barrett(-root)[0]
 
 
-def gen_aarch64_mulcache_twiddles_twisted():
+# Generates the twisted twiddles for the mulcache in the bitreversed order.
+def gen_aarch64_mulcache_twiddles_twisted_core():
     for idx in range(64):
         root = pow(root_of_unity, bitreverse(64 + idx, 7), modulus)
         yield prepare_root_for_barrett(root)[1]
         yield prepare_root_for_barrett(-root)[1]
 
 
-def gen_aarch64_fwd_ntt_zeta_file(dry_run=False):
+def transpose_4x4(ls):
+    assert len(ls) == 16
+    ls = [ls[4 * j + i] for i in range(4) for j in range(4)]
+    yield from ls
+
+
+def transpose_4x4_many(g):
+    ls = list(g)
+    assert len(ls) % 16 == 0
+    for i in range(0, len(ls), 16):
+        yield from transpose_4x4(ls[i : i + 16])
+
+
+# Generates the twiddles for the mulcache in the bitreversed + transposted order.
+def gen_aarch64_mulcache_twiddles(transposed=False):
+    g = gen_aarch64_mulcache_twiddles_core()
+    if transposed is False:
+        yield from g
+        return
+    # Transposed case
+    yield from transpose_4x4_many(g)
+
+
+# Generates the twisted twiddles for the mulcache in the
+# bitreversed + transposted order.
+def gen_aarch64_mulcache_twiddles_twisted(transposed=False):
+    g = gen_aarch64_mulcache_twiddles_twisted_core()
+    if transposed is False:
+        yield from g
+        return
+    # Transposed case
+    yield from transpose_4x4_many(g)
+
+
+def gen_aarch64_fwd_ntt_zeta_file(dry_run=False, transposed=False):
     def gen():
         yield from gen_header()
         yield '#include "common.h"'
@@ -324,11 +360,16 @@ def gen_aarch64_fwd_ntt_zeta_file(dry_run=False):
         yield "};"
         yield ""
         yield "const int16_t aarch64_zetas_mulcache_native[] = {"
-        yield from map(lambda t: str(t) + ",", gen_aarch64_mulcache_twiddles())
+        yield from map(
+            lambda t: str(t) + ",", gen_aarch64_mulcache_twiddles(transposed=transposed)
+        )
         yield "};"
         yield ""
         yield "const int16_t aarch64_zetas_mulcache_twisted_native[] = {"
-        yield from map(lambda t: str(t) + ",", gen_aarch64_mulcache_twiddles_twisted())
+        yield from map(
+            lambda t: str(t) + ",",
+            gen_aarch64_mulcache_twiddles_twisted(transposed=transposed),
+        )
         yield "};"
         yield ""
         yield "#else"
@@ -431,7 +472,7 @@ def _main():
 
     args = parser.parse_args()
     gen_c_zeta_file(args.dry_run)
-    gen_aarch64_fwd_ntt_zeta_file(args.dry_run)
+    gen_aarch64_fwd_ntt_zeta_file(args.dry_run, transposed=True)
     gen_avx2_fwd_ntt_zeta_file(args.dry_run)
 
 

@@ -97,8 +97,8 @@ echo " * ntt, ${TARGET_NAME}"
 slothy-cli Arm_AArch64 $TARGET \
   ntt_clean.S -o ntt_opt.S \
   -r ntt_asm_clean,ntt_asm_opt \
-  -l layer123_start \
-  -l layer4567_start \
+  -l layer012_start \
+  -l layer3456_start \
   -c sw_pipelining.enabled=true \
   -c inputs_are_outputs \
   -c reserved_regs="[x18--x30,sp]" \
@@ -111,8 +111,8 @@ echo " * intt, ${TARGET_NAME}"
 slothy-cli Arm_AArch64 $TARGET \
   intt_clean.S -o intt_opt.S \
   -r intt_asm_clean,intt_asm_opt \
-  -l layer123_start \
-  -l layer4567_start \
+  -l layer012_start \
+  -l layer3456_start \
   -c sw_pipelining.enabled=true \
   -c inputs_are_outputs \
   -c reserved_regs="[x18--x30,sp]" \
