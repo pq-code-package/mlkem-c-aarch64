@@ -287,7 +287,12 @@ layer3456_start:
         ct_butterfly_v data0, data1, root1, root1_tw
         ct_butterfly_v data2, data3, root2, root2_tw
 
-        st4 {data0.4S, data1.4S, data2.4S, data3.4S}, [in], #64
+        transpose4 data
+
+        str q_data0, [in], #(16*4)
+        str q_data1, [in, #(-16*3)]
+        str q_data2, [in, #(-16*2)]
+        str q_data3, [in, #(-16*1)]
 
         subs count, count, #1
         cbnz count, layer3456_start
