@@ -22,7 +22,10 @@
 
    We consider two approaches to implement a value barrier:
    - An empty inline asm block which marks the target value as clobbered.
-   - XOR'ing with the value of a volatile global that's set to 0.
+   - XOR'ing with the value of a volatile global that's set to 0;
+     for a discussion / implementation of this idea, see e.g.
+     * https://groups.google.com/a/list.nist.gov/g/pqc-forum/c/hqbtIGFKIpU/m/H14H0wOlBgAJ
+     * https://lib.mceliece.org/libmceliece-20240513/inttypes/crypto_intN.h.html
 
    The first approach is cheap because it only prevents the compiler
    from reasoning about the value of the variable past the barrier,
