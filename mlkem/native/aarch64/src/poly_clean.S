@@ -234,6 +234,10 @@ poly_transpose_asm_clean_asm_loop_start:
         .unreq data1
         .unreq data2
         .unreq data3
+        .unreq q_data0
+        .unreq q_data1
+        .unreq q_data2
+        .unreq q_data3
         .unreq t0
         .unreq t1
         .unreq t2
@@ -249,12 +253,22 @@ poly_transpose_asm_clean_asm_loop_start:
 
         data0 .req v0
         data1 .req v1
+        data2 .req v6
+        data3 .req v3
+        q_data0 .req q0
+        q_data1 .req q1
+        q_data2 .req q6
+        q_data3 .req q3
 
-        out0  .req v2
-        out1  .req v3
-        out2  .req v4
+        t0 .req v4
+        t1 .req v5
+        t2 .req v2
+        t3 .req v7
 
-        tmp     .req v5
+        out0  .req v0
+        out1  .req v1
+        out2  .req v2
+        tmp   .req v7
 
         dst   .req x0
         src   .req x1
@@ -263,21 +277,48 @@ poly_transpose_asm_clean_asm_loop_start:
 MLKEM_NAMESPACE(poly_tobytes_asm_clean):
 _MLKEM_NAMESPACE(poly_tobytes_asm_clean):
 
-        mov count, #16
+        mov count, #8
 poly_tobytes_asm_clean_asm_loop_start:
-        ld2 {data0.8h, data1.8h}, [src], #32
+        ldr q_data0, [src], #(4*16)
+        ldr q_data1, [src, #(-3*16)]
+        ldr q_data2, [src, #(-2*16)]
+        ldr q_data3, [src, #(-1*16)]
+
+        transpose4 data
+
+        uzp1 t0.8h, data0.8h, data1.8h
+        uzp2 t1.8h, data0.8h, data1.8h
 
         // r[3 * i + 0] = (t0 >> 0);
-        xtn out0.8b, data0.8h
+        xtn out0.8b, t0.8h
 
         // r[3 * i + 1] = (t0 >> 8);
-        shrn out1.8b, data0.8h, #8
-        xtn tmp.8b, data1.8h
+        shrn out1.8b, t0.8h, #8
+        xtn tmp.8b, t1.8h
         // r[3 * i + 1] = (t0 >> 8) | (t1 << 4);
         sli out1.8b, tmp.8b, #4
 
         // r[3 * i + 2] = (t1 >> 4);
-        shrn out2.8b, data1.8h, #4
+        shrn out2.8b, t1.8h, #4
+
+        st3 {out0.8b, out1.8b, out2.8b}, [dst], #24
+
+        // Second iteration
+
+        uzp1 t0.8h, data2.8h, data3.8h
+        uzp2 t1.8h, data2.8h, data3.8h
+
+        // r[3 * i + 0] = (t0 >> 0);
+        xtn out0.8b, t0.8h
+
+        // r[3 * i + 1] = (t0 >> 8);
+        shrn out1.8b, t0.8h, #8
+        xtn tmp.8b, t1.8h
+        // r[3 * i + 1] = (t0 >> 8) | (t1 << 4);
+        sli out1.8b, tmp.8b, #4
+
+        // r[3 * i + 2] = (t1 >> 4);
+        shrn out2.8b, t1.8h, #4
 
         st3 {out0.8b, out1.8b, out2.8b}, [dst], #24
 
@@ -287,6 +328,16 @@ poly_tobytes_asm_clean_asm_loop_start:
 
         .unreq data0
         .unreq data1
+        .unreq data2
+        .unreq data3
+        .unreq q_data0
+        .unreq q_data1
+        .unreq q_data2
+        .unreq q_data3
+        .unreq t0
+        .unreq t1
+        .unreq t2
+        .unreq t3
         .unreq out0
         .unreq out1
         .unreq out2

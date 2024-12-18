@@ -51,7 +51,6 @@ void polyvec_tobytes(uint8_t r[MLKEM_POLYVECBYTES], const polyvec *a)
   unsigned int i;
   for (i = 0; i < MLKEM_K; i++)
   {
-    poly_permute_bitrev_to_custom((poly*)&a->vec[i]);
     poly_tobytes(r + i * MLKEM_POLYBYTES, &a->vec[i]);
   }
 }
