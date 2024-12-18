@@ -6,65 +6,87 @@
 #include "common.h"
 #if defined(MLKEM_NATIVE_ARITH_BACKEND_AARCH64_CLEAN)
 
-// Needed to provide ASM_LOAD directive
-#include "common.i"
-#include "params.h"
+/* We use a single literal pool for all functions in this file.
+ * This is OK even when the file gets expanded through SLOTHY,
+ * since PC-relative offets are up to 1MB in AArch64.
+ *
+ * The use of dup8h to build constant vectors in memory
+ * is slightly wasteful and could be avoided with a GPR-load
+ * followed by Neon `dup`, but we're ultimately only talking
+ * about 64 bytes, so it seems OK.
+ */
 
-.macro barrett_reduce a
-        sqdmulh t0.8h, \a\().8h, consts.h[1]
-        srshr   t0.8h, t0.8h, #11
-        mls     \a\().8h, t0.8h, consts.h[0]
+.macro dup8h c
+        .short \c
+        .short \c
+        .short \c
+        .short \c
+        .short \c
+        .short \c
+        .short \c
+        .short \c
 .endm
 
+.p2align 4
+c_modulus:         dup8h 3329   // ML-KEM modulus
+c_modulus_twisted: dup8h 20159  // Barrett twist of 1 wrt 2^27
+c_mont_constant:   dup8h -1044  // 2^16 % 3329
+c_barrett_twist:   dup8h -10276 // Barrett twist of -1044 (wrt 2^16)
+
+/*
+ * Some modular arithmetic macros
+ */
+
+/* Barrett reduction */
+.macro barrett_reduce a
+        sqdmulh tmp.8h,   \a\().8h, modulus_twisted.h[0]
+        srshr   tmp.8h,   tmp.8h,   #11
+        mls     \a\().8h, tmp.8h,   modulus.h[0]
+.endm
+
+/* Montgomery multiplication, with precomputed Montgomery twist
+ * Expects modulus in consts.h[0]. */
+.macro mulmod dst, src, const, const_twisted
+        sqrdmulh tmp0.8h,    \src\().8h, \const_twisted\().8h
+        mul      \dst\().8h, \src\().8h, \const\().8h
+        mls      \dst\().8h, tmp0.8h,    modulus.h[0]
+.endm
+
+/* Turns signed-canonical to unsigned canonical representative
+ * through conditional addition of the modulus.
+ *
+ * Expected modulus in `modulus`. */
 .macro scalar_signed_to_unsigned a
         sshr mask.8h, \a\().8h, #15
         and mask.16b, modulus.16b, mask.16b
         add \a\().8h, \a\().8h, mask.8h
 .endm
 
-.macro mulmod dst, src, const, const_twisted
-        sqrdmulh tmp0.8h,    \src\().8h, \const_twisted\().8h
-        mul      \dst\().8h, \src\().8h, \const\().8h
-        mls      \dst\().8h, tmp0.8h,    consts.h[0]
-.endm
-
 /**********************************
  *          poly_reduce()         *
  **********************************/
+
 .global MLKEM_NAMESPACE(poly_reduce_asm_clean)
 .global _MLKEM_NAMESPACE(poly_reduce_asm_clean)
 
-.p2align 4
-const_addr:
-        .short 3329   // ML-KEM modulus
-        .short 20159  // Barrett twist of 1 wrt 2^27
-        .short -1044  // 2^16 % 3329
-        .short -10276 // Barrett twist of -1044 (wrt 2^16)
-        .short 0
-        .short 0
-        .short 0
-        .short 0
+        ptr               .req x0
+        count             .req x1
 
-        ptr    .req x0
-        count  .req x1
-        xtmp   .req x2
-        wmodulus .req w3
+        data              .req v0
+        q_data            .req q0
 
-        q_data .req q0
-        data   .req v0
-        t0     .req v1
-        consts .req v2
-        mask    .req v3
-        modulus .req v4
+        tmp               .req v1
+        mask              .req v2
+        modulus           .req v3
+        q_modulus         .req q3
+        modulus_twisted   .req v4
+        q_modulus_twisted .req q4
 
 MLKEM_NAMESPACE(poly_reduce_asm_clean):
 _MLKEM_NAMESPACE(poly_reduce_asm_clean):
 
-        ASM_LOAD(xtmp, const_addr)
-        ld1 {consts.8h}, [xtmp]
-
-        mov wmodulus, #3329
-        dup modulus.8h, wmodulus
+        ldr q_modulus, c_modulus
+        ldr q_modulus_twisted, c_modulus_twisted
 
         mov count, #8
 loop_start:
@@ -95,57 +117,66 @@ loop_start:
 
         .unreq ptr
         .unreq count
-        .unreq xtmp
-        .unreq q_data
+
         .unreq data
-        .unreq t0
-        .unreq consts
+        .unreq q_data
+
+        .unreq tmp
         .unreq mask
-        .unreq wmodulus
         .unreq modulus
+        .unreq q_modulus
+        .unreq modulus_twisted
+        .unreq q_modulus_twisted
 
 /********************************************
  *          poly_mulcache_compute()         *
  ********************************************/
+
 .global MLKEM_NAMESPACE(poly_mulcache_compute_asm_clean)
 .global _MLKEM_NAMESPACE(poly_mulcache_compute_asm_clean)
 
-        cache_ptr  .req x0
-        data_ptr   .req x1
-        zeta_ptr   .req x2
-        zeta_twisted_ptr   .req x3
-        xtmp       .req x4
+        cache_ptr         .req x0
+        data_ptr          .req x1
+        zeta_ptr          .req x2
+        zeta_twisted_ptr  .req x3
+        count             .req x4
 
-        count      .req x5
+        data_odd          .req v0
+        zeta              .req v1
+        q_zeta            .req q1
+        zeta_twisted      .req v2
+        q_zeta_twisted    .req q2
 
-        data_odd       .req v1
+        tmp0              .req v3
+        q_tmp0            .req q3
+        tmp1              .req v4
+        q_tmp1            .req q4
+        dst               .req v5
+        q_dst             .req q5
 
-        zeta           .req v2
-        zeta_twisted   .req v3
-        q_zeta         .req q2
-        q_zeta_twisted .req q3
-
-        q_tmp0  .req q4
-        q_tmp1  .req q5
-        tmp0    .req v4
-        tmp1    .req v5
-        consts  .req v6
-        dst     .req v7
-        q_dst   .req q7
+        modulus           .req v6
+        q_modulus         .req q6
+        modulus_twisted   .req v7
+        q_modulus_twisted .req q7
 
 MLKEM_NAMESPACE(poly_mulcache_compute_asm_clean):
 _MLKEM_NAMESPACE(poly_mulcache_compute_asm_clean):
-        ASM_LOAD(xtmp, const_addr)
-        ld1 {consts.8h}, [xtmp]
+        ldr q_modulus, c_modulus
+        ldr q_modulus_twisted, c_modulus_twisted
 
-        mov count, #(16)
+        mov count, #16
 mulcache_compute_loop_start:
         ldr q_tmp0, [data_ptr], #32
         ldr q_tmp1, [data_ptr, #-16]
         ldr q_zeta, [zeta_ptr], #16
         ldr q_zeta_twisted, [zeta_twisted_ptr], #16
+
+        // The mulcache of a polynomial a + b*X in Fq[X^2-zeta] is b*zeta;
+        // Since tmp0 || tmp1 represents multiple such polynomails as
+        // (a0,b0,a1,b1,...), extract only the odd elements.
         uzp2 data_odd.8h, tmp0.8h, tmp1.8h
         mulmod dst, data_odd, zeta, zeta_twisted
+
         str q_dst, [cache_ptr], #16
 
         subs count, count, #1
@@ -156,7 +187,7 @@ mulcache_compute_loop_start:
         .unreq cache_ptr
         .unreq data_ptr
         .unreq zeta_ptr
-        .unreq xtmp
+        .unreq zeta_twisted_ptr
         .unreq count
 
         .unreq data_odd
@@ -165,12 +196,17 @@ mulcache_compute_loop_start:
         .unreq zeta_twisted
         .unreq q_zeta_twisted
 
-        .unreq q_tmp0
-        .unreq q_tmp1
         .unreq tmp0
+        .unreq q_tmp0
         .unreq tmp1
-        .unreq consts
+        .unreq q_tmp1
         .unreq dst
+        .unreq q_dst
+
+        .unreq modulus
+        .unreq q_modulus
+        .unreq modulus_twisted
+        .unreq q_modulus_twisted
 
 /********************************************
  *             poly_tobytes()               *
@@ -180,12 +216,10 @@ mulcache_compute_loop_start:
 
         data0 .req v0
         data1 .req v1
-
         out0  .req v2
         out1  .req v3
         out2  .req v4
-
-        tmp     .req v5
+        tmp   .req v5
 
         dst   .req x0
         src   .req x1
@@ -232,34 +266,32 @@ poly_tobytes_asm_clean_asm_loop_start:
 .global MLKEM_NAMESPACE(poly_tomont_asm_clean)
 .global _MLKEM_NAMESPACE(poly_tomont_asm_clean)
 
-        src     .req x0
-        count   .req x1
-        xtmp    .req x2
+        src               .req x0
+        count             .req x1
 
-        wtmp2   .req w3
+        data              .req v0
+        q_data            .req q0
+        res               .req v1
+        q_res             .req q1
 
-        data    .req v0
-        q_data  .req q0
-        res     .req v1
-        q_res   .req q1
+        factor            .req v2
+        q_factor          .req q2
+        factor_t          .req v3
+        q_factor_t        .req q3
+        modulus           .req v4
+        q_modulus         .req q4
+        modulus_twisted   .req v5
+        q_modulus_twisted .req q5
 
-        consts  .req v2
-
-        factor   .req v3
-        factor_t .req v4
-
-        tmp0    .req v5
+        tmp0              .req v6
 
 MLKEM_NAMESPACE(poly_tomont_asm_clean):
 _MLKEM_NAMESPACE(poly_tomont_asm_clean):
 
-        ASM_LOAD(xtmp, const_addr)
-        ld1 {consts.8h}, [xtmp]
-
-        ldrsh wtmp2, [xtmp, #(2*2)]
-        dup factor.8h, wtmp2
-        ldrh wtmp2, [xtmp, #(3*2)]
-        dup factor_t.8h, wtmp2
+        ldr q_modulus,         c_modulus
+        ldr q_modulus_twisted, c_modulus_twisted
+        ldr q_factor,          c_mont_constant
+        ldr q_factor_t,        c_barrett_twist
 
         mov count, #8
 poly_tomont_asm_loop:
@@ -284,5 +316,24 @@ poly_tomont_asm_loop:
         cbnz count, poly_tomont_asm_loop
 
         ret
+
+        .unreq src
+        .unreq count
+
+        .unreq data
+        .unreq q_data
+        .unreq res
+        .unreq q_res
+
+        .unreq factor
+        .unreq q_factor
+        .unreq factor_t
+        .unreq q_factor_t
+        .unreq modulus
+        .unreq q_modulus
+        .unreq modulus_twisted
+        .unreq q_modulus_twisted
+
+        .unreq tmp0
 
 #endif /* MLKEM_NATIVE_ARITH_BACKEND_AARCH64_CLEAN */
