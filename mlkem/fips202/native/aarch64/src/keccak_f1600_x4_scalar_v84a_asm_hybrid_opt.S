@@ -24,54 +24,21 @@
  *
  */
 
+// Author: Hanno Becker <hanno.becker@arm.com>
+// Author: Matthias Kannwischer <matthias@kannwischer.eu>
+
 #include "common.h"
 #if defined(MLKEM_NATIVE_FIPS202_BACKEND_AARCH64_DEFAULT) || \
     defined(MLKEM_NATIVE_FIPS202_BACKEND_AARCH64_A55)
-
-// Needed to provide ASM_LOAD directive
-#include "common.i"
 
 #if defined(__ARM_FEATURE_SHA3)
 
 #define KECCAK_F1600_ROUNDS 24
 
-
-// Author: Hanno Becker <hanno.becker@arm.com>
-// Author: Matthias Kannwischer <matthias@kannwischer.eu>
-
-
-/********************** CONSTANTS *************************/
-    .data
-    .align(8)
-round_constants:
-    .quad 0x0000000000000001
-    .quad 0x0000000000008082
-    .quad 0x800000000000808a
-    .quad 0x8000000080008000
-    .quad 0x000000000000808b
-    .quad 0x0000000080000001
-    .quad 0x8000000080008081
-    .quad 0x8000000000008009
-    .quad 0x000000000000008a
-    .quad 0x0000000000000088
-    .quad 0x0000000080008009
-    .quad 0x000000008000000a
-    .quad 0x000000008000808b
-    .quad 0x800000000000008b
-    .quad 0x8000000000008089
-    .quad 0x8000000000008003
-    .quad 0x8000000000008002
-    .quad 0x8000000000000080
-    .quad 0x000000000000800a
-    .quad 0x800000008000000a
-    .quad 0x8000000080008081
-    .quad 0x8000000000008080
-    .quad 0x0000000080000001
-    .quad 0x8000000080008008
-
 /****************** REGISTER ALLOCATIONS *******************/
 
     input_addr     .req x0
+    input_rc       .req x1
     const_addr     .req x29
     outer          .req x30
     cur_const      .req x26
@@ -919,7 +886,7 @@ _FIPS202_NAMESPACE(keccak_f1600_x4_scalar_v84a_asm_hybrid_opt):
     save_gprs
     save_vregs
 
-    ASM_LOAD(const_addr, round_constants)
+    mov const_addr, input_rc
 
     mov outer, #0
     str outer,      [sp, #STACK_OFFSET_OUTER]        // @slothy:writes=STACK_OFFSET_OUTER
