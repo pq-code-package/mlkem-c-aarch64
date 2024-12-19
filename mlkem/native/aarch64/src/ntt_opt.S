@@ -27,10 +27,6 @@
 #include "common.h"
 #if defined(MLKEM_NATIVE_ARITH_BACKEND_AARCH64_OPT)
 
-// Needed to provide ASM_LOAD directive
-#include "common.i"
-#include "params.h"
-
 // Bounds:
 // If C is chosen so that |src| < q * C, then |dst| < q * (0.0508 * C + 1/2)
 
@@ -185,8 +181,9 @@
         .global MLKEM_NAMESPACE(ntt_asm_opt)
         .global _MLKEM_NAMESPACE(ntt_asm_opt)
 
+/* Literal pool */
 .p2align 4
-const_addr:
+c_consts:
         .short 3329
         .short 20159
         .short 0
@@ -199,9 +196,7 @@ const_addr:
 MLKEM_NAMESPACE(ntt_asm_opt):
 _MLKEM_NAMESPACE(ntt_asm_opt):
         push_stack
-        ASM_LOAD(xtmp, const_addr)
-
-        ld1 {consts.8h}, [xtmp]
+        ldr q_consts, c_consts
 
         mov inp, in
         mov count, #4

@@ -26,10 +26,6 @@
 #include "common.h"
 #if defined(MLKEM_NATIVE_ARITH_BACKEND_AARCH64_CLEAN)
 
-// Needed to provide ASM_LOAD directive
-#include "common.i"
-#include "params.h"
-
 // Bounds:
 // If C is chosen so that |src| < q * C, then |dst| < q * (0.0508 * C + 1/2)
 //
@@ -148,36 +144,6 @@
         .global MLKEM_NAMESPACE(intt_asm_clean)
         .global _MLKEM_NAMESPACE(intt_asm_clean)
 
-.p2align 4
-const_addr:       .short 3329
-                  .short 20159
-                  .short 0
-                  .short 0
-                  .short 0
-                  .short 0
-                  .short 0
-                  .short 0
-ninv_addr:        .short 512
-                  .short 512
-                  .short 512
-                  .short 512
-                  .short 512
-                  .short 512
-                  .short 512
-                  .short 512
-ninv_tw_addr:     .short 5040
-                  .short 5040
-                  .short 5040
-                  .short 5040
-                  .short 5040
-                  .short 5040
-                  .short 5040
-                  .short 5040
-
-MLKEM_NAMESPACE(intt_asm_clean):
-_MLKEM_NAMESPACE(intt_asm_clean):
-        push_stack
-
         in         .req x0
         r01234_ptr .req x1
         r56_ptr    .req x2
@@ -227,16 +193,42 @@ _MLKEM_NAMESPACE(intt_asm_clean):
         t2  .req v27
         t3  .req v28
 
-        ASM_LOAD(xtmp, const_addr)
-        ld1 {consts.8h}, [xtmp]
-
         ninv             .req v29
+        q_ninv           .req q29
         ninv_tw          .req v30
+        q_ninv_tw        .req q30
 
-        ASM_LOAD(xtmp, ninv_addr)
-        ld1r {ninv.8h}, [xtmp]
-        ASM_LOAD(xtmp, ninv_tw_addr)
-        ld1r {ninv_tw.8h}, [xtmp]
+/* Literal pool */
+.macro dup8h c
+        .short \c
+        .short \c
+        .short \c
+        .short \c
+        .short \c
+        .short \c
+        .short \c
+        .short \c
+.endm
+
+.p2align 4
+c_consts:         .short 3329
+                  .short 20159
+                  .short 0
+                  .short 0
+                  .short 0
+                  .short 0
+                  .short 0
+                  .short 0
+c_ninv:           dup8h 512
+c_ninv_tw:        dup8h 5040
+
+MLKEM_NAMESPACE(intt_asm_clean):
+_MLKEM_NAMESPACE(intt_asm_clean):
+        push_stack
+
+        ldr q_consts,  c_consts
+        ldr q_ninv,    c_ninv
+        ldr q_ninv_tw, c_ninv_tw
 
         mov inp, in
         mov count, #8
