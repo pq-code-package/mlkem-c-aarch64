@@ -75,7 +75,7 @@ static INLINE int rej_uniform_native(int16_t *r, unsigned int len,
   {
     return -1;
   }
-  return (int)rej_uniform_asm_clean(r, buf, buflen);
+  return (int)rej_uniform_asm_clean(r, buf, buflen, rej_uniform_table);
 }
 
 #endif /* MLKEM_NATIVE_ARITH_PROFILE_IMPL_H */
