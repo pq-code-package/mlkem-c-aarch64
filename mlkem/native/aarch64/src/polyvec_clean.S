@@ -164,11 +164,9 @@ c_modulus_twisted: dup8h 3327
         t0   .req v28
 
 #if MLKEM_K == 2
-.global MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_clean)
-.global _MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_clean)
+.global MLKEM_ASM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_clean)
 
-MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_clean):
-_MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_clean):
+MLKEM_ASM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_clean):
         push_stack
         ldr q_modulus, c_modulus
         ldr q_modulus_twisted, c_modulus_twisted
@@ -200,11 +198,9 @@ k2_loop_start:
 #endif /* MLKEM_K == 2 */
 
 #if MLKEM_K == 3
-.global MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_clean)
-.global _MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_clean)
+.global MLKEM_ASM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_clean)
 
-MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_clean):
-_MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_clean):
+MLKEM_ASM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_clean):
         push_stack
         ldr q_modulus, c_modulus
         ldr q_modulus_twisted, c_modulus_twisted
@@ -241,11 +237,9 @@ k3_loop_start:
 #endif /* MLKEM_K == 3 */
 
 #if MLKEM_K == 4
-.global MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_clean)
-.global _MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_clean)
+.global MLKEM_ASM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_clean)
 
-MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_clean):
-_MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_clean):
+MLKEM_ASM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_clean):
         push_stack
         ldr q_modulus, c_modulus
         ldr q_modulus_twisted, c_modulus_twisted

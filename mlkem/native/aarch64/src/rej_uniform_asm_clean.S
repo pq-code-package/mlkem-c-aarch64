@@ -119,10 +119,8 @@ c_bit_table:
     .short 0x1, 0x2, 0x4, 0x8, 0x10, 0x20, 0x40, 0x80
 
 .align 4
-.global MLKEM_NAMESPACE(rej_uniform_asm_clean)
-.global _MLKEM_NAMESPACE(rej_uniform_asm_clean)
-MLKEM_NAMESPACE(rej_uniform_asm_clean):
-_MLKEM_NAMESPACE(rej_uniform_asm_clean):
+.global MLKEM_ASM_NAMESPACE(rej_uniform_asm_clean)
+MLKEM_ASM_NAMESPACE(rej_uniform_asm_clean):
     push_stack
 
     ldr  bits_q, c_bit_table

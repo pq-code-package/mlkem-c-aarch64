@@ -141,8 +141,7 @@
 
 .text
 
-        .global MLKEM_NAMESPACE(intt_asm_clean)
-        .global _MLKEM_NAMESPACE(intt_asm_clean)
+        .global MLKEM_ASM_NAMESPACE(intt_asm_clean)
 
         in         .req x0
         r01234_ptr .req x1
@@ -222,8 +221,7 @@ c_consts:         .short 3329
 c_ninv:           dup8h 512
 c_ninv_tw:        dup8h 5040
 
-MLKEM_NAMESPACE(intt_asm_clean):
-_MLKEM_NAMESPACE(intt_asm_clean):
+MLKEM_ASM_NAMESPACE(intt_asm_clean):
         push_stack
 
         ldr q_consts,  c_consts

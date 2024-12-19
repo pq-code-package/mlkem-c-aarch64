@@ -44,7 +44,6 @@
 #define CONC(a, b) __CONC(a, b)
 
 #define MLKEM_NAMESPACE(sym) CONC(CUSTOM_TINY_SHA3_, sym)
-#define _MLKEM_NAMESPACE(sym) CONC(_CUSTOM_TINY_SHA3_, sym)
 
 /******************************************************************************
  * Name:        FIPS202_NAMESPACE
@@ -54,7 +53,6 @@
  *              from mlkem/fips202/.
  *****************************************************************************/
 #define FIPS202_NAMESPACE(sym) CONC(CUSTOM_TINY_SHA3_, sym)
-#define _FIPS202_NAMESPACE(sym) CONC(_CUSTOM_TINY_SHA3_, sym)
 
 /******************************************************************************
  * Name:        MLKEM_USE_NATIVE

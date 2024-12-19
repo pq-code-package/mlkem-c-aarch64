@@ -66,8 +66,7 @@ c_barrett_twist:   dup8h -10276 // Barrett twist of -1044 (wrt 2^16)
  *          poly_reduce()         *
  **********************************/
 
-.global MLKEM_NAMESPACE(poly_reduce_asm_clean)
-.global _MLKEM_NAMESPACE(poly_reduce_asm_clean)
+.global MLKEM_ASM_NAMESPACE(poly_reduce_asm_clean)
 
         ptr               .req x0
         count             .req x1
@@ -82,8 +81,7 @@ c_barrett_twist:   dup8h -10276 // Barrett twist of -1044 (wrt 2^16)
         modulus_twisted   .req v4
         q_modulus_twisted .req q4
 
-MLKEM_NAMESPACE(poly_reduce_asm_clean):
-_MLKEM_NAMESPACE(poly_reduce_asm_clean):
+MLKEM_ASM_NAMESPACE(poly_reduce_asm_clean):
 
         ldr q_modulus, c_modulus
         ldr q_modulus_twisted, c_modulus_twisted
@@ -132,8 +130,7 @@ loop_start:
  *          poly_mulcache_compute()         *
  ********************************************/
 
-.global MLKEM_NAMESPACE(poly_mulcache_compute_asm_clean)
-.global _MLKEM_NAMESPACE(poly_mulcache_compute_asm_clean)
+.global MLKEM_ASM_NAMESPACE(poly_mulcache_compute_asm_clean)
 
         cache_ptr         .req x0
         data_ptr          .req x1
@@ -159,8 +156,7 @@ loop_start:
         modulus_twisted   .req v7
         q_modulus_twisted .req q7
 
-MLKEM_NAMESPACE(poly_mulcache_compute_asm_clean):
-_MLKEM_NAMESPACE(poly_mulcache_compute_asm_clean):
+MLKEM_ASM_NAMESPACE(poly_mulcache_compute_asm_clean):
         ldr q_modulus, c_modulus
         ldr q_modulus_twisted, c_modulus_twisted
 
@@ -211,8 +207,7 @@ mulcache_compute_loop_start:
 /********************************************
  *             poly_tobytes()               *
  ********************************************/
-.global MLKEM_NAMESPACE(poly_tobytes_asm_clean)
-.global _MLKEM_NAMESPACE(poly_tobytes_asm_clean)
+.global MLKEM_ASM_NAMESPACE(poly_tobytes_asm_clean)
 
         data0 .req v0
         data1 .req v1
@@ -225,8 +220,7 @@ mulcache_compute_loop_start:
         src   .req x1
         count .req x2
 
-MLKEM_NAMESPACE(poly_tobytes_asm_clean):
-_MLKEM_NAMESPACE(poly_tobytes_asm_clean):
+MLKEM_ASM_NAMESPACE(poly_tobytes_asm_clean):
 
         mov count, #16
 poly_tobytes_asm_clean_asm_loop_start:
@@ -263,8 +257,7 @@ poly_tobytes_asm_clean_asm_loop_start:
 /**********************************
  *          poly_tomont()         *
  **********************************/
-.global MLKEM_NAMESPACE(poly_tomont_asm_clean)
-.global _MLKEM_NAMESPACE(poly_tomont_asm_clean)
+.global MLKEM_ASM_NAMESPACE(poly_tomont_asm_clean)
 
         src               .req x0
         count             .req x1
@@ -285,8 +278,7 @@ poly_tobytes_asm_clean_asm_loop_start:
 
         tmp0              .req v6
 
-MLKEM_NAMESPACE(poly_tomont_asm_clean):
-_MLKEM_NAMESPACE(poly_tomont_asm_clean):
+MLKEM_ASM_NAMESPACE(poly_tomont_asm_clean):
 
         ldr q_modulus,         c_modulus
         ldr q_modulus_twisted, c_modulus_twisted

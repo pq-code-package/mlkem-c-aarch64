@@ -26,4 +26,17 @@
  * since the backend choice may be part of the namespace. */
 #include "namespace.h"
 
+/* On Apple platforms, we need to emit leading underscore
+ * in front of assembly symbols. We thus introducee a separate
+ * namespace wrapper for ASM symbols. */
+#if !defined(__APPLE__)
+#define MLKEM_ASM_NAMESPACE(sym) MLKEM_NAMESPACE(sym)
+#define FIPS202_ASM_NAMESPACE(sym) FIPS202_NAMESPACE(sym)
+#else
+#define _PREFIX_UNDERSCORE(sym) _##sym
+#define PREFIX_UNDERSCORE(sym) _PREFIX_UNDERSCORE(sym)
+#define MLKEM_ASM_NAMESPACE(sym) PREFIX_UNDERSCORE(MLKEM_NAMESPACE(sym))
+#define FIPS202_ASM_NAMESPACE(sym) PREFIX_UNDERSCORE(FIPS202_NAMESPACE(sym))
+#endif
+
 #endif /* MLKEM_NATIVE_COMMON_H */

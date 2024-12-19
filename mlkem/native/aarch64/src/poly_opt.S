@@ -66,8 +66,7 @@ c_barrett_twist:   dup8h -10276 // Barrett twist of -1044 (wrt 2^16)
  *          poly_reduce()         *
  **********************************/
 
-.global MLKEM_NAMESPACE(poly_reduce_asm_opt)
-.global _MLKEM_NAMESPACE(poly_reduce_asm_opt)
+.global MLKEM_ASM_NAMESPACE(poly_reduce_asm_opt)
 
         ptr               .req x0
         count             .req x1
@@ -82,8 +81,7 @@ c_barrett_twist:   dup8h -10276 // Barrett twist of -1044 (wrt 2^16)
         modulus_twisted   .req v4
         q_modulus_twisted .req q4
 
-MLKEM_NAMESPACE(poly_reduce_asm_opt):
-_MLKEM_NAMESPACE(poly_reduce_asm_opt):
+MLKEM_ASM_NAMESPACE(poly_reduce_asm_opt):
 
         ldr q_modulus, c_modulus
         ldr q_modulus_twisted, c_modulus_twisted
@@ -295,8 +293,7 @@ _MLKEM_NAMESPACE(poly_reduce_asm_opt):
  *          poly_mulcache_compute()         *
  ********************************************/
 
-.global MLKEM_NAMESPACE(poly_mulcache_compute_asm_opt)
-.global _MLKEM_NAMESPACE(poly_mulcache_compute_asm_opt)
+.global MLKEM_ASM_NAMESPACE(poly_mulcache_compute_asm_opt)
 
         cache_ptr         .req x0
         data_ptr          .req x1
@@ -322,8 +319,7 @@ _MLKEM_NAMESPACE(poly_reduce_asm_opt):
         modulus_twisted   .req v7
         q_modulus_twisted .req q7
 
-MLKEM_NAMESPACE(poly_mulcache_compute_asm_opt):
-_MLKEM_NAMESPACE(poly_mulcache_compute_asm_opt):
+MLKEM_ASM_NAMESPACE(poly_mulcache_compute_asm_opt):
         ldr q_modulus, c_modulus
         ldr q_modulus_twisted, c_modulus_twisted
 
@@ -452,8 +448,7 @@ _MLKEM_NAMESPACE(poly_mulcache_compute_asm_opt):
 /********************************************
  *             poly_tobytes()               *
  ********************************************/
-.global MLKEM_NAMESPACE(poly_tobytes_asm_opt)
-.global _MLKEM_NAMESPACE(poly_tobytes_asm_opt)
+.global MLKEM_ASM_NAMESPACE(poly_tobytes_asm_opt)
 
         data0 .req v0
         data1 .req v1
@@ -466,8 +461,7 @@ _MLKEM_NAMESPACE(poly_mulcache_compute_asm_opt):
         src   .req x1
         count .req x2
 
-MLKEM_NAMESPACE(poly_tobytes_asm_opt):
-_MLKEM_NAMESPACE(poly_tobytes_asm_opt):
+MLKEM_ASM_NAMESPACE(poly_tobytes_asm_opt):
 
         mov count, #16
 poly_tobytes_asm_opt_asm_loop_start:
@@ -504,8 +498,7 @@ poly_tobytes_asm_opt_asm_loop_start:
 /**********************************
  *          poly_tomont()         *
  **********************************/
-.global MLKEM_NAMESPACE(poly_tomont_asm_opt)
-.global _MLKEM_NAMESPACE(poly_tomont_asm_opt)
+.global MLKEM_ASM_NAMESPACE(poly_tomont_asm_opt)
 
         src               .req x0
         count             .req x1
@@ -526,8 +519,7 @@ poly_tobytes_asm_opt_asm_loop_start:
 
         tmp0              .req v6
 
-MLKEM_NAMESPACE(poly_tomont_asm_opt):
-_MLKEM_NAMESPACE(poly_tomont_asm_opt):
+MLKEM_ASM_NAMESPACE(poly_tomont_asm_opt):
 
         ldr q_modulus,         c_modulus
         ldr q_modulus_twisted, c_modulus_twisted

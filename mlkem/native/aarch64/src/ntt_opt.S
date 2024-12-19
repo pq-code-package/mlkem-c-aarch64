@@ -165,8 +165,7 @@
         t3  .req v28
 
         .text
-        .global MLKEM_NAMESPACE(ntt_asm_opt)
-        .global _MLKEM_NAMESPACE(ntt_asm_opt)
+        .global MLKEM_ASM_NAMESPACE(ntt_asm_opt)
 
 /* Literal pool */
 .p2align 4
@@ -180,8 +179,7 @@ c_consts:
         .short 0
         .short 0
 
-MLKEM_NAMESPACE(ntt_asm_opt):
-_MLKEM_NAMESPACE(ntt_asm_opt):
+MLKEM_ASM_NAMESPACE(ntt_asm_opt):
         push_stack
         ldr q_consts, c_consts
 
