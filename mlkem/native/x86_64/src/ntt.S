@@ -206,8 +206,8 @@ vmovdqa		%ymm11,(128*\off+112)*2(%rdi)
 .endm
 
 .text
-.global MLKEM_NAMESPACE(ntt_avx2)
-MLKEM_NAMESPACE(ntt_avx2):
+.global MLKEM_ASM_NAMESPACE(ntt_avx2)
+MLKEM_ASM_NAMESPACE(ntt_avx2):
 vmovdqa		_16XQ*2(%rsi),%ymm0
 
 level0		0

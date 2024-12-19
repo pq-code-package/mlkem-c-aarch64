@@ -113,8 +113,8 @@ vmovdqa		%ymm11,(64*\off+48)*2(%rdi)
 .endm
 
 .text
-.global MLKEM_NAMESPACE(basemul_avx2)
-MLKEM_NAMESPACE(basemul_avx2):
+.global MLKEM_ASM_NAMESPACE(basemul_avx2)
+MLKEM_ASM_NAMESPACE(basemul_avx2):
 mov		%rsp,%r8
 and		$-32,%rsp
 sub		$32,%rsp

@@ -60,8 +60,8 @@ vmovdqa		%ymm9,224(%rdi)
 
 ret
 
-.global MLKEM_NAMESPACE(reduce_avx2)
-MLKEM_NAMESPACE(reduce_avx2):
+.global MLKEM_ASM_NAMESPACE(reduce_avx2)
+MLKEM_ASM_NAMESPACE(reduce_avx2):
 #consts
 vmovdqa		_16XQ*2(%rsi),%ymm0
 vmovdqa		_16XV*2(%rsi),%ymm1
@@ -103,8 +103,8 @@ vmovdqa		%ymm10,224(%rdi)
 
 ret
 
-.global MLKEM_NAMESPACE(tomont_avx2)
-MLKEM_NAMESPACE(tomont_avx2):
+.global MLKEM_ASM_NAMESPACE(tomont_avx2)
+MLKEM_ASM_NAMESPACE(tomont_avx2):
 #consts
 vmovdqa		_16XQ*2(%rsi),%ymm0
 vmovdqa		_16XMONTSQLO*2(%rsi),%ymm1

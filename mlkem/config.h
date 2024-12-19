@@ -39,23 +39,19 @@
 
 /******************************************************************************
  * Name:        MLKEM_NAMESPACE
- *              _MLKEM_NAMESPACE
  *
  * Description: The macros to use to namespace global symbols
  *              from mlkem/.
  *****************************************************************************/
 #define MLKEM_NAMESPACE(sym) MLKEM_DEFAULT_NAMESPACE(sym)
-#define _MLKEM_NAMESPACE(sym) _MLKEM_DEFAULT_NAMESPACE(sym)
 
 /******************************************************************************
  * Name:        FIPS202_NAMESPACE
- *              _FIPS202_NAMESPACE
  *
  * Description: The macros to use to namespace global symbols
  *              from mlkem/fips202/.
  *****************************************************************************/
 #define FIPS202_NAMESPACE(sym) FIPS202_DEFAULT_NAMESPACE(sym)
-#define _FIPS202_NAMESPACE(sym) _FIPS202_DEFAULT_NAMESPACE(sym)
 
 /******************************************************************************
  * Name:        MLKEM_USE_NATIVE

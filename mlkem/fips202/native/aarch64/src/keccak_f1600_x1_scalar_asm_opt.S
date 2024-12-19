@@ -164,11 +164,9 @@
 
 .text
 .balign 16
-.global FIPS202_NAMESPACE(keccak_f1600_x1_scalar_asm_opt)
-.global _FIPS202_NAMESPACE(keccak_f1600_x1_scalar_asm_opt)
+.global FIPS202_ASM_NAMESPACE(keccak_f1600_x1_scalar_asm_opt)
 
-FIPS202_NAMESPACE(keccak_f1600_x1_scalar_asm_opt):
-_FIPS202_NAMESPACE(keccak_f1600_x1_scalar_asm_opt):
+FIPS202_ASM_NAMESPACE(keccak_f1600_x1_scalar_asm_opt):
     alloc_stack
     save_gprs
 

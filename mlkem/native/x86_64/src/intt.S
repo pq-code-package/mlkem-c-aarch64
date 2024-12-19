@@ -242,8 +242,8 @@ vmovdqa		%ymm11,(64*\off+176)*2(%rdi)
 .endm
 
 .text
-.global MLKEM_NAMESPACE(invntt_avx2)
-MLKEM_NAMESPACE(invntt_avx2):
+.global MLKEM_ASM_NAMESPACE(invntt_avx2)
+MLKEM_ASM_NAMESPACE(invntt_avx2):
 vmovdqa         _16XQ*2(%rsi),%ymm0
 
 intt_levels0t5	0
