@@ -3,12 +3,23 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/*
+ * WARNING: This file is auto-generated from scripts/autogenerate_files.py
+ *          Do not modify it directly.
+ */
+
 #include "common.h"
+
 #if defined(MLKEM_NATIVE_ARITH_BACKEND_AARCH64_CLEAN) || \
     defined(MLKEM_NATIVE_ARITH_BACKEND_AARCH64_OPT)
 
+#include <stdint.h>
 #include "arith_native_aarch64.h"
 
+/*
+ * Lookup table used by rejection sampling of the public matrix.
+ * See autogenerate_files.py for details.
+ */
 ALIGN const uint8_t rej_uniform_table[] = {
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 /* 0 */,
     0,  1,  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 /* 1 */,
@@ -267,13 +278,11 @@ ALIGN const uint8_t rej_uniform_table[] = {
     2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15, -1, -1 /* 254 */,
     0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15 /* 255 */,
 };
-#else /* MLKEM_NATIVE_ARITH_BACKEND_AARCH64_CLEAN || \
-         MLKEM_NATIVE_ARITH_BACKEND_AARCH64_OPT */
+
+#else
 
 /* Dummy declaration for compilers disliking empty compilation units */
 #define empty_cu_aarch64_rej_uniform_table \
   MLKEM_NAMESPACE(empty_cu_aarch64_rej_uniform_table)
 int empty_cu_aarch64_rej_uniform_table;
-
-#endif /* MLKEM_NATIVE_ARITH_BACKEND_AARCH64_CLEAN || \
-          MLKEM_NATIVE_ARITH_BACKEND_AARCH64_OPT */
+#endif
