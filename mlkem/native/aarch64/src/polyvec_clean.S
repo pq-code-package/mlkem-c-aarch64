@@ -12,10 +12,30 @@
 #include "common.h"
 #if defined(MLKEM_NATIVE_ARITH_BACKEND_AARCH64_CLEAN)
 
-#include "params.h"
+/* We use a single literal pool for all functions in this file.
+ * This is OK even when the file gets expanded through SLOTHY,
+ * since PC-relative offets are up to 1MB in AArch64.
+ *
+ * The use of dup8h to build constant vectors in memory
+ * is slightly wasteful and could be avoided with a GPR-load
+ * followed by Neon `dup`, but we're ultimately only talking
+ * about 64 bytes, so it seems OK.
+ */
 
-// Needed to provide ASM_LOAD directive
-#include "common.i"
+.macro dup8h c
+        .short \c
+        .short \c
+        .short \c
+        .short \c
+        .short \c
+        .short \c
+        .short \c
+        .short \c
+.endm
+
+.p2align 4
+c_modulus:         dup8h 3329   // ML-KEM modulus
+c_modulus_twisted: dup8h 3327
 
 // Input:
 // - Vectors al, ah of 32-bit entries
@@ -23,9 +43,9 @@
 // - Montgomery reductions of al || ah, stored in al
 .macro montgomery_reduce_long x, a
         uzp1   t0.8h, \a\()l.8h, \a\()h.8h
-        mul    t0.8h, t0.8h, consts.h[2]
-        smlal  \a\()l.4s, t0.4h, constN.4h
-        smlal2 \a\()h.4s, t0.8h, constN.8h
+        mul    t0.8h, t0.8h, modulus_twisted.8h
+        smlal  \a\()l.4s, t0.4h, modulus.4h
+        smlal2 \a\()h.4s, t0.8h, modulus.8h
         uzp2   \x\().8h, \a\()l.8h, \a\()h.8h
 .endm
 
@@ -58,10 +78,24 @@
         smlal2 \d\()1h.4s, \a\()1.8h, \b\()0.8h
 .endm
 
+.macro ld2_wrap a, ptr
+        ldr q_tmp0, [\ptr\()], #32
+        ldr q_tmp1, [\ptr\(), #-16]
+        uzp1 \a\()0.8h, tmp0.8h, tmp1.8h
+        uzp2 \a\()1.8h, tmp0.8h, tmp1.8h
+.endm
+
+.macro st2_wrap a, ptr
+        zip1 tmp0.8h, \a\()0.8h, \a\()1.8h
+        zip2 tmp1.8h, \a\()0.8h, \a\()1.8h
+        str q_tmp0, [\ptr\()], #32
+        str q_tmp1, [\ptr\(), #-16]
+.endm
+
 .macro load_polys a, b, a_ptr, b_ptr, b_cache_ptr
-        ld2 {\a\()0.8h, \a\()1.8h}, [\a_ptr],       #32
-        ld2 {\b\()0.8h, \b\()1.8h}, [\b_ptr],       #32
-        ld1 {\b\()1t.8h},           [\b_cache_ptr], #16
+        ld2_wrap \a\(), \a_ptr
+        ld2_wrap \b\(), \b_ptr
+        ld1 {\b\()1t.8h}, [\b_cache_ptr], #16
 .endm
 
 .macro save_vregs
@@ -101,14 +135,12 @@
         a3_ptr       .req x10
         b3_ptr       .req x11
         b3_cache_ptr .req x12
-
         count        .req x13
-        xtmp         .req x14
-        modulus      .req w15
 
-        constN    .req v0
-        constX    .req v1
-        consts    .req v2
+        modulus           .req v0
+        q_modulus         .req q0
+        modulus_twisted   .req v2
+        q_modulus_twisted .req q2
 
         aa0      .req v3
         aa1      .req v4
@@ -131,17 +163,6 @@
 
         t0   .req v28
 
-.p2align 4
-const_addr:
-        .short 3329
-        .short 20159
-        .short 3327
-        .short 0
-        .short 0
-        .short 0
-        .short 0
-        .short 0
-
 #if MLKEM_K == 2
 .global MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_clean)
 .global _MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_clean)
@@ -149,11 +170,8 @@ const_addr:
 MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_clean):
 _MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_clean):
         push_stack
-
-        ASM_LOAD(xtmp, const_addr)
-        ld1 {consts.8h}, [xtmp]
-        ldrsh modulus, [xtmp]
-        dup constN.8h, modulus
+        ldr q_modulus, c_modulus
+        ldr q_modulus_twisted, c_modulus_twisted
 
         // Computed bases of vector entries
 
@@ -172,7 +190,7 @@ k2_loop_start:
         montgomery_reduce_long out0, res0
         montgomery_reduce_long out1, res1
 
-        st2 {out0.8h, out1.8h}, [out], #32
+        st2_wrap out, out
 
         subs count, count, #1
         cbnz count, k2_loop_start
@@ -188,11 +206,8 @@ k2_loop_start:
 MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_clean):
 _MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_clean):
         push_stack
-
-        ASM_LOAD(xtmp, const_addr)
-        ld1 {consts.8h}, [xtmp]
-        ldrsh modulus, [xtmp]
-        dup constN.8h, modulus
+        ldr q_modulus, c_modulus
+        ldr q_modulus_twisted, c_modulus_twisted
 
         // Computed bases of vector entries
 
@@ -216,7 +231,7 @@ k3_loop_start:
         montgomery_reduce_long out0, res0
         montgomery_reduce_long out1, res1
 
-        st2 {out0.8h, out1.8h}, [out], #32
+        st2_wrap out, out
 
         subs count, count, #1
         cbnz count, k3_loop_start
@@ -232,11 +247,8 @@ k3_loop_start:
 MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_clean):
 _MLKEM_NAMESPACE(polyvec_basemul_acc_montgomery_cached_asm_clean):
         push_stack
-
-        ASM_LOAD(xtmp, const_addr)
-        ld1 {consts.8h}, [xtmp]
-        ldrsh modulus, [xtmp]
-        dup constN.8h, modulus
+        ldr q_modulus, c_modulus
+        ldr q_modulus_twisted, c_modulus_twisted
 
         // Computed bases of vector entries
 
@@ -270,7 +282,7 @@ k4_loop_start:
         montgomery_reduce_long out0, res0
         montgomery_reduce_long out1, res1
 
-        st2 {out0.8h, out1.8h}, [out], #32
+        st2_wrap out, out
 
         subs count, count, #1
         cbnz count, k4_loop_start

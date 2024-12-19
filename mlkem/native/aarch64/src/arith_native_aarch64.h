@@ -19,6 +19,7 @@
   MLKEM_NAMESPACE(aarch64_zetas_mulcache_native)
 #define aarch64_zetas_mulcache_twisted_native \
   MLKEM_NAMESPACE(aarch64_zetas_mulcache_twisted_native)
+#define rej_uniform_table MLKEM_NAMESPACE(rej_uniform_table)
 
 extern const int16_t aarch64_ntt_zetas_layer01234[];
 extern const int16_t aarch64_ntt_zetas_layer56[];
@@ -26,6 +27,7 @@ extern const int16_t aarch64_invntt_zetas_layer01234[];
 extern const int16_t aarch64_invntt_zetas_layer56[];
 extern const int16_t aarch64_zetas_mulcache_native[];
 extern const int16_t aarch64_zetas_mulcache_twisted_native[];
+extern const uint8_t rej_uniform_table[];
 
 #define ntt_asm_clean MLKEM_NAMESPACE(ntt_asm_clean)
 void ntt_asm_clean(int16_t *, const int16_t *, const int16_t *);
@@ -41,7 +43,7 @@ void intt_asm_opt(int16_t *, const int16_t *, const int16_t *);
 
 #define rej_uniform_asm_clean MLKEM_NAMESPACE(rej_uniform_asm_clean)
 unsigned int rej_uniform_asm_clean(int16_t *r, const uint8_t *buf,
-                                   unsigned int buflen);
+                                   unsigned int buflen, const uint8_t *table);
 
 #define poly_reduce_asm_clean MLKEM_NAMESPACE(poly_reduce_asm_clean)
 void poly_reduce_asm_clean(int16_t *);

@@ -27,10 +27,6 @@
 #include "common.h"
 #if defined(MLKEM_NATIVE_ARITH_BACKEND_AARCH64_OPT)
 
-// Needed to provide ASM_LOAD directive
-#include "common.i"
-#include "params.h"
-
 // Bounds:
 // If C is chosen so that |src| < q * C, then |dst| < q * (0.0508 * C + 1/2)
 
@@ -64,12 +60,6 @@
         add \a\().8h, \a\().8h, tmp.8h
 .endm
 
-.macro barrett_reduce a
-        sqdmulh t0.8h, \a\().8h, consts.h[1]
-        srshr   t0.8h, t0.8h, #11
-        mls     \a\().8h, t0.8h, consts.h[0]
-.endm
-
 .macro load_roots_012
         ldr q_root0, [r01234_ptr], #32
         ldr q_root1, [r01234_ptr, #-16]
@@ -98,13 +88,6 @@
         trn2 \data\()3.2d, t1.2d, t3.2d
         trn1 \data\()0.2d, t0.2d, t2.2d
         trn1 \data\()1.2d, t1.2d, t3.2d
-.endm
-
-.macro transpose_single data_out, data_in
-        trn1 \data_out\()0.4s, \data_in\()0.4s, \data_in\()1.4s
-        trn2 \data_out\()1.4s, \data_in\()0.4s, \data_in\()1.4s
-        trn1 \data_out\()2.4s, \data_in\()2.4s, \data_in\()3.4s
-        trn2 \data_out\()3.4s, \data_in\()2.4s, \data_in\()3.4s
 .endm
 
 .macro save_vregs
@@ -185,8 +168,9 @@
         .global MLKEM_NAMESPACE(ntt_asm_opt)
         .global _MLKEM_NAMESPACE(ntt_asm_opt)
 
+/* Literal pool */
 .p2align 4
-const_addr:
+c_consts:
         .short 3329
         .short 20159
         .short 0
@@ -199,9 +183,7 @@ const_addr:
 MLKEM_NAMESPACE(ntt_asm_opt):
 _MLKEM_NAMESPACE(ntt_asm_opt):
         push_stack
-        ASM_LOAD(xtmp, const_addr)
-
-        ld1 {consts.8h}, [xtmp]
+        ldr q_consts, c_consts
 
         mov inp, in
         mov count, #4

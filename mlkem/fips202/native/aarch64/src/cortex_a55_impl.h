@@ -19,7 +19,7 @@
 #define MLKEM_USE_FIPS202_X1_NATIVE
 static INLINE void keccak_f1600_x1_native(uint64_t *state)
 {
-  keccak_f1600_x1_scalar_asm_opt(state);
+  keccak_f1600_x1_scalar_asm_opt(state, keccakf1600_round_constants);
 }
 
 #endif /* FIPS202_NATIVE_PROFILE_IMPL_H */

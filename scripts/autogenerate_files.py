@@ -96,7 +96,7 @@ def gen_c_zeta_file(dry_run=False):
         yield " * Table of zeta values used in the reference NTT and inverse NTT."
         yield " * See autogenerate_files.py for details."
         yield " */"
-        yield "const int16_t zetas[128] = {"
+        yield "ALIGN const int16_t zetas[128] = {"
         yield from map(lambda t: str(t) + ",", gen_c_zetas())
         yield "};"
         yield ""
@@ -307,32 +307,31 @@ def gen_aarch64_fwd_ntt_zeta_file(dry_run=False):
         yield " * Table of zeta values used in the AArch64 forward NTT"
         yield " * See autogenerate_files.py for details."
         yield " */"
-        yield "const int16_t aarch64_ntt_zetas_layer01234[] = {"
+        yield "ALIGN const int16_t aarch64_ntt_zetas_layer01234[] = {"
         yield from map(lambda t: str(t) + ",", gen_aarch64_fwd_ntt_zetas_layer01234())
         yield "};"
         yield ""
-        yield "const int16_t aarch64_ntt_zetas_layer56[] = {"
+        yield "ALIGN const int16_t aarch64_ntt_zetas_layer56[] = {"
         yield from map(lambda t: str(t) + ",", gen_aarch64_fwd_ntt_zetas_layer56())
         yield "};"
         yield ""
-        yield "const int16_t aarch64_invntt_zetas_layer01234[] = {"
+        yield "ALIGN const int16_t aarch64_invntt_zetas_layer01234[] = {"
         yield from map(lambda t: str(t) + ",", gen_aarch64_inv_ntt_zetas_layer01234())
         yield "};"
         yield ""
-        yield "const int16_t aarch64_invntt_zetas_layer56[] = {"
+        yield "ALIGN const int16_t aarch64_invntt_zetas_layer56[] = {"
         yield from map(lambda t: str(t) + ",", gen_aarch64_inv_ntt_zetas_layer56())
         yield "};"
         yield ""
-        yield "const int16_t aarch64_zetas_mulcache_native[] = {"
+        yield "ALIGN const int16_t aarch64_zetas_mulcache_native[] = {"
         yield from map(lambda t: str(t) + ",", gen_aarch64_mulcache_twiddles())
         yield "};"
         yield ""
-        yield "const int16_t aarch64_zetas_mulcache_twisted_native[] = {"
+        yield "ALIGN const int16_t aarch64_zetas_mulcache_twisted_native[] = {"
         yield from map(lambda t: str(t) + ",", gen_aarch64_mulcache_twiddles_twisted())
         yield "};"
         yield ""
         yield "#else"
-        yield '#include "params.h"'
         yield ""
         yield "/* Dummy declaration for compilers disliking empty compilation units */"
         yield "#define empty_cu_aarch64_zetas MLKEM_NAMESPACE(empty_cu_aarch64_zetas)"
@@ -342,6 +341,59 @@ def gen_aarch64_fwd_ntt_zeta_file(dry_run=False):
 
     update_file(
         "mlkem/native/aarch64/src/aarch64_zetas.c", "\n".join(gen()), dry_run=dry_run
+    )
+
+
+def gen_aarch64_rej_uniform_table_rows():
+    # The index into the lookup table is an 8-bit bitmap, i.e. a number 0..255.
+    # Conceptually, the table entry at index i is a vector of 8 16-bit values, of
+    # which only the first popcount(i) are set; those are the indices of the set-bits
+    # in i. Concretely, we store each 16-bit index as consecutive 8-bit indices.
+    def get_set_bits_idxs(i):
+        bits = list(map(int, format(i, "08b")))
+        bits.reverse()
+        return [bit_idx for bit_idx in range(8) if bits[bit_idx] == 1]
+
+    for i in range(256):
+        idxs = get_set_bits_idxs(i)
+        # Replace each index by two consecutive indices
+        idxs = [j for i in idxs for j in [2 * i, 2 * i + 1]]
+        # Pad by -1
+        idxs = idxs + [-1] * (16 - len(idxs))
+        yield ",".join(map(str, idxs)) + f" /* {i} */"
+
+
+def gen_aarch64_rej_uniform_table(dry_run=False):
+    def gen():
+        yield from gen_header()
+        yield '#include "common.h"'
+        yield ""
+        yield "#if defined(MLKEM_NATIVE_ARITH_BACKEND_AARCH64_CLEAN) || \\"
+        yield "    defined(MLKEM_NATIVE_ARITH_BACKEND_AARCH64_OPT)"
+        yield ""
+        yield "#include <stdint.h>"
+        yield '#include "arith_native_aarch64.h"'
+        yield ""
+        yield "/*"
+        yield " * Lookup table used by rejection sampling of the public matrix."
+        yield " * See autogenerate_files.py for details."
+        yield " */"
+        yield "ALIGN const uint8_t rej_uniform_table[] = {"
+        yield from map(lambda t: str(t) + ",", gen_aarch64_rej_uniform_table_rows())
+        yield "};"
+        yield ""
+        yield "#else"
+        yield ""
+        yield "/* Dummy declaration for compilers disliking empty compilation units */"
+        yield "#define empty_cu_aarch64_rej_uniform_table MLKEM_NAMESPACE(empty_cu_aarch64_rej_uniform_table)"
+        yield "int empty_cu_aarch64_rej_uniform_table;"
+        yield "#endif"
+        yield ""
+
+    update_file(
+        "mlkem/native/aarch64/src/rej_uniform_table.c",
+        "\n".join(gen()),
+        dry_run=dry_run,
     )
 
 
@@ -432,6 +484,7 @@ def _main():
     args = parser.parse_args()
     gen_c_zeta_file(args.dry_run)
     gen_aarch64_fwd_ntt_zeta_file(args.dry_run)
+    gen_aarch64_rej_uniform_table(args.dry_run)
     gen_avx2_fwd_ntt_zeta_file(args.dry_run)
 
 
