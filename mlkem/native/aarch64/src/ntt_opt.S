@@ -60,12 +60,6 @@
         add \a\().8h, \a\().8h, tmp.8h
 .endm
 
-.macro barrett_reduce a
-        sqdmulh t0.8h, \a\().8h, consts.h[1]
-        srshr   t0.8h, t0.8h, #11
-        mls     \a\().8h, t0.8h, consts.h[0]
-.endm
-
 .macro load_roots_012
         ldr q_root0, [r01234_ptr], #32
         ldr q_root1, [r01234_ptr, #-16]
@@ -94,13 +88,6 @@
         trn2 \data\()3.2d, t1.2d, t3.2d
         trn1 \data\()0.2d, t0.2d, t2.2d
         trn1 \data\()1.2d, t1.2d, t3.2d
-.endm
-
-.macro transpose_single data_out, data_in
-        trn1 \data_out\()0.4s, \data_in\()0.4s, \data_in\()1.4s
-        trn2 \data_out\()1.4s, \data_in\()0.4s, \data_in\()1.4s
-        trn1 \data_out\()2.4s, \data_in\()2.4s, \data_in\()3.4s
-        trn2 \data_out\()3.4s, \data_in\()2.4s, \data_in\()3.4s
 .endm
 
 .macro save_vregs
