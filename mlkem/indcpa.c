@@ -243,7 +243,7 @@ __contract__(
                                           0, (MLKEM_Q - 1))))
   {
     xof_squeezeblocks(buf, 1, &state);
-    ctr = rej_uniform(entry->coeffs, MLKEM_N, ctr, buf, XOF_RATE);
+    ctr = rej_uniform(entry->coeffs, MLKEM_N, ctr, buf, buflen);
   }
 
   xof_release(&state);
