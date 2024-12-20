@@ -301,6 +301,16 @@ jobs:
           kat: false
           acvp: false
           nix-shell: "ci_gcc11"
+      - name: native build+functest (gcc-14)
+        uses: ./.github/actions/multi-functest
+        with:
+          gh_token: ${{ secrets.GITHUB_TOKEN }}
+          compile_mode: native
+          func: true
+          nistkat: false
+          kat: false
+          acvp: false
+          nix-shell: "ci_gcc14"
       - name: native build+functest (clang-18)
         uses: ./.github/actions/multi-functest
         with:

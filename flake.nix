@@ -147,6 +147,7 @@
           devShells.ci_gcc49 = wrapShell (mkShellWithCC pkgs.gcc49) { packages = [ config.packages.base ]; };
           devShells.ci_gcc7 = wrapShell (mkShellWithCC pkgs.gcc7) { packages = [ config.packages.base ]; };
           devShells.ci_gcc11 = wrapShell (mkShellWithCC pkgs.gcc11) { packages = [ config.packages.base ]; };
+          devShells.ci_gcc14 = wrapShell (mkShellWithCC pkgs.gcc14) { packages = [ config.packages.base ]; };
         };
       flake = {
         # The usual flake attributes can be defined here, including system-
