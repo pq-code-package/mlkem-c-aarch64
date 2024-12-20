@@ -24,13 +24,13 @@ $(BUILD_DIR)/%.a: $(CONFIG)
 # 	$AR doesn't care about duplicated symbols, one can only find it out via actually linking.
 # 	The easiest one to do this that one can think of is to create a dummy C file with empty main function on the fly, pipe it to $CC and link with the built library
 	$(eval _LIB := $(subst $(BUILD_DIR)/lib,,$(@:%.a=%)))
-ifneq ($(findstring clang,$(shell $(CC) --version)),) # if CC is clang
+ifneq ($(findstring Darwin,$(HOST_PLATFORM)),) # if is on macOS
 	$(Q)echo "int main() {return 0;}" \
 		| $(CC) -x c - -L$(BUILD_DIR) \
 		 -all_load -Wl,-undefined,dynamic_lookup -l$(_LIB) \
 		 -Imlkem $(wildcard test/notrandombytes/*.c)
 	$(Q)rm -f a.out
-else                                                  # if CC is not clang
+else                                           # if not on macOS
 	$(Q)echo "int main() {return 0;}" \
 		| $(CC) -x c - -L$(BUILD_DIR) \
 		-Wl,--whole-archive,--unresolved-symbols=ignore-in-object-files -l$(_LIB) \
