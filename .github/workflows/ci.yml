@@ -67,6 +67,21 @@ jobs:
       - name: check namespacing
         run: |
           ./scripts/ci/check-namespace
+  quickcheck_docker:
+    name: Quickcheck (docker test)
+    if: ${{ github.repository_owner == 'pq-code-package' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: aws/aws-lc
+      - name: build container
+        run: |
+          docker build -t ubuntu-20.04:base -f tests/ci/docker_images/linux-x86/ubuntu-20.04_base/Dockerfile tests/ci/docker_images/dependencies
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: build in container
+        run: |
+          docker run -v `pwd`:`pwd` -w `pwd` ubuntu-20.04:base make quickcheck
   quickcheck-c90:
     strategy:
       fail-fast: false
