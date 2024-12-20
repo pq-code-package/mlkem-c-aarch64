@@ -252,6 +252,8 @@ jobs:
            name: 'aarch64'
          - runner: ubuntu-latest
            name: 'x86_64'
+         - runner: macos-latest
+           name: 'macos'
         exclude:
           - {external: true,
              target: {
@@ -262,6 +264,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: native build+functest (gcc-4.8)
+        if: ${{ matrix.target.runner != 'macos-latest' }}
         uses: ./.github/actions/multi-functest
         with:
           gh_token: ${{ secrets.GITHUB_TOKEN }}
@@ -272,6 +275,7 @@ jobs:
           acvp: false
           nix-shell: "ci_gcc48"
       - name: native build+functest (gcc-4.9)
+        if: ${{ matrix.target.runner != 'macos-latest' }}
         uses: ./.github/actions/multi-functest
         with:
           gh_token: ${{ secrets.GITHUB_TOKEN }}
@@ -282,6 +286,7 @@ jobs:
           acvp: false
           nix-shell: "ci_gcc49"
       - name: native build+functest (gcc-7)
+        if: ${{ matrix.target.runner != 'macos-latest' }}
         uses: ./.github/actions/multi-functest
         with:
           gh_token: ${{ secrets.GITHUB_TOKEN }}
