@@ -7,7 +7,7 @@ import hashlib
 import logging
 from enum import IntEnum
 from functools import reduce
-import yaml
+import json
 
 CWD = os.getcwd()
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
@@ -107,8 +107,8 @@ class TEST_TYPES(IntEnum):
 
 
 def parse_meta(scheme, field):
-    with open("META.yml", "r") as f:
-        meta = yaml.safe_load(f)
+    with open("META.json", "r") as f:
+        meta = json.load(f)
     return meta["implementations"][int(scheme) - 1][field]
 
 
