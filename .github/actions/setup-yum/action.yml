@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
-name: Setup Amazon Linux
-description: Setup Amazon Linux
+name: Dependencies (yum)
+description: Install dependencies via yum
 
 inputs:
   packages:
@@ -16,10 +16,9 @@ runs:
   using: composite
   steps:
     - name: Install base packages
-    - name: Update package repository
       shell: bash
       run: |
-        ${{ inputs.sudo }} yum install make git python3-venv -y
+        ${{ inputs.sudo }} yum install make git python3-pip -y
         ${{ inputs.sudo }} pip3 install virtualenv
     - name: Install additional packages
       if: ${{ inputs.packages != ''}}

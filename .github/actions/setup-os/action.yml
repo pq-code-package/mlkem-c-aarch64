@@ -25,13 +25,13 @@ runs:
         fi
     - name: Setup via yum
       if: ${{ env.PKG == 'yum' }}
-      uses: ./.github/actions/setup-ubuntu
+      uses: ./.github/actions/setup-yum
       with:
         packages: ${{ inputs.packages }}
         sudo: ${{ inputs.sudo }}
     - name: Setup via apt
       if: ${{ env.PKG == 'apt' }}
-      uses: ./.github/actions/setup-ubuntu
+      uses: ./.github/actions/setup-apt
       with:
         packages: ${{ inputs.packages }}
         sudo: ${{ inputs.sudo }}
