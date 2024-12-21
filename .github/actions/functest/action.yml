@@ -70,6 +70,7 @@ runs:
             - $(uname -a)
             - $(nix --version || echo 'nix not present')
             - $(bash --version | grep -m1 "")
+            - $(python3 --version)
             - $(${{ inputs.cross_prefix }}${CC} --version | grep -m1 "")
           EOF
           cat >> $GITHUB_STEP_SUMMARY <<-EOF
@@ -78,6 +79,7 @@ runs:
             - $(uname -a)
             - $(nix --version || echo 'nix not present')
             - $(bash --version | grep -m1 "")
+            - $(python3 --version)
             - $(${{ inputs.cross_prefix }}${CC} --version | grep -m1 "")
           EOF
       - name: ${{ env.MODE }} ${{ inputs.opt }} tests (${{ env.FUNC }}, ${{ env.KAT }}, ${{ env.NISTKAT }})
