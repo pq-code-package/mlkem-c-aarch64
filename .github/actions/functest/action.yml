@@ -68,7 +68,7 @@ runs:
             ## Setup
             Architecture: $ARCH
             - $(uname -a)
-            - $(nix --version)
+            - $(nix --version || echo 'nix not present')
             - $(bash --version | grep -m1 "")
             - $(${{ inputs.cross_prefix }}${CC} --version | grep -m1 "")
           EOF
@@ -76,7 +76,7 @@ runs:
             ## Setup
             Architecture: $ARCH
             - $(uname -a)
-            - $(nix --version)
+            - $(nix --version || echo 'nix not present')
             - $(bash --version | grep -m1 "")
             - $(${{ inputs.cross_prefix }}${CC} --version | grep -m1 "")
           EOF
