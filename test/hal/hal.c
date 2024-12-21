@@ -246,6 +246,13 @@ static void init_rdtsc(void)
     printf("kperf = %p\n", kperf);
     return;
   }
+
+/* Temporarily disable -Wpedantic here to allow conversion
+ * from (void *) to function-pointer.
+ */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+
 #define F(ret, name, ...)                     \
   name = (name##proc *)(dlsym(kperf, #name)); \
   if (!name)                                  \
@@ -255,6 +262,8 @@ static void init_rdtsc(void)
   }
   KPERF_LIST
 #undef F
+
+#pragma GCC diagnostic pop
 
   g_config[0] = CPMU_CORE_CYCLE | CFGWORD_EL0A64EN_MASK;
 }
