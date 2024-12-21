@@ -1,0 +1,35 @@
+# SPDX-License-Identifier: Apache-2.0
+
+name: Setup Amazon Linux
+description: Setup Amazon Linux
+
+inputs:
+  packages:
+    description: Space-separated list of additional packages to install
+    required: false
+    default: ''
+  sudo:
+    required: false
+    default: 'sudo'
+
+runs:
+  using: composite
+  steps:
+    - name: Install base packages
+    - name: Update package repository
+      shell: bash
+      run: |
+        ${{ inputs.sudo }} yum install make git python3-venv -y
+        ${{ inputs.sudo }} pip3 install virtualenv
+    - name: Install additional packages
+      if: ${{ inputs.packages != ''}}
+      shell: bash
+      run: |
+        ${{ inputs.sudo }} yum install ${{ inputs.packages }} -y
+    - name: Setup Python venv
+      shell: bash
+      run: |
+        virtualenv venv
+        source venv/bin/activate
+        python3 -m pip install -r requirements.txt
+        echo "$(pwd)/venv/bin/" >> "$GITHUB_PATH"

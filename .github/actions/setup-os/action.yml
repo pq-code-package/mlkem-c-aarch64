@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: Apache-2.0
+
+name: Setup OS
+description: Setup OS
+
+inputs:
+  packages:
+    description: Space-separated list of additional packages to install
+    required: false
+    default: ''
+  sudo:
+    required: false
+    default: 'sudo'
+
+runs:
+  using: composite
+  steps:
+    - name: Detect OS
+      shell: bash
+      run: |
+        if (which yum 2>&1 > /dev/null); then
+           echo PKG="yum" >> $GITHUB_ENV
+        elif (which apt 2>&1 > /dev/null); then
+           echo PKG="apt" >> $GITHUB_ENV
+        fi
+    - name: Setup via yum
+      if: ${{ env.PKG == 'yum' }}
+      uses: ./.github/actions/setup-ubuntu
+      with:
+        packages: ${{ inputs.packages }}
+        sudo: ${{ inputs.sudo }}
+    - name: Setup via apt
+      if: ${{ env.PKG == 'apt' }}
+      uses: ./.github/actions/setup-ubuntu
+      with:
+        packages: ${{ inputs.packages }}
+        sudo: ${{ inputs.sudo }}
