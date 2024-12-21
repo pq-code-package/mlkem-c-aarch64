@@ -96,7 +96,7 @@ class Base:
         args = [
             "make",
             f"CROSS_PREFIX={self.cross_prefix}",
-            f"{self.test_type}",
+            f"{self.test_type.make_target()}",
         ] + extra_make_args
 
         env = os.environ.copy()

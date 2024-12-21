@@ -100,6 +100,20 @@ class TEST_TYPES(IntEnum):
         if self == TEST_TYPES.ACVP:
             return "acvp_mlkem"
 
+    def make_target(self):
+        if self == TEST_TYPES.MLKEM:
+            return "mlkem"
+        if self == TEST_TYPES.BENCH:
+            return "bench"
+        if self == TEST_TYPES.BENCH_COMPONENTS:
+            return "bench_components"
+        if self == TEST_TYPES.NISTKAT:
+            return "nistkat"
+        if self == TEST_TYPES.KAT:
+            return "kat"
+        if self == TEST_TYPES.ACVP:
+            return "acvp"
+
     def bin_path(self, scheme):
         return path(
             f"test/build/{scheme.name.lower()}/bin/{self.bin()}{scheme.suffix()}"
