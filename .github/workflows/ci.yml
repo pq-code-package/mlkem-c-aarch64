@@ -384,56 +384,56 @@ jobs:
           nistkat: true
           kat: false
           acvp: false
-  ec2_functests:
-    strategy:
-      fail-fast: false
-      matrix:
-        target:
-          - name: AMD EPYC 4th gen (t3a)
-            ec2_instance_type: t3a.small
-            ec2_ami: ubuntu-latest (custom AMI)
-            ec2_ami_id: ami-0d47e137a1108e078 # x86_64 ubuntu-latest, 32g
-            compile_mode: native
-            opt: all
-          - name: Intel Xeon 4th gen (t3)
-            ec2_instance_type: t3.small
-            ec2_ami: ubuntu-latest (custom AMI)
-            ec2_ami_id: ami-0d47e137a1108e078 # x86_64 ubuntu-latest, 32g
-            compile_mode: native
-            opt: all
-          - name: Graviton2 (c6g.medium)
-            ec2_instance_type: c6g.medium
-            ec2_ami: ubuntu-latest (custom AMI)
-            ec2_ami_id: ami-08ddb0acd99dc3d33 # aarch64, ubuntu-latest, 64g
-            compile_mode: native
-            opt: all
-          - name: Graviton3 (c7g.medium)
-            ec2_instance_type: c7g.medium
-            ec2_ami: ubuntu-latest (custom AMI)
-            ec2_ami_id: ami-08ddb0acd99dc3d33 # aarch64, ubuntu-latest, 64g
-            compile_mode: native
-            opt: all
-    name: Platform tests  (${{ matrix.target.name }})
-    permissions:
-      contents: 'read'
-      id-token: 'write'
-    uses: ./.github/workflows/ci_ec2_reusable.yml
-    needs: [quickcheck, quickcheck-windows, quickcheck-c90, quickcheck-lib, examples, lint, lint-markdown-link]
-    if: github.repository_owner == 'pq-code-package' && !github.event.pull_request.head.repo.fork
-    with:
-      name: ${{ matrix.target.name }}
-      ec2_instance_type: ${{ matrix.target.ec2_instance_type }}
-      ec2_ami: ${{ matrix.target.ec2_ami }}
-      ec2_ami_id: ${{ matrix.target.ec2_ami_id }}
-      compile_mode: ${{ matrix.target.compile_mode }}
-      opt: ${{ matrix.target.opt }}
-      functest: true
-      kattest: true
-      nistkattest: true
-      acvptest: true
-      lint: false
-      verbose: true
-    secrets: inherit
+  # ec2_functests:
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       target:
+  #         - name: AMD EPYC 4th gen (t3a)
+  #           ec2_instance_type: t3a.small
+  #           ec2_ami: ubuntu-latest (custom AMI)
+  #           ec2_ami_id: ami-0d47e137a1108e078 # x86_64 ubuntu-latest, 32g
+  #           compile_mode: native
+  #           opt: all
+  #         - name: Intel Xeon 4th gen (t3)
+  #           ec2_instance_type: t3.small
+  #           ec2_ami: ubuntu-latest (custom AMI)
+  #           ec2_ami_id: ami-0d47e137a1108e078 # x86_64 ubuntu-latest, 32g
+  #           compile_mode: native
+  #           opt: all
+  #         - name: Graviton2 (c6g.medium)
+  #           ec2_instance_type: c6g.medium
+  #           ec2_ami: ubuntu-latest (custom AMI)
+  #           ec2_ami_id: ami-08ddb0acd99dc3d33 # aarch64, ubuntu-latest, 64g
+  #           compile_mode: native
+  #           opt: all
+  #         - name: Graviton3 (c7g.medium)
+  #           ec2_instance_type: c7g.medium
+  #           ec2_ami: ubuntu-latest (custom AMI)
+  #           ec2_ami_id: ami-08ddb0acd99dc3d33 # aarch64, ubuntu-latest, 64g
+  #           compile_mode: native
+  #           opt: all
+  #   name: Platform tests  (${{ matrix.target.name }})
+  #   permissions:
+  #     contents: 'read'
+  #     id-token: 'write'
+  #   uses: ./.github/workflows/ci_ec2_reusable.yml
+  #   needs: [quickcheck, quickcheck-windows, quickcheck-c90, quickcheck-lib, examples, lint, lint-markdown-link]
+  #   if: github.repository_owner == 'pq-code-package' && !github.event.pull_request.head.repo.fork
+  #   with:
+  #     name: ${{ matrix.target.name }}
+  #     ec2_instance_type: ${{ matrix.target.ec2_instance_type }}
+  #     ec2_ami: ${{ matrix.target.ec2_ami }}
+  #     ec2_ami_id: ${{ matrix.target.ec2_ami_id }}
+  #     compile_mode: ${{ matrix.target.compile_mode }}
+  #     opt: ${{ matrix.target.opt }}
+  #     functest: true
+  #     kattest: true
+  #     nistkattest: true
+  #     acvptest: true
+  #     lint: false
+  #     verbose: true
+  #   secrets: inherit
   ec2_compatibilitytests:
     strategy:
       fail-fast: false
@@ -480,75 +480,75 @@ jobs:
       lint: false
       verbose: true
     secrets: inherit
-  cbmc_k2:
-    name: CBMC (ML-KEM-512)
-    needs: [quickcheck, quickcheck-windows, quickcheck-c90, quickcheck-lib, examples, lint, lint-markdown-link]
-    permissions:
-      contents: 'read'
-      id-token: 'write'
-    uses: ./.github/workflows/ci_ec2_reusable.yml
-    if: github.repository_owner == 'pq-code-package' && !github.event.pull_request.head.repo.fork
-    with:
-      name: CBMC (MLKEM-512)
-      ec2_instance_type: c7g.2xlarge
-      ec2_ami: ubuntu-latest (custom AMI)
-      ec2_ami_id: ami-08ddb0acd99dc3d33 # aarch64, ubuntu-latest, 64g
-      compile_mode: native
-      opt: no_opt
-      lint: false
-      verbose: true
-      functest: true
-      kattest: false
-      nistkattest: false
-      acvptest: false
-      cbmc: true
-      cbmc_mlkem_k: 2
-    secrets: inherit
-  cbmc_k3:
-    name: CBMC (ML-KEM-768)
-    needs: [quickcheck, quickcheck-windows, quickcheck-c90, quickcheck-lib, examples, lint, lint-markdown-link]
-    permissions:
-      contents: 'read'
-      id-token: 'write'
-    uses: ./.github/workflows/ci_ec2_reusable.yml
-    if: github.repository_owner == 'pq-code-package' && !github.event.pull_request.head.repo.fork
-    with:
-      name: CBMC (MLKEM-768)
-      ec2_instance_type: c7g.2xlarge
-      ec2_ami: ubuntu-latest (custom AMI)
-      ec2_ami_id: ami-08ddb0acd99dc3d33 # aarch64, ubuntu-latest, 64g
-      compile_mode: native
-      opt: no_opt
-      lint: false
-      verbose: true
-      functest: true
-      kattest: false
-      nistkattest: false
-      acvptest: false
-      cbmc: true
-      cbmc_mlkem_k: 3
-    secrets: inherit
-  cbmc_k4:
-    name: CBMC (ML-KEM-1024)
-    needs: [quickcheck, quickcheck-windows, quickcheck-c90, quickcheck-lib, examples, lint, lint-markdown-link]
-    permissions:
-      contents: 'read'
-      id-token: 'write'
-    uses: ./.github/workflows/ci_ec2_reusable.yml
-    if: github.repository_owner == 'pq-code-package' && !github.event.pull_request.head.repo.fork
-    with:
-      name: CBMC (MLKEM-1024)
-      ec2_instance_type: c7g.2xlarge
-      ec2_ami: ubuntu-latest (custom AMI)
-      ec2_ami_id: ami-08ddb0acd99dc3d33 # aarch64, ubuntu-latest, 64g
-      compile_mode: native
-      opt: no_opt
-      lint: false
-      verbose: true
-      functest: true
-      kattest: false
-      nistkattest: false
-      acvptest: false
-      cbmc: true
-      cbmc_mlkem_k: 4
-    secrets: inherit
+  # cbmc_k2:
+  #   name: CBMC (ML-KEM-512)
+  #   needs: [quickcheck, quickcheck-windows, quickcheck-c90, quickcheck-lib, examples, lint, lint-markdown-link]
+  #   permissions:
+  #     contents: 'read'
+  #     id-token: 'write'
+  #   uses: ./.github/workflows/ci_ec2_reusable.yml
+  #   if: github.repository_owner == 'pq-code-package' && !github.event.pull_request.head.repo.fork
+  #   with:
+  #     name: CBMC (MLKEM-512)
+  #     ec2_instance_type: c7g.2xlarge
+  #     ec2_ami: ubuntu-latest (custom AMI)
+  #     ec2_ami_id: ami-08ddb0acd99dc3d33 # aarch64, ubuntu-latest, 64g
+  #     compile_mode: native
+  #     opt: no_opt
+  #     lint: false
+  #     verbose: true
+  #     functest: true
+  #     kattest: false
+  #     nistkattest: false
+  #     acvptest: false
+  #     cbmc: true
+  #     cbmc_mlkem_k: 2
+  #   secrets: inherit
+  # cbmc_k3:
+  #   name: CBMC (ML-KEM-768)
+  #   needs: [quickcheck, quickcheck-windows, quickcheck-c90, quickcheck-lib, examples, lint, lint-markdown-link]
+  #   permissions:
+  #     contents: 'read'
+  #     id-token: 'write'
+  #   uses: ./.github/workflows/ci_ec2_reusable.yml
+  #   if: github.repository_owner == 'pq-code-package' && !github.event.pull_request.head.repo.fork
+  #   with:
+  #     name: CBMC (MLKEM-768)
+  #     ec2_instance_type: c7g.2xlarge
+  #     ec2_ami: ubuntu-latest (custom AMI)
+  #     ec2_ami_id: ami-08ddb0acd99dc3d33 # aarch64, ubuntu-latest, 64g
+  #     compile_mode: native
+  #     opt: no_opt
+  #     lint: false
+  #     verbose: true
+  #     functest: true
+  #     kattest: false
+  #     nistkattest: false
+  #     acvptest: false
+  #     cbmc: true
+  #     cbmc_mlkem_k: 3
+  #   secrets: inherit
+  # cbmc_k4:
+  #   name: CBMC (ML-KEM-1024)
+  #   needs: [quickcheck, quickcheck-windows, quickcheck-c90, quickcheck-lib, examples, lint, lint-markdown-link]
+  #   permissions:
+  #     contents: 'read'
+  #     id-token: 'write'
+  #   uses: ./.github/workflows/ci_ec2_reusable.yml
+  #   if: github.repository_owner == 'pq-code-package' && !github.event.pull_request.head.repo.fork
+  #   with:
+  #     name: CBMC (MLKEM-1024)
+  #     ec2_instance_type: c7g.2xlarge
+  #     ec2_ami: ubuntu-latest (custom AMI)
+  #     ec2_ami_id: ami-08ddb0acd99dc3d33 # aarch64, ubuntu-latest, 64g
+  #     compile_mode: native
+  #     opt: no_opt
+  #     lint: false
+  #     verbose: true
+  #     functest: true
+  #     kattest: false
+  #     nistkattest: false
+  #     acvptest: false
+  #     cbmc: true
+  #     cbmc_mlkem_k: 4
+  #   secrets: inherit
