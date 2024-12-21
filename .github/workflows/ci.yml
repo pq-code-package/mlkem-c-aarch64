@@ -440,24 +440,29 @@ jobs:
       fail-fast: false
       matrix:
         container:
-          - id: fedora:38
-          - id: fedora:39
-          - id: fedora:40
+          - id: debian:bullseye
+          - id: debian:bookworm
     name: Compatibility tests (${{ matrix.container.id }})
     runs-on: ubuntu-latest
     container:
-      ${{ inputs.container }}
+      ${{ matrix.container.id }}
     steps:
+      # We're not using the checkout action here because on it's not supported
+      # on all containers we want to test. Resort to a manual checkout.
+      #
+      # We can't hoist this into an action since calling an action can only
+      # be done after checkout.
       - name: Manual checkout
         shell: bash
         run: |
-          if which yum; then
+          if (/usr/bin/which yum 2>&1 > /dev/null); then
              yum install git -y
-          elif which apt; then
+          elif (/usr/bin/which apt 2>&1 > /dev/null); then
              apt update
              apt install git -y
           fi
 
+          git config --global --add safe.directory $GITHUB_WORKSPACE
           git init
           git remote add origin $GITHUB_SERVER_URL/$GITHUB_REPOSITORY
           git fetch origin --depth 1 $GITHUB_SHA
@@ -475,16 +480,9 @@ jobs:
         with:
           nix-shell: ""
           gh_token: ${{ secrets.AWS_GITHUB_TOKEN }}
-          cflags: ${{ inputs.cflags }}
-          compile_mode: ${{ inputs.compile_mode }}
-          opt: ${{ inputs.opt }}
-          func: ${{ inputs.functest }}
-          kat: ${{ inputs.kattest }}
-          nistkat: ${{ inputs.nistkattest }}
-          acvp: ${{ inputs.acvptest }}
   ec2_compatibilitytests:
     strategy:
-      max-parallel: 8
+      max-parallel: 12
       fail-fast: false
       matrix:
         container:
@@ -512,12 +510,12 @@ jobs:
     permissions:
       contents: 'read'
       id-token: 'write'
-    uses: ./.github/workflows/ci_ec2_reusable.yml
+    uses: ./.github/workflows/ci_ec2_container.yml
     if: github.repository_owner == 'pq-code-package' && !github.event.pull_request.head.repo.fork
     with:
       container: ${{ matrix.container.id }}
       name: ${{ matrix.container.id }}
-      ec2_instance_type: c7g.medium
+      ec2_instance_type: t4g.small
       ec2_ami: ubuntu-latest (custom AMI)
       ec2_ami_id: ami-0c9bc1901ef0d1066 # Has docker images preinstalled
       compile_mode: native
