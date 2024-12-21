@@ -385,7 +385,6 @@ jobs:
           kat: false
           acvp: false
   ec2_functests:
-    needs: [quickcheck, quickcheck-windows, quickcheck-c90, quickcheck-lib, examples, lint, lint-markdown-link]
     strategy:
       fail-fast: false
       matrix:
@@ -419,6 +418,7 @@ jobs:
       contents: 'read'
       id-token: 'write'
     uses: ./.github/workflows/ci_ec2_reusable.yml
+    needs: [quickcheck, quickcheck-windows, quickcheck-c90, quickcheck-lib, examples, lint, lint-markdown-link]
     if: github.repository_owner == 'pq-code-package' && !github.event.pull_request.head.repo.fork
     with:
       name: ${{ matrix.target.name }}
@@ -427,6 +427,44 @@ jobs:
       ec2_ami_id: ${{ matrix.target.ec2_ami_id }}
       compile_mode: ${{ matrix.target.compile_mode }}
       opt: ${{ matrix.target.opt }}
+      functest: true
+      kattest: true
+      nistkattest: true
+      acvptest: true
+      lint: false
+      verbose: true
+    secrets: inherit
+  ec2_compatibilitytests:
+    strategy:
+      fail-fast: false
+      matrix:
+        container:
+          - id: ubuntu-22.04:gcc-12x
+          - id: ubuntu-22.04:gcc-11x
+          - id: ubuntu-20.04:gcc-8x
+          - id: ubuntu-20.04:gcc-7x
+          - id: ubuntu-20.04:clang-9x
+          - id: ubuntu-20.04:clang-8x
+          - id: ubuntu-20.04:clang-7x-bm-framework
+          - id: ubuntu-20.04:clang-7x
+          - id: ubuntu-20.04:clang-10x
+          - id: ubuntu-22.04:base
+          - id: ubuntu-20.04:base
+    name: Compatibility tests (${{ matrix.container.id }})
+    needs: [ec2_functests]
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+    uses: ./.github/workflows/ci_ec2_reusable.yml
+    if: github.repository_owner == 'pq-code-package' && !github.event.pull_request.head.repo.fork
+    with:
+      container: ${{ matrix.container.id }}
+      name: ${{ matrix.container.id }}
+      ec2_instance_type: c7g.medium
+      ec2_ami: ubuntu-latest (custom AMI)
+      ec2_ami_id: ami-0f4b26c5372aa0525 # Has docker images preinstalled
+      compile_mode: native
+      opt: all
       functest: true
       kattest: true
       nistkattest: true
