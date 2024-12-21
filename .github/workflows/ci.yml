@@ -455,9 +455,9 @@ jobs:
       - name: Manual checkout
         shell: bash
         run: |
-          if (/usr/bin/which yum 2>&1 > /dev/null); then
+          if (which yum > /dev/null); then
              yum install git -y
-          elif (/usr/bin/which apt 2>&1 > /dev/null); then
+          elif (which apt > /dev/null); then
              apt update
              apt install git -y
           fi

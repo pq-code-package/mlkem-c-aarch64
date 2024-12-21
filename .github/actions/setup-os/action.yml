@@ -18,9 +18,9 @@ runs:
     - name: Detect OS
       shell: bash
       run: |
-        if (/usr/bin/which yum 2>&1 > /dev/null); then
+        if (which yum > /dev/null); then
            echo PKG="yum" >> $GITHUB_ENV
-        elif (/usr/bin/which apt 2>&1 > /dev/null); then
+        elif (which apt > /dev/null); then
            echo PKG="apt" >> $GITHUB_ENV
         fi
     - name: Setup via yum
