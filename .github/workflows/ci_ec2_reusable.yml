@@ -127,10 +127,21 @@ jobs:
         shell: bash
         run: |
           echo "Hello World"
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Install gti
+        run: |
+          apt update
+          apt install git -y
+      - name: Checkout
+        run: |
+          cd $GITHUB_WORKSPACE
+          git init
+          git remote add origin $GITHUB_SERVER_URL/$GITHUB_REPOSITORY
+          git fetch --depth 1 origin $GITHUB_SHA
+          git checkout FETCH_HEAD
       - uses: ./.github/actions/setup-ubuntu
         with:
           sudo: ""
+          packages: "git"
       - name: make quickcheck
         run: |
           OPT=0 make quickcheck >/dev/null
